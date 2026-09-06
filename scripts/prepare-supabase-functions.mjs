@@ -18,7 +18,7 @@ for (const name of fs.readdirSync(fnRoot)) {
   const targetDir = path.join(out, name);
   fs.mkdirSync(targetDir, { recursive: true });
   let code = fs.readFileSync(entry, 'utf8');
-  code = code.replace(/import\\s+\\{\\s*createClientFromRequest\\s*\\}\\s+from\\s+'npm:@base44\\/sdk@[^']+';/, "import { createClientFromRequest } from '../_shared/base44Compat.ts';");
+  code = code.replace(/import\s+\{\s*createClientFromRequest\s*\}\s+from\s+'npm:@base44\/sdk@[^']+';/, "import { createClientFromRequest } from '../_shared/base44Compat.ts';");
   fs.writeFileSync(path.join(targetDir, 'index.ts'), code);
 }
 console.log(`Prepared ${fs.readdirSync(fnRoot).length} Supabase Edge Functions.`);
