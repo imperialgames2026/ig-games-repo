@@ -1,102 +1,53 @@
-import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
-  const [isLoadingPublicSettings, setIsLoadingPublicSettings] = useState(false);
+  const [isLoadingPublicSettings] = useState(false);
   const [authError, setAuthError] = useState(null);
-  const [appPublicSettings, setAppPublicSettings] = useState(null);
+  const [appPublicSettings] = useState({ provider: 'supabase' });
 
-  const loadUserProfile = useCallback(async (authUser) => {
-    if (!authUser) {
-      setUser(null);
-      setIsAuthenticated(false);
-      return;
-    }
-
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', authUser.id)
-      .maybeSingle();
-
-    if (error) {
-      console.error('Failed to load user profile:', error);
-      setAuthError({ type: 'profile_error', message: error.message });
-    }
-
-    setUser({
-      id: authUser.id,
-      email: authUser.email,
-      ...profile,
-    });
+  const loadSessionUser = async (sessionUser) => {
+    if (!sessionUser) { setUser(null); setIsAuthenticated(false); return; }
+    const { data: profile, error } = await supabase.from('profiles').select('*').eq('id', sessionUser.id).single();
+    if (error) throw error;
+    setUser({ ...profile, id: sessionUser.id, email: sessionUser.email });
     setIsAuthenticated(true);
-  }, []);
+  };
 
-  const checkAppState = useCallback(async () => {
-    setIsLoadingAuth(true);
-    setAuthError(null);
+  const checkAppState = async () => {
+    setIsLoadingAuth(true); setAuthError(null);
     try {
-      const { data: { user: authUser }, error } = await supabase.auth.getUser();
-      if (error && error.name !== 'AuthSessionMissingError') throw error;
-      await loadUserProfile(authUser);
+      const { data } = await supabase.auth.getSession();
+      await loadSessionUser(data.session?.user ?? null);
     } catch (error) {
-      console.error('Auth state check failed:', error);
-      setUser(null);
-      setIsAuthenticated(false);
-      setAuthError({ type: 'unknown', message: error.message || 'Failed to load authentication state' });
-    } finally {
-      setIsLoadingAuth(false);
-    }
-  }, [loadUserProfile]);
+      console.error('Supabase auth check failed:', error);
+      setAuthError({ type: 'unknown', message: error.message || 'Failed to load session' });
+      setUser(null); setIsAuthenticated(false);
+    } finally { setIsLoadingAuth(false); }
+  };
 
   useEffect(() => {
-    let mounted = true;
-
     checkAppState();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (!mounted) return;
-      await loadUserProfile(session?.user ?? null);
-      setIsLoadingAuth(false);
+    const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
+      setTimeout(() => loadSessionUser(session?.user ?? null).catch(error => {
+        console.error('Failed to load profile:', error);
+        setAuthError({ type: 'unknown', message: error.message || 'Failed to load profile' });
+      }), 0);
     });
+    return () => subscription.subscription.unsubscribe();
+  }, []);
 
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
-  }, [checkAppState, loadUserProfile]);
-
-  const logout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) console.error('Logout failed:', error);
-    setUser(null);
-    setIsAuthenticated(false);
+  const logout = async (shouldRedirect = true) => {
+    await supabase.auth.signOut(); setUser(null); setIsAuthenticated(false);
+    if (shouldRedirect) window.location.assign('/login');
   };
 
-  const navigateToLogin = () => {
-    window.location.assign('/login');
-  };
-
-  return (
-    <AuthContext.Provider value={{
-      user,
-      isAuthenticated,
-      isLoadingAuth,
-      isLoadingPublicSettings,
-      authError,
-      appPublicSettings,
-      logout,
-      navigateToLogin,
-      checkAppState,
-    }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={{ user, isAuthenticated, isLoadingAuth, isLoadingPublicSettings, authError, appPublicSettings, logout, navigateToLogin: () => window.location.assign('/login'), checkAppState }}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {
