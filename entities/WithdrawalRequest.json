@@ -1,0 +1,58 @@
+{
+  "name": "WithdrawalRequest",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User email"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Requested amount"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "crypto_wallet",
+        "bank_transfer",
+        "manual"
+      ],
+      "description": "Withdrawal method"
+    },
+    "payment_details": {
+      "type": "string",
+      "description": "Destination details"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "paid",
+        "rejected"
+      ],
+      "default": "pending"
+    },
+    "admin_note": {
+      "type": "string"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "audit_flag": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this request triggered a high-withdraw audit alert"
+    },
+    "audit_reason": {
+      "type": "string",
+      "description": "Why the request was flagged"
+    }
+  },
+  "required": [
+    "user_email",
+    "amount",
+    "payment_method"
+  ]
+}
