@@ -19,7 +19,7 @@ for (const name of fs.readdirSync(fnRoot)) {
   fs.mkdirSync(targetDir, { recursive: true });
   let code = fs.readFileSync(entry, 'utf8');
   code = code.replace(
-  /import\s+\{\s*createClientFromRequest\s*\}\s+from\s+['"]npm:@base44\/sdk[^'"]+['"];?/g,
+  /import\s+\{\s*createClientFromRequest\s*\}\s+from\s+['"]npm:@base44\/sdk[^'"]+[];?/g,
   "import { createClientFromRequest } from '../_shared/base44Compat.ts';"
 );
   fs.writeFileSync(path.join(targetDir, 'index.ts'), code);
