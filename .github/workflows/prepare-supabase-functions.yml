@@ -1,0 +1,18 @@
+name: Prepare Supabase Edge Functions
+on:
+  workflow_dispatch:
+  push:
+    branches: [migration/supabase-foundation, migration/supabase-finalization]
+permissions:
+  contents: read
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download preserved archive
+        run: curl -fsSL https://github.com/imperialgames2026/casino-zip/raw/refs/heads/main/ig-games.zip -o ig-games.zip
+      - name: Extract and port functions
+        run: node scripts/prepare-supabase-functions.mjs
+      - name: Verify 61 original functions are present
+        run: test "$(find supabase/functions -mindepth 2 -name index.ts | wc -l)" -ge 61
