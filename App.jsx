@@ -1,5 +1,4 @@
 import React from 'react';
-import { base44 } from '@/api/base44Client';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -37,16 +36,12 @@ import AdminIGTSupply from './pages/AdminIGTSupply';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 
-// Guard: blocks excluded users from play pages
 function ExcludedGuard({ children }) {
-  const [status, setStatus] = React.useState('loading'); // loading | ok | excluded
-  React.useEffect(() => {
-    base44.auth.me().then(u => setStatus(u?.is_excluded ? 'excluded' : 'ok')).catch(() => setStatus('ok'));
-  }, []);
-  if (status === 'loading') return null;
-  if (status === 'excluded') return <ExclusionBanner />;
+  const { user } = useAuth();
+  if (user?.is_excluded) return <ExclusionBanner />;
   return children;
 }
+
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
 const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
 
@@ -55,10 +50,9 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   : <>{children}</>;
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { isLoadingAuth, authError, navigateToLogin } = useAuth();
 
-  // Show loading spinner while checking app public settings or auth
-  if (isLoadingPublicSettings || isLoadingAuth) {
+  if (isLoadingAuth) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
@@ -66,35 +60,19 @@ const AuthenticatedApp = () => {
     );
   }
 
-  // Handle authentication errors
   if (authError) {
-    if (authError.type === 'user_not_registered') {
-      return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
-      // Redirect to login automatically
+    if (authError.type === 'user_not_registered') return <UserNotRegisteredError />;
+    if (authError.type === 'auth_required') {
       navigateToLogin();
       return null;
     }
   }
 
-  // Render the main app
   return (
     <Routes>
-      <Route path="/" element={
-        <LayoutWrapper currentPageName={mainPageKey}>
-          <MainPage />
-        </LayoutWrapper>
-      } />
+      <Route path="/" element={<LayoutWrapper currentPageName={mainPageKey}><MainPage /></LayoutWrapper>} />
       {Object.entries(Pages).map(([path, Page]) => (
-        <Route
-          key={path}
-          path={`/${path}`}
-          element={
-            <LayoutWrapper currentPageName={path}>
-              <Page />
-            </LayoutWrapper>
-          }
-        />
+        <Route key={path} path={`/${path}`} element={<LayoutWrapper currentPageName={path}><Page /></LayoutWrapper>} />
       ))}
       <Route path="/PlayImperialLightning" element={<ExcludedGuard><PlayImperialLightning /></ExcludedGuard>} />
       <Route path="/BlackjackLobby" element={<LayoutWrapper currentPageName="BlackjackLobby"><BlackjackLobby /></LayoutWrapper>} />
@@ -125,19 +103,13 @@ const AuthenticatedApp = () => {
   );
 };
 
-
 function App() {
   React.useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-    const applyTheme = (isDark) => {
-      document.documentElement.classList.toggle('dark', isDark);
-    };
-
+    const applyTheme = (isDark) => document.documentElement.classList.toggle('dark', isDark);
     applyTheme(mediaQuery.matches);
     const handleChange = (event) => applyTheme(event.matches);
     mediaQuery.addEventListener('change', handleChange);
-
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
