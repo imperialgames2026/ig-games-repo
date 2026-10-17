@@ -52,3 +52,5 @@ jobs:
         run: npm run build
 
 # CI build verification for the Supabase migration branch.
+
+# The build runs after archive recovery so restored files are verified as part of CI.
