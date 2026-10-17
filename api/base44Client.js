@@ -11,6 +11,9 @@ const ENTITY_TABLES = {
 
 const CORE_ENTITIES = new Set(Object.keys(ENTITY_TABLES));
 const FUNCTION_NAME = 'api';
+// No Supabase Edge Functions are deployed in this environment yet.
+// Explicit opt-in prevents legacy operations from silently appearing functional.
+const LEGACY_EDGE_FUNCTIONS_ENABLED = import.meta.env.VITE_ENABLE_LEGACY_EDGE_FUNCTIONS === 'true';
 
 function mapRow(entity, row) {
   if (!row) return row;
@@ -204,6 +207,9 @@ export const base44 = {
   },
   functions: {
     async invoke(name, options = {}) {
+      if (!LEGACY_EDGE_FUNCTIONS_ENABLED) {
+        throw new Error(`Backend operation "${name}" is unavailable: secure Supabase handler not verified. No transaction was submitted.`);
+      }
       const body = options?.body ?? options ?? {};
       const { data, error } = await supabase.functions.invoke(FUNCTION_NAME, { body: { functionName: name, payload: body } });
       if (error) throw error;
