@@ -113,7 +113,7 @@ function buildCoreEntity(entity, table) {
       return mapRow(entity, row);
     },
     async delete(id) {
-      if (entity === 'UserWallet' || entity === 'Transaction') throw new Error(`${entity} is server-controlled.`);
+      if (READ_ONLY_CORE_ENTITIES.has(entity)) throw legacyWriteBlocked(entity);
       const { error } = await supabase.from(table).delete().eq('id', id);
       if (error) throw error;
     },
