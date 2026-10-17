@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
 import {
   Dialog,
   DialogContent,
@@ -9,34 +8,18 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { CreditCard, Mail, ExternalLink, Loader2 } from 'lucide-react';
+import { CreditCard, Mail } from 'lucide-react';
 
 export default function CryptoPaymentDialog({ pack, children }) {
   const [open, setOpen] = useState(false);
   const [view, setView] = useState('select'); // 'select' | 'crypto' | 'fiat'
-  const [isLoadingCheckout, setIsLoadingCheckout] = useState(false);
+
 
   const reset = () => {
     setView('select');
     setOpen(false);
   };
 
-  const handleCardCheckout = async () => {
-    setIsLoadingCheckout(true);
-    const response = await base44.functions.invoke('create-checkout', {
-      packId: pack?.id,
-      packName: pack?.name,
-      price: pack?.price,
-      tokens: pack?.tokens,
-      cat_dollars: pack?.cat_dollars,
-    });
-    const redirectUrl = response?.data?.checkoutUrl || response?.data?.redirectUrl;
-    if (redirectUrl) {
-      window.location.href = redirectUrl;
-      return;
-    }
-    setIsLoadingCheckout(false);
-  };
 
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setView('select'); }}>
@@ -132,13 +115,13 @@ export default function CryptoPaymentDialog({ pack, children }) {
               </p>
             </div>
             <button
-              onClick={handleCardCheckout}
-              disabled={isLoadingCheckout}
+              disabled
+              
               className="flex items-center justify-center gap-2 w-full p-3 rounded-xl bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 transition-all text-sm font-semibold text-white disabled:opacity-60"
             >
-              {isLoadingCheckout ? <Loader2 className="w-4 h-4 animate-spin" /> : <CreditCard className="w-4 h-4" />}
-              {isLoadingCheckout ? 'Opening Base44 Payments...' : `Pay $${(pack?.price || 0).toFixed(2)} Now`}
-              {!isLoadingCheckout && <ExternalLink className="w-4 h-4" />}
+              <CreditCard className="w-4 h-4" />
+              'Checkout unavailable until secure Supabase payment verification is enabled'
+              
             </button>
             <a
               href={`mailto:support@imperialhouse.online?subject=Purchase Help&body=I need help with the $${(pack?.price || 0).toFixed(2)} payment for the ${pack?.name} pack.`}
