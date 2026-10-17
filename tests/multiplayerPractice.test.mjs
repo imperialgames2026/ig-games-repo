@@ -33,9 +33,11 @@ test('database prevents client-managed practice chips and double settlement', ()
   assert.doesNotMatch(sql, /\bupdate\s+public\.wallets\b/i);
 });
 test('multiplayer felt has shooter-only controls and table side-bet zones', () => {
-  for (const name of ['pass','dont_pass','field','any_seven','place_4','place_10']) {
+  for (const name of ['pass','dont_pass','field','any_seven']) {
     assert.ok(felt.includes(name), 'missing craps area '+name);
   }
+  assert.match(felt, /CRAPS_POINTS = \[4,5,6,8,9,10\]/);
+  assert.match(felt, /'place_' \+ num/);
   for (const name of ['red','black','odd','even','dozen_1','column_1','number_0']) {
     assert.ok(felt.includes(name), 'missing roulette area '+name);
   }
