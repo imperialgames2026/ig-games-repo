@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CircleDollarSign, Crown, Dices, RotateCw, Users, ShieldCheck } from 'lucide-react';
+import { Crown, Dices, RotateCw, Users, ShieldCheck } from 'lucide-react';
 import { useMultiplayerPractice } from '@/hooks/useMultiplayerPractice';
 
 const CHIP_VALUES = [1, 5, 10, 25, 100];
@@ -40,7 +40,8 @@ function BetZone({ title, subtitle, target, payout, total, count, disabled, onBe
   );
 }
 
-function CrapsFelt({ table, choose, disabled, canBet }) {
+function CrapsFelt({ table, choose, disabled, canBet, isShooter, onShoot }) {
+  const start = useRef(null);
   const publicTotals = new Map((table.publicBets ?? []).map(b => [b.target, b]));
   const stats = target => publicTotals.get(target) || { units: 0, count: 0 };
   const roll = table.lastResult?.game === 'craps' ? table.lastResult : null;
@@ -60,15 +61,25 @@ function CrapsFelt({ table, choose, disabled, canBet }) {
         </div>
 
         <div className="mb-3 grid grid-cols-3 gap-2">
-          <div className="col-span-2 rounded-xl border border-white/30 bg-black/20 p-3">
+          <div className={"col-span-2 rounded-xl border border-white/30 bg-black/20 p-3 " + (isShooter ? "cursor-grab active:cursor-grabbing" : "")}
+            style={{ touchAction: isShooter ? "none" : "auto" }}
+            onPointerDown={e => { if (isShooter && !disabled) start.current = { x: e.clientX, y: e.clientY }; }}
+            onPointerUp={e => {
+              if (!isShooter || disabled || !start.current) return;
+              const distance = Math.hypot(e.clientX - start.current.x, e.clientY - start.current.y);
+              start.current = null;
+              if (distance >= 45) onShoot(); // Gesture requests a server roll; never determines dice values.
+            }}
+            onPointerCancel={() => { start.current = null; }}>
             <p className="text-xs font-semibold text-yellow-200">SHOOTER BOX</p>
             <div className="mt-2 flex min-h-20 items-center justify-center gap-3">
               {[0,1].map(index => <div key={index}
-                className="flex h-16 w-16 items-center justify-center rounded-lg border-4 border-slate-200 bg-white text-4xl font-black text-gray-950 shadow-xl sm:h-20 sm:w-20">
+                className={"flex h-16 w-16 items-center justify-center rounded-lg border-4 border-slate-200 bg-white text-4xl font-black text-gray-950 shadow-xl sm:h-20 sm:w-20 " + (disabled && isShooter ? "animate-bounce" : "")}>
                 {roll?.dice?.[index] ?? '⚀'}
               </div>)}
             </div>
             <p className="mt-2 text-center text-sm font-semibold">Last total: {roll?.total ?? 'Waiting for first throw'}</p>
+            {isShooter && <p className="mt-1 text-center text-xs font-bold text-amber-200">Swipe across the felt to throw, or press Shoot below</p>}
           </div>
           <div className="rounded-xl border border-white/30 bg-black/20 p-3 text-center">
             <p className="text-xs font-black text-yellow-200">POINT MARKER</p>
@@ -240,7 +251,7 @@ export default function MultiplayerPracticeTable({ game }) {
           <div className="space-y-5">
             {loading && !table ? <div role="status" className="rounded-xl border border-white/10 bg-white/5 p-10 text-center">Connecting to the practice table…</div> : null}
             {table && (game==='craps'
-              ? <CrapsFelt table={table} choose={target=>void placeBet(target,stake)} disabled={busy} canBet={canBet} />
+              ? <CrapsFelt table={table} choose={target=>void placeBet(target,stake)} disabled={busy} canBet={canBet} isShooter={amShooter} onShoot={()=>void runRound()} />
               : <RouletteFelt table={table} choose={target=>void placeBet(target,stake)} disabled={busy} canBet={canBet} />)}
             {table && <section className="rounded-2xl border border-white/10 bg-[#1b1728] p-5">
               <div className="grid gap-5 md:grid-cols-[1fr_auto]">
