@@ -25,6 +25,8 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm install
+      - name: Inspect preserved archive for missing page modules
+        run: unzip -l ig-games.zip | grep -E 'pages/(PlayFarmageddon|PlayerProfile|FairnessManifesto|AdminSweepstakesAudit|Games|Admin)\\.jsx' || true
       - name: Build Vite app
         run: npm run build
 
