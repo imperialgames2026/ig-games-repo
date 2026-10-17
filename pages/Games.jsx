@@ -86,6 +86,29 @@ export default function Games() {
 
       {/* Games */}
       <div className="max-w-7xl mx-auto px-4 py-12">
+        <section aria-label="Available multiplayer practice tables" className="mb-10 rounded-2xl border border-amber-400/20 bg-[#181525] p-5 sm:p-7">
+          <div className="mb-5">
+            <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-300">Staging · Multiplayer practice</p>
+            <h2 className="mt-2 text-2xl font-black text-white">Join a live casino-style table</h2>
+            <p className="mt-2 text-sm text-gray-300">Play beside other signed-in users using imaginary practice chips only. No cryptocurrency, paid wagers, transfers, redemptions or cash prizes.</p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Link to={createPageUrl('PlayCraps')}
+              className="rounded-xl border border-emerald-400/30 bg-gradient-to-br from-emerald-950 to-[#123429] p-5 text-white transition hover:border-amber-300">
+              <div className="text-4xl">🎲</div>
+              <h3 className="mt-2 text-xl font-black">Multiplayer Craps</h3>
+              <p className="mt-2 text-sm text-gray-300">Take the shooter's turn or join the action with Pass Line, Field, Any Seven and Place Number practice bets.</p>
+              <p className="mt-4 text-sm font-bold text-amber-200">Enter craps table →</p>
+            </Link>
+            <Link to={createPageUrl('PlayRoulette')}
+              className="rounded-xl border border-red-400/30 bg-gradient-to-br from-red-950 to-[#2c1a1a] p-5 text-white transition hover:border-amber-300">
+              <div className="text-4xl">🎡</div>
+              <h3 className="mt-2 text-xl font-black">Multiplayer Roulette</h3>
+              <p className="mt-2 text-sm text-gray-300">Join a shared single-zero table, cover your numbers or outside selections, and watch a communal spin.</p>
+              <p className="mt-4 text-sm font-bold text-amber-200">Enter roulette table →</p>
+            </Link>
+          </div>
+        </section>
         <WeeklyTokenLeaderboard />
 
         <Tabs defaultValue="all" className="space-y-8">
