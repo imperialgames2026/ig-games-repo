@@ -89,16 +89,16 @@ declare
   d1 integer; d2 integer; landed integer; total integer;
   point_before integer; point_after integer; payout integer; n integer;
   new_shooter uuid; qualifies boolean; win boolean; multiplier integer;
-  rolled jsonb; current_role text; stake text;
+  rolled jsonb; v_user_role text; stake text;
   reds integer[] := array[1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
 begin
   if p_game not in ('craps','roulette') or p_action not in ('join','bet','roll','spin','claim') then
     raise exception 'invalid action' using errcode='22023';
   end if;
-  select ur.role::text into current_role
+  select ur.role::text into v_user_role
     from public.user_roles ur join public.profiles pr on pr.id=ur.user_id
    where ur.user_id=p_actor and pr.is_excluded=false;
-  if current_role is null or current_role not in ('player','admin','superadmin') then
+  if v_user_role is null or v_user_role not in ('player','admin','superadmin') then
     raise exception 'account not eligible' using errcode='42501';
   end if;
   -- Game actions, chips and order of play share one database row lock.
