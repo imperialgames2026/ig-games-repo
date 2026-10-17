@@ -10,6 +10,9 @@ const ENTITY_TABLES = {
 };
 
 const CORE_ENTITIES = new Set(Object.keys(ENTITY_TABLES));
+// Compatibility reads only: financial, admin and game records must not use generic CRUD.
+const READ_ONLY_CORE_ENTITIES = new Set(['User', 'UserWallet', 'Transaction', 'WeeklyWager', 'WithdrawalRequest', 'TokenPack']);
+const legacyWriteBlocked = (entity) => new Error(`Legacy ${entity} writes are disabled until a dedicated authorized Supabase handler is verified. No mutation was submitted.`);
 const FUNCTION_NAME = 'api';
 // No Supabase Edge Functions are deployed in this environment yet.
 // Explicit opt-in prevents legacy operations from silently appearing functional.
@@ -96,14 +99,14 @@ function buildCoreEntity(entity, table) {
       return (data || []).map(row => mapRow(entity, row));
     },
     async create(data) {
-      if (entity === 'UserWallet' || entity === 'Transaction') throw new Error(`${entity} is server-controlled.`);
+      if (READ_ONLY_CORE_ENTITIES.has(entity)) throw legacyWriteBlocked(entity);
       const user = await getCurrentUser();
       const { data: row, error } = await supabase.from(table).insert(mapCoreData(entity, data, user)).select().single();
       if (error) throw error;
       return mapRow(entity, row);
     },
     async update(id, data) {
-      if (entity === 'UserWallet' || entity === 'Transaction') throw new Error(`${entity} is server-controlled. Use an Edge Function.`);
+      if (READ_ONLY_CORE_ENTITIES.has(entity)) throw legacyWriteBlocked(entity);
       const user = await getCurrentUser();
       const { data: row, error } = await supabase.from(table).update(mapCoreData(entity, data, user)).eq('id', id).select().single();
       if (error) throw error;
@@ -143,25 +146,13 @@ function buildLegacyEntity(entity) {
       return (data || []).map(row => ({ id: row.id, ...row.data, created_at: row.created_at, updated_at: row.updated_at }));
     },
     async create(data) {
-      const user = await getCurrentUser();
-      const payload = { entity, owner_user_id: user?.id ?? null, owner_email: user?.email ?? null, data: { ...(data || {}), user_email: data?.user_email ?? user?.email ?? null } };
-      const { data: row, error } = await supabase.from('app_records').insert(payload).select().single();
-      if (error) throw error;
-      return { id: row.id, ...row.data, created_at: row.created_at, updated_at: row.updated_at };
+      throw legacyWriteBlocked(entity);
     },
     async update(id, data) {
-      const user = await getCurrentUser();
-      const { data: existing, error: readError } = await supabase.from('app_records').select('*').eq('id', id).single();
-      if (readError) throw readError;
-      const merged = { ...(existing.data || {}), ...(data || {}) };
-      const { data: row, error } = await supabase.from('app_records').update({ data: merged }).eq('id', id).eq('owner_user_id', user?.id).select().single();
-      if (error) throw error;
-      return { id: row.id, ...row.data, created_at: row.created_at, updated_at: row.updated_at };
+      throw legacyWriteBlocked(entity);
     },
     async delete(id) {
-      const user = await getCurrentUser();
-      const { error } = await supabase.from('app_records').delete().eq('id', id).eq('owner_user_id', user?.id);
-      if (error) throw error;
+      throw legacyWriteBlocked(entity);
     },
     subscribe(callback) {
       const channel = supabase.channel(`legacy:${entity}:${crypto.randomUUID()}`)
