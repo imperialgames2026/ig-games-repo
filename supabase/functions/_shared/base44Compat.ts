@@ -56,4 +56,36 @@ class EntityApi {
   async delete(id:string){assertWritable(this.user,this.name);const table=tableFor(this.name);const{error}=await admin.from(table).delete().eq('id',id).eq('owner_user_id',this.user.id);if(error)throw error;return{id}}
 }
 
-export function createClientFromRequest(req:Request){let user:any|undefined;const auth={me:async()=>{if(user===undefined)user=await currentUser(req);return user||null},updateMe:async(payload:any)=>{const u=await auth.me();if(!u)throw new Error('Unauthorized');if(u.role==='tester')throw new Error('Read-only account');const{direct,extra}=split('User',payload);delete direct.role;delete direct.is_excluded;delete direct.kyc_status;delete direct.email;delete direct.id;direct.legacy_data={...(u.legacy_data||{}),...extra};const{data,error}=await admin.from('profiles').update(direct).eq('id',u.id).select().single();if(error)throw error;return map('User',data)}};const entities=new Proxy({}, {get:(_t,name:string)=>new EntityApi(name,user)});return{auth,entities,asServiceRole:{entities}}}
+export function createClientFromRequest(req:Request){
+  let userPromise: Promise<any> | undefined;
+  const me = () => userPromise ??= currentUser(req);
+  const auth = {
+    me,
+    updateMe: async (payload:any) => {
+      const u = await me();
+      if (!u) throw new Error('Unauthorized');
+      if (u.role === 'tester') throw new Error('Read-only account');
+      const {direct,extra} = split('User',payload);
+      delete direct.role; delete direct.is_excluded; delete direct.kyc_status;
+      delete direct.email; delete direct.id;
+      const {data,error} = await admin.from('profiles')
+        .update({...direct,legacy_data:{...(u.legacy_data||{}),...extra}})
+        .eq('id',u.id).select().single();
+      if(error) throw error;
+      return map('User',data);
+    }
+  };
+  const entity = (name:string) => new Proxy({}, {
+    get: (_target,method:string) => async (...args:any[]) => {
+      const user = await me();
+      assertAuthenticated(user);
+      const api = new EntityApi(name,user);
+      const operation = (api as any)[method];
+      if (typeof operation !== 'function') throw new Error('Unsupported entity operation');
+      return operation.apply(api,args);
+    }
+  });
+  const entities = new Proxy({}, {get:(_target,name:string)=>entity(name)});
+  // Legacy service-role callers must not bypass user authorization.
+  return {auth,entities,asServiceRole:{entities}};
+}
