@@ -1,0 +1,45 @@
+name: Frontend integration audit
+on:
+  push:
+    branches: [integration/casino-zip]
+    paths:
+      - 'scripts/audit-frontend-integration.py'
+      - '.github/workflows/frontend-integration-audit.yml'
+      - 'pages/**'
+      - 'components/**'
+      - 'api/**'
+      - 'lib/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Generate machine-readable audit
+        run: python scripts/audit-frontend-integration.py > frontend-integration-audit.json
+      - name: Assert original screens and components are present
+        run: |
+          python - <<'PY'
+          import json
+          d=json.load(open('frontend-integration-audit.json'))
+          print('Original source files:',d['original_source_files'])
+          print('Active pages:',d['active_page_count'])
+          print('Legacy function invocations:',len(d['legacy_function_calls']))
+          print('Legacy entity accesses:',len(d['legacy_entity_calls']))
+          assert d['original_source_files'] >= 290
+          assert not d['missing_active_source_files'], d['missing_active_source_files']
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontend-integration-audit
+          path: frontend-integration-audit.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
