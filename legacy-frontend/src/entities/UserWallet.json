@@ -1,0 +1,148 @@
+{
+  "name": "UserWallet",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User's email"
+    },
+    "referral_code": {
+      "type": "string",
+      "description": "User's unique 6-digit referral code"
+    },
+    "cent_balance": {
+      "type": "number",
+      "default": 10000,
+      "description": "Current CENT balance"
+    },
+    "igd_balance": {
+      "type": "number",
+      "default": 5,
+      "description": "Current IGD balance"
+    },
+    "igt_balance": {
+      "type": "number",
+      "default": 0,
+      "description": "Current IGT balance"
+    },
+    "staked_igd_balance": {
+      "type": "number",
+      "default": 0,
+      "description": "IGD currently locked in staking"
+    },
+    "total_staking_rewards_igd": {
+      "type": "number",
+      "default": 0,
+      "description": "Total IGD earned from staking"
+    },
+    "total_deposited_igd": {
+      "type": "number",
+      "default": 0,
+      "description": "Total IGD deposited"
+    },
+    "total_wagered_cent": {
+      "type": "number",
+      "default": 0,
+      "description": "Total CENT wagered"
+    },
+    "total_wagered_igd": {
+      "type": "number",
+      "default": 0,
+      "description": "Total IGD wagered"
+    },
+    "total_won_cent": {
+      "type": "number",
+      "default": 0,
+      "description": "Total CENT won"
+    },
+    "total_lost_cent": {
+      "type": "number",
+      "default": 0,
+      "description": "Total CENT lost"
+    },
+    "total_purchased_cent": {
+      "type": "number",
+      "default": 0,
+      "description": "Total CENT purchased"
+    },
+    "experience_points": {
+      "type": "number",
+      "default": 0,
+      "description": "VIP experience points"
+    },
+    "vip_level": {
+      "type": "number",
+      "default": 1,
+      "description": "VIP tier level"
+    },
+    "purchase_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of completed purchases"
+    },
+    "bonus_50_available": {
+      "type": "boolean",
+      "default": true,
+      "description": "50% bonus available for 1st purchase"
+    },
+    "bonus_100_available": {
+      "type": "boolean",
+      "default": true,
+      "description": "100% bonus available for 2nd purchase"
+    },
+    "bonus_150_available": {
+      "type": "boolean",
+      "default": true,
+      "description": "150% bonus available for 3rd purchase"
+    },
+    "active_bonus": {
+      "type": "number",
+      "default": 0,
+      "description": "Currently activated bonus percentage"
+    },
+    "free_spins": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of free spins available"
+    },
+    "free_spin_bet_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "Bet amount per free spin"
+    },
+    "free_spin_game": {
+      "type": "string",
+      "default": "wheel",
+      "description": "Game the free spins are for"
+    }
+  },
+  "required": [
+    "user_email"
+  ],
+  "rls": {
+    "create": {
+      "data.user_email": "{{user.email}}"
+    },
+    "read": {
+      "data.user_email": "{{user.email}}"
+    },
+    "update": {
+      "data.user_email": "{{user.email}}",
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.user_email": "{{user.email}}"
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

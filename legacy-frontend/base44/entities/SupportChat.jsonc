@@ -1,0 +1,82 @@
+{
+  "name": "SupportChat",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User who initiated the chat"
+    },
+    "admin_email": {
+      "type": "string",
+      "description": "Admin handling the chat (if assigned)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "in_progress",
+        "closed"
+      ],
+      "default": "open",
+      "description": "Chat status"
+    },
+    "messages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sender_email": {
+            "type": "string"
+          },
+          "sender_name": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "is_admin": {
+            "type": "boolean"
+          }
+        }
+      },
+      "default": [],
+      "description": "Chat message history"
+    },
+    "last_message_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of last message"
+    },
+    "user_name": {
+      "type": "string",
+      "description": "Display name of user"
+    },
+    "ai_needs_human_review": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether AI flagged this chat for human review"
+    },
+    "ai_support_note": {
+      "type": "string",
+      "description": "Internal AI-generated support note for admins"
+    },
+    "ai_action_type": {
+      "type": "string",
+      "enum": [
+        "none",
+        "support_only",
+        "kyc_help"
+      ],
+      "default": "none",
+      "description": "What kind of admin help the AI requested"
+    }
+  },
+  "required": [
+    "user_email",
+    "status"
+  ]
+}

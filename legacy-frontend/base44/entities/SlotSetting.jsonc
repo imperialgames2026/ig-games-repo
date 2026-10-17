@@ -1,0 +1,91 @@
+{
+  "name": "SlotSetting",
+  "type": "object",
+  "properties": {
+    "slot_type": {
+      "type": "string",
+      "description": "Slot game identifier, e.g. farmageddon"
+    },
+    "high_weight": {
+      "type": "number",
+      "default": 10,
+      "description": "Total drop weight for high symbols"
+    },
+    "medium_weight": {
+      "type": "number",
+      "default": 76,
+      "description": "Total drop weight for medium symbols"
+    },
+    "low_weight": {
+      "type": "number",
+      "default": 300,
+      "description": "Total drop weight for low symbols"
+    }
+  },
+  "required": [
+    "slot_type"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "tester"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    }
+  }
+}

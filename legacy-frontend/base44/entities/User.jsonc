@@ -1,0 +1,175 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "profile_picture": {
+      "type": "string",
+      "description": "URL to user's profile picture"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "user",
+        "tester",
+        "admin",
+        "superadmin"
+      ],
+      "default": "user",
+      "description": "User role \u2014 superadmin has exclusive access to wallet management, session data, and KYC override"
+    },
+    "username": {
+      "type": "string",
+      "description": "Player username chosen by the user"
+    },
+    "username_normalized": {
+      "type": "string",
+      "description": "Lowercase username used for uniqueness checks"
+    },
+    "account_number": {
+      "type": "string",
+      "description": "Unique sequential account number assigned to the user"
+    },
+    "kyc_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "submitted",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending",
+      "description": "KYC verification status"
+    },
+    "kyc_selfie_url": {
+      "type": "string",
+      "description": "URL to uploaded selfie for KYC"
+    },
+    "kyc_id_url": {
+      "type": "string",
+      "description": "URL to uploaded ID document for KYC"
+    },
+    "kyc_submitted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When KYC was submitted"
+    },
+    "kyc_reviewed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When KYC was reviewed by admin"
+    },
+    "kyc_notes": {
+      "type": "string",
+      "description": "Admin notes about KYC verification"
+    },
+    "phone_number": {
+      "type": "string",
+      "description": "Verified user phone number"
+    },
+    "phone_verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the user phone number was verified"
+    },
+    "phone_verified_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When phone verification was completed"
+    },
+    "pending_phone_number": {
+      "type": "string",
+      "description": "Phone number awaiting verification"
+    },
+    "pending_phone_verification_code": {
+      "type": "string",
+      "description": "Temporary phone verification code"
+    },
+    "pending_phone_verification_expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the pending phone code expires"
+    },
+    "email_verified_for_kyc": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the user confirmed their email during KYC"
+    },
+    "email_verified_for_kyc_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When email confirmation for KYC was completed"
+    },
+    "pending_email_verification_code": {
+      "type": "string",
+      "description": "Temporary email verification code"
+    },
+    "pending_email_verification_expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the pending email code expires"
+    },
+    "is_excluded": {
+      "type": "boolean",
+      "default": false,
+      "description": "Account exclusion \u2014 user can only withdraw, no gameplay or purchases"
+    },
+    "excluded_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When exclusion was invoked"
+    },
+    "excluded_by": {
+      "type": "string",
+      "description": "Admin email who invoked exclusion"
+    },
+    "last_ip": {
+      "type": "string",
+      "description": "Last known IP address"
+    },
+    "last_location": {
+      "type": "string",
+      "description": "Last known geolocation (city/country from IP)"
+    },
+    "last_user_agent": {
+      "type": "string",
+      "description": "Last known browser/device user agent"
+    },
+    "last_seen_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last activity timestamp"
+    },
+    "ip_history": {
+      "type": "array",
+      "description": "Historical IP addresses used",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ip": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "ts": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
+    },
+    "device_fingerprint": {
+      "type": "string",
+      "description": "Browser/device fingerprint hash"
+    },
+    "registration_ip": {
+      "type": "string",
+      "description": "IP address at time of registration"
+    },
+    "registration_location": {
+      "type": "string",
+      "description": "Location at time of registration"
+    }
+  },
+  "required": []
+}

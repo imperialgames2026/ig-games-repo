@@ -1,0 +1,76 @@
+{
+  "name": "UserQuest",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User's email"
+    },
+    "quest_id": {
+      "type": "string",
+      "description": "Reference to Quest entity"
+    },
+    "progress": {
+      "type": "number",
+      "default": 0,
+      "description": "Current progress toward objective"
+    },
+    "is_completed": {
+      "type": "boolean",
+      "default": false
+    },
+    "is_claimed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether rewards have been claimed"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When quest was completed"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When quest expires"
+    }
+  },
+  "required": [
+    "user_email",
+    "quest_id"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "data.user_email": "{{user.email}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

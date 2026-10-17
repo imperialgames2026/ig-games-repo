@@ -1,0 +1,88 @@
+{
+  "name": "SweepstakesEntry",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Entrant email"
+    },
+    "entry_source": {
+      "type": "string",
+      "enum": [
+        "purchase",
+        "amoe"
+      ],
+      "description": "How the entry was created"
+    },
+    "source_reference": {
+      "type": "string",
+      "description": "Optional source record id or reference"
+    },
+    "entry_count": {
+      "type": "number",
+      "default": 1,
+      "description": "Number of entries granted"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "eligible",
+        "selected",
+        "void",
+        "used"
+      ],
+      "default": "eligible",
+      "description": "Audit status of the entry"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Internal audit notes"
+    }
+  },
+  "required": [
+    "user_email",
+    "entry_source"
+  ],
+  "rls": {
+    "create": {
+      "data.user_email": "{{user.email}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "superadmin"
+      }
+    }
+  }
+}

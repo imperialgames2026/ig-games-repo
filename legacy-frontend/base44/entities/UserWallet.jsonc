@@ -1,0 +1,133 @@
+{
+  "name": "UserWallet",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User's email"
+    },
+    "referral_code": {
+      "type": "string",
+      "description": "User's unique 6-digit referral code"
+    },
+    "tokens": {
+      "type": "number",
+      "default": 1000,
+      "description": "Current Imperial Gaming Coins (IGC) balance"
+    },
+    "cat_dollars": {
+      "type": "number",
+      "default": 0,
+      "description": "Imperial Gaming USD (IGUSD) balance"
+    },
+    "igt_tokens": {
+      "type": "number",
+      "default": 0,
+      "description": "Imperial Gaming Tokens (IGT) balance"
+    },
+    "total_deposited": {
+      "type": "number",
+      "default": 0,
+      "description": "Total Imperial Dollars deposited (purchases)"
+    },
+    "total_wagered": {
+      "type": "number",
+      "default": 0,
+      "description": "Total amount wagered in games"
+    },
+    "total_won": {
+      "type": "number",
+      "default": 0,
+      "description": "Total tokens won"
+    },
+    "total_lost": {
+      "type": "number",
+      "default": 0,
+      "description": "Total tokens lost"
+    },
+    "total_purchased": {
+      "type": "number",
+      "default": 0,
+      "description": "Total tokens purchased"
+    },
+    "experience_points": {
+      "type": "number",
+      "default": 0,
+      "description": "VIP experience points (1 XP per $1 wagered equivalent)"
+    },
+    "vip_level": {
+      "type": "number",
+      "default": 1,
+      "description": "VIP tier level"
+    },
+    "purchase_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of completed purchases"
+    },
+    "bonus_50_available": {
+      "type": "boolean",
+      "default": true,
+      "description": "50% bonus available for 1st purchase"
+    },
+    "bonus_100_available": {
+      "type": "boolean",
+      "default": true,
+      "description": "100% bonus available for 2nd purchase"
+    },
+    "bonus_150_available": {
+      "type": "boolean",
+      "default": true,
+      "description": "150% bonus available for 3rd purchase"
+    },
+    "active_bonus": {
+      "type": "number",
+      "default": 0,
+      "description": "Currently activated bonus percentage (0 if none)"
+    },
+    "free_spins": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of free spins available"
+    },
+    "free_spin_bet_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "Bet amount per free spin"
+    },
+    "free_spin_game": {
+      "type": "string",
+      "default": "wheel",
+      "description": "Game the free spins are for (e.g. wheel, slots)"
+    }
+  },
+  "required": [
+    "user_email"
+  ],
+  "rls": {
+    "create": {
+      "data.user_email": "{{user.email}}"
+    },
+    "read": {
+      "data.user_email": "{{user.email}}"
+    },
+    "update": {
+      "data.user_email": "{{user.email}}",
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.user_email": "{{user.email}}"
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

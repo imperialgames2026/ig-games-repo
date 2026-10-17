@@ -1,0 +1,104 @@
+{
+  "name": "CryptoTransfer",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User email"
+    },
+    "transfer_type": {
+      "type": "string",
+      "enum": [
+        "deposit",
+        "withdrawal"
+      ],
+      "description": "Whether this is a deposit or withdrawal"
+    },
+    "asset": {
+      "type": "string",
+      "enum": [
+        "BTC",
+        "ETH",
+        "USDT",
+        "USDC",
+        "SOL"
+      ],
+      "description": "Crypto asset"
+    },
+    "network": {
+      "type": "string",
+      "description": "Blockchain network"
+    },
+    "wallet_address": {
+      "type": "string",
+      "description": "Destination or source wallet address"
+    },
+    "reference_code": {
+      "type": "string",
+      "description": "Internal reference code"
+    },
+    "tx_hash": {
+      "type": "string",
+      "description": "Blockchain transaction hash"
+    },
+    "amount_crypto": {
+      "type": "number",
+      "default": 0,
+      "description": "Amount in crypto"
+    },
+    "amount_id": {
+      "type": "number",
+      "default": 0,
+      "description": "Imperial Dollars equivalent"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "confirmed",
+        "failed",
+        "awaiting_review",
+        "approved"
+      ],
+      "default": "pending",
+      "description": "Transfer status"
+    },
+    "admin_note": {
+      "type": "string",
+      "description": "Optional admin note"
+    }
+  },
+  "required": [
+    "user_email",
+    "transfer_type",
+    "asset",
+    "network",
+    "wallet_address",
+    "amount_id"
+  ],
+  "rls": {
+    "create": {
+      "data.user_email": "{{user.email}}"
+    },
+    "read": {
+      "data.user_email": "{{user.email}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

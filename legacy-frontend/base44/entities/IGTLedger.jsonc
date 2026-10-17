@@ -1,0 +1,122 @@
+{
+  "name": "IGTLedger",
+  "type": "object",
+  "properties": {
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "treasury_transfer",
+        "stake",
+        "unstake",
+        "burn",
+        "staking_payout",
+        "house_wager_recovered",
+        "admin_adjustment"
+      ],
+      "description": "Type of IGT ecosystem event"
+    },
+    "from_account": {
+      "type": "string",
+      "description": "Source account, vault, user, or ecosystem bucket"
+    },
+    "to_account": {
+      "type": "string",
+      "description": "Destination account, vault, user, or ecosystem bucket"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Related user email when applicable"
+    },
+    "amount": {
+      "type": "number",
+      "description": "IGT amount moved or recorded"
+    },
+    "treasury_delta": {
+      "type": "number",
+      "default": 0,
+      "description": "Change to treasury vault balance"
+    },
+    "staked_delta": {
+      "type": "number",
+      "default": 0,
+      "description": "Change to total staked IGT"
+    },
+    "burned_delta": {
+      "type": "number",
+      "default": 0,
+      "description": "Change to total burned IGT"
+    },
+    "house_delta": {
+      "type": "number",
+      "default": 0,
+      "description": "Change to IGT returned to house ecosystem"
+    },
+    "treasury_balance_after": {
+      "type": "number",
+      "description": "Treasury vault balance after this event"
+    },
+    "staked_total_after": {
+      "type": "number",
+      "description": "Total staked IGT after this event"
+    },
+    "burned_total_after": {
+      "type": "number",
+      "description": "Total burned IGT after this event"
+    },
+    "house_total_after": {
+      "type": "number",
+      "description": "Total IGT returned to house after this event"
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable ledger explanation"
+    }
+  },
+  "required": [
+    "event_type",
+    "from_account",
+    "to_account",
+    "amount"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "superadmin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "tester"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "superadmin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "superadmin"
+      }
+    }
+  }
+}

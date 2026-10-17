@@ -1,0 +1,100 @@
+{
+  "name": "Transaction",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "purchase",
+        "win",
+        "loss",
+        "bonus",
+        "daily_reward",
+        "admin_credit",
+        "admin_debit",
+        "referral_bonus",
+        "referral_commission",
+        "weekly_bonus",
+        "rakeback",
+        "withdrawal_alert"
+      ],
+      "description": "Transaction type"
+    },
+    "cent_amount": {
+      "type": "number",
+      "description": "CENT amount"
+    },
+    "igd_amount": {
+      "type": "number",
+      "description": "IGD amount"
+    },
+    "igt_amount": {
+      "type": "number",
+      "description": "IGT amount"
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "CENT",
+        "IGD",
+        "IGT"
+      ],
+      "description": "Primary ledger currency for this transaction"
+    },
+    "game_slug": {
+      "type": "string",
+      "description": "Related game if applicable"
+    },
+    "description": {
+      "type": "string"
+    },
+    "balance_after": {
+      "type": "number",
+      "description": "Balance after transaction"
+    },
+    "status": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "card",
+        "crypto"
+      ],
+      "description": "Payment method used"
+    },
+    "reference_id": {
+      "type": "string",
+      "description": "Optional related record id"
+    }
+  },
+  "required": [
+    "user_email",
+    "type",
+    "currency"
+  ],
+  "rls": {
+    "create": {
+      "data.user_email": "{{user.email}}"
+    },
+    "read": {
+      "data.user_email": "{{user.email}}"
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

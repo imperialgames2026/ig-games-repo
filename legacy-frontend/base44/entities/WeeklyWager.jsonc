@@ -1,0 +1,37 @@
+{
+  "name": "WeeklyWager",
+  "type": "object",
+  "properties": {
+    "tournament_id": {
+      "type": "string",
+      "description": "ID of the weekly tournament"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Player's email"
+    },
+    "display_name": {
+      "type": "string",
+      "description": "Player's display name"
+    },
+    "total_wagered": {
+      "type": "number",
+      "default": 0,
+      "description": "Total IC wagered during the tournament period"
+    },
+    "total_wagered_id": {
+      "type": "number",
+      "default": 0,
+      "description": "Total ID wagered during the tournament period"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last time this record was updated"
+    }
+  },
+  "required": [
+    "tournament_id",
+    "user_email"
+  ]
+}

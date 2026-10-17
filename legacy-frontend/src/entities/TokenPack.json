@@ -1,0 +1,53 @@
+{
+  "name": "TokenPack",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Pack name"
+    },
+    "tokens": {
+      "type": "number",
+      "description": "Number of Imperial Coins in pack"
+    },
+    "cat_dollars": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of Imperial Dollars included"
+    },
+    "price": {
+      "type": "number",
+      "description": "Price in USD"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "is_featured": {
+      "type": "boolean",
+      "default": false
+    },
+    "badge": {
+      "type": "string",
+      "description": "Special badge"
+    },
+    "image_url": {
+      "type": "string"
+    },
+    "weekly_bonus_threshold": {
+      "type": "number",
+      "default": 0,
+      "description": "Weekly wagering goal needed to unlock pack-related bonus logic"
+    },
+    "weekly_bonus_reward": {
+      "type": "number",
+      "default": 0,
+      "description": "Optional weekly IC bonus reference value"
+    }
+  },
+  "required": [
+    "name",
+    "tokens",
+    "price"
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "name": "Quest",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Quest title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Quest description"
+    },
+    "quest_type": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "weekly",
+        "special"
+      ],
+      "default": "daily",
+      "description": "Quest frequency"
+    },
+    "objective_type": {
+      "type": "string",
+      "enum": [
+        "play_games",
+        "win_games",
+        "wager_amount",
+        "play_specific_game"
+      ],
+      "description": "Type of objective"
+    },
+    "objective_target": {
+      "type": "number",
+      "description": "Target amount to complete"
+    },
+    "specific_game_slug": {
+      "type": "string",
+      "description": "If play_specific_game, which game slug"
+    },
+    "reward_ic": {
+      "type": "number",
+      "default": 0,
+      "description": "Imperial Coins reward"
+    },
+    "reward_id": {
+      "type": "number",
+      "default": 0,
+      "description": "Imperial Dollars reward"
+    },
+    "reward_xp": {
+      "type": "number",
+      "default": 0,
+      "description": "Experience points reward"
+    },
+    "free_spins": {
+      "type": "number",
+      "default": 0,
+      "description": "Free spins reward"
+    },
+    "free_spin_game": {
+      "type": "string",
+      "description": "Game slug for free spins reward"
+    },
+    "free_spin_bet_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "Bet amount for free spins reward"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "icon": {
+      "type": "string",
+      "description": "Icon/emoji for quest"
+    }
+  },
+  "required": [
+    "title",
+    "description",
+    "objective_type",
+    "objective_target"
+  ]
+}
