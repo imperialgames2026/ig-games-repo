@@ -45,3 +45,27 @@ test('multiplayer felt has shooter-only controls and table side-bet zones', () =
   assert.match(felt, /practice chips/i);
   assert.match(felt, /MultiplayerPracticeTable/);
 });
+
+const windowMigration = source('supabase/migrations/20261017201000_multiplayer_betting_windows_and_seats.sql');
+const hook = source('hooks/useMultiplayerPractice.js');
+
+test('multiplayer rounds have server-enforced betting windows', () => {
+  assert.match(windowMigration, /betting_closes_at/);
+  assert.match(windowMigration, /now\(\)\s*>?=\s*t\.betting_closes_at/);
+  assert.match(windowMigration, /now\(\)\s*<\s*t\.betting_closes_at/);
+  assert.match(windowMigration, /interval '12 seconds'/);
+  assert.match(windowMigration, /'bettingClosesAt'/);
+  assert.match(windowMigration, /'serverTime'/);
+  assert.match(felt, /secondsLeft/);
+  assert.match(felt, /canShoot/);
+  assert.match(felt, /Leave table/);
+});
+test('seat release never grants another initial chip allocation', () => {
+  assert.match(windowMigration, /p_action='leave'/);
+  assert.match(windowMigration, /seated=false/);
+  assert.match(windowMigration, /seated=true/);
+  assert.match(windowMigration, /count\(\*\) from public\.ig_mp_players where game=p_game and seated/);
+  assert.doesNotMatch(windowMigration, /set chips\s*=\s*1000/);
+  assert.match(api, /"leave"/);
+  assert.match(hook, /leave: \(\) => action\('leave'\)/);
+});
