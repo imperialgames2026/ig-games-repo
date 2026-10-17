@@ -21,8 +21,8 @@ export default function WalletDisplay({ wallet, compact = false, currency, onCur
         const progressPercent = getProgressToNextLevel(currentXP);
 
         const currencyOptions = [
-          { key: 'IC', label: 'IGC', balance: wallet?.tokens || 0, accent: 'text-pink-400' },
-          { key: 'ID', label: 'IGUSD', balance: wallet?.cat_dollars || 0, accent: 'text-green-400' },
+          { key: 'IC', label: 'IGN', balance: wallet?.tokens || 0, accent: 'text-pink-400' },
+          { key: 'ID', label: 'IGD', balance: wallet?.cat_dollars || 0, accent: 'text-green-400' },
           { key: 'IGT', label: 'IGT', balance: wallet?.igt_tokens || 0, accent: 'text-cyan-400' },
         ];
 
@@ -165,12 +165,12 @@ export default function WalletDisplay({ wallet, compact = false, currency, onCur
         }`}>
           <img 
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/697dc67abbb768c5bbbab5d5/4ff0ab8f4_Screenshot_20260216-223614Firefox6.png"
-            alt="IGUSD"
+            alt="IGD"
             className="w-full h-full rounded-full object-cover"
           />
         </div>
         <div className="text-left flex-1">
-          <div className="text-sm text-gray-400">IGUSD</div>
+          <div className="text-sm text-gray-400">IGD</div>
           <div className={`text-2xl font-black transition-all duration-500 ${currency === 'ID' ? 'text-green-400' : 'text-gray-600'}`}>
             {(wallet?.cat_dollars || 0).toLocaleString()}
           </div>
