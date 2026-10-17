@@ -8,6 +8,7 @@ on:
       - 'pages/**'
       - 'components/**'
       - 'api/**'
+      - 'tests/legacyBackendGuard.test.mjs'
       - 'lib/**'
   workflow_dispatch:
 permissions:
@@ -42,4 +43,5 @@ jobs:
         with:
           node-version: '22'
       - run: npm ci --no-audit --no-fund
+      - run: node --test tests/legacyBackendGuard.test.mjs
       - run: npm run build
