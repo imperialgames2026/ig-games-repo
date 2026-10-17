@@ -17,8 +17,12 @@ export function useMultiplayerPractice(game) {
     if (!alive.current || !fresh || fresh.game !== game) return;
     // Prevent an out-of-order poll from overwriting a more recent action result.
     if (!latest.current || Number(fresh.revision) >= Number(latest.current.revision)) {
-      latest.current = fresh;
-      setTable(fresh);
+      // Relate server clock to the device, so its countdown cannot be cheated by changing local time.
+      const receivedAt = Date.now();
+      const serverTime = Date.parse(fresh.serverTime);
+      const clockOffsetMs = Number.isFinite(serverTime) ? receivedAt - serverTime : 0;
+      latest.current = { ...fresh, clockOffsetMs };
+      setTable(latest.current);
     }
   }, [game]);
 
@@ -93,7 +97,7 @@ export function useMultiplayerPractice(game) {
 
   return {
     table, loading, busy, error, user, isAuthenticated,
-    refresh, join: () => action('join'), claim: () => action('claim'),
-    placeBet, runRound,
+    refresh, join: () => action('join'), leave: () => action('leave'),
+    claim: () => action('claim'), placeBet, runRound,
   };
 }
