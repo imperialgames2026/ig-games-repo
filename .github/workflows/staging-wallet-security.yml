@@ -1,0 +1,44 @@
+name: Staging authenticated wallet security
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: imperial-staging-wallet-security
+  cancel-in-progress: false
+jobs:
+  authenticated-security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: staging
+    env:
+      SUPABASE_URL: https://qonqemhljgxlwpghkxhn.supabase.co
+      SUPABASE_ANON_KEY: ${{ secrets.STAGING_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+      TEST_PLAYER_EMAIL: ${{ secrets.STAGING_TEST_PLAYER_EMAIL }}
+      TEST_PLAYER_PASSWORD: ${{ secrets.STAGING_TEST_PLAYER_PASSWORD }}
+      TEST_ADMIN_EMAIL: ${{ secrets.STAGING_TEST_ADMIN_EMAIL }}
+      TEST_ADMIN_PASSWORD: ${{ secrets.STAGING_TEST_ADMIN_PASSWORD }}
+      TEST_SUPERADMIN_EMAIL: ${{ secrets.STAGING_TEST_SUPERADMIN_EMAIL }}
+      TEST_SUPERADMIN_PASSWORD: ${{ secrets.STAGING_TEST_SUPERADMIN_PASSWORD }}
+      TEST_TARGET_USER_ID: ${{ secrets.STAGING_TEST_TARGET_USER_ID }}
+      TEST_PROTECTED_ADMIN_USER_ID: ${{ secrets.STAGING_TEST_PROTECTED_ADMIN_USER_ID }}
+      TEST_LOW_BALANCE_USER_ID: ${{ secrets.STAGING_TEST_LOW_BALANCE_USER_ID }}
+      ALLOW_DESTRUCTIVE_STAGING_TESTS: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Validate staging-only target and required credentials
+        run: |
+          test "$SUPABASE_URL" = "https://qonqemhljgxlwpghkxhn.supabase.co"
+          for name in SUPABASE_ANON_KEY SUPABASE_SERVICE_ROLE_KEY TEST_PLAYER_EMAIL TEST_PLAYER_PASSWORD TEST_ADMIN_EMAIL TEST_ADMIN_PASSWORD TEST_SUPERADMIN_EMAIL TEST_SUPERADMIN_PASSWORD TEST_TARGET_USER_ID TEST_PROTECTED_ADMIN_USER_ID TEST_LOW_BALANCE_USER_ID; do
+            if [ -z "${!name}" ]; then echo "::error::Missing staging secret: $name"; exit 1; fi
+          done
+      - run: npm ci --no-audit --no-fund
+      - name: Authenticated administrative security and concurrency
+        run: node --test --test-concurrency=1 tests/adminMutations.security.test.mjs
+      - name: Build frontend
+        run: npm run build
