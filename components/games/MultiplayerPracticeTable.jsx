@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Crown, Dices, RotateCw, Users, ShieldCheck } from 'lucide-react';
 import { useMultiplayerPractice } from '@/hooks/useMultiplayerPractice';
@@ -232,10 +232,22 @@ function MyBetsPanel({ table }) {
 
 export default function MultiplayerPracticeTable({ game }) {
   const [stake,setStake] = useState(5);
-  const {table, loading, busy, error, user, isAuthenticated, refresh, join, claim, placeBet, runRound} = useMultiplayerPractice(game);
+  const [clockNow,setClockNow] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = window.setInterval(() => setClockNow(Date.now()), 250);
+    return () => window.clearInterval(timer);
+  }, []);
+  const {table, loading, busy, error, user, isAuthenticated, refresh, join, leave, claim, placeBet, runRound} = useMultiplayerPractice(game);
   const joined = !!table?.joined;
-  const canBet = joined && user?.role !== 'tester' && !user?.is_excluded && table.chips >= stake;
+  // The server is authoritative; the client clock is only for an accurate visual countdown.
+  const deadline = Date.parse(table?.bettingClosesAt ?? '');
+  const clockOffset = table?.clockOffsetMs ?? 0;
+  const remainingMs = Number.isFinite(deadline) ? Math.max(0, deadline - (clockNow - clockOffset)) : 0;
+  const secondsLeft = Math.ceil(remainingMs / 1000);
+  const bettingOpen = !!table?.betsOpen && secondsLeft > 0;
+  const canBet = joined && bettingOpen && user?.role !== 'tester' && !user?.is_excluded && table.chips >= stake;
   const amShooter = !!(table?.shooterId && user?.id === table.shooterId);
+  const canShoot = amShooter && !bettingOpen && !busy;
   const liveShooter=table?.players?.find(p=>p.shooter)?.active;
   const canClaim=joined && !amShooter && !liveShooter;
   const last=table?.lastResult;
@@ -247,11 +259,20 @@ export default function MultiplayerPracticeTable({ game }) {
           <span className="rounded-full border border-amber-300/50 bg-amber-300/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-200">Multiplayer · Shared staging room</span>
         </div>
         <PracticeNotice />
+        {table && <div role="status" aria-live="polite" className={"flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-4 " +
+          (bettingOpen ? 'border-green-400/40 bg-green-950/35' : 'border-amber-400/40 bg-amber-950/25')}>
+          <div><p className="font-black uppercase tracking-wider">{bettingOpen ? 'Bets open — place your chips' : 'No more bets — shooter turn'}</p>
+            <p className="mt-1 text-sm text-gray-300">Shared round {table.round} · All players see the same lock time.</p>
+          </div>
+          <p className="font-mono text-3xl font-black tabular-nums text-amber-200" aria-label={bettingOpen ? secondsLeft + ' seconds remaining' : 'Betting closed'}>
+            {bettingOpen ? secondsLeft + 's' : 'LOCKED'}
+          </p>
+        </div>}
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
           <div className="space-y-5">
             {loading && !table ? <div role="status" className="rounded-xl border border-white/10 bg-white/5 p-10 text-center">Connecting to the practice table…</div> : null}
             {table && (game==='craps'
-              ? <CrapsFelt table={table} choose={target=>void placeBet(target,stake)} disabled={busy} canBet={canBet} isShooter={amShooter} onShoot={()=>void runRound()} />
+              ? <CrapsFelt table={table} choose={target=>void placeBet(target,stake)} disabled={!canShoot} canBet={canBet} isShooter={amShooter} onShoot={()=>void runRound()} />
               : <RouletteFelt table={table} choose={target=>void placeBet(target,stake)} disabled={busy} canBet={canBet} />)}
             {table && <section className="rounded-2xl border border-white/10 bg-[#1b1728] p-5">
               <div className="grid gap-5 md:grid-cols-[1fr_auto]">
@@ -265,20 +286,21 @@ export default function MultiplayerPracticeTable({ game }) {
                       {v}
                     </button>)}
                   </div>
-                  <p className="mt-3 text-sm text-gray-400">Your remaining practice chips: <strong className="text-amber-300">{chip(table.chips)}</strong> · Each bet 1–100 chips. No refill or cashout.</p>
+                  <p className="mt-3 text-sm text-gray-400">Your remaining practice chips: <strong className="text-amber-300">{chip(table.chips)}</strong> · Each bet 1–100 chips. No refill or cashout. Leave and rejoin without resetting chips.</p>
                   {table.chips < stake && <p className="mt-2 text-sm text-red-300">Choose a smaller chip, or wait for pending bets to settle.</p>}
                 </div>
                 <div className="flex flex-col justify-center gap-2">
                   {!joined && <button disabled={busy || user?.role==='tester' || user?.is_excluded}
                     onClick={()=>void join()} className="rounded-xl bg-amber-400 px-7 py-3 font-black text-gray-950 disabled:opacity-50">Join practice table</button>}
-                  {joined && amShooter && <button disabled={busy} onClick={()=>void runRound()}
+                  {joined && amShooter && <button disabled={!canShoot} onClick={()=>void runRound()}
                     className="flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-7 py-4 text-lg font-black text-gray-950 disabled:opacity-50">
                     {game==='craps' ? <Dices className="h-5 w-5" /> : <RotateCw className="h-5 w-5" />}
-                    {busy ? 'Processing…' : game==='craps' ? 'SHOOT THE DICE' : 'SPIN THE WHEEL'}
+                    {busy ? 'Processing…' : bettingOpen ? 'BETTING OPEN · '+secondsLeft+'s' : game==='craps' ? 'SHOOT THE DICE' : 'SPIN THE WHEEL'}
                   </button>}
                   {canClaim && <button onClick={()=>void claim()} disabled={busy}
                     className="rounded-xl bg-amber-400 px-6 py-3 font-black text-gray-950 disabled:opacity-50">Take idle {game==='craps' ? 'shooter' : 'spinner'} seat</button>}
                   {joined && !amShooter && !canClaim && <p className="rounded-xl border border-white/20 p-3 text-center text-sm text-gray-300">Place side bets and watch the action. The designated {game==='craps' ? 'shooter rolls' : 'spinner spins'} for the whole table.</p>}
+                  {joined && <button type="button" disabled={busy} onClick={()=>void leave()} className="rounded-lg border border-red-400/40 px-5 py-2 text-sm font-semibold text-red-200 hover:bg-red-950/30 disabled:opacity-50">Leave table · preserve chips</button>}
                   <button type="button" onClick={()=>void refresh()} className="rounded-lg border border-white/25 px-5 py-2 text-sm text-gray-300 hover:bg-white/10">Refresh table</button>
                 </div>
               </div>
@@ -299,7 +321,7 @@ export default function MultiplayerPracticeTable({ game }) {
               {game==='craps'
                 ? <p className="mt-2 text-sm leading-6 text-gray-300">The shooter rolls for everyone. A 7 on the come-out does not pass the dice. When a point is established, repeat it to make the point, or roll a 7 to seven-out and rotate the shooter. Players may place Field and Any Seven side bets on the next roll, or Place Number bets while a point is active.</p>
                 : <p className="mt-2 text-sm leading-6 text-gray-300">Everyone can place inside and outside practice bets on the same table. The designated spinner resolves all open selections in one European single-zero spin. After the result, a new round opens automatically.</p>}
-              <p className="mt-2 text-xs text-yellow-200/80">Refreshes approximately every 3 seconds. Rules and bet calculations are for staging demonstration, not approved real-money settlement. No independent randomness certification has been completed.</p>
+              <p className="mt-2 text-xs text-yellow-200/80">Betting locks after a 12-second window; the server enforces the deadline. Refreshes approximately every 3 seconds. Rules and bet calculations are for staging demonstration, not approved real-money settlement. No independent randomness certification has been completed.</p>
             </section>
           </aside>
         </div>
