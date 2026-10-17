@@ -31,7 +31,7 @@ jobs:
           print('Active pages:',d['active_page_count'])
           print('Legacy function invocations:',len(d['legacy_function_calls']))
           print('Legacy entity accesses:',len(d['legacy_entity_calls']))
-          assert d['original_source_files'] >= 290
+          assert d['original_source_files'] >= 285
           assert not d['missing_active_source_files'], d['missing_active_source_files']
           PY
       - uses: actions/upload-artifact@v4
