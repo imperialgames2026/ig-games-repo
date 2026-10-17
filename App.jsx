@@ -7,6 +7,8 @@ import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
+import ProtectedRoute from '@/lib/ProtectedRoute';
+import Login from './pages/Login';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import PlayImperialLightning from './pages/PlayImperialLightning';
 import PlayMysticForest from './pages/PlayMysticForest';
@@ -35,6 +37,13 @@ import AdminSweepstakesAudit from './pages/AdminSweepstakesAudit';
 import AdminIGTSupply from './pages/AdminIGTSupply';
 
 const { Pages, Layout, mainPage } = pagesConfig;
+const publicPages = new Set(['Home', 'Games', 'CookiesPolicy', 'Licensing', 'PrivacyPolicy', 'ResponsiblePlay', 'TermsOfService', 'Leaderboard', 'FairnessManifesto']);
+const adminPages = new Set(['Admin', 'AdminAnnouncements', 'AdminKYC', 'AdminSupport', 'AdminUsers', 'AdminWallets', 'AdminSweepstakesAudit', 'AdminIGTSupply', 'OwnerKeyring']);
+const withAccess = (path, element) => {
+  if (publicPages.has(path)) return element;
+  const roles = adminPages.has(path) ? ['admin', 'superadmin'] : undefined;
+  return <ProtectedRoute roles={roles}>{element}</ProtectedRoute>;
+};
 
 function ExcludedGuard({ children }) {
   const { user } = useAuth();
@@ -70,34 +79,35 @@ const AuthenticatedApp = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<LayoutWrapper currentPageName={mainPageKey}><MainPage /></LayoutWrapper>} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/" element={withAccess(mainPageKey, <LayoutWrapper currentPageName={mainPageKey}><MainPage /></LayoutWrapper>)} />
       {Object.entries(Pages).map(([path, Page]) => (
-        <Route key={path} path={`/${path}`} element={<LayoutWrapper currentPageName={path}><Page /></LayoutWrapper>} />
+        <Route key={path} path={`/${path}`} element={withAccess(path, <LayoutWrapper currentPageName={path}><Page /></LayoutWrapper>)} />
       ))}
-      <Route path="/PlayImperialLightning" element={<ExcludedGuard><PlayImperialLightning /></ExcludedGuard>} />
-      <Route path="/BlackjackLobby" element={<LayoutWrapper currentPageName="BlackjackLobby"><BlackjackLobby /></LayoutWrapper>} />
-      <Route path="/PlayMultiplayerBlackjack" element={<PlayMultiplayerBlackjack />} />
-      <Route path="/ProfileStats" element={<LayoutWrapper currentPageName="ProfileStats"><ProfileStats /></LayoutWrapper>} />
-      <Route path="/Leaderboard" element={<LayoutWrapper currentPageName="Leaderboard"><Leaderboard /></LayoutWrapper>} />
-      <Route path="/FairnessManifesto" element={<LayoutWrapper currentPageName="FairnessManifesto"><FairnessManifesto /></LayoutWrapper>} />
-      <Route path="/Licensing" element={<LayoutWrapper currentPageName="Licensing"><Licensing /></LayoutWrapper>} />
-      <Route path="/OwnerKeyring" element={<OwnerKeyring />} />
-      <Route path="/PlayMysticForest" element={<LayoutWrapper currentPageName="PlayMysticForest"><PlayMysticForest /></LayoutWrapper>} />
-      <Route path="/PlayGoldenDragon" element={<LayoutWrapper currentPageName="PlayGoldenDragon"><PlayGoldenDragon /></LayoutWrapper>} />
-      <Route path="/PlayAztecTreasure" element={<LayoutWrapper currentPageName="PlayAztecTreasure"><PlayAztecTreasure /></LayoutWrapper>} />
-      <Route path="/PlayFarmageddon" element={<LayoutWrapper currentPageName="PlayFarmageddon"><PlayFarmageddon /></LayoutWrapper>} />
-      <Route path="/PlayerProfile" element={<LayoutWrapper currentPageName="PlayerProfile"><PlayerProfile /></LayoutWrapper>} />
-      <Route path="/PlaySlide" element={<LayoutWrapper currentPageName="PlaySlide"><PlaySlide /></LayoutWrapper>} />
-      <Route path="/PlayBalloons" element={<LayoutWrapper currentPageName="PlayBalloons"><PlayBalloons /></LayoutWrapper>} />
-      <Route path="/PlayDarts" element={<LayoutWrapper currentPageName="PlayDarts"><PlayDarts /></LayoutWrapper>} />
-      <Route path="/KYCVerification" element={<LayoutWrapper currentPageName="KYCVerification"><KYCVerification /></LayoutWrapper>} />
-      <Route path="/Staking" element={<LayoutWrapper currentPageName="Staking"><Staking /></LayoutWrapper>} />
-      <Route path="/Bonuses" element={<LayoutWrapper currentPageName="Bonuses"><Bonuses /></LayoutWrapper>} />
-      <Route path="/CryptoWallet" element={<LayoutWrapper currentPageName="CryptoWallet"><CryptoWallet /></LayoutWrapper>} />
-      <Route path="/AMOE" element={<LayoutWrapper currentPageName="AMOE"><AMOE /></LayoutWrapper>} />
-      <Route path="/PrizeClaims" element={<LayoutWrapper currentPageName="PrizeClaims"><PrizeClaims /></LayoutWrapper>} />
-      <Route path="/AdminSweepstakesAudit" element={<LayoutWrapper currentPageName="AdminSweepstakesAudit"><AdminSweepstakesAudit /></LayoutWrapper>} />
-      <Route path="/AdminIGTSupply" element={<LayoutWrapper currentPageName="AdminIGTSupply"><AdminIGTSupply /></LayoutWrapper>} />
+      <Route path="/PlayImperialLightning" element={withAccess("PlayImperialLightning", <ExcludedGuard><PlayImperialLightning /></ExcludedGuard>)} />
+      <Route path="/BlackjackLobby" element={withAccess("BlackjackLobby", <LayoutWrapper currentPageName="BlackjackLobby"><BlackjackLobby /></LayoutWrapper>)} />
+      <Route path="/PlayMultiplayerBlackjack" element={withAccess("PlayMultiplayerBlackjack", <PlayMultiplayerBlackjack />)} />
+      <Route path="/ProfileStats" element={withAccess("ProfileStats", <LayoutWrapper currentPageName="ProfileStats"><ProfileStats /></LayoutWrapper>)} />
+      <Route path="/Leaderboard" element={withAccess("Leaderboard", <LayoutWrapper currentPageName="Leaderboard"><Leaderboard /></LayoutWrapper>)} />
+      <Route path="/FairnessManifesto" element={withAccess("FairnessManifesto", <LayoutWrapper currentPageName="FairnessManifesto"><FairnessManifesto /></LayoutWrapper>)} />
+      <Route path="/Licensing" element={withAccess("Licensing", <LayoutWrapper currentPageName="Licensing"><Licensing /></LayoutWrapper>)} />
+      <Route path="/OwnerKeyring" element={withAccess("OwnerKeyring", <OwnerKeyring />)} />
+      <Route path="/PlayMysticForest" element={withAccess("PlayMysticForest", <LayoutWrapper currentPageName="PlayMysticForest"><PlayMysticForest /></LayoutWrapper>)} />
+      <Route path="/PlayGoldenDragon" element={withAccess("PlayGoldenDragon", <LayoutWrapper currentPageName="PlayGoldenDragon"><PlayGoldenDragon /></LayoutWrapper>)} />
+      <Route path="/PlayAztecTreasure" element={withAccess("PlayAztecTreasure", <LayoutWrapper currentPageName="PlayAztecTreasure"><PlayAztecTreasure /></LayoutWrapper>)} />
+      <Route path="/PlayFarmageddon" element={withAccess("PlayFarmageddon", <LayoutWrapper currentPageName="PlayFarmageddon"><PlayFarmageddon /></LayoutWrapper>)} />
+      <Route path="/PlayerProfile" element={withAccess("PlayerProfile", <LayoutWrapper currentPageName="PlayerProfile"><PlayerProfile /></LayoutWrapper>)} />
+      <Route path="/PlaySlide" element={withAccess("PlaySlide", <LayoutWrapper currentPageName="PlaySlide"><PlaySlide /></LayoutWrapper>)} />
+      <Route path="/PlayBalloons" element={withAccess("PlayBalloons", <LayoutWrapper currentPageName="PlayBalloons"><PlayBalloons /></LayoutWrapper>)} />
+      <Route path="/PlayDarts" element={withAccess("PlayDarts", <LayoutWrapper currentPageName="PlayDarts"><PlayDarts /></LayoutWrapper>)} />
+      <Route path="/KYCVerification" element={withAccess("KYCVerification", <LayoutWrapper currentPageName="KYCVerification"><KYCVerification /></LayoutWrapper>)} />
+      <Route path="/Staking" element={withAccess("Staking", <LayoutWrapper currentPageName="Staking"><Staking /></LayoutWrapper>)} />
+      <Route path="/Bonuses" element={withAccess("Bonuses", <LayoutWrapper currentPageName="Bonuses"><Bonuses /></LayoutWrapper>)} />
+      <Route path="/CryptoWallet" element={withAccess("CryptoWallet", <LayoutWrapper currentPageName="CryptoWallet"><CryptoWallet /></LayoutWrapper>)} />
+      <Route path="/AMOE" element={withAccess("AMOE", <LayoutWrapper currentPageName="AMOE"><AMOE /></LayoutWrapper>)} />
+      <Route path="/PrizeClaims" element={withAccess("PrizeClaims", <LayoutWrapper currentPageName="PrizeClaims"><PrizeClaims /></LayoutWrapper>)} />
+      <Route path="/AdminSweepstakesAudit" element={withAccess("AdminSweepstakesAudit", <LayoutWrapper currentPageName="AdminSweepstakesAudit"><AdminSweepstakesAudit /></LayoutWrapper>)} />
+      <Route path="/AdminIGTSupply" element={withAccess("AdminIGTSupply", <LayoutWrapper currentPageName="AdminIGTSupply"><AdminIGTSupply /></LayoutWrapper>)} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
