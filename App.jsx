@@ -14,15 +14,10 @@ import PlayImperialLightning from './pages/PlayImperialLightning';
 import PlayMysticForest from './pages/PlayMysticForest';
 import PlayGoldenDragon from './pages/PlayGoldenDragon';
 import PlayAztecTreasure from './pages/PlayAztecTreasure';
-import PlayFarmageddon from './pages/PlayFarmageddon';
 import OwnerKeyring from './pages/OwnerKeyring';
-import PlayerProfile from './pages/PlayerProfile';
 import BlackjackLobby from './pages/BlackjackLobby';
 import PlayMultiplayerBlackjack from './pages/PlayMultiplayerBlackjack';
-import ExclusionBanner from './components/casino/ExclusionBanner';
 import ProfileStats from './pages/ProfileStats';
-import Leaderboard from './pages/Leaderboard';
-import FairnessManifesto from './pages/FairnessManifesto';
 import Licensing from './pages/Licensing';
 import PlaySlide from './pages/PlaySlide';
 import PlayBalloons from './pages/PlayBalloons';
@@ -31,9 +26,7 @@ import KYCVerification from './pages/KYCVerification';
 import Staking from './pages/Staking';
 import Bonuses from './pages/Bonuses';
 import CryptoWallet from './pages/CryptoWallet';
-import AMOE from './pages/AMOE';
 import PrizeClaims from './pages/PrizeClaims';
-import AdminSweepstakesAudit from './pages/AdminSweepstakesAudit';
 import AdminIGTSupply from './pages/AdminIGTSupply';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -44,12 +37,6 @@ const withAccess = (path, element) => {
   const roles = adminPages.has(path) ? ['admin', 'superadmin'] : undefined;
   return <ProtectedRoute roles={roles}>{element}</ProtectedRoute>;
 };
-
-function ExcludedGuard({ children }) {
-  const { user } = useAuth();
-  if (user?.is_excluded) return <ExclusionBanner />;
-  return children;
-}
 
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
 const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
@@ -84,7 +71,7 @@ const AuthenticatedApp = () => {
       {Object.entries(Pages).map(([path, Page]) => (
         <Route key={path} path={`/${path}`} element={withAccess(path, <LayoutWrapper currentPageName={path}><Page /></LayoutWrapper>)} />
       ))}
-      <Route path="/PlayImperialLightning" element={withAccess("PlayImperialLightning", <ExcludedGuard><PlayImperialLightning /></ExcludedGuard>)} />
+      <Route path="/PlayImperialLightning" element={withAccess("PlayImperialLightning", <PlayImperialLightning />)} />
       <Route path="/BlackjackLobby" element={withAccess("BlackjackLobby", <LayoutWrapper currentPageName="BlackjackLobby"><BlackjackLobby /></LayoutWrapper>)} />
       <Route path="/PlayMultiplayerBlackjack" element={withAccess("PlayMultiplayerBlackjack", <PlayMultiplayerBlackjack />)} />
       <Route path="/ProfileStats" element={withAccess("ProfileStats", <LayoutWrapper currentPageName="ProfileStats"><ProfileStats /></LayoutWrapper>)} />
