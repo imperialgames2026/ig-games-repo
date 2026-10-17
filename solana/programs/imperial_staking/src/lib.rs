@@ -30,7 +30,9 @@ pub mod imperial_staking {
     }
 
     pub fn set_paused(ctx: Context<AdminPool>, paused: bool) -> Result<()> {
-        ctx.accounts.pool.is_paused = paused;
+        // The program cannot be unpaused before audited token movement exists.
+        require!(paused, StakingError::ActivationNotReady);
+        ctx.accounts.pool.is_paused = true;
         Ok(())
     }
 }
@@ -96,6 +98,29 @@ pub enum LockTier {
 }
 
 impl LockTier {
+    pub fn lock_seconds(&self) -> i64 {
+        match self {
+            Self::Flexible => 0,
+            Self::Day1 => 86_400,
+            Self::Days7 => 604_800,
+            Self::Days30 => 2_592_000,
+        }
+    }
+
+    pub fn weighted_amount(&self, amount: u64) -> Result<u64> {
+        let weighted = u128::from(amount)
+            .checked_mul(u128::from(self.multiplier_bps()))
+            .ok_or(StakingError::ArithmeticOverflow)?
+            .checked_div(10_000)
+            .ok_or(StakingError::ArithmeticOverflow)?;
+        u64::try_from(weighted).map_err(|_| error!(StakingError::ArithmeticOverflow))
+    }
+
+    pub fn unlock_timestamp(&self, staked_at: i64) -> Result<i64> {
+        staked_at.checked_add(self.lock_seconds())
+            .ok_or(error!(StakingError::ArithmeticOverflow))
+    }
+
     pub fn multiplier_bps(&self) -> u64 {
         match self {
             Self::Flexible => 10_000,
@@ -128,6 +153,10 @@ pub enum StakingError {
     WrongVaultAuthority,
     #[msg("Staking and rake vaults must differ")]
     DuplicateVault,
+    #[msg("Activation requires audited token movement and settlement instructions")]
+    ActivationNotReady,
+    #[msg("Integer arithmetic overflow")]
+    ArithmeticOverflow,
 }
 
 #[cfg(test)]
@@ -139,5 +168,22 @@ mod tests {
         assert_eq!(LockTier::Day1.multiplier_bps(), 12_500);
         assert_eq!(LockTier::Days7.multiplier_bps(), 15_000);
         assert_eq!(LockTier::Days30.multiplier_bps(), 20_000);
+        assert_eq!(LockTier::Flexible.lock_seconds(), 0);
+        assert_eq!(LockTier::Day1.lock_seconds(), 86_400);
+        assert_eq!(LockTier::Days7.lock_seconds(), 604_800);
+        assert_eq!(LockTier::Days30.lock_seconds(), 2_592_000);
+    }
+    #[test]
+    fn integer_stake_weights_are_deterministic() {
+        assert_eq!(LockTier::Flexible.weighted_amount(100).unwrap(), 100);
+        assert_eq!(LockTier::Day1.weighted_amount(100).unwrap(), 125);
+        assert_eq!(LockTier::Days7.weighted_amount(100).unwrap(), 150);
+        assert_eq!(LockTier::Days30.weighted_amount(100).unwrap(), 200);
+        assert!(LockTier::Days30.weighted_amount(u64::MAX).is_err());
+    }
+    #[test]
+    fn unlock_time_is_checked() {
+        assert_eq!(LockTier::Day1.unlock_timestamp(100).unwrap(), 86_500);
+        assert!(LockTier::Days30.unlock_timestamp(i64::MAX).is_err());
     }
 }
