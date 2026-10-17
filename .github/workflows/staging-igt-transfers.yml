@@ -1,0 +1,35 @@
+name: Staging IGT transfer verification
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/integration/casino-zip'
+    runs-on: ubuntu-latest
+    environment: staging
+    env:
+      ALLOW_DESTRUCTIVE_STAGING_TESTS: 'true'
+      STAGING_SUPABASE_ANON_KEY: ${{ secrets.STAGING_SUPABASE_ANON_KEY }}
+      STAGING_PLAYER_EMAIL: ${{ secrets.STAGING_PLAYER_EMAIL }}
+      STAGING_PLAYER_PASSWORD: ${{ secrets.STAGING_PLAYER_PASSWORD }}
+      STAGING_RECIPIENT_EMAIL: ${{ secrets.STAGING_RECIPIENT_EMAIL }}
+      STAGING_RECIPIENT_PASSWORD: ${{ secrets.STAGING_RECIPIENT_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Verify frontend build
+        run: npm run build
+      - name: Check required staging credentials
+        run: |
+          test -n "$STAGING_SUPABASE_ANON_KEY"
+          test -n "$STAGING_PLAYER_EMAIL"
+          test -n "$STAGING_PLAYER_PASSWORD"
+          test -n "$STAGING_RECIPIENT_EMAIL"
+          test -n "$STAGING_RECIPIENT_PASSWORD"
+      - name: Verify IGT transfers
+        run: node --test --test-concurrency=1 tests/igtTransfers.staging.test.mjs
