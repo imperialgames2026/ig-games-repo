@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Gift, Loader2, Send } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -54,17 +53,7 @@ export default function WalletGiftDialog({ wallet }) {
   };
 
   const handleSend = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      await base44.functions.invoke('sendWalletGift', form);
-      await queryClient.invalidateQueries();
-      reset();
-      setOpen(false);
-    } catch (err) {
-      setError(err?.response?.data?.error || 'Gift could not be sent.');
-    }
-    setLoading(false);
+    setError('Gifting is unavailable until the original currencies and recipient verification are supported by secure Supabase transfers. No funds were moved.');
   };
 
   return (
@@ -136,6 +125,7 @@ export default function WalletGiftDialog({ wallet }) {
             <div className="flex justify-between gap-4"><span className="text-gray-400">To</span><span className="text-right">{form.recipientEmail}</span></div>
             <div className="flex justify-between gap-4"><span className="text-gray-400">Gift</span><span>{amount.toLocaleString()} {currencyLabels[form.currency]}</span></div>
             {form.note && <div className="pt-2 text-sm text-gray-300">“{form.note}”</div>}
+            <p className="pt-2 text-sm text-amber-300">Transfers are disabled while secure Supabase currency mapping and recipient verification are completed. No funds will move.</p>
             {error && <p className="pt-2 text-sm text-red-400">{error}</p>}
           </div>
         )}
@@ -144,9 +134,9 @@ export default function WalletGiftDialog({ wallet }) {
           {confirming ? (
             <>
               <Button variant="outline" onClick={() => setConfirming(false)} disabled={loading}>Cancel</Button>
-              <Button onClick={handleSend} disabled={loading} className="bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700">
+              <Button onClick={handleSend} disabled={true} className="bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700">
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                Confirm Send
+                Transfers temporarily unavailable
               </Button>
             </>
           ) : (
