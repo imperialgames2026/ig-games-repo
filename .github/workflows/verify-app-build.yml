@@ -26,7 +26,31 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Install dependencies (lockfile reconciliation pending)
-        run: npm install --no-audit --no-fund
+      - name: Install locked dependencies
+        run: npm ci
       - name: Build Vite app
         run: npm run build
+
+  repair-lockfile:
+    if: github.ref == 'refs/heads/integration/casino-zip' && github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Regenerate dependency lockfile
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Commit corrected lockfile
+        run: |
+          git add package-lock.json
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'Synchronize npm lockfile with Supabase dependencies'
+            git push origin HEAD:integration/casino-zip
+          fi
