@@ -75,17 +75,17 @@ begin
   else
     perform 1 from public.wallets where user_id=p_actor for update;
   end if;
-  select cent_balance into v_balance from public.wallets where user_id=p_actor;
+  select igt_balance into v_balance from public.wallets where user_id=p_actor;
   if v_balance is null or v_balance < p_amount then
     raise exception 'insufficient balance' using errcode='22023';
   end if;
   if p_kind='transfer' then
-    update public.wallets set cent_balance=cent_balance-p_amount where user_id=p_actor;
-    update public.wallets set cent_balance=cent_balance+p_amount where user_id=p_target
-      returning cent_balance into v_target_balance;
-    insert into public.transactions(user_id,type,currency,cent_amount,status,description,reference_id)
-      values (p_actor,'loss','CENT',-p_amount,'completed','Peer transfer sent',p_operation::text),
-             (p_target,'bonus','CENT',p_amount,'completed','Peer transfer received',p_operation::text);
+    update public.wallets set igt_balance=igt_balance-p_amount where user_id=p_actor;
+    update public.wallets set igt_balance=igt_balance+p_amount where user_id=p_target
+      returning igt_balance into v_target_balance;
+    insert into public.transactions(user_id,type,currency,igt_amount,status,description,reference_id)
+      values (p_actor,'loss','IGT',-p_amount,'completed','Peer transfer sent',p_operation::text),
+             (p_target,'bonus','IGT',p_amount,'completed','Peer transfer received',p_operation::text);
     v_result := pg_catalog.jsonb_build_object('operation_id',p_operation,'kind','transfer','amount',p_amount,'balance',v_balance-p_amount,'recipient_balance',v_target_balance);
   else
     -- Uniform server-side six-sided die. Browser cannot supply the outcome.
@@ -95,19 +95,16 @@ begin
     end loop;
     v_roll := (v_byte % 6) + 1;
     v_win := case when v_roll=p_guess then p_amount*5 else 0 end;
-    update public.wallets set cent_balance=cent_balance-p_amount+v_win,
-      total_wagered_cent=total_wagered_cent+p_amount,
-      total_won_cent=total_won_cent+v_win,
-      total_lost_cent=total_lost_cent+(case when v_win=0 then p_amount else 0 end)
+    update public.wallets set igt_balance=igt_balance-p_amount+v_win
       where user_id=p_actor;
     insert into public.game_rounds(user_id,game_slug,currency,bet_amount,win_amount,status,outcome)
-      values(p_actor,'secure-dice','CENT',p_amount,v_win,'settled',
+      values(p_actor,'secure-dice','IGT',p_amount,v_win,'settled',
         pg_catalog.jsonb_build_object('roll',v_roll,'guess',p_guess,'operation_id',p_operation));
-    insert into public.transactions(user_id,type,currency,cent_amount,status,game_slug,reference_id)
-      values(p_actor,'loss','CENT',-p_amount,'completed','secure-dice',p_operation::text);
+    insert into public.transactions(user_id,type,currency,igt_amount,status,game_slug,reference_id)
+      values(p_actor,'loss','IGT',-p_amount,'completed','secure-dice',p_operation::text);
     if v_win > 0 then
-      insert into public.transactions(user_id,type,currency,cent_amount,status,game_slug,reference_id)
-        values(p_actor,'win','CENT',v_win,'completed','secure-dice',p_operation::text);
+      insert into public.transactions(user_id,type,currency,igt_amount,status,game_slug,reference_id)
+        values(p_actor,'win','IGT',v_win,'completed','secure-dice',p_operation::text);
     end if;
     v_result := pg_catalog.jsonb_build_object('operation_id',p_operation,'kind','dice','roll',v_roll,'guess',p_guess,'win',v_win,'balance',v_balance-p_amount+v_win);
   end if;
