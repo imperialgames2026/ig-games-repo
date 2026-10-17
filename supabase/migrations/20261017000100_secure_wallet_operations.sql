@@ -40,7 +40,7 @@ begin
     raise exception 'invalid operation' using errcode='22023';
   end if;
   if (p_kind = 'transfer' and (p_target is null or p_target = p_actor or p_guess is not null))
-     or (p_kind = 'dice' and (p_target is not null or p_guess not between 1 and 6)) then
+     or (p_kind = 'dice' and (p_target is not null or (p_guess is null or p_guess not between 1 and 6))) then
     raise exception 'invalid operation arguments' using errcode='22023';
   end if;
   v_fingerprint := encode(extensions.digest(
