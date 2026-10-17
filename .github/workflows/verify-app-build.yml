@@ -26,8 +26,14 @@ jobs:
       - name: Restore omitted source files from the repository archive
         run: |
           echo "Archive source preview:"
-          unzip -Z1 ig-games.zip | head -40
-          unzip -n ig-games.zip 'pages/*' 'components/*' 'hooks/*' 'entities/*' 'utils/*' 'api/*' 'functions/*' -d .
+          mkdir -p /tmp/ig-games-archive
+          unzip -oq ig-games.zip -d /tmp/ig-games-archive
+          for dir in pages components hooks entities utils api functions lib; do
+            if [ -d "/tmp/ig-games-archive/src/$dir" ]; then
+              mkdir -p "$dir"
+              cp -rn "/tmp/ig-games-archive/src/$dir/." "$dir/"
+            fi
+          done
       - name: Install dependencies
         run: npm install
       - name: Build Vite app
