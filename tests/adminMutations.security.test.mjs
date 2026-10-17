@@ -10,7 +10,7 @@ const env = process.env;
 const required=['SUPABASE_URL','SUPABASE_ANON_KEY','SUPABASE_SERVICE_ROLE_KEY','TEST_PLAYER_EMAIL','TEST_PLAYER_PASSWORD','TEST_ADMIN_EMAIL','TEST_ADMIN_PASSWORD','TEST_SUPERADMIN_EMAIL','TEST_SUPERADMIN_PASSWORD','TEST_TARGET_USER_ID','TEST_PROTECTED_ADMIN_USER_ID','TEST_LOW_BALANCE_USER_ID'];
 for(const key of required) assert.ok(env[key], 'Missing '+key);
 assert.equal(env.ALLOW_DESTRUCTIVE_STAGING_TESTS,'true','Set ALLOW_DESTRUCTIVE_STAGING_TESTS=true on an isolated staging project');
-assert.notEqual(env.SUPABASE_URL,'https://icwzqdbibhnrtjahfzsx.supabase.co','Refusing known production project');
+assert.equal(env.SUPABASE_URL,'https://qonqemhljgxlwpghkxhn.supabase.co','Refusing any target other than the designated isolated staging project');
 const service=createClient(env.SUPABASE_URL,env.SUPABASE_SERVICE_ROLE_KEY);
 const anon=createClient(env.SUPABASE_URL,env.SUPABASE_ANON_KEY);
 const endpoint=env.SUPABASE_URL+'/functions/v1/admin-mutations';
