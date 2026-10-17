@@ -12,14 +12,17 @@ for (const key of ['STAGING_SUPABASE_ANON_KEY', 'STAGING_PLAYER_EMAIL', 'STAGING
 }
 const makeClient = () => createClient(URL, env.STAGING_SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
 const sender = makeClient(), recipient = makeClient();
-async function login(client, email, password) {
-  const { data, error } = await client.auth.signInWithPassword({ email, password });
-  assert.ifError(error);
-  assert.ok(data.user);
+async function login(client, email, password, role) {
+  // Do not print emails, passwords, tokens, or full auth error objects in CI.
+  const { data, error } = await client.auth.signInWithPassword({ email: email.trim(), password });
+  if (error) {
+    throw new Error(`${role} staging authentication failed (HTTP ${error.status ?? 'unknown'}, code ${error.code ?? 'unknown'}). Verify the ${role === 'sender' ? 'STAGING_PLAYER' : 'STAGING_RECIPIENT'} email/password secrets and project.`);
+  }
+  assert.ok(data.user, `${role} login returned no user`);
   return data.user.id;
 }
-const senderId = await login(sender, env.STAGING_PLAYER_EMAIL, env.STAGING_PLAYER_PASSWORD);
-const recipientId = await login(recipient, env.STAGING_RECIPIENT_EMAIL, env.STAGING_RECIPIENT_PASSWORD);
+const senderId = await login(sender, env.STAGING_PLAYER_EMAIL, env.STAGING_PLAYER_PASSWORD, 'sender');
+const recipientId = await login(recipient, env.STAGING_RECIPIENT_EMAIL, env.STAGING_RECIPIENT_PASSWORD, 'recipient');
 assert.notEqual(senderId, recipientId, 'Distinct staging accounts required');
 async function balance(client, userId) {
   const { data, error } = await client.from('wallets').select('igt_balance').eq('user_id', userId).single();
