@@ -5,6 +5,10 @@ on:
     paths:
       - 'solana/**'
       - 'lib/solanaNetwork.js'
+      - 'lib/solanaWallet.js'
+      - 'components/solana/**'
+      - 'pages/SolanaDevnet.jsx'
+      - 'tests/solanaWallet.test.mjs'
       - 'tests/solanaNetwork.test.mjs'
       - '.github/workflows/solana-scaffold-checks.yml'
   workflow_dispatch:
@@ -18,7 +22,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --test tests/solanaNetwork.test.mjs
+      - run: node --test tests/solanaNetwork.test.mjs tests/solanaWallet.test.mjs
       - run: npm ci --no-audit --no-fund
       - run: npm run build
   anchor-unit:
