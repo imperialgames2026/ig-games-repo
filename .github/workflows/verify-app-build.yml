@@ -29,6 +29,6 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
       - name: Check migration security guards
-        run: node --test tests/legacyBackendGuard.test.mjs
+        run: node --test tests/legacyBackendGuard.test.mjs tests/multiplayerPractice.test.mjs
       - name: Build Vite app
         run: npm run build
