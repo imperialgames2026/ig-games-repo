@@ -12,7 +12,7 @@ const cors = {
 };
 const json = (status: number, data: unknown) => new Response(JSON.stringify(data), { status, headers: cors });
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const actions = new Set(["state", "join", "bet", "roll", "spin", "claim"]);
+const actions = new Set(["state", "join", "leave", "bet", "roll", "spin", "claim"]);
 
 Deno.serve(async (request: Request) => {
   if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
