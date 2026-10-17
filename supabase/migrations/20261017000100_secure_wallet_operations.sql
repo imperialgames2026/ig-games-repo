@@ -29,6 +29,7 @@ declare
   v_balance numeric;
   v_target_balance numeric;
   v_roll integer;
+  v_byte integer;
   v_win numeric;
   v_result jsonb;
 begin
@@ -88,7 +89,11 @@ begin
     v_result := pg_catalog.jsonb_build_object('operation_id',p_operation,'kind','transfer','amount',p_amount,'balance',v_balance-p_amount,'recipient_balance',v_target_balance);
   else
     -- Uniform server-side six-sided die. Browser cannot supply the outcome.
-    v_roll := (pg_catalog.get_byte(extensions.gen_random_bytes(1),0) % 6) + 1;
+    loop
+      v_byte := pg_catalog.get_byte(extensions.gen_random_bytes(1),0);
+      exit when v_byte < 252;
+    end loop;
+    v_roll := (v_byte % 6) + 1;
     v_win := case when v_roll=p_guess then p_amount*5 else 0 end;
     update public.wallets set cent_balance=cent_balance-p_amount+v_win,
       total_wagered_cent=total_wagered_cent+p_amount,
