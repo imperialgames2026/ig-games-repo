@@ -23,6 +23,11 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - name: Restore omitted source files from the repository archive
+        run: |
+          echo "Archive source preview:"
+          unzip -Z1 ig-games.zip | head -40
+          unzip -n ig-games.zip 'pages/*' 'components/*' 'hooks/*' 'entities/*' 'utils/*' 'api/*' 'functions/*' -d .
       - name: Install dependencies
         run: npm install
       - name: Build Vite app
