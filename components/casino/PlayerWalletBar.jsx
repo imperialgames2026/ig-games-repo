@@ -8,7 +8,7 @@ import {useAuth} from '@/lib/AuthContext';
 
 export default function PlayerWalletBar(){
  const {user,isAuthenticated,isLoadingAuth}=useAuth();
- const [currency,setCurrency]=useState('CENT');
+ const [currency,setCurrency]=useState('IGN');
  const [wallet,setWallet]=useState(null);
  const [loaded,setLoaded]=useState(false);
  const [hasWallet,setHasWallet]=useState(false);
@@ -37,7 +37,7 @@ export default function PlayerWalletBar(){
  },[user?.id]);
  useEffect(()=>{
   // User identity gates wallet access; never retain a former account's balance.
-  setWallet(null);setHasWallet(false);setLoaded(false);setCurrency('CENT');setError('');setOpen(false);
+  setWallet(null);setHasWallet(false);setLoaded(false);setCurrency('IGN');setError('');setOpen(false);
   if(!user?.id||!isAuthenticated)return;
   void load({preferences:true});
   const timer=window.setInterval(()=>{void load({preferences:false});},45000);
