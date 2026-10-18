@@ -107,6 +107,27 @@ export default function Games() {
               <p className="mt-2 text-sm text-gray-300">Join a shared single-zero table, cover your numbers or outside selections, and watch a communal spin.</p>
               <p className="mt-4 text-sm font-bold text-amber-200">Enter roulette table →</p>
             </Link>
+            <Link to={createPageUrl('PlayBaccarat')}
+              className="rounded-xl border border-blue-400/30 bg-gradient-to-br from-blue-950 to-[#152d3b] p-5 text-white hover:border-amber-300">
+              <div className="text-4xl">🃏</div>
+              <h3 className="mt-2 text-xl font-black">Multiplayer Baccarat</h3>
+              <p className="mt-2 text-sm text-gray-300">One communal 8-deck hand. Place Player, Banker or Tie practice chips before the deal.</p>
+              <p className="mt-4 text-sm font-bold text-amber-200">Enter Baccarat table →</p>
+            </Link>
+            <Link to={createPageUrl('PlayCrash')}
+              className="rounded-xl border border-pink-400/30 bg-gradient-to-br from-purple-950 to-[#2d1b3d] p-5 text-white hover:border-amber-300">
+              <div className="text-4xl">📈</div>
+              <h3 className="mt-2 text-xl font-black">Multiplayer Crash</h3>
+              <p className="mt-2 text-sm text-gray-300">Watch a shared multiplier and bet on a preset server-side automatic cashout threshold.</p>
+              <p className="mt-4 text-sm font-bold text-amber-200">Enter Crash table →</p>
+            </Link>
+            <Link to={createPageUrl('PlayTrenball')}
+              className="rounded-xl border border-amber-400/30 bg-gradient-to-br from-amber-950 to-[#39300f] p-5 text-white hover:border-amber-300">
+              <div className="text-4xl">🌙</div>
+              <h3 className="mt-2 text-xl font-black">Multiplayer Trenball</h3>
+              <p className="mt-2 text-sm text-gray-300">Red, Green or Moon predictions on the same live Crash round.</p>
+              <p className="mt-4 text-sm font-bold text-amber-200">Enter Trenball table →</p>
+            </Link>
           </div>
         </section>
         <WeeklyTokenLeaderboard />
