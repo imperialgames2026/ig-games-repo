@@ -8,6 +8,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import ProtectedRoute from '@/lib/ProtectedRoute';
+import GameUnavailable from '@/components/games/GameUnavailable';
 import Login from './pages/Login';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -16,6 +17,9 @@ const publicPages = new Set([
   'Home', 'Games', 'CookiesPolicy', 'Licensing', 'PrivacyPolicy',
   'ResponsiblePlay', 'TermsOfService', 'Leaderboard', 'FairnessManifesto',
 ]);
+// Only these game pages have reviewed zero-wager server handlers.
+// A successful Vite build never authorizes direct legacy wallet settlement.
+const verifiedPracticeGames = new Set(['PlayDice', 'PlayCraps', 'PlayRoulette']);
 const adminPages = new Set([
   'Admin', 'AdminAnnouncements', 'AdminKYC', 'AdminSupport', 'AdminUsers',
   'AdminWallets', 'AdminSweepstakesAudit', 'AdminIGTSupply', 'OwnerKeyring',
@@ -23,6 +27,9 @@ const adminPages = new Set([
 
 const withAccess = (path, element) => {
   if (publicPages.has(path)) return element;
+  if (path.startsWith('Play') && !verifiedPracticeGames.has(path)) {
+    return <ProtectedRoute><GameUnavailable game={path} /></ProtectedRoute>;
+  }
   const roles = adminPages.has(path) ? ['admin', 'superadmin'] : undefined;
   return <ProtectedRoute roles={roles}>{element}</ProtectedRoute>;
 };
