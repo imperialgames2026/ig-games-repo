@@ -35,3 +35,20 @@ test('three independent practice table views have a hard limit',()=>{
  assert.match(desk,/iframe/);
  assert.match(read('components/games/HoldemPracticeTable.jsx'),/PokerMultiTable/);
 });
+
+test('configured MTT start enforces 6-8 seats and <=30 physical tables',()=>{
+ const migration=read('supabase/migrations/20261018014500_mtt_seat_table_limits.sql');
+ assert.match(migration,/max_seats=\(e.config->>'seatsPerTable'\)::int/);
+ assert.match(migration,/max_seats<6 OR max_seats>8/);
+ assert.match(migration,/table_count>\(e.config->>'tableCount'\)::integer/);
+ assert.match(migration,/generate_series\(0,greatest\(6,least\(8,\(e.config->>'seatsPerTable'\)::int\)\)-1\)i/);
+});
+test('only zero-price practice preset can create tournament draft events',()=>{
+ const migration=read('supabase/migrations/20261018015000_poker_preset_create_draft_event.sql');
+ assert.match(migration,/p.currency<>'PRACTICE' or p.buy_in_units<>0/);
+ assert.match(migration,/poker_event_create_v1/);
+ assert.match(migration,/'maxPlayers',p.seats_per_table\*p.table_count/);
+ assert.match(migration,/'rakeCollected',false/);
+ assert.match(api,/ig_poker_create_event_from_preset/);
+ assert.match(ui,/Create draft event/);
+});
