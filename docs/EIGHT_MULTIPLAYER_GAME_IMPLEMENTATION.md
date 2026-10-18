@@ -40,6 +40,7 @@ All payouts quoted in the interface refer ONLY to fictional nonredeemable practi
 - GitHub Playwright desktop/mobile Chromium browser smoke passed for all eight game lobby links and anonymous access protection. It does not substitute for a multi-account authenticated session test.
 - Rollback-only staging SQL transactions tested multiplayer Craps/Roulette, betting deadlines, side-bet settlement, idempotency, leave/rejoin, shooter permissions and roles.
 - Rollback-only staging SQL transactions tested Crash/Trenball and Baccarat multiuser betting, early resolution rejection, deterministic same-round replay and atomic settlement.
+- Repeatable rollback-only SQL test at `supabase/tests/shared_crash_trenball_transactional.sql` verifies Classic Crash automatic cashout and Trenball Red/Green/Moon bets in the same round, all three fixed payout thresholds, lock times, non-dealer rejection, tester read-only access and request replay. The test was executed against staging and passed; no test chips were left behind.
 - Rollback-only staging SQL transactions tested Blackjack multiple seats, main and Perfect Pairs bets, early deal rejection, player turns, dealer settle, repeated resolution, a changed-bet UUID rejection, and inactive turn recovery.
 - Rollback-only staging SQL transactions tested Omaha 4-card dealing, deck-offset-aware flop, Hold'em 2-card dealing, and variant segregation.
 - The original poker deck offset bug was fixed by explicitly recording dealt-seat count for Hold'em and Omaha.
