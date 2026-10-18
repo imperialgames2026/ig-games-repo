@@ -126,6 +126,15 @@ begin
     if p_game='craps' and seat.craps_join_mode<>'shooter' then
       raise exception 'SHOOTER_OPT_IN_REQUIRED' using errcode='42501';
     end if;
+    if p_game='craps' and exists(
+       select 1 from public.ig_mp_players p
+       where p.game='craps' and p.seated and p.craps_join_mode='shooter'
+         and p.seen_at>now()-interval '60 seconds' and p.user_id<>p_actor
+         and (p.craps_shooter_requested_at, p.joined_at,p.user_id)
+             < (coalesce(seat.craps_shooter_requested_at,now()),seat.joined_at,p_actor)
+    ) then
+      raise exception 'SHOOTER_QUEUE_TURN_REQUIRED' using errcode='42501';
+    end if;
     if t.shooter_id is not null and t.shooter_id<>p_actor
        and exists(select 1 from public.ig_mp_players where game=p_game and user_id=t.shooter_id
                  and seated and seen_at > now()-interval '60 seconds') then
