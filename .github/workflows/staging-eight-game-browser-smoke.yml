@@ -1,10 +1,11 @@
 name: Eight-game desktop and mobile browser smoke
 on:
   push:
-    branches: [integration/casino-zip]
+    branches: [integration/casino-zip, main]
     paths:
       - 'pages/**'
       - 'components/games/**'
+      - 'components/admin/TournamentPayoutEditor.jsx'
       - 'App.jsx'
       - 'lib/**'
       - 'tests/e2e/**'
