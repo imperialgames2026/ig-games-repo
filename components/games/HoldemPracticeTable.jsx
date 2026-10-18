@@ -86,7 +86,7 @@ export default function HoldemPracticeTable({variant='holdem'}) {
  return <main className="min-h-screen bg-[#0a0612] px-4 py-8 text-white">
    <div className="mx-auto max-w-6xl space-y-5">
      <div className="flex flex-wrap items-center justify-between gap-2">
-       <div className="flex flex-wrap gap-4"><Link to="/Games" className="text-amber-300 hover:underline">← Games</Link>{!isOmaha&&<Link to="/PokerMultiTable" className="font-bold text-amber-300 underline">+ Add table · Open up to 3</Link>}</div>
+       <div className="flex flex-wrap gap-4"><Link to="/Games" className="text-amber-300 hover:underline">← Games</Link><Link to="/PastPlayedHands" className="text-amber-300 hover:underline">Past Played Hands</Link>{!isOmaha&&<Link to="/PokerMultiTable" className="font-bold text-amber-300 underline">+ Add table · Open up to 3</Link>}</div>
        <span className="rounded-full border border-amber-300/40 bg-amber-300/10 px-4 py-1 text-xs font-bold uppercase tracking-widest text-amber-200">Practice {isOmaha?'Omaha · 6 seats':'Hold’em · 8 seats'}</span>
        {table?.eventId&&<Link to={"/PokerTournamentPrizes?eventId="+encodeURIComponent(table.eventId)} className="text-sm font-semibold text-amber-300 underline">Tournament prize ladder</Link>}
      </div>
