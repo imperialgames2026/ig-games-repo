@@ -28,7 +28,7 @@ export function useBlackjackPractice() {
   },[]);
   const refresh=useCallback(async(quiet=false)=>{
     if(!isAuthenticated){setLoading(false);setState(null);return;}
-    try{await invoke('state');if(!quiet&&connected.current)setError('');}
+    try{await invoke(latest.current?.joined?'tick':'state');if(!quiet&&connected.current)setError('');}
     catch(e){if(!quiet&&connected.current)setError(e.message);}
     finally{if(connected.current)setLoading(false);}
   },[invoke,isAuthenticated]);
