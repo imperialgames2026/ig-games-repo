@@ -103,3 +103,34 @@ test('Blackjack abandoned turns expire on server clock without giving browser au
   assert.match(hook,/latest\.current\?\.joined\?'tick':'state'/);
   assert.doesNotMatch(migration,/public\.(wallets|transactions|withdrawal_requests)/);
 });
+
+
+test('Crash and Trenball share one nonredeemable event room and server-defined fixed payouts',()=>{
+  const engine=file('supabase/migrations/20261017202000_crash_trenball_baccarat_practice.sql');
+  const screen=file('components/games/SharedEventPracticeTable.jsx');
+  const hook=file('hooks/useSharedEventPractice.js');
+  const crash=file('pages/PlayCrash.jsx');
+  const trenball=file('pages/PlayTrenball.jsx');
+  assert.match(crash,/mode="crash"/);
+  assert.match(trenball,/mode="trenball"/);
+  assert.match(screen,/const game=mode==='baccarat'\?'baccarat':'crash'/);
+  assert.match(hook,/ig-shared-event-practice/);
+  assert.match(engine,/p_game='crash'/);
+  assert.match(engine,/tren_red'[\s\S]{0,90}matched:=v_crash<200/);
+  assert.match(engine,/tren_green'[\s\S]{0,90}matched:=v_crash>=200/);
+  assert.match(engine,/tren_moon'[\s\S]{0,90}matched:=v_crash>=1000/);
+  assert.match(engine,/decimal_multiplier:=1\.96/);
+  assert.match(engine,/decimal_multiplier:=10/);
+  assert.match(engine,/update public\.ig_event_seats set chips=chips\+paid/);
+  assert.match(engine,/unique\(game,user_id,request_id\)/);
+  assert.match(engine,/unique\(game,round_no\)/);
+  assert.match(engine,/now\(\)<room\.betting_closes_at/);
+  assert.doesNotMatch(engine,/public\.(?:wallets|transactions|withdrawal_requests)/i);
+  const rollback=file('supabase/tests/shared_crash_trenball_transactional.sql');
+  assert.match(rollback,/^BEGIN;/m);
+  assert.match(rollback,/^ROLLBACK;/m);
+  for(const outcome of ['Classic 2x auto cashout mismatch','Trenball red payout mismatch',
+    'Trenball green payout mismatch','Trenball moon payout mismatch','Idempotent replay failed']) {
+    assert.ok(rollback.includes(outcome),outcome+' staging regression test missing');
+  }
+});
