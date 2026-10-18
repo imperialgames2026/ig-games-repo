@@ -56,7 +56,7 @@ function awards(seats:{seat_no:number;committed:number;folded:boolean;private_ho
   if(!eligible.length)throw Error("No eligible pot winner");
   let top=scores.get(eligible[0].seat_no)!;
   for(const s of eligible)if(compare(scores.get(s.seat_no)!,top)>0)top=scores.get(s.seat_no)!;
-  const winners=eligible.filter(s=>compare(scores.get(s.seat_no)!,top)===0).sort((a,b)=>((a.seat_no-button-1+6)%6)-((b.seat_no-button-1+6)%6));
+  const winners=eligible.filter(s=>compare(scores.get(s.seat_no)!,top)===0).sort((a,b)=>((a.seat_no-button-1+8)%8)-((b.seat_no-button-1+8)%8));
   const share=Math.floor(pot/winners.length),remainder=pot%winners.length;
   winners.forEach((s,i)=>out.push({seat:s.seat_no,chips:share+(i<remainder?1:0)}));
  }
