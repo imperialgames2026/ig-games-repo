@@ -1,4 +1,5 @@
 import {createClient} from "npm:@supabase/supabase-js@2.57.4";
+import {classifySupportByRules,redactSupportText} from "./triage.js";
 
 // Support supervisor is staging-only. It reviews/tags incoming cases and queues
 // Superadmin escalations; it NEVER sends customer replies, signs transactions,
@@ -12,26 +13,6 @@ type Priority="low"|"normal"|"high";
 type Classification={category:Category;priority:Priority;requires_superadmin:boolean;reason:string;suggested_reply:string|null;classification_source:"rules"|"ai_plus_rules"};
 const secureValue=(name:string)=>Deno.env.get(name)?.trim()||"";
 const MAX_BATCH=10,SAFE_URL="https://imperialgaming.llc/AdminSupport";
-const safeText=(input:string)=>input
- .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi,"[email removed]")
- .replace(/(?:\+?\d[\d\s().-]{7,}\d)/g,"[phone/number removed]")
- .replace(/\b(?:0x[a-f0-9]{40}|(?:bc1|ltc1)[a-z0-9]{20,}|[a-zA-Z0-9]{50,})\b/gi,"[address removed]")
- .slice(0,1200);
-
-function classifyByRules(subject:string,message:string):Classification{
- const s=(subject+" "+message).toLowerCase();
- const patterns=[
-  {re:/suicid|self[- ]?harm|harm myself|gambling (addict|problem)|can't stop gambling|self[- ]?exclu|responsible play/i,cat:"responsible_play" as const,reason:"Player safety or responsible gaming concern"},
-  {re:/fraud|identity theft|hacked|stolen|account takeover|compromised|sanction|money launder|suspicious|unauthori[sz]ed/i,cat:"security" as const,reason:"Security or compliance concern"},
-  {re:/withdraw|payout|cash ?out|refund|chargeback|dispute|deposit missing|missing deposit|payment failed|payment stuck|frozen funds|reversal|funds stuck/i,cat:"payments" as const,reason:"Financial or payment decision may require approval"},
-  {re:/kyc|identity verification|verification fail|document reject|account restricted|banned|suspended|age verific|compliance|regulator|legal notice/i,cat:"kyc" as const,reason:"Identity, account restriction or legal concern"},
- ];
- const found=patterns.find(p=>p.re.test(s));
- return {category:found?.cat||( /error|crash|bug|login|broken|failed to load/i.test(s)?"technical":/poker|craps|roulette|game|betting/i.test(s)?"gaming":"account"),
-  priority:found?"high":"normal",requires_superadmin:Boolean(found),
-  reason:found?.reason||"Routine case; staff review required",suggested_reply:null,
-  classification_source:"rules"};
-}
 async function aiSuggestion(subject:string,message:string,rules:Classification):Promise<Classification>{
  const key=secureValue("SUPPORT_OPENAI_API_KEY"),model=secureValue("SUPPORT_AI_MODEL");
  // Fail-safe: no external AI processing unless both are explicitly enabled.
@@ -47,7 +28,7 @@ Classify only, do not take actions. Return ONE JSON object (no markdown), keys: 
 category must be one of account,payments,kyc,technical,gaming,responsible_play,security,other.
 priority low,normal,high. suggested_reply max 400 characters or null. The draft must not promise approvals, winnings, refunds, deposits or account unblocking.
 ESCALATE to Superadmin for financial, chargeback, KYC, restricted account, legal, safety, threats, sanctions and security incidents. Humans decide outcomes.`,
-    input:"Subject: "+safeText(subject)+"\nLatest player message: "+safeText(message),
+    input:"Subject: "+redactSupportText(subject)+"\nLatest player message: "+redactSupportText(message),
     max_output_tokens:350
    })
   });
@@ -155,7 +136,7 @@ Deno.serve(async(req:Request)=>{
     db.from("ig_support_messages").select("id,body,sender_kind").eq("id",job.message_id).eq("ticket_id",job.ticket_id).maybeSingle()
    ]);
    if(t.error||m.error||!t.data||!m.data||m.data.sender_kind!=="player")throw Error("SOURCE_UNAVAILABLE");
-   const rules=classifyByRules(t.data.subject,m.data.body);
+   const rules=classifySupportByRules(t.data.subject,m.data.body);
    const c=await aiSuggestion(t.data.subject,m.data.body,rules);
    const saved=await db.from("ig_support_supervisor_reviews").upsert({
     ticket_id:job.ticket_id,message_id:job.message_id,category:c.category,priority:c.priority,
