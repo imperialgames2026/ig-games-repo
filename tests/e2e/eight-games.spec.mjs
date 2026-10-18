@@ -35,3 +35,12 @@ test('registration screen is reachable, but money transfers are not exposed',asy
  await expect(page.getByRole('textbox',{name:'Email'})).toBeVisible();
  await expect(page.getByText('Deposit Crypto',{exact:true})).toHaveCount(0);
 });
+
+test('prize previews and Superadmin payout controls do not bypass authentication',async ({page})=>{
+ for(const route of ['/PokerTournamentPrizes?eventId=00000000-0000-4000-8000-000000000000','/SuperadminPokerTournaments']){
+   await page.goto(route);
+   await expect(page).toHaveURL(/\/login(?:\?.*)?$/i);
+   await expect(page.getByRole('heading',{name:'Welcome back'})).toBeVisible();
+   await expect(page.getByRole('button',{name:/Save all .* payout positions/i})).toHaveCount(0);
+ }
+});
