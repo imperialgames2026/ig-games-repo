@@ -57,5 +57,5 @@ test('bettor card records bets via existing protected RPC and never sets dice va
  assert.match(felt,/selected\?labelForBet/);
  assert.match(felt,/disabled=\{!selected\|\|!canBet/);
  assert.doesNotMatch(felt,/Math\.random\(\)/);
- assert.match(felt,/disabled=\{busy\} canBet=\{canBet\} canShoot=\{canShoot\}/);
+ assert.match(felt,/disabled=\{busy\} canBet=\{betEligible\} canShoot=\{canShoot\}/);
 });
