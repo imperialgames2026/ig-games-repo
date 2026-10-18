@@ -15,6 +15,76 @@ const CRAPS_BETS = [
   { target: 'any_seven', label: 'ANY SEVEN', detail: 'One-roll proposition', payout: '4:1' },
 ];
 const chip = (v) => Number(v ?? 0).toLocaleString();
+const CRAPS_TARGETS = new Set(['pass','dont_pass','field','any_seven',...CRAPS_POINTS.map(n=>'place_'+n)]);
+
+// Pointer Events work with a mouse, pen and touch. Only a successful server action
+// can remove practice chips or create a bet; the dragged token itself has no value.
+function useCrapsChipDrag({enabled,blocked,available,point,onDrop}) {
+  const gesture=useRef(null);
+  const inFlight=useRef(false);
+  const [drag,setDrag]=useState(null);
+  const [hovered,setHovered]=useState(null);
+  const [notice,setNotice]=useState('');
+  const pickTarget=(x,y)=>{
+    const element=document.elementFromPoint(x,y)?.closest('[data-craps-bet-target]');
+    if(!element || element.disabled) return null;
+    const target=element.getAttribute('data-craps-bet-target');
+    if(!CRAPS_TARGETS.has(target) || (point!=null && (target==='pass'||target==='dont_pass')))return null;
+    return target;
+  };
+  const clear=()=>{
+    gesture.current=null;
+    setDrag(null);
+    setHovered(null);
+  };
+  const begin=(event,amount)=>{
+    if(event.button!==0 || !enabled || blocked || inFlight.current || amount>available)return;
+    gesture.current={pointerId:event.pointerId,amount,startX:event.clientX,startY:event.clientY,moved:false};
+    setNotice('');
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+  };
+  const move=event=>{
+    const g=gesture.current;
+    if(!g||event.pointerId!==g.pointerId)return;
+    const distance=Math.hypot(event.clientX-g.startX,event.clientY-g.startY);
+    if(distance<8 && !g.moved)return; // A tap selects a denomination without placing a bet.
+    g.moved=true;
+    setDrag({amount:g.amount,x:event.clientX,y:event.clientY});
+    setHovered(pickTarget(event.clientX,event.clientY));
+  };
+  const end=event=>{
+    const g=gesture.current;
+    if(!g||event.pointerId!==g.pointerId)return;
+    const target=g.moved?pickTarget(event.clientX,event.clientY):null;
+    clear();
+    if(!g.moved)return;
+    if(!target){setNotice('Chip not placed. Drop it onto an available betting area.');return;}
+    if(!enabled||blocked||inFlight.current||g.amount>available){
+      setNotice('Betting is closed or there are not enough practice chips.');return;
+    }
+    inFlight.current=true;
+    setNotice('Placing '+g.amount+' practice chips on '+labelForBet(target)+'…');
+    void Promise.resolve(onDrop(target,g.amount)).then(ok=>{
+      setNotice(ok?'Placed '+g.amount+' practice chips on '+labelForBet(target)+'.':
+        'Bet not placed. Check the table message and try again.');
+    }).catch(()=>{
+      setNotice('Bet could not be placed. Refresh the table before retrying.');
+    }).finally(()=>{inFlight.current=false;});
+  };
+  const cancel=event=>{
+    if(gesture.current?.pointerId===event.pointerId)clear();
+  };
+  const handlers=amount=>({
+    onPointerDown:event=>begin(event,amount),
+    onPointerMove:move,
+    onPointerUp:end,
+    onPointerCancel:cancel,
+    onLostPointerCapture:cancel,
+    style:{touchAction:'none'},
+  });
+  return {handlers,drag,hovered,notice,inFlight};
+}
+
 
 function PracticeNotice() {
   return (
@@ -25,12 +95,13 @@ function PracticeNotice() {
   );
 }
 
-function BetZone({ title, subtitle, target, payout, total, count, disabled, onBet, highlighted = false, className = '' }) {
+function BetZone({ title, subtitle, target, payout, total, count, disabled, onBet, highlighted = false, className = '', dropTarget = false, hovered = false, mine = 0 }) {
   return (
     <button type="button" aria-label={'Place practice chips on ' + title}
+      data-craps-bet-target={dropTarget ? target : undefined}
       disabled={disabled} onClick={() => onBet(target)}
       className={'relative min-w-0 rounded-xl border-2 p-3 text-center transition focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300 ' +
-        (highlighted ? 'border-amber-300 bg-amber-300/20' : 'border-white/65 bg-black/10 hover:bg-white/15') +
+        (hovered ? 'border-yellow-100 bg-amber-300/35 ring-4 ring-amber-300/60' : highlighted ? 'border-amber-300 bg-amber-300/20' : 'border-white/65 bg-black/10 hover:bg-white/15') +
         (disabled ? ' cursor-not-allowed opacity-65' : ' cursor-pointer') + ' ' + className}>
       <div className="text-base font-black tracking-wide sm:text-lg">{title}</div>
       {subtitle && <div className="mt-1 text-[11px] text-white/80">{subtitle}</div>}
@@ -38,6 +109,7 @@ function BetZone({ title, subtitle, target, payout, total, count, disabled, onBe
       {total > 0 && <div className="absolute -right-2 -top-2 flex min-w-9 items-center justify-center rounded-full border-2 border-amber-200 bg-purple-900 px-1.5 py-1 text-xs font-black shadow-lg" title={count + ' players/bets'}>
         {chip(total)}
       </div>}
+      {mine > 0 && <div className="ig-craps-placed-chip absolute -bottom-2 -left-1 z-10 flex min-w-8 items-center justify-center rounded-full border-[3px] border-[#f2e1a7] bg-[#64338a] p-1 text-[10px] font-black text-white shadow-xl" title={'Your active practice bet: '+chip(mine)+' chips'}>{chip(mine)}</div>}
     </button>
   );
 }
@@ -45,7 +117,7 @@ function BetZone({ title, subtitle, target, payout, total, count, disabled, onBe
 const DICE_GLYPHS=['⚀','⚁','⚂','⚃','⚄','⚅'];
 const labelForBet=(target)=>CRAPS_BETS.find(x=>x.target===target)?.label||
   (target?.startsWith('place_')?'PLACE '+target.slice(6):target?.replaceAll('_',' ').toUpperCase())||'Choose a wager';
-function CrapsFelt({table,choose,selected,disabled,canBet,canShoot,isShooter,onShoot}){
+function CrapsFelt({table,choose,selected,disabled,canBet,canShoot,isShooter,onShoot,hovered}){
  const start=useRef(null);
  const [reveal,setReveal]=useState(true);
  const roll=table.lastResult?.game==='craps'?table.lastResult:null;
@@ -57,6 +129,7 @@ function CrapsFelt({table,choose,selected,disabled,canBet,canShoot,isShooter,onS
  },[roll?.round]);
  const totals=new Map((table.publicBets||[]).map(b=>[b.target,b]));
  const stats=t=>totals.get(t)||{units:0,count:0};
+ const mine=target=>(table.myBets||[]).filter(b=>b.target===target).reduce((sum,b)=>sum+Number(b.units||0),0);
  const status=table.point===null||table.point===undefined?'COME OUT':'POINT '+table.point+' ON';
  return <div className="overflow-x-auto pb-4" aria-label="Casino craps practice table">
    <div className="ig-craps-rail min-w-[890px] rounded-[76px] p-[11px] sm:p-[18px]">
@@ -77,13 +150,15 @@ function CrapsFelt({table,choose,selected,disabled,canBet,canShoot,isShooter,onS
          const b = stats(target);
          const odds=num===4||num===10?'9:5':num===5||num===9?'7:5':'7:6';
          return <BetZone key={target} target={target} title={String(num)} subtitle="PLACE BET"
-           payout={odds} total={b.units} count={b.count} onBet={choose}
+           payout={odds} total={b.units} count={b.count} onBet={choose} dropTarget
+           mine={mine(target)} hovered={hovered===target}
            disabled={!canBet||disabled} highlighted={table.point===num||selected===target}
            className={'ig-craps-target min-h-[102px] !rounded-md !px-1 '+(selected===target?'!border-amber-300 !bg-amber-300/30':'')}/>;
        })}
        <div className="col-span-6 mt-1 grid grid-cols-2 gap-2">
         {CRAPS_BETS.slice(0,2).map(b=><BetZone key={b.target} target={b.target} title={b.label} subtitle={b.detail}
-          payout={b.payout} total={stats(b.target).units} count={stats(b.target).count}
+          payout={b.payout} total={stats(b.target).units} count={stats(b.target).count} dropTarget
+          mine={mine(b.target)} hovered={hovered===b.target}
           disabled={!canBet||disabled||!!table.point} highlighted={selected===b.target}
           onBet={choose} className="ig-craps-target min-h-[84px] !rounded-md"/>)}
        </div>
@@ -92,7 +167,8 @@ function CrapsFelt({table,choose,selected,disabled,canBet,canShoot,isShooter,onS
        <div className="grid grid-cols-2 gap-2">
         {CRAPS_BETS.slice(2).map(b=><BetZone key={b.target} target={b.target} title={b.label}
           subtitle={b.detail} payout={b.payout}
-          total={stats(b.target).units} count={stats(b.target).count}
+          total={stats(b.target).units} count={stats(b.target).count} dropTarget
+          mine={mine(b.target)} hovered={hovered===b.target}
           disabled={!canBet||disabled} highlighted={selected===b.target}
           onBet={choose} className="ig-craps-target min-h-[90px] !rounded-md !px-2"/>)}
        </div>
@@ -125,7 +201,23 @@ function CrapsFelt({table,choose,selected,disabled,canBet,canShoot,isShooter,onS
    <p className="mt-2 text-xs text-[#b6c9c0]">Slide sideways on smaller screens to see the complete, full-length casino felt. Pick a betting zone and confirm it on your betting card.</p>
  </div>;
 }
-function CrapsBettingCard({table,stake,setStake,selected,setSelected,canBet,busy,placeBet,joined,refill}){
+function CrapsChipRack({table,stake,setStake,dragHandlers,busy,joined}) {
+ return <div className="rounded-2xl border border-[#987344]/70 bg-[linear-gradient(120deg,#271c16,#171b24)] px-4 py-3 text-white">
+   <div className="flex flex-wrap items-center justify-between gap-3">
+    <div><div className="text-[10px] font-black uppercase tracking-[.17em] text-[#e9c88a]">Pick up a chip</div>
+      <p className="mt-1 text-xs text-white/70">Drag onto a green felt betting area • tap to choose</p></div>
+    <div className="flex flex-wrap items-center gap-2">
+     {CHIP_VALUES.map(value=><button type="button" key={value} {...dragHandlers(value)}
+       aria-pressed={stake===value} aria-label={'Drag '+value+' practice chip to betting area'}
+       onClick={()=>setStake(value)} disabled={busy||!joined||value>table.chips}
+       className={'ig-craps-rack-chip flex h-12 w-12 items-center justify-center rounded-full border-[3px] text-xs font-black shadow-lg disabled:opacity-35 '+
+         (stake===value?'border-amber-200 bg-[#c5a268] text-black ring-2 ring-amber-300/60':'border-[#d2bcd9] bg-[#573774] text-white')}>{value}</button>)}
+    </div>
+   </div>
+ </div>;
+}
+
+function CrapsBettingCard({table,stake,setStake,selected,setSelected,canBet,busy,placeBet,joined,refill,dragHandlers}){
  const [placing,setPlacing]=useState(false);
  const confirm=async()=>{
   if(!selected||!canBet||placing||busy)return;
@@ -136,7 +228,7 @@ function CrapsBettingCard({table,stake,setStake,selected,setSelected,canBet,busy
  return <section className="rounded-2xl border border-[#b28c4d]/60 bg-[linear-gradient(150deg,#24211d,#141a20)] p-5 shadow-xl">
    <div className="mb-1 text-[10px] font-black tracking-[.2em] text-[#e1b972]">PLAYER BETTING CARD</div>
    <h2 className="font-serif text-xl font-bold text-white">Get in on the action</h2>
-   <p className="mt-1 text-xs text-white/60">Choose a chip, tap a zone on the felt, then confirm. No real money.</p>
+   <p className="mt-1 text-xs text-white/60">Drag a chip from the rack onto a bet to place it, or tap a zone and confirm. No real money.</p>
    <div className="mt-4 rounded-xl border border-white/15 bg-black/25 p-3">
      <div className="text-[11px] uppercase tracking-wider text-[#dfcba5]">Selected wager</div>
      <div className="mt-1 text-lg font-black text-white">{selected?labelForBet(selected):'Select a table zone'}</div>
@@ -144,9 +236,10 @@ function CrapsBettingCard({table,stake,setStake,selected,setSelected,canBet,busy
    </div>
    <div className="mt-4 text-[11px] font-bold text-[#ddc9a8]">CHIP DENOMINATION</div>
    <div className="mt-2 flex flex-wrap gap-2">
-    {CHIP_VALUES.map(value=><button key={value} type="button" disabled={busy||placing}
-      aria-pressed={stake===value} onClick={()=>setStake(value)}
-      className={'h-11 w-11 rounded-full border-[3px] text-xs font-black shadow-lg transition '+(stake===value
+    {CHIP_VALUES.map(value=><button key={value} type="button" disabled={busy||placing||value>table.chips}
+      aria-label={'Drag '+value+' practice chip onto craps table or tap to select'}
+      {...dragHandlers(value)} aria-pressed={stake===value} onClick={()=>setStake(value)}
+      className={'ig-craps-rack-chip h-11 w-11 rounded-full border-[3px] text-xs font-black shadow-lg transition '+(stake===value
         ?'scale-110 border-amber-200 bg-[#c39a52] text-black ring-2 ring-amber-300/50'
         :'border-[#c3b9d3] bg-[#483465] text-white hover:border-amber-200')}>{value}</button>)}
    </div>
@@ -293,12 +386,25 @@ export default function MultiplayerPracticeTable({ game }) {
   const remainingMs = Number.isFinite(deadline) ? Math.max(0, deadline - (clockNow - clockOffset)) : 0;
   const secondsLeft = Math.ceil(remainingMs / 1000);
   const bettingOpen = !!table?.betsOpen && secondsLeft > 0;
-  const canBet = joined && bettingOpen && user?.role !== 'tester' && !user?.is_excluded && table.chips >= stake;
+  const betEligible = joined && bettingOpen && user?.role !== 'tester' && !user?.is_excluded && Number(table?.chips||0)>0;
+  const canBet = betEligible && Number(table.chips)>=stake;
   const amShooter = !!(table?.shooterId && user?.id === table.shooterId);
   const canShoot = amShooter && !bettingOpen && !busy;
   const liveShooter=table?.players?.find(p=>p.shooter)?.active;
   const canClaim=joined && !amShooter && !liveShooter && (game!=='craps'||table?.myJoinMode==='shooter');
   const last=table?.lastResult;
+  const dragChips=useCrapsChipDrag({
+    enabled:game==='craps'&&betEligible,
+    blocked:busy,
+    available:Number(table?.chips||0),
+    point:table?.point,
+    onDrop:async(target,amount)=>{
+      if(game!=='craps'||!betEligible||busy||Number(table?.chips||0)<amount)return false;
+      const ok=await placeBet(target,amount);
+      if(ok){setStake(amount);setCrapsBetTarget(null);}
+      return ok;
+    },
+  });
   return (
     <main className="min-h-screen bg-[#0a0612] px-3 py-7 text-white sm:px-6">
       <div className="mx-auto max-w-[1440px] space-y-5">
@@ -316,11 +422,15 @@ export default function MultiplayerPracticeTable({ game }) {
             {bettingOpen ? secondsLeft + 's' : 'LOCKED'}
           </p>
         </div>}
+        {game==='craps'&&dragChips.notice&&<div aria-live="polite" role="status" className="rounded-xl border border-amber-300/35 bg-amber-300/10 px-4 py-3 text-sm text-amber-100">{dragChips.notice}</div>}
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
           <div className="space-y-5">
             {loading && !table ? <div role="status" className="rounded-xl border border-white/10 bg-white/5 p-10 text-center">Connecting to the practice table…</div> : null}
+            {table && game==='craps'&&<CrapsChipRack table={table} stake={stake} setStake={setStake}
+              dragHandlers={dragChips.handlers} busy={busy} joined={joined}/>}
             {table && (game==='craps'
-              ? <CrapsFelt table={table} choose={setCrapsBetTarget} selected={crapsBetTarget} disabled={busy} canBet={canBet} canShoot={canShoot} isShooter={amShooter} onShoot={()=>void runRound()} />
+              ? <CrapsFelt table={table} choose={setCrapsBetTarget} selected={crapsBetTarget}
+                  hovered={dragChips.hovered} disabled={busy} canBet={betEligible} canShoot={canShoot} isShooter={amShooter} onShoot={()=>void runRound()} />
               : <RouletteFelt table={table} choose={target=>void placeBet(target,stake)} disabled={busy} canBet={canBet} />)}
             {table && <section className="rounded-2xl border border-white/10 bg-[#1b1728] p-5">
               <div className="grid gap-5 md:grid-cols-[1fr_auto]">
@@ -380,7 +490,7 @@ export default function MultiplayerPracticeTable({ game }) {
           <aside className="space-y-5">
             {table && <>{game==='craps'&&<CrapsBettingCard table={table} stake={stake} setStake={setStake}
               selected={crapsBetTarget} setSelected={setCrapsBetTarget} canBet={canBet} busy={busy}
-              placeBet={placeBet} joined={joined} refill={refill}/>}
+              placeBet={placeBet} joined={joined} refill={refill} dragHandlers={dragChips.handlers}/>}
               <PlayersPanel table={table}/><MyBetsPanel table={table}/></>}
             <section className="rounded-2xl border border-white/10 bg-[#1b1728] p-5">
               <h2 className="text-lg font-black">How this table works</h2>
@@ -392,6 +502,10 @@ export default function MultiplayerPracticeTable({ game }) {
           </aside>
         </div>
       </div>
+      {game==='craps'&&dragChips.drag&&<div className="ig-craps-chip-ghost"
+        aria-hidden="true" style={{left:dragChips.drag.x,top:dragChips.drag.y}}>
+        {dragChips.drag.amount}
+      </div>}
     </main>
   );
 }
