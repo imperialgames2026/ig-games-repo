@@ -15,6 +15,16 @@ export default function SuperadminPokerTournaments(){
  const invoke=async body=>{const {data,error}=await supabase.functions.invoke('ig-poker-tournament-admin',{body});if(error||data?.error)throw Error(data?.error||'Staging service unavailable');return data;};
  const load=async()=>{if(!allowed)return;try{const r=await invoke({action:'list'});setPresets(r.presets||[]);}catch(e){setError(e.message);}};
  useEffect(()=>{void load();},[allowed]);
+ const createEvent=async preset=>{
+  if(preset.currency!=='PRACTICE'||Number(preset.buy_in_units)!==0){
+    setError('Only zero-buy-in PRACTICE presets can create staging events.');return;
+  }
+  setSaving(true);setError('');setNotice('');
+  try{
+    const result=await invoke({action:'createPracticeEvent',presetId:preset.id,requestId:crypto.randomUUID()});
+    setNotice('Practice tournament draft created: '+result.event.eventId+'. Registration and launch must be validated separately.');
+  }catch(e){setError(e.message)}finally{setSaving(false)}
+ };
  const save=async e=>{
   e.preventDefault();if(!allowed||saving)return;
   setSaving(true);setNotice('');setError('');
@@ -53,7 +63,8 @@ export default function SuperadminPokerTournaments(){
    {notice&&<p role="status" className="text-emerald-300">{notice}</p>}{error&&<p role="alert" className="text-red-300">{error}</p>}
   </form>
   <section className="rounded-2xl border border-white/15 bg-[#1c1729] p-5"><h2 className="text-xl font-black">Saved draft tournament presets</h2>
-   <div className="mt-4 space-y-2">{presets.map(p=><div key={p.id} className="flex flex-wrap justify-between gap-3 border-b border-white/10 py-3 text-sm"><span>{p.name} · {p.format} · {p.variant}</span><span>{p.seats_per_table} seats × {p.table_count} tables · {p.currency} {p.buy_in_units} · {p.rake_bps/100}% rake</span></div>)}
+   <div className="mt-4 space-y-2">{presets.map(p=><div key={p.id} className="flex flex-wrap justify-between gap-3 border-b border-white/10 py-3 text-sm"><span>{p.name} · {p.format} · {p.variant}</span><span>{p.seats_per_table} seats × {p.table_count} tables · {p.currency} {p.buy_in_units} · {p.rake_bps/100}% rake</span>
+    {p.currency==='PRACTICE'&&Number(p.buy_in_units)===0&&<button type="button" disabled={saving} onClick={()=>void createEvent(p)} className="rounded-lg border border-amber-300 px-3 py-1 font-bold text-amber-200 disabled:opacity-50">Create draft event</button>}</div>)}
    {!presets.length&&<p className="text-gray-400">No saved staging presets.</p>}</div>
   </section>
  </div></main>;
