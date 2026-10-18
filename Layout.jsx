@@ -17,7 +17,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Drawer, DrawerContent } from '@/components/ui/drawer';
-import WalletDisplay from '@/components/casino/WalletDisplay';
 import ReferralHandler from '@/components/casino/ReferralHandler';
 import BottomTabBar from '@/components/mobile/BottomTabBar';
 import MobileHeader from '@/components/mobile/MobileHeader';
@@ -49,7 +48,6 @@ export default function Layout({ children, currentPageName }) {
     const [user, setUser] = useState(null);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
-    const [currency, setCurrency] = useState(() => localStorage.getItem('preferredCurrency') || 'IC');
     const location = useLocation();
     const isMobile = useMediaQuery('(max-width: 768px)');
 
@@ -75,17 +73,6 @@ export default function Layout({ children, currentPageName }) {
       loadUser();
     }, []);
 
-    const handleCurrencyChange = (newCurrency) => {
-      setCurrency(newCurrency);
-      localStorage.setItem('preferredCurrency', newCurrency);
-    };
-
-  const { data: wallets = [] } = useQuery({
-    queryKey: ['wallet-layout', user?.email],
-    queryFn: () => base44.entities.UserWallet.filter({ user_email: user?.email }),
-    enabled: !!user?.email,
-  });
-
   const { data: pendingKYC = [] } = useQuery({
     queryKey: ['pending-kyc-count'],
     queryFn: () => base44.entities.User.filter({ kyc_status: 'submitted' }),
@@ -93,7 +80,6 @@ export default function Layout({ children, currentPageName }) {
     refetchInterval: 60000,
   });
 
-  const wallet = wallets[0];
   const pendingKYCCount = pendingKYC.length;
 
   const navItems = [
@@ -160,8 +146,7 @@ export default function Layout({ children, currentPageName }) {
             <div className="flex items-center gap-3">
               {user ? (
                 <>
-                  {/* Wallet Display */}
-                  <WalletDisplay wallet={wallet} compact currency={currency} onCurrencyChange={handleCurrencyChange} user={user} onBet={() => {}} />
+                  {/* A single, authenticated wallet toolbar now appears above every route. */}
 
                   {/* User Menu - Desktop Dropdown, Mobile Drawer */}
                   {isMobile ? (
