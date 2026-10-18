@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import CryptoDepositPanel from '@/components/crypto/CryptoDepositPanel';
 import CryptoWithdrawalPanel from '@/components/crypto/CryptoWithdrawalPanel';
 import CryptoTransferList from '@/components/crypto/CryptoTransferList';
+import ImperialSwapSelector from '@/components/crypto/ImperialSwapSelector';
 
 export default function CryptoWallet() {
   const [user, setUser] = useState(null);
@@ -38,6 +39,7 @@ export default function CryptoWallet() {
           <CryptoDepositPanel user={user} />
           <CryptoWithdrawalPanel user={user} wallet={wallet} />
         </div>
+        <ImperialSwapSelector />
         <CryptoTransferList transfers={transfers} />
       </div>
     </div>

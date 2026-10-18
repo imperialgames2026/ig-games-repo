@@ -1,0 +1,99 @@
+{
+  "name": "WalletGift",
+  "type": "object",
+  "properties": {
+    "sender_email": {
+      "type": "string",
+      "description": "Email of the user sending the gift"
+    },
+    "recipient_email": {
+      "type": "string",
+      "description": "Email of the user receiving the gift"
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "IGC",
+        "IGUSD",
+        "IGT"
+      ],
+      "description": "Gifted wallet currency"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Amount gifted"
+    },
+    "note": {
+      "type": "string",
+      "description": "Optional message from sender"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "completed",
+        "failed"
+      ],
+      "default": "completed",
+      "description": "Gift transfer status"
+    }
+  },
+  "required": [
+    "sender_email",
+    "recipient_email",
+    "currency",
+    "amount"
+  ],
+  "rls": {
+    "create": {
+      "data.sender_email": "{{user.email}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.sender_email": "{{user.email}}"
+        },
+        {
+          "data.recipient_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,33 @@
+name: Solana scaffold checks
+on:
+  push:
+    branches: [integration/casino-zip]
+    paths:
+      - 'solana/**'
+      - 'lib/solanaNetwork.js'
+      - 'lib/solanaWallet.js'
+      - 'components/solana/**'
+      - 'pages/SolanaDevnet.jsx'
+      - 'tests/solanaWallet.test.mjs'
+      - 'tests/solanaNetwork.test.mjs'
+      - '.github/workflows/solana-scaffold-checks.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  frontend-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/solanaNetwork.test.mjs tests/solanaWallet.test.mjs
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+  anchor-unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --manifest-path solana/Cargo.toml

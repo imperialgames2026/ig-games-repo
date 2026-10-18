@@ -1,0 +1,42 @@
+{
+  "name": "VIPLevel",
+  "type": "object",
+  "properties": {
+    "level": {
+      "type": "number",
+      "description": "VIP level (1-100+)"
+    },
+    "required_xp": {
+      "type": "number",
+      "description": "Total XP required to reach this level"
+    },
+    "tier_group": {
+      "type": "string",
+      "enum": [
+        "Bronze",
+        "Silver",
+        "Gold",
+        "Platinum I",
+        "Platinum II",
+        "Diamond I",
+        "Diamond II",
+        "Diamond III"
+      ],
+      "description": "Which tier this level belongs to"
+    },
+    "display_name": {
+      "type": "string",
+      "description": "Display name e.g. 'VIP 02' or 'SVIP 01'"
+    },
+    "level_up_bonus_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "Bonus amount awarded when this VIP level is reached"
+    }
+  },
+  "required": [
+    "level",
+    "required_xp",
+    "tier_group"
+  ]
+}

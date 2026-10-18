@@ -1,0 +1,80 @@
+{
+  "name": "Transaction",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "purchase",
+        "win",
+        "loss",
+        "bonus",
+        "daily_reward",
+        "admin_credit",
+        "admin_debit",
+        "referral_bonus",
+        "referral_commission"
+      ],
+      "description": "Transaction type"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Token amount (positive or negative)"
+    },
+    "game_slug": {
+      "type": "string",
+      "description": "Related game if applicable"
+    },
+    "description": {
+      "type": "string"
+    },
+    "balance_after": {
+      "type": "number",
+      "description": "Balance after transaction"
+    },
+    "cat_dollars": {
+      "type": "number",
+      "description": "Imperial Dollars amount"
+    },
+    "status": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "card",
+        "crypto"
+      ],
+      "description": "Payment method used for purchases"
+    }
+  },
+  "required": [
+    "user_email",
+    "type",
+    "amount"
+  ],
+  "rls": {
+    "create": {
+      "data.user_email": "{{user.email}}"
+    },
+    "read": {
+      "data.user_email": "{{user.email}}"
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

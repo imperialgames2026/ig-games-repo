@@ -1,0 +1,92 @@
+{
+  "name": "WeeklyWager",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User email"
+    },
+    "week_key": {
+      "type": "string",
+      "description": "Week identifier such as 2026-W19"
+    },
+    "total_ic_wagered": {
+      "type": "number",
+      "default": 0,
+      "description": "Total IC wagered this week"
+    },
+    "total_id_wagered": {
+      "type": "number",
+      "default": 0,
+      "description": "Total ID wagered this week"
+    },
+    "weekly_goal": {
+      "type": "number",
+      "default": 10000,
+      "description": "Weekly goal target"
+    },
+    "goal_reached": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the user reached the target"
+    },
+    "weekly_bonus_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "IC weekly bonus to credit"
+    },
+    "rakeback_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "ID rakeback to credit"
+    },
+    "reward_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "credited"
+      ],
+      "default": "pending",
+      "description": "Weekly reward payout status"
+    },
+    "credited_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When rewards were credited"
+    }
+  },
+  "required": [
+    "user_email",
+    "week_key"
+  ],
+  "rls": {
+    "create": {
+      "data.user_email": "{{user.email}}"
+    },
+    "read": {
+      "data.user_email": "{{user.email}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

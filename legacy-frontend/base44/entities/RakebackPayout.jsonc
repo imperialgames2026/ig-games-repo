@@ -1,0 +1,68 @@
+{
+  "name": "RakebackPayout",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User email receiving rakeback"
+    },
+    "period_type": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "weekly",
+        "monthly"
+      ],
+      "description": "Rakeback period type"
+    },
+    "period_key": {
+      "type": "string",
+      "description": "Unique UTC period key used for idempotency"
+    },
+    "vip_tier": {
+      "type": "string",
+      "description": "VIP tier snapshot at payout time"
+    },
+    "bonus_rate": {
+      "type": "number",
+      "description": "Applied bonus rate"
+    },
+    "total_wagered_id": {
+      "type": "number",
+      "default": 0,
+      "description": "Total ID wagered in the payout period"
+    },
+    "house_edge_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "Calculated house edge share from wagering"
+    },
+    "net_loss_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "Net user loss in the period"
+    },
+    "rakeback_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "Final rakeback credited as ID"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "paid",
+        "skipped"
+      ],
+      "default": "paid"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional payout notes"
+    }
+  },
+  "required": [
+    "user_email",
+    "period_type",
+    "period_key"
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "name": "StakingPosition",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User's email"
+    },
+    "amount_id": {
+      "type": "number",
+      "description": "Legacy amount of Imperial Dollars locked in staking"
+    },
+    "amount_igt": {
+      "type": "number",
+      "description": "Amount of IGT locked in staking"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "unstaked"
+      ],
+      "default": "active",
+      "description": "Current staking status"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the stake started"
+    },
+    "ended_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the stake ended"
+    },
+    "last_rewarded_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last time hourly rewards were applied"
+    },
+    "total_rewards_paid": {
+      "type": "number",
+      "default": 0,
+      "description": "Total staking rewards paid to this position"
+    },
+    "burned_on_unstake": {
+      "type": "number",
+      "default": 0,
+      "description": "IGT burned as a 1% unstaking fee"
+    },
+    "reward_multiplier_snapshot": {
+      "type": "number",
+      "default": 1,
+      "description": "Pool multiplier captured when the position was created"
+    }
+  },
+  "required": [
+    "user_email"
+  ],
+  "rls": {
+    "create": {
+      "data.user_email": "{{user.email}}"
+    },
+    "read": {
+      "data.user_email": "{{user.email}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "name": "WeeklyTournament",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Tournament name e.g. 'Weekly Wager War #1'"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "upcoming",
+        "active",
+        "completed"
+      ],
+      "default": "upcoming",
+      "description": "Current tournament status"
+    },
+    "starts_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Tournament start time"
+    },
+    "ends_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Tournament end time"
+    },
+    "prize_type": {
+      "type": "string",
+      "enum": [
+        "IC",
+        "ID",
+        "voucher",
+        "both"
+      ],
+      "default": "IC",
+      "description": "Type of prize awarded"
+    },
+    "first_place_ic": {
+      "type": "number",
+      "default": 50000,
+      "description": "IC prize for 1st place"
+    },
+    "first_place_id": {
+      "type": "number",
+      "default": 0,
+      "description": "ID prize for 1st place"
+    },
+    "second_place_ic": {
+      "type": "number",
+      "default": 25000,
+      "description": "IC prize for 2nd place"
+    },
+    "second_place_id": {
+      "type": "number",
+      "default": 0,
+      "description": "ID prize for 2nd place"
+    },
+    "third_place_ic": {
+      "type": "number",
+      "default": 10000,
+      "description": "IC prize for 3rd place"
+    },
+    "third_place_id": {
+      "type": "number",
+      "default": 0,
+      "description": "ID prize for 3rd place"
+    },
+    "prize_voucher_code": {
+      "type": "string",
+      "description": "Voucher code to award winner (optional)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Tournament description/rules"
+    },
+    "min_wager_to_qualify": {
+      "type": "number",
+      "default": 0,
+      "description": "Minimum total wager to qualify for prizes"
+    },
+    "winner_email": {
+      "type": "string",
+      "description": "Email of tournament winner (set when completed)"
+    },
+    "winner_display_name": {
+      "type": "string",
+      "description": "Display name of winner"
+    },
+    "winner_total_wagered": {
+      "type": "number",
+      "description": "Total amount wagered by winner"
+    },
+    "prize_paid": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the prize has been distributed"
+    },
+    "auto_renew": {
+      "type": "boolean",
+      "default": true,
+      "description": "Automatically create next week's tournament when this one ends"
+    }
+  },
+  "required": [
+    "name",
+    "starts_at",
+    "ends_at"
+  ]
+}

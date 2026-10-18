@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+
+# Block admin and private pages
+Disallow: /Admin
+Disallow: /AdminAnnouncements
+Disallow: /AdminKYC
+Disallow: /AdminSupport
+Disallow: /AdminUsers
+Disallow: /AdminWallets
+Disallow: /KYCVerification
+Disallow: /TransactionHistory
+Disallow: /Withdraw
+Disallow: /ThankYou
+Disallow: /Profile
+
+# Sitemap location
+Sitemap: https://imperialhouse.online/sitemap.xml

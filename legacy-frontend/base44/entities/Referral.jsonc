@@ -1,0 +1,63 @@
+{
+  "name": "Referral",
+  "type": "object",
+  "properties": {
+    "referrer_email": {
+      "type": "string",
+      "description": "Email of the user who referred"
+    },
+    "referred_email": {
+      "type": "string",
+      "description": "Email of the user who was referred"
+    },
+    "referral_code": {
+      "type": "string",
+      "description": "6-digit referral code used"
+    },
+    "signup_bonus_paid": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the one-time 500 IC signup bonus has been paid to both users"
+    },
+    "total_commission_earned": {
+      "type": "number",
+      "default": 0,
+      "description": "Total 2% commission earned from referred user purchases"
+    },
+    "referred_user_total_spent": {
+      "type": "number",
+      "default": 0,
+      "description": "Total real-money amount spent by referred user"
+    }
+  },
+  "required": [
+    "referrer_email",
+    "referred_email",
+    "referral_code"
+  ],
+  "rls": {
+    "create": {
+      "data.referred_email": "{{user.email}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.referrer_email": "{{user.email}}"
+        },
+        {
+          "data.referred_email": "{{user.email}}"
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

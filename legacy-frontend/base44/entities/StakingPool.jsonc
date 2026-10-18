@@ -1,0 +1,58 @@
+{
+  "name": "StakingPool",
+  "type": "object",
+  "properties": {
+    "key": {
+      "type": "string",
+      "description": "Unique pool key"
+    },
+    "total_staked_id": {
+      "type": "number",
+      "default": 0,
+      "description": "Legacy total Imperial Dollars currently staked"
+    },
+    "total_staked_igt": {
+      "type": "number",
+      "default": 0,
+      "description": "Total IGT currently staked"
+    },
+    "base_hourly_rate": {
+      "type": "number",
+      "default": 0.0025,
+      "description": "Base hourly reward rate applied to the pool"
+    },
+    "hourly_reward_budget": {
+      "type": "number",
+      "default": 0,
+      "description": "Last calculated hourly reward budget"
+    },
+    "next_payout_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "Estimated next payout cycle amount"
+    },
+    "last_payout_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last hourly payout time"
+    },
+    "total_rewards_paid": {
+      "type": "number",
+      "default": 0,
+      "description": "Total rewards distributed by the pool"
+    },
+    "total_burned_igt": {
+      "type": "number",
+      "default": 0,
+      "description": "Total IGT burned by unstaking fees"
+    },
+    "active_stakers": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of active staking positions"
+    }
+  },
+  "required": [
+    "key"
+  ]
+}

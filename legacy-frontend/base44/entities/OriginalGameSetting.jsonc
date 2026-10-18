@@ -1,0 +1,111 @@
+{
+  "name": "OriginalGameSetting",
+  "type": "object",
+  "properties": {
+    "game_slug": {
+      "type": "string",
+      "description": "Original game slug this setting controls"
+    },
+    "lose_weight": {
+      "type": "number",
+      "default": 100,
+      "description": "Server-side weight for losing outcomes"
+    },
+    "sx_weight": {
+      "type": "number",
+      "default": 100,
+      "description": "SX win category weight: 1.01x-6.0x"
+    },
+    "mx_weight": {
+      "type": "number",
+      "default": 35,
+      "description": "MX win category weight: 6.01x-16.0x"
+    },
+    "lx_weight": {
+      "type": "number",
+      "default": 12,
+      "description": "LX win category weight: 16.01x-33.0x"
+    },
+    "xl_weight": {
+      "type": "number",
+      "default": 4,
+      "description": "XL win category weight: 33.01x-133.0x"
+    },
+    "xxl_weight": {
+      "type": "number",
+      "default": 1,
+      "description": "XXL win category weight: 133.01x-1200.00x"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether server-side adjustment is active for this game"
+    }
+  },
+  "required": [
+    "game_slug"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "tester"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    }
+  }
+}

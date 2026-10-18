@@ -1,0 +1,132 @@
+{
+  "name": "PrizeClaim",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Claimant email"
+    },
+    "claim_type": {
+      "type": "string",
+      "enum": [
+        "sweepstakes_prize",
+        "withdrawal"
+      ],
+      "default": "sweepstakes_prize",
+      "description": "What kind of claim this is"
+    },
+    "entry_id": {
+      "type": "string",
+      "description": "Optional linked sweepstakes entry id"
+    },
+    "prize_category": {
+      "type": "string",
+      "enum": [
+        "cash",
+        "crypto",
+        "cash_equivalent"
+      ],
+      "default": "crypto",
+      "description": "Prize type"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Claim amount"
+    },
+    "currency": {
+      "type": "string",
+      "description": "Currency or token name"
+    },
+    "wallet_address": {
+      "type": "string",
+      "description": "Crypto wallet address if applicable"
+    },
+    "network": {
+      "type": "string",
+      "description": "Crypto network"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "submitted",
+        "kyc_required",
+        "under_review",
+        "approved",
+        "fulfilled",
+        "rejected"
+      ],
+      "default": "submitted",
+      "description": "Claim lifecycle status"
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the claim was submitted"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When claim was reviewed"
+    },
+    "fulfilled_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When prize was fulfilled"
+    },
+    "admin_notes": {
+      "type": "string",
+      "description": "Internal review notes"
+    }
+  },
+  "required": [
+    "user_email",
+    "claim_type",
+    "prize_category",
+    "amount"
+  ],
+  "rls": {
+    "create": {
+      "data.user_email": "{{user.email}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "superadmin"
+      }
+    }
+  }
+}

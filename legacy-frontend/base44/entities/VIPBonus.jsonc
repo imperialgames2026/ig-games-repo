@@ -1,0 +1,73 @@
+{
+  "name": "VIPBonus",
+  "type": "object",
+  "properties": {
+    "bonus_type": {
+      "type": "string",
+      "enum": [
+        "fixed",
+        "recharge",
+        "weekly_cashback",
+        "monthly_cashback",
+        "daily_bonus",
+        "sports_bonus",
+        "lucky_spin",
+        "vip_level_up"
+      ],
+      "description": "Type of bonus"
+    },
+    "display_name": {
+      "type": "string",
+      "description": "Display name for the bonus"
+    },
+    "min_tier_level": {
+      "type": "number",
+      "default": 1,
+      "description": "Minimum VIP level to unlock this bonus"
+    },
+    "description": {
+      "type": "string",
+      "description": "Bonus description"
+    },
+    "amount_type": {
+      "type": "string",
+      "enum": [
+        "fixed",
+        "percentage",
+        "tiered"
+      ],
+      "description": "How bonus amount is calculated"
+    },
+    "base_amount": {
+      "type": "number",
+      "description": "Base bonus amount or percentage"
+    },
+    "wager_requirement": {
+      "type": "number",
+      "default": 0,
+      "description": "Minimum wager required to claim"
+    },
+    "claim_interval_hours": {
+      "type": "number",
+      "default": 24,
+      "description": "Hours between bonus claims"
+    },
+    "icon": {
+      "type": "string",
+      "description": "Icon/emoji for bonus"
+    },
+    "color": {
+      "type": "string",
+      "description": "Color theme"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "bonus_type",
+    "display_name",
+    "description"
+  ]
+}

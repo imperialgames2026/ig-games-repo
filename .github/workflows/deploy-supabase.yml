@@ -1,0 +1,36 @@
+name: Deploy Imperial Games to Supabase
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [migration/supabase-finalization]
+    paths:
+      - 'supabase/**'
+      - 'scripts/prepare-supabase-functions.mjs'
+      - '.github/workflows/deploy-supabase.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Supabase CLI
+        run: npm install --global supabase
+      - name: Validate deployment secrets
+        run: test -n "$SUPABASE_ACCESS_TOKEN" && test -n "$SUPABASE_PROJECT_REF"
+      - name: Download preserved Base44 archive
+        run: curl -fsSL https://github.com/imperialgames2026/casino-zip/raw/refs/heads/main/ig-games.zip -o ig-games.zip
+      - name: Prepare Edge Functions
+        run: node scripts/prepare-supabase-functions.mjs
+      - name: Link project
+        run: supabase link --project-ref "$SUPABASE_PROJECT_REF"
+      - name: Apply database migrations
+        run: supabase db push
+      - name: Deploy Edge Functions
+        run: supabase functions deploy --project-ref "$SUPABASE_PROJECT_REF"

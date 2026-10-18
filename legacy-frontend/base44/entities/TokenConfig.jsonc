@@ -1,0 +1,112 @@
+{
+  "name": "TokenConfig",
+  "type": "object",
+  "properties": {
+    "token_type": {
+      "type": "string",
+      "enum": [
+        "IGC",
+        "IGUSD",
+        "IGT"
+      ],
+      "description": "Token type identifier"
+    },
+    "max_supply": {
+      "type": "number",
+      "description": "Maximum supply cap for this token"
+    },
+    "current_supply": {
+      "type": "number",
+      "default": 0,
+      "description": "Current total tokens in circulation"
+    },
+    "treasury_vault": {
+      "type": "number",
+      "default": 6000000000,
+      "description": "IGT held in the Imperial Gaming Treasury vault"
+    },
+    "locked_supply": {
+      "type": "number",
+      "default": 6000000000,
+      "description": "Tokens locked from circulation"
+    },
+    "locked_until": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date/time when locked supply becomes unlockable"
+    },
+    "total_staked": {
+      "type": "number",
+      "default": 0,
+      "description": "Total IGT currently staked by users"
+    },
+    "next_payout_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "Estimated next IGT staking payout cycle amount"
+    },
+    "total_burned": {
+      "type": "number",
+      "default": 0,
+      "description": "Total IGT burned through unstaking fees"
+    },
+    "total_house_wager_recovered": {
+      "type": "number",
+      "default": 0,
+      "description": "Total IGT wagers/losses returned to the house ecosystem"
+    },
+    "lock_reason": {
+      "type": "string",
+      "description": "Reason for token lock"
+    },
+    "description": {
+      "type": "string",
+      "description": "Token description and purpose"
+    }
+  },
+  "required": [
+    "token_type",
+    "max_supply"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "superadmin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "tester"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "superadmin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "superadmin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "superadmin"
+      }
+    }
+  }
+}

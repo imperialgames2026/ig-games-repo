@@ -1,0 +1,38 @@
+name: Restore original frontend
+on:
+  push:
+    branches: [integration/casino-zip]
+    paths:
+      - '.github/workflows/restore-original-frontend.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  restore:
+    if: github.ref == 'refs/heads/integration/casino-zip'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Restore original frontend without overwriting migrated app
+        run: |
+          python3 scripts/restore-original-frontend.py
+          test -f legacy-frontend/package-lock.json
+          test -d legacy-frontend/src/components
+          test -d legacy-frontend/src/pages
+          test -d legacy-frontend/base44
+      - name: Verify original dependency lockfile and build
+        working-directory: legacy-frontend
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+      - name: Commit restored source on integration branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add legacy-frontend
+          if ! git diff --cached --quiet; then
+            git commit -m "Restore original Base44 frontend components and locked dependencies"
+            git push origin HEAD:integration/casino-zip
+          fi

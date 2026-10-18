@@ -1,0 +1,32 @@
+{
+  "name": "GlobalChat",
+  "type": "object",
+  "properties": {
+    "room_id": {
+      "type": "string",
+      "default": "global",
+      "description": "Chat room: 'global', 'poker-lobby', 'blackjack-lobby'"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Sender's email"
+    },
+    "display_name": {
+      "type": "string",
+      "description": "Sender's display name"
+    },
+    "message": {
+      "type": "string",
+      "description": "Chat message content"
+    },
+    "profile_picture": {
+      "type": "string",
+      "description": "Sender's profile picture URL"
+    }
+  },
+  "required": [
+    "user_email",
+    "display_name",
+    "message"
+  ]
+}
