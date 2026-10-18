@@ -38,12 +38,16 @@ test('dashboard uses Supabase rather than unsafe legacy Base44 mutating managers
  assert.match(admin,/Uncredited deposit observations/);
  assert.match(admin,/Pending withdrawal requests/);
 });
-test('operators see real read-only modules, no fake payouts or Fireblocks signing',()=>{
- for(const page of [users,wallets,support,kyc,treasury]){
+test('financial modules are read-only and Support uses separately authorized ticket operations',()=>{
+ for(const page of [users,wallets,kyc,treasury]){
   assert.match(page,/CommandCenterDataView/);
   assert.doesNotMatch(page,/base44|private[_-]?key|signTransaction|\.rpc\(/i);
  }
  assert.match(wallets,/unverified accounting units/);
- assert.match(support,/AI customer service and secure reply workflows are planned/);
  assert.match(treasury,/not real funded wallets/);
+ assert.match(support,/ig-support-v1/);
+ assert.match(support,/ig-support-supervisor/);
+ assert.match(support,/support\('post'/);
+ assert.match(support,/support\('messages'/);
+ assert.doesNotMatch(support,/base44|signTransaction|\.rpc\(/i);
 });
