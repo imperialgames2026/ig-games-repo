@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Crown, Dices, RotateCw, Users, ShieldCheck } from 'lucide-react';
 import { useMultiplayerPractice } from '@/hooks/useMultiplayerPractice';
+import './craps-casino.css';
+
 
 const CHIP_VALUES = [1, 5, 10, 25, 100];
 const REDS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
@@ -40,81 +42,125 @@ function BetZone({ title, subtitle, target, payout, total, count, disabled, onBe
   );
 }
 
-function CrapsFelt({ table, choose, disabled, canBet, isShooter, onShoot }) {
-  const start = useRef(null);
-  const publicTotals = new Map((table.publicBets ?? []).map(b => [b.target, b]));
-  const stats = target => publicTotals.get(target) || { units: 0, count: 0 };
-  const roll = table.lastResult?.game === 'craps' ? table.lastResult : null;
-  return (
-    <div className="rounded-[2.5rem] border-[9px] border-[#654023] bg-[#073f34] p-2 shadow-[0_16px_55px_rgba(0,0,0,0.6)] sm:border-[15px]">
-      <div className="relative overflow-hidden rounded-[2rem] border-2 border-[#e7dca6]/70 bg-[radial-gradient(circle_at_top,_#146d51,_#07553f_50%,_#043c31)] p-3 text-white sm:p-6">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-3 border-b border-white/30 pb-3">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.23em] text-yellow-200">Imperial Casino · Table C1</p>
-            <h2 className="text-2xl font-black italic sm:text-3xl">CRAPS</h2>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="rounded-full border border-yellow-300 bg-[#141b13] px-3 py-2 text-xs font-black text-yellow-200">
-              {table.point ? 'POINT ' + table.point + ' · ON' : 'COME-OUT · OFF'}
-            </span>
-          </div>
-        </div>
-
-        <div className="mb-3 grid grid-cols-3 gap-2">
-          <div className={"col-span-2 rounded-xl border border-white/30 bg-black/20 p-3 " + (isShooter ? "cursor-grab active:cursor-grabbing" : "")}
-            style={{ touchAction: isShooter ? "none" : "auto" }}
-            onPointerDown={e => { if (isShooter && !disabled) start.current = { x: e.clientX, y: e.clientY }; }}
-            onPointerUp={e => {
-              if (!isShooter || disabled || !start.current) return;
-              const distance = Math.hypot(e.clientX - start.current.x, e.clientY - start.current.y);
-              start.current = null;
-              if (distance >= 45) onShoot(); // Gesture requests a server roll; never determines dice values.
-            }}
-            onPointerCancel={() => { start.current = null; }}>
-            <p className="text-xs font-semibold text-yellow-200">SHOOTER BOX</p>
-            <div className="mt-2 flex min-h-20 items-center justify-center gap-3">
-              {[0,1].map(index => <div key={index}
-                className={"flex h-16 w-16 items-center justify-center rounded-lg border-4 border-slate-200 bg-white text-4xl font-black text-gray-950 shadow-xl sm:h-20 sm:w-20 " + (disabled && isShooter ? "animate-bounce" : "")}>
-                {roll?.dice?.[index] ?? '⚀'}
-              </div>)}
-            </div>
-            <p className="mt-2 text-center text-sm font-semibold">Last total: {roll?.total ?? 'Waiting for first throw'}</p>
-            {isShooter && <p className="mt-1 text-center text-xs font-bold text-amber-200">Swipe across the felt to throw, or press Shoot below</p>}
-          </div>
-          <div className="rounded-xl border border-white/30 bg-black/20 p-3 text-center">
-            <p className="text-xs font-black text-yellow-200">POINT MARKER</p>
-            <p className="mt-4 text-4xl font-black">{table.point || 'OFF'}</p>
-            <p className="mt-3 text-xs text-white/70">Round {table.round}</p>
-          </div>
-        </div>
-
-        <div className="mb-3 grid grid-cols-6 gap-1.5">
-          {CRAPS_POINTS.map(num => {
-            const target = 'place_' + num;
-            const b = stats(target);
-            const odds = num === 4 || num === 10 ? '9:5' : num === 5 || num === 9 ? '7:5' : '7:6';
-            return <BetZone key={target} target={target} title={String(num)} subtitle="PLACE"
-              payout={odds} total={b.units} count={b.count} onBet={choose}
-              disabled={!canBet || disabled} highlighted={table.point === num}
-              className="min-h-24 !rounded-md !px-1" />;
-          })}
-        </div>
-        <div className="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {CRAPS_BETS.slice(2).map(b => <BetZone key={b.target} target={b.target}
-            title={b.label} subtitle={b.detail} payout={b.payout}
-            total={stats(b.target).units} count={stats(b.target).count} disabled={!canBet || disabled}
-            onBet={choose} className="min-h-24" />)}
-        </div>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {CRAPS_BETS.slice(0,2).map(b => <BetZone key={b.target} target={b.target}
-            title={b.label} subtitle={b.detail} payout={b.payout}
-            total={stats(b.target).units} count={stats(b.target).count}
-            disabled={!canBet || disabled || !!table.point} onBet={choose} className="min-h-24" />)}
-        </div>
-        <p className="mt-4 text-center text-xs text-white/65">Select a practice chip, then tap a betting zone. Pass / Don't Pass can be placed on the come-out only; place bets wait until a point is ON.</p>
+const DICE_GLYPHS=['⚀','⚁','⚂','⚃','⚄','⚅'];
+const labelForBet=(target)=>CRAPS_BETS.find(x=>x.target===target)?.label||
+  (target?.startsWith('place_')?'PLACE '+target.slice(6):target?.replaceAll('_',' ').toUpperCase())||'Choose a wager';
+function CrapsFelt({table,choose,selected,disabled,canBet,canShoot,isShooter,onShoot}){
+ const start=useRef(null);
+ const [reveal,setReveal]=useState(true);
+ const roll=table.lastResult?.game==='craps'?table.lastResult:null;
+ useEffect(()=>{
+   if(!roll||!Number.isInteger(roll.round))return;
+   setReveal(false);
+   const timer=window.setTimeout(()=>setReveal(true),1170);
+   return ()=>window.clearTimeout(timer);
+ },[roll?.round]);
+ const totals=new Map((table.publicBets||[]).map(b=>[b.target,b]));
+ const stats=t=>totals.get(t)||{units:0,count:0};
+ const status=table.point===null||table.point===undefined?'COME OUT':'POINT '+table.point+' ON';
+ return <div className="overflow-x-auto pb-4" aria-label="Casino craps practice table">
+   <div className="ig-craps-rail min-w-[890px] rounded-[76px] p-[11px] sm:p-[18px]">
+    <div className="ig-craps-table relative min-h-[410px] overflow-hidden rounded-[62px] border-[3px] border-[#d2bb80] px-9 py-5 text-white">
+     <div className="flex items-center justify-between gap-6 border-b border-[#f4e3b2]/35 pb-3">
+      <div><div className="text-[10px] font-black uppercase tracking-[.3em] text-[#f6dfa7]">Imperial Games · Casino felt</div>
+      <div className="mt-1 font-serif text-3xl font-black italic tracking-[.12em]">CRAPS</div></div>
+      <div className="rounded-2xl border-2 border-amber-200/70 bg-black/35 px-6 py-2 text-center">
+       <div className="text-[10px] font-bold tracking-[.15em] text-[#fce3a9]">PUCK • ESTABLISHED POINT</div>
+       <div className="text-2xl font-black">{status}</div>
       </div>
+      <div className="text-right text-xs text-white/80"><div className="font-bold">ROUND {table.round}</div><div>24-player shared room</div></div>
+     </div>
+     <div className="mt-4 grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] gap-4">
+      <div className="grid grid-cols-6 gap-1.5">
+       {CRAPS_POINTS.map(num=>{
+         const target='place_'+num,b=stats(target);
+         const odds=num===4||num===10?'9:5':num===5||num===9?'7:5':'7:6';
+         return <BetZone key={target} target={target} title={String(num)} subtitle="PLACE BET"
+           payout={odds} total={b.units} count={b.count} onBet={choose}
+           disabled={!canBet||disabled} highlighted={table.point===num||selected===target}
+           className={'ig-craps-target min-h-[102px] !rounded-md !px-1 '+(selected===target?'!border-amber-300 !bg-amber-300/30':'')}/>;
+       })}
+       <div className="col-span-6 mt-1 grid grid-cols-2 gap-2">
+        {CRAPS_BETS.slice(0,2).map(b=><BetZone key={b.target} target={b.target} title={b.label} subtitle={b.detail}
+          payout={b.payout} total={stats(b.target).units} count={stats(b.target).count}
+          disabled={!canBet||disabled||!!table.point} highlighted={selected===b.target}
+          onBet={choose} className="ig-craps-target min-h-[84px] !rounded-md"/>)}
+       </div>
+      </div>
+      <div className="flex flex-col gap-3">
+       <div className="grid grid-cols-2 gap-2">
+        {CRAPS_BETS.slice(2).map(b=><BetZone key={b.target} target={b.target} title={b.label}
+          subtitle={b.detail} payout={b.payout}
+          total={stats(b.target).units} count={stats(b.target).count}
+          disabled={!canBet||disabled} highlighted={selected===b.target}
+          onBet={choose} className="ig-craps-target min-h-[90px] !rounded-md !px-2"/>)}
+       </div>
+       <div className={'relative flex flex-1 flex-col items-center justify-center rounded-2xl border border-white/30 bg-[#00291f]/60 p-2 '+(isShooter&&canShoot?'cursor-grab active:cursor-grabbing':'')}
+        style={{touchAction:isShooter&&canShoot?'none':'auto'}}
+        onPointerDown={e=>{if(isShooter&&canShoot)start.current={x:e.clientX,y:e.clientY}}}
+        onPointerUp={e=>{if(!isShooter||!canShoot||!start.current)return;
+           const dist=Math.hypot(e.clientX-start.current.x,e.clientY-start.current.y);
+           start.current=null;if(dist>=45)onShoot();
+         }}
+        onPointerCancel={()=>{start.current=null}}>
+        <div className="text-xs font-bold tracking-[.1em] text-[#f5e5b5]">THE DICE PIT</div>
+        <div className="mt-2 flex min-h-[86px] items-center justify-center gap-6">
+         {[0,1].map(i=><div key={(roll?.round||'opening')+'-'+i}
+           className={'ig-craps-die '+(!reveal?'ig-craps-die--flight-'+(i===0?'a':'b'):'')}>
+           {DICE_GLYPHS[(roll?.dice?.[i]||1)-1]||'⚀'}
+         </div>)}
+        </div>
+        <div className="mt-3 text-xs font-semibold text-white/80">{roll?'LAST THROW: '+roll.dice.join(' + ')+' = '+roll.total:'Awaiting first throw'}</div>
+        <div className="mt-1 text-[11px] text-[#ead09b]">{isShooter?'Drag across the pit or press Shoot':'Watching the current shooter'}</div>
+       </div>
+      </div>
+     </div>
+     <div className="mt-3 flex items-center justify-between border-t border-white/20 pt-2 text-[11px] text-white/75">
+       <div>{roll&&table.point&&roll.total!==table.point?'Last roll '+roll.total+' did not clear the point '+table.point+'.':'A point remains ON until repeated or a seven-out.'}</div>
+       <div>CHIPS ARE FOR PRACTICE ONLY</div>
+     </div>
     </div>
-  );
+   </div>
+   <p className="mt-2 text-xs text-[#b6c9c0]">Slide sideways on smaller screens to see the complete, full-length casino felt. Pick a betting zone and confirm it on your betting card.</p>
+ </div>;
+}
+function CrapsBettingCard({table,stake,setStake,selected,setSelected,canBet,busy,placeBet,joined,refill}){
+ const [placing,setPlacing]=useState(false);
+ const confirm=async()=>{
+  if(!selected||!canBet||placing||busy)return;
+  setPlacing(true);
+  try{if(await placeBet(selected,stake))setSelected(null)}
+  finally{setPlacing(false)}
+ };
+ return <section className="rounded-2xl border border-[#b28c4d]/60 bg-[linear-gradient(150deg,#24211d,#141a20)] p-5 shadow-xl">
+   <div className="mb-1 text-[10px] font-black tracking-[.2em] text-[#e1b972]">PLAYER BETTING CARD</div>
+   <h2 className="font-serif text-xl font-bold text-white">Get in on the action</h2>
+   <p className="mt-1 text-xs text-white/60">Choose a chip, tap a zone on the felt, then confirm. No real money.</p>
+   <div className="mt-4 rounded-xl border border-white/15 bg-black/25 p-3">
+     <div className="text-[11px] uppercase tracking-wider text-[#dfcba5]">Selected wager</div>
+     <div className="mt-1 text-lg font-black text-white">{selected?labelForBet(selected):'Select a table zone'}</div>
+     <div className="mt-1 text-xs text-white/55">Open bets: {chip((table.myBets||[]).reduce((a,b)=>a+Number(b.units||0),0))} practice chips</div>
+   </div>
+   <div className="mt-4 text-[11px] font-bold text-[#ddc9a8]">CHIP DENOMINATION</div>
+   <div className="mt-2 flex flex-wrap gap-2">
+    {CHIP_VALUES.map(value=><button key={value} type="button" disabled={busy||placing}
+      aria-pressed={stake===value} onClick={()=>setStake(value)}
+      className={'h-11 w-11 rounded-full border-[3px] text-xs font-black shadow-lg transition '+(stake===value
+        ?'scale-110 border-amber-200 bg-[#c39a52] text-black ring-2 ring-amber-300/50'
+        :'border-[#c3b9d3] bg-[#483465] text-white hover:border-amber-200')}>{value}</button>)}
+   </div>
+   <div className="mt-4 flex items-center justify-between text-sm"><span className="text-white/75">Available practice chips</span><strong className="text-amber-200">{chip(table.chips)}</strong></div>
+   <button onClick={()=>void confirm()} disabled={!selected||!canBet||busy||placing||!joined}
+      className="mt-4 w-full rounded-xl bg-[#e5b86d] px-4 py-3 font-black text-[#1e170e] disabled:cursor-not-allowed disabled:opacity-40">
+      {placing?'Placing practice chips…':selected?'Place '+stake+' chips on '+labelForBet(selected):'Choose a bet on the felt'}
+   </button>
+   {selected&&<button type="button" className="mt-2 w-full py-2 text-xs text-white/70 underline" onClick={()=>setSelected(null)}>Clear selected wager</button>}
+   {joined&&table.chips<=100&&<button type="button" onClick={()=>void refill()} disabled={busy||placing}
+      className="mt-3 w-full rounded-xl border border-amber-400/50 px-4 py-3 text-xs font-bold text-amber-200 disabled:opacity-50">
+      Request +500 free practice chips (max once per 24h)
+   </button>}
+   <p className="mt-3 text-[11px] leading-5 text-white/55">Refills are server-limited, nonredeemable, and never touch your crypto or token wallets.</p>
+ </section>;
 }
 
 function rouletteColor(n) {
@@ -232,12 +278,13 @@ function MyBetsPanel({ table }) {
 
 export default function MultiplayerPracticeTable({ game }) {
   const [stake,setStake] = useState(5);
+  const [crapsBetTarget,setCrapsBetTarget]=useState(null);
   const [clockNow,setClockNow] = useState(() => Date.now());
   useEffect(() => {
     const timer = window.setInterval(() => setClockNow(Date.now()), 250);
     return () => window.clearInterval(timer);
   }, []);
-  const {table, loading, busy, error, user, isAuthenticated, refresh, join, leave, claim, placeBet, runRound} = useMultiplayerPractice(game);
+  const {table, loading, busy, error, user, isAuthenticated, refresh, join, leave, claim, placeBet, runRound, refill} = useMultiplayerPractice(game);
   const joined = !!table?.joined;
   // The server is authoritative; the client clock is only for an accurate visual countdown.
   const deadline = Date.parse(table?.bettingClosesAt ?? '');
@@ -249,7 +296,7 @@ export default function MultiplayerPracticeTable({ game }) {
   const amShooter = !!(table?.shooterId && user?.id === table.shooterId);
   const canShoot = amShooter && !bettingOpen && !busy;
   const liveShooter=table?.players?.find(p=>p.shooter)?.active;
-  const canClaim=joined && !amShooter && !liveShooter;
+  const canClaim=joined && !amShooter && !liveShooter && (game!=='craps'||table?.myJoinMode==='shooter');
   const last=table?.lastResult;
   return (
     <main className="min-h-screen bg-[#0a0612] px-3 py-7 text-white sm:px-6">
@@ -272,26 +319,41 @@ export default function MultiplayerPracticeTable({ game }) {
           <div className="space-y-5">
             {loading && !table ? <div role="status" className="rounded-xl border border-white/10 bg-white/5 p-10 text-center">Connecting to the practice table…</div> : null}
             {table && (game==='craps'
-              ? <CrapsFelt table={table} choose={target=>void placeBet(target,stake)} disabled={!canShoot} canBet={canBet} isShooter={amShooter} onShoot={()=>void runRound()} />
+              ? <CrapsFelt table={table} choose={setCrapsBetTarget} selected={crapsBetTarget} disabled={busy} canBet={canBet} canShoot={canShoot} isShooter={amShooter} onShoot={()=>void runRound()} />
               : <RouletteFelt table={table} choose={target=>void placeBet(target,stake)} disabled={busy} canBet={canBet} />)}
             {table && <section className="rounded-2xl border border-white/10 bg-[#1b1728] p-5">
               <div className="grid gap-5 md:grid-cols-[1fr_auto]">
                 <div>
-                  <h2 className="text-lg font-black">Select practice chips</h2>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {CHIP_VALUES.map(v => <button key={v} type="button" disabled={busy}
-                      aria-pressed={stake===v} onClick={()=>setStake(v)}
-                      className={'flex h-14 w-14 items-center justify-center rounded-full border-4 font-black shadow-inner '+
-                        (stake===v ? 'scale-105 border-amber-300 bg-purple-700 text-white ring-2 ring-amber-300' : 'border-gray-200 bg-purple-950 text-amber-100')}>
-                      {v}
-                    </button>)}
-                  </div>
-                  <p className="mt-3 text-sm text-gray-400">Your remaining practice chips: <strong className="text-amber-300">{chip(table.chips)}</strong> · Each bet 1–100 chips. No refill or cashout. Leave and rejoin without resetting chips.</p>
-                  {table.chips < stake && <p className="mt-2 text-sm text-red-300">Choose a smaller chip, or wait for pending bets to settle.</p>}
+                  <h2 className="text-lg font-black">{game==='craps'?'Shooter and player controls':'Select practice chips'}</h2>
+                  {game==='craps'
+                    ? <p className="mt-2 text-sm text-gray-300">Join the action to bet on each roll, or volunteer as shooter. Shooters share one server-authoritative dice result with everyone at this table.</p>
+                    : <><div className="mt-3 flex flex-wrap gap-2">
+                      {CHIP_VALUES.map(v=><button key={v} type="button" disabled={busy}
+                        aria-pressed={stake===v} onClick={()=>setStake(v)}
+                        className={'flex h-14 w-14 items-center justify-center rounded-full border-4 font-black shadow-inner '+(stake===v?'scale-105 border-amber-300 bg-purple-700 text-white ring-2 ring-amber-300':'border-gray-200 bg-purple-950 text-amber-100')}>{v}</button>)}
+                    </div>
+                    <p className="mt-3 text-sm text-gray-400">Remaining practice chips: <strong className="text-amber-300">{chip(table.chips)}</strong></p></>}
+                  {game==='craps'&&joined&&<div className="mt-3 rounded-lg border border-amber-300/20 bg-amber-300/5 p-3 text-sm text-amber-100">
+                    {amShooter?'You are the active shooter.':table.myJoinMode==='shooter'
+                      ?'You are waiting in the shooter queue ('+(((table.shooterQueue||[]).findIndex(p=>p.id===user?.id))+1)+' in line).'
+                      :'You joined the action as a bettor; you can place wagers without throwing dice.'}
+                  </div>}
                 </div>
                 <div className="flex flex-col justify-center gap-2">
-                  {!joined && <button disabled={busy || user?.role==='tester' || user?.is_excluded}
-                    onClick={()=>void join()} className="rounded-xl bg-amber-400 px-7 py-3 font-black text-gray-950 disabled:opacity-50">Join practice table</button>}
+                  {!joined && (game==='craps'
+                    ? <div className="flex flex-col gap-2">
+                      <button type="button" disabled={busy||user?.role==='tester'||user?.is_excluded}
+                        onClick={()=>void join('shooter')} className="rounded-xl bg-amber-400 px-6 py-3 text-sm font-black text-gray-950 disabled:opacity-50">🎲 Join as Shooter</button>
+                      <button type="button" disabled={busy||user?.role==='tester'||user?.is_excluded}
+                        onClick={()=>void join('action')} className="rounded-xl border border-amber-300/50 px-6 py-3 text-sm font-black text-amber-200 disabled:opacity-50">♠ Join the Action (Bettor)</button>
+                      <p className="text-center text-xs text-white/60">If a shooter is already active, Shooter joins the waiting queue.</p>
+                    </div>
+                    : <button disabled={busy||user?.role==='tester'||user?.is_excluded}
+                      onClick={()=>void join()} className="rounded-xl bg-amber-400 px-7 py-3 font-black text-gray-950 disabled:opacity-50">Join practice table</button>)}
+                  {game==='craps'&&joined&&!amShooter&&table.myJoinMode==='action'&&<button type="button"
+                    disabled={busy} onClick={()=>void join('shooter')} className="rounded-xl border border-amber-400/60 px-6 py-3 text-sm font-semibold text-amber-200 disabled:opacity-50">Join shooter queue</button>}
+                  {game==='craps'&&joined&&table.myJoinMode==='shooter'&&<button type="button"
+                    disabled={busy} onClick={()=>void join('action')} className="rounded-xl border border-white/30 px-6 py-3 text-sm text-white/80 disabled:opacity-50">{amShooter?'Pass the dice • stay as bettor':'Leave shooter queue • stay as bettor'}</button>}
                   {joined && amShooter && <button disabled={!canShoot} onClick={()=>void runRound()}
                     className="flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-7 py-4 text-lg font-black text-gray-950 disabled:opacity-50">
                     {game==='craps' ? <Dices className="h-5 w-5" /> : <RotateCw className="h-5 w-5" />}
@@ -315,7 +377,10 @@ export default function MultiplayerPracticeTable({ game }) {
             </section>}
           </div>
           <aside className="space-y-5">
-            {table && <><PlayersPanel table={table}/><MyBetsPanel table={table}/></>}
+            {table && <>{game==='craps'&&<CrapsBettingCard table={table} stake={stake} setStake={setStake}
+              selected={crapsBetTarget} setSelected={setCrapsBetTarget} canBet={canBet} busy={busy}
+              placeBet={placeBet} joined={joined} refill={refill}/>}
+              <PlayersPanel table={table}/><MyBetsPanel table={table}/></>}
             <section className="rounded-2xl border border-white/10 bg-[#1b1728] p-5">
               <h2 className="text-lg font-black">How this table works</h2>
               {game==='craps'
