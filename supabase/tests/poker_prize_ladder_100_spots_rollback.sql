@@ -22,7 +22,7 @@ begin
  select count(*) into n from public.ig_poker_tournament_awards where preset_id=(preset->>'id')::uuid;
  if n<>100 then raise exception 'Award count incorrect';end if;
  event_result:=public.ig_poker_create_event_from_preset(sa,(preset->>'id')::uuid,gen_random_uuid());
- select config into stored from public.poker_events_v1 where id=(event_result->>'eventId')::uuid;
+ select evt.config into stored from public.poker_events_v1 evt where evt.id=(event_result->>'eventId')::uuid;
  if jsonb_array_length(stored->'awardSchedule')<>100 or stored->>'payoutAsset'<>'BTC'
  or stored->>'payoutsActivated'<>'false' or length(stored->>'awardScheduleHash')<>64
  then raise exception 'Immutable draft event payout snapshot missing';end if;
