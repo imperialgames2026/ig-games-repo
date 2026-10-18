@@ -54,8 +54,7 @@ begin
    board='[]'::jsonb,last_action_at=now() where id=p_table;
  return jsonb_build_object('tableId',p_table,'variant','omaha','button',button_no,
    'smallBlind',sb,'bigBlind',bb,'version',t.version+1);
-end$function$
-
+end$function$;
 
 CREATE OR REPLACE FUNCTION public.poker_start_v2(p_table uuid, p_owner uuid, p_deck jsonb, p_commitment text, p_seed text, p_hand_no integer)
  RETURNS jsonb
