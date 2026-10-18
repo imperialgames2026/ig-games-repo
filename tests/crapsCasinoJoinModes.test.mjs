@@ -1,0 +1,61 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
+const sql=read('supabase/migrations/20261018121000_craps_shooter_queue.sql');
+const fifo=read('supabase/migrations/20261018121500_craps_fifo_claim.sql');
+const refill=read('supabase/migrations/20261018120000_craps_practice_chip_refill.sql');
+const api=read('supabase/functions/ig-multiplayer-practice/index.ts');
+const hook=read('hooks/useMultiplayerPractice.js');
+const felt=read('components/games/MultiplayerPracticeTable.jsx');
+const css=read('components/games/craps-casino.css');
+
+test('shooter and bettor are distinct server-controlled join modes',()=>{
+ assert.match(sql,/craps_join_mode text not null default 'action'/);
+ assert.match(sql,/p_target not in \('shooter','action'\)/);
+ assert.match(sql,/if p_target is not null then/);
+ assert.match(sql,/t\.shooter_id is null/);
+ assert.match(sql,/p\.craps_join_mode='shooter'/);
+ assert.match(sql,/if p_game='craps' and seat\.craps_join_mode<>'shooter'/);
+ assert.match(sql,/p\.craps_shooter_requested_at nulls last/);
+ assert.match(fifo,/SHOOTER_QUEUE_TURN_REQUIRED/);
+ assert.match(fifo,/craps_shooter_requested_at/);
+ assert.match(api,/action === "join" && game === "craps"/);
+ assert.match(api,/action==="join" \? \(mode \?\? null\)/);
+ assert.match(hook,/join: \(mode\) => action\('join'/);
+ assert.match(felt,/Join as Shooter/);
+ assert.match(felt,/Join the Action \(Bettor\)/);
+ assert.match(felt,/Join shooter queue/);
+ assert.match(felt,/Leave shooter queue/);
+});
+test('practice refill cannot touch exchangeable currencies, is strictly limited',()=>{
+ assert.match(refill,/unique\(game,user_id,request_id\)/);
+ assert.match(refill,/v_player\.chips>100/);
+ assert.match(refill,/interval '24 hours'/);
+ assert.match(refill,/set chips=chips\+500/);
+ assert.match(refill,/v_role not in \('player','admin','superadmin'\)/);
+ assert.match(refill,/PLAYER_NOT_ELIGIBLE/);
+ assert.doesNotMatch(refill,/(?:update|insert into) public\.(?:wallets|transactions|withdrawal_requests)/i);
+ assert.match(api,/ig_mp_craps_refill/);
+ assert.match(felt,/500 free practice chips/);
+});
+test('long felt uses two real server-provided dice; point and last roll are separate',()=>{
+ assert.match(felt,/ig-craps-rail/);
+ assert.match(felt,/min-w-\[890px\]/);
+ assert.match(felt,/DICE_GLYPHS/);
+ assert.match(felt,/roll\?\.dice\?\.\[i\]/);
+ assert.match(felt,/ESTABLISHED POINT/);
+ assert.match(felt,/LAST THROW/);
+ assert.match(felt,/did not clear the point/);
+ assert.match(css,/@keyframes ig-dice-a/);
+ assert.match(css,/@keyframes ig-dice-b/);
+ assert.match(css,/prefers-reduced-motion:reduce/);
+});
+test('bettor card records bets via existing protected RPC and never sets dice values',()=>{
+ assert.match(felt,/function CrapsBettingCard/);
+ assert.match(felt,/placeBet\(selected,stake\)/);
+ assert.match(felt,/selected\?labelForBet/);
+ assert.match(felt,/disabled=\{!selected\|\|!canBet/);
+ assert.doesNotMatch(felt,/Math\.random\(\)/);
+ assert.match(felt,/disabled=\{busy\} canBet=\{canBet\} canShoot=\{canShoot\}/);
+});
