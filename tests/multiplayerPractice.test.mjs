@@ -69,3 +69,12 @@ test('seat release never grants another initial chip allocation', () => {
   assert.match(api, /"leave"/);
   assert.match(hook, /leave: \(\) => action\('leave'\)/);
 });
+
+const reclamation = source('supabase/migrations/20261017201500_multiplayer_idle_seat_reclamation.sql');
+test('inactive-seat recovery is not a chip reset or wallet operation', () => {
+  assert.match(reclamation, /seen_at < now\(\)-interval '10 minutes'/);
+  assert.match(reclamation, /set seated=false/);
+  assert.match(reclamation, /t\.shooter_id := null/);
+  assert.doesNotMatch(reclamation, /set chips\s*=/i);
+  assert.doesNotMatch(reclamation, /public\.wallets/i);
+});
