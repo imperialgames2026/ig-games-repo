@@ -88,6 +88,7 @@ export default function HoldemPracticeTable({variant='holdem'}) {
      <div className="flex flex-wrap items-center justify-between gap-2">
        <div className="flex flex-wrap gap-4"><Link to="/Games" className="text-amber-300 hover:underline">← Games</Link>{!isOmaha&&<Link to="/PokerMultiTable" className="font-bold text-amber-300 underline">+ Add table · Open up to 3</Link>}</div>
        <span className="rounded-full border border-amber-300/40 bg-amber-300/10 px-4 py-1 text-xs font-bold uppercase tracking-widest text-amber-200">Practice {isOmaha?'Omaha · 6 seats':'Hold’em · 8 seats'}</span>
+       {table?.eventId&&<Link to={"/PokerTournamentPrizes?eventId="+encodeURIComponent(table.eventId)} className="text-sm font-semibold text-amber-300 underline">Tournament prize ladder</Link>}
      </div>
      <p className="rounded-xl border border-sky-300/20 bg-sky-950/30 p-4 text-sm text-sky-100">
        Multiplayer {isOmaha?'Omaha with four private cards, exactly two private and three community cards at showdown':'Texas Hold’em with two private cards'}; shared board, forced blinds and server-authoritative turns. Only nonredeemable 1,000-chip practice stacks. No deposits, prizes or payouts.
