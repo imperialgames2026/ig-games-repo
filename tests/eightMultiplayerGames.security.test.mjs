@@ -89,3 +89,17 @@ test('server handlers reject unauthenticated real money action paths',()=>{
     assert.doesNotMatch(text, /\bdb\.from\(["'](?:wallets|transactions|withdrawal_requests)["']/);
   }
 });
+
+test('Blackjack abandoned turns expire on server clock without giving browser authority',()=>{
+  const migration=file('supabase/migrations/20261017205500_blackjack_turn_timeouts.sql');
+  const api=file('supabase/functions/ig-blackjack-practice/index.ts');
+  const hook=file('hooks/useBlackjackPractice.js');
+  assert.match(migration,/create or replace function public\.ig_bj_timeout/);
+  assert.match(migration,/room\.turn_deadline_at>clock_timestamp\(\)/);
+  assert.match(migration,/set stood=true where user_id=room\.turn_actor/);
+  assert.match(migration,/t\.turn_deadline_at<=clock_timestamp\(\)/);
+  assert.match(migration,/grant execute on function public\.ig_bj_timeout\(uuid\) to service_role/);
+  assert.match(api, /action==="tick"\?"ig_bj_timeout":"ig_bj_action"/);
+  assert.match(hook,/latest\.current\?\.joined\?'tick':'state'/);
+  assert.doesNotMatch(migration,/public\.(wallets|transactions|withdrawal_requests)/);
+});
