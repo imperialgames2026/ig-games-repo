@@ -81,3 +81,21 @@ test('private database queues auto-flag cases while external email and SMS requi
  assert.match(supervisor,/email_attempted_at/);
  assert.match(supervisor,/sms_attempted_at/);
 });
+
+test('only server-verified Superadmins may audit support escalation completion',()=>{
+ const sql=get('supabase/migrations/20261018162500_support_superadmin_decisions.sql');
+ assert.match(sql,/ig_support_supervisor_decisions/);
+ assert.match(sql,/enable row level security/);
+ assert.match(sql,/revoke all on public\.ig_support_supervisor_decisions/);
+ assert.match(sql,/unique\(reviewer_id,request_id\)/);
+ assert.match(supervisor,/operatorRole!=="superadmin"/);
+ assert.match(supervisor,/review\.message_id!==body\.messageId/);
+ assert.match(supervisor,/review\.requires_superadmin/);
+ assert.match(supervisor,/support_escalation_only/);
+ assert.match(supervisor,/db\.from\("ig_support_supervisor_decisions"\)\.insert/);
+ assert.match(admin,/user\?\.role==='superadmin'/);
+ assert.match(admin,/Superadmin escalation review/);
+ assert.match(admin,/recordDecision\(code\)/);
+ assert.match(admin,/Mark support review complete/);
+ assert.match(admin,/never approves a payment, withdrawal/);
+});
