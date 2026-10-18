@@ -21,7 +21,6 @@ import ReferralHandler from '@/components/casino/ReferralHandler';
 import BottomTabBar from '@/components/mobile/BottomTabBar';
 import MobileHeader from '@/components/mobile/MobileHeader';
 import PageTransition from '@/components/mobile/PageTransition';
-import SupportChatWidget from '@/components/support/SupportChatWidget';
 import KYCPrompt from '@/components/casino/KYCPrompt';
 import GlobalChat from '@/components/chat/GlobalChat';
 
@@ -106,7 +105,11 @@ export default function Layout({ children, currentPageName }) {
     <div className="min-h-screen bg-white dark:bg-[#0A0612]" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <ReferralHandler />
       <MobileHeader />
-      <SupportChatWidget user={user} />
+      {currentPageName!=='Support'&&<Link to={createPageUrl('Support')}
+        aria-label="Open customer support tickets"
+        className="fixed bottom-24 right-4 z-40 flex items-center gap-2 rounded-full border border-amber-200/55 bg-[#251c17] px-4 py-3 text-sm font-bold text-amber-200 shadow-xl hover:bg-[#39291a] md:bottom-6">
+        <MessageCircle size={18}/> <span className="hidden sm:inline">Support tickets</span>
+      </Link>}
       <KYCPrompt />
       <GlobalChat user={user} />
       {/* Header */}
