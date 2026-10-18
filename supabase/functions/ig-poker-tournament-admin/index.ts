@@ -24,6 +24,15 @@ Deno.serve(async(request:Request)=>{
   const {data,error}=await db.from("ig_poker_tournament_presets").select("*").order("created_at",{ascending:false}).limit(100);
   return error?reply(500,{error:"Cannot load presets"}):reply(200,{presets:data,practiceOnly:true});
  }
+ if(input.action==="createPracticeEvent"){
+  if(typeof input.presetId!=="string"||!/^[0-9a-f-]{36}$/i.test(input.presetId)
+    ||typeof input.requestId!=="string"||!/^[0-9a-f-]{36}$/i.test(input.requestId))
+    return reply(400,{error:"Invalid preset or request ID"});
+  const {data,error}=await db.rpc("ig_poker_create_event_from_preset",{
+    p_actor:user.id,p_preset:input.presetId,p_request:input.requestId
+  });
+  return error?reply(400,{error:error.message.slice(0,200)}):reply(200,{event:data});
+ }
  if(input.action!=="save"||!input.config||typeof input.config!=="object")return reply(400,{error:"Invalid action"});
  if(input.id!==undefined&&(typeof input.id!=="string"||!/^[0-9a-f-]{36}$/i.test(input.id)))return reply(400,{error:"Invalid preset ID"});
  const {data,error}=await db.rpc("ig_poker_tournament_preset_save",{p_actor:user.id,p_config:input.config,p_id:input.id??null});
