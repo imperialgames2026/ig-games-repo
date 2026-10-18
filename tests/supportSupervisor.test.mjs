@@ -15,6 +15,7 @@ test('all sensitive or account-impacting cases must always escalate to humans',(
   ['Account hacked','Someone stole my login','security'],
   ['KYC issue','My documents were rejected','kyc'],
   ['Responsible gaming','I cannot stop gambling','responsible_play'],
+  ['I have compulsive gambling problems','I need to stop','responsible_play'],
   ['Refund request','I need a chargeback','payments'],
   ['Suspended account','Please unban me','kyc'],
   ['Account issue','Unauthorised activity detected','security'],
@@ -33,7 +34,7 @@ test('AI input redacts obvious PII; untrusted ticket text can never become an in
  assert.ok(!redactSupportText('Please email me at test@example.com').includes('test@example.com'));
  assert.ok(!redactSupportText('My phone is +1 (415) 555-1212').includes('555-1212'));
  assert.ok(!redactSupportText('Wallet 0x'+'b'.repeat(40)).includes('0x'+'b'.repeat(40)));
- assert.equal(redactSupportText('a'.repeat(4000)).length,1200);
+ assert.equal(redactSupportText('long note '.repeat(500)).length,1200);
  assert.match(supervisor,/UNTRUSTED data/);
  assert.match(supervisor,/store:false/);
  assert.match(supervisor,/SUPPORT_AI_ENABLED/);
