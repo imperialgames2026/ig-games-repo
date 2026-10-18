@@ -3,7 +3,7 @@
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const approved = new Set(['PlayDice', 'PlayCraps', 'PlayRoulette']);
+const approved = new Set(['PlayDice', 'PlayCraps', 'PlayRoulette', 'PlayCrash', 'PlayTrenball', 'PlayBaccarat']);
 const app = readFileSync('App.jsx', 'utf8');
 const pages = readdirSync('pages').filter(f => /^Play[A-Za-z0-9]+\.jsx$/.test(f));
 const rows = [];
@@ -17,7 +17,7 @@ for (const filename of pages) {
   const approvedInApp = app.includes("'" + page + "'") && approved.has(page);
   if (approved.has(page)) {
     if (!approvedInApp || invocations.length || directWalletMutation) bad = true;
-    if (!/MultiplayerPracticeTable|verifyPracticeDice/.test(code)) bad = true;
+    if (!/MultiplayerPracticeTable|SharedEventPracticeTable|verifyPracticeDice/.test(code)) bad = true;
   }
   rows.push({page, status: approved.has(page) ? 'practice_backend' : 'blocked_pending_migration',
     legacyFunctions: invocations, containsLegacyFinancialMutation: directWalletMutation});
