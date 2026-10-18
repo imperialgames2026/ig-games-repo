@@ -10,7 +10,7 @@ export function redactSupportText(input=''){
 export function classifySupportByRules(subject='',message=''){
  const s=(subject+' '+message).toLowerCase();
  const patterns=[
-  {re:/suicid|self[- ]?harm|harm myself|gambling (addict|problem)|can't stop gambling|self[- ]?exclu|responsible play/i,cat:'responsible_play',reason:'Player safety or responsible gaming concern'},
+  {re:/suicid|self[- ]?harm|harm myself|gambling (addict|problem)|(?:can't|cant|cannot|unable to) stop gambling|compulsive gambling|self[- ]?exclu|responsible play/i,cat:'responsible_play',reason:'Player safety or responsible gaming concern'},
   {re:/fraud|identity theft|hacked|stolen|account takeover|compromised|sanction|money launder|suspicious|unauthori[sz]ed/i,cat:'security',reason:'Security or compliance concern'},
   {re:/withdraw|payout|cash ?out|refund|chargeback|dispute|deposit missing|missing deposit|payment failed|payment stuck|frozen funds|reversal|funds stuck/i,cat:'payments',reason:'Financial or payment decision may require approval'},
   {re:/kyc|identity verification|verification fail|document reject|account restricted|banned|suspended|age verific|compliance|regulator|legal notice/i,cat:'kyc',reason:'Identity, account restriction or legal concern'},
