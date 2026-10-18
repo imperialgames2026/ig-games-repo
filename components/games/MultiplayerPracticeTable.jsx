@@ -73,7 +73,8 @@ function CrapsFelt({table,choose,selected,disabled,canBet,canShoot,isShooter,onS
      <div className="mt-4 grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] gap-4">
       <div className="grid grid-cols-6 gap-1.5">
        {CRAPS_POINTS.map(num=>{
-         const target='place_'+num,b=stats(target);
+         const target = 'place_' + num;
+         const b = stats(target);
          const odds=num===4||num===10?'9:5':num===5||num===9?'7:5':'7:6';
          return <BetZone key={target} target={target} title={String(num)} subtitle="PLACE BET"
            payout={odds} total={b.units} count={b.count} onBet={choose}
