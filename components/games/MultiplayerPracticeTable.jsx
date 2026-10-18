@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Crown, Dices, RotateCw, Users, ShieldCheck } from 'lucide-react';
 import { useMultiplayerPractice } from '@/hooks/useMultiplayerPractice';
 import './craps-casino.css';
+import {validCrapsDropTarget,canDropCrapsChip} from '@/lib/crapsChipDragRules';
 
 
 const CHIP_VALUES = [1, 5, 10, 25, 100];
@@ -15,8 +16,6 @@ const CRAPS_BETS = [
   { target: 'any_seven', label: 'ANY SEVEN', detail: 'One-roll proposition', payout: '4:1' },
 ];
 const chip = (v) => Number(v ?? 0).toLocaleString();
-const CRAPS_TARGETS = new Set(['pass','dont_pass','field','any_seven',...CRAPS_POINTS.map(n=>'place_'+n)]);
-
 // Pointer Events work with a mouse, pen and touch. Only a successful server action
 // can remove practice chips or create a bet; the dragged token itself has no value.
 function useCrapsChipDrag({enabled,blocked,available,point,onDrop}) {
@@ -29,7 +28,7 @@ function useCrapsChipDrag({enabled,blocked,available,point,onDrop}) {
     const element=document.elementFromPoint(x,y)?.closest('[data-craps-bet-target]');
     if(!element || element.disabled) return null;
     const target=element.getAttribute('data-craps-bet-target');
-    if(!CRAPS_TARGETS.has(target) || (point!=null && (target==='pass'||target==='dont_pass')))return null;
+    if(!validCrapsDropTarget(target,point))return null;
     return target;
   };
   const clear=()=>{
@@ -38,7 +37,7 @@ function useCrapsChipDrag({enabled,blocked,available,point,onDrop}) {
     setHovered(null);
   };
   const begin=(event,amount)=>{
-    if(event.button!==0 || !enabled || blocked || inFlight.current || amount>available)return;
+    if(event.button!==0 || inFlight.current || !Number.isInteger(amount) || !enabled || blocked || amount>available)return;
     gesture.current={pointerId:event.pointerId,amount,startX:event.clientX,startY:event.clientY,moved:false};
     setNotice('');
     event.currentTarget.setPointerCapture?.(event.pointerId);
@@ -59,7 +58,7 @@ function useCrapsChipDrag({enabled,blocked,available,point,onDrop}) {
     clear();
     if(!g.moved)return;
     if(!target){setNotice('Chip not placed. Drop it onto an available betting area.');return;}
-    if(!enabled||blocked||inFlight.current||g.amount>available){
+    if(inFlight.current||!canDropCrapsChip({enabled,blocked,amount:g.amount,available,target,point})){
       setNotice('Betting is closed or there are not enough practice chips.');return;
     }
     inFlight.current=true;
