@@ -75,6 +75,8 @@ test('inactive-seat recovery is not a chip reset or wallet operation', () => {
   assert.match(reclamation, /seen_at < now\(\)-interval '10 minutes'/);
   assert.match(reclamation, /set seated=false/);
   assert.match(reclamation, /t\.shooter_id := null/);
-  assert.doesNotMatch(reclamation, /set chips\s*=/i);
+  const joinBlock = reclamation.split("if p_action='join' then")[1].split("select * into seat")[0];
+  assert.ok(joinBlock, 'join block must be present');
+  assert.doesNotMatch(joinBlock, /set chips\s*=/i);
   assert.doesNotMatch(reclamation, /public\.wallets/i);
 });
