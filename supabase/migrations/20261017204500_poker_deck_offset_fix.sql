@@ -86,5 +86,4 @@ begin
  select seat_no into actor from public.poker_seats_v1 where table_id=p_table and stack>0 and seat_no<>bb order by (seat_no-bb+6)%6 limit 1;
  update public.poker_tables_v1 set status='playing',version=version+1,button=button_no,turn_index=actor,street='preflop',current_bet=t.big_blind,min_raise=t.big_blind,private_deck=p_deck,dealt_count=players,deck_commitment=p_commitment,seed_secret=p_seed,hand_no=p_hand_no,turn_started_at=clock_timestamp(),turn_deadline_at=clock_timestamp()+interval '10 seconds',turn_extension_used=false,board='[]'::jsonb,last_action_at=now() where id=p_table;
  return jsonb_build_object('tableId',p_table,'button',button_no,'smallBlind',sb,'bigBlind',bb,'version',t.version+1);
-end $function$
-
+end $function$;
