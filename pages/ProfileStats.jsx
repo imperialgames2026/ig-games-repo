@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import PokerPlayerAnalytics from '@/components/poker/PokerPlayerAnalytics';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -44,13 +45,6 @@ export default function ProfileStats() {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
 
-  // All poker hands this user participated in
-  const { data: allHands = [], isLoading: handsLoading } = useQuery({
-    queryKey: ['poker-hand-records', user?.email],
-    queryFn: () => base44.entities.PokerHandRecord.list('-created_date', 500),
-    enabled: !!user?.email,
-  });
-
   // Last 30 days transactions
   const { data: transactions = [], isLoading: txLoading } = useQuery({
     queryKey: ['transactions-30d', user?.email],
@@ -66,55 +60,6 @@ export default function ProfileStats() {
   });
 
   const wallet = wallets[0];
-
-  // --- Poker Stats Computation ---
-  const pokerStats = useMemo(() => {
-    if (!user?.email || allHands.length === 0) return null;
-
-    // Filter hands where current user played
-    const myHands = allHands.filter(hand =>
-      hand.player_records?.some(p => p.user_email === user.email)
-    );
-
-    if (myHands.length === 0) return null;
-
-    let totalHands = myHands.length;
-    let wins = 0;
-    let losses = 0;
-    let folds = 0;
-    let vpipHands = 0; // hands where player put money in pre-flop (not folded immediately)
-    let allIns = 0;
-
-    myHands.forEach(hand => {
-      const myRecord = hand.player_records?.find(p => p.user_email === user.email);
-      if (!myRecord) return;
-
-      if (myRecord.result === 'won' || myRecord.result === 'split') wins++;
-      if (myRecord.result === 'lost') losses++;
-      if (myRecord.result === 'folded') folds++;
-      if (myRecord.went_allin) allIns++;
-
-      // VPIP = player didn't fold pre-flop (simplified: they have a non-fold result or their amount_won/lost > 0)
-      if (myRecord.result !== 'folded' || myRecord.amount_lost > 0 || myRecord.amount_won > 0) {
-        vpipHands++;
-      }
-    });
-
-    const winRate = totalHands > 0 ? ((wins / totalHands) * 100).toFixed(1) : 0;
-    const vpip = totalHands > 0 ? ((vpipHands / totalHands) * 100).toFixed(1) : 0;
-    const foldRate = totalHands > 0 ? ((folds / totalHands) * 100).toFixed(1) : 0;
-
-    // Win trend — last 20 hands bucketed into 10 groups of 2
-    const recent = myHands.slice(0, 20).reverse();
-    const trendData = [];
-    for (let i = 0; i < recent.length; i += 2) {
-      const group = recent.slice(i, i + 2);
-      const groupWins = group.filter(h => h.player_records?.find(p => p.user_email === user.email)?.result === 'won').length;
-      trendData.push({ label: `H${i + 1}-${i + 2}`, winRate: (groupWins / group.length) * 100 });
-    }
-
-    return { totalHands, wins, losses, folds, winRate, vpip, foldRate, allIns, trendData };
-  }, [allHands, user]);
 
   // --- 30-Day P&L Computation ---
   const pnlStats = useMemo(() => {
@@ -162,7 +107,7 @@ export default function ProfileStats() {
     return { totalWon, totalLost, netPnl, chartData: cumulativeData };
   }, [transactions]);
 
-  const isLoading = handsLoading || txLoading;
+  const isLoading = txLoading;
 
   if (!user) {
     return (
@@ -217,57 +162,7 @@ export default function ProfileStats() {
           </div>
         </motion.div>
 
-        {/* Poker Stats Section */}
-        <section>
-          <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-            <Trophy className="w-5 h-5 text-yellow-400" /> Poker Statistics
-          </h2>
-
-          {isLoading ? (
-            <div className="h-32 flex items-center justify-center">
-              <div className="w-6 h-6 border-4 border-pink-500 border-t-transparent rounded-full animate-spin" />
-            </div>
-          ) : !pokerStats ? (
-            <div className="text-center py-12 text-gray-500 bg-white/5 rounded-2xl">
-              No poker hands recorded yet. Hit the tables!
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
-                <StatCard icon={Layers} label="Total Hands" value={pokerStats.totalHands.toLocaleString()} delay={0.05} color="purple" />
-                <StatCard icon={Target} label="VPIP" value={`${pokerStats.vpip}%`} sub="Voluntarily Put $ In Pot" delay={0.1} color="blue" />
-                <StatCard icon={Trophy} label="Win Rate" value={`${pokerStats.winRate}%`} sub={`${pokerStats.wins}W / ${pokerStats.losses}L`} delay={0.15} color="green" />
-                <StatCard icon={TrendingDown} label="Fold Rate" value={`${pokerStats.foldRate}%`} sub={`${pokerStats.folds} folds`} delay={0.2} color="yellow" />
-                <StatCard icon={Activity} label="All-Ins" value={pokerStats.allIns} delay={0.25} color="red" />
-                <StatCard icon={TrendingUp} label="Hands Won" value={pokerStats.wins} sub={`of ${pokerStats.totalHands} played`} delay={0.3} color="pink" />
-              </div>
-
-              {/* Win Rate Trend */}
-              {pokerStats.trendData.length > 0 && (
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
-                  <h3 className="text-sm font-semibold text-gray-300 mb-4">Win Rate Trend (Last 20 Hands)</h3>
-                  <ResponsiveContainer width="100%" height={180}>
-                    <BarChart data={pokerStats.trendData} barSize={20}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                      <XAxis dataKey="label" tick={{ fill: '#9ca3af', fontSize: 11 }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fill: '#9ca3af', fontSize: 11 }} domain={[0, 100]} tickFormatter={v => `${v}%`} axisLine={false} tickLine={false} />
-                      <Tooltip
-                        contentStyle={{ background: '#1a1528', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 }}
-                        labelStyle={{ color: '#fff' }}
-                        formatter={(v) => [`${v.toFixed(0)}%`, 'Win Rate']}
-                      />
-                      <Bar dataKey="winRate" radius={[4, 4, 0, 0]}>
-                        {pokerStats.trendData.map((entry, i) => (
-                          <Cell key={i} fill={entry.winRate >= 50 ? '#10b981' : '#ec4899'} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              )}
-            </>
-          )}
-        </section>
+        <PokerPlayerAnalytics />
 
         {/* 30-Day P&L Section */}
         <section>
