@@ -86,7 +86,7 @@ export default function HoldemPracticeTable({variant='holdem'}) {
  return <main className="min-h-screen bg-[#0a0612] px-4 py-8 text-white">
    <div className="mx-auto max-w-6xl space-y-5">
      <div className="flex flex-wrap items-center justify-between gap-2">
-       <Link to="/Games" className="text-amber-300 hover:underline">← Games</Link>
+       <div className="flex flex-wrap gap-4"><Link to="/Games" className="text-amber-300 hover:underline">← Games</Link>{!isOmaha&&<Link to="/PokerMultiTable" className="font-bold text-amber-300 underline">+ Add table · Open up to 3</Link>}</div>
        <span className="rounded-full border border-amber-300/40 bg-amber-300/10 px-4 py-1 text-xs font-bold uppercase tracking-widest text-amber-200">Practice {isOmaha?'Omaha · 6 seats':'Hold’em · 8 seats'}</span>
      </div>
      <p className="rounded-xl border border-sky-300/20 bg-sky-950/30 p-4 text-sm text-sky-100">
@@ -96,7 +96,7 @@ export default function HoldemPracticeTable({variant='holdem'}) {
        <h1 className="text-3xl font-black">{isOmaha?'Omaha':'Hold’em'} table lobby</h1>
        <p className="mt-3 text-sm text-gray-300">Create a private practice table, then share its link. Friends can join using the same table ID.</p>
        <button type="button" disabled={busy||!isAuthenticated} onClick={()=>void doAction('create')}
-         className="mt-5 w-full rounded-lg bg-amber-400 p-3 font-black text-slate-950 disabled:opacity-50">Create six-seat {isOmaha?'Omaha':'Hold’em'} table</button>
+         className="mt-5 w-full rounded-lg bg-amber-400 p-3 font-black text-slate-950 disabled:opacity-50">Create {isOmaha?'six-seat Omaha':'eight-seat Hold’em'} table</button>
        <label className="mt-5 block text-sm">Or enter a table ID
          <input value={entry} onChange={e=>setEntry(e.target.value.trim())}
            className="mt-2 w-full rounded-lg border border-white/20 bg-[#0d0915] p-3 text-white" placeholder="UUID table code" />
