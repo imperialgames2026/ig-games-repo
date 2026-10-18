@@ -7,7 +7,7 @@ const cors={
 };
 const json=(payload:unknown,status=200)=>new Response(JSON.stringify(payload),{status,headers:cors});
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const accepted=new Set(["state","join","leave","claim","bet","deal","hit","stand","resolve"]);
+const accepted=new Set(["state","join","leave","claim","bet","deal","hit","stand","resolve","tick"]);
 
 Deno.serve(async request=>{
  if(request.method==="OPTIONS")return new Response(null,{status:204,headers:cors});
@@ -47,10 +47,11 @@ Deno.serve(async request=>{
    if(error)return json({error:error.code==="42501"?"Access denied":"Table unavailable"},error.code==="42501"?403:503);
    return json({state:data});
  }
- const {data,error}=await db.rpc("ig_bj_action",{
+ const args = action==="tick" ? {p_actor:user.id} : {
    p_actor:user.id,p_action:action,p_request:requestId??null,p_units:units??null,
    p_target:target??null,p_expected_round:expectedRound??null
- });
+ };
+ const {data,error}=await db.rpc(action==="tick"?"ig_bj_timeout":"ig_bj_action",args);
  if(error){
    if(error.code==="42501")return json({error:"Action is not permitted"},403);
    if(error.code==="23505")return json({error:"Stale action or request replay conflict; refresh"},409);
