@@ -30,5 +30,14 @@ jobs:
         run: npm ci
       - name: Check migration security guards
         run: node --test tests/legacyBackendGuard.test.mjs tests/multiplayerPractice.test.mjs tests/practiceFairDice.test.mjs
+      - name: Audit all game backend routes
+        run: node scripts/audit-game-backends.mjs
+      - name: Upload route migration inventory
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: game-migration-inventory
+          path: game-migration-inventory.json
+          if-no-files-found: ignore
       - name: Build Vite app
         run: npm run build
