@@ -12,7 +12,7 @@ const cors = {
 };
 const json = (status: number, data: unknown) => new Response(JSON.stringify(data), { status, headers: cors });
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const actions = new Set(["state", "join", "leave", "bet", "roll", "spin", "claim"]);
+const actions = new Set(["state", "join", "leave", "bet", "roll", "spin", "claim", "refill"]);
 
 Deno.serve(async (request: Request) => {
   if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
@@ -34,21 +34,27 @@ Deno.serve(async (request: Request) => {
   let input: Record<string, unknown>;
   try { input = JSON.parse(raw); } catch { return json(400, { error: "Invalid JSON" }); }
   if (!input || typeof input !== "object" || Array.isArray(input)) return json(400, { error: "Invalid request" });
-  const { game, action, requestId, target, units, expectedRound } = input;
+  const { game, action, requestId, target, units, expectedRound, mode } = input;
   if ((game !== "craps" && game !== "roulette") || typeof action !== "string" || !actions.has(action)) {
     return json(400, { error: "Invalid table or action" });
   }
   if (action === "roll" && game !== "craps" || action === "spin" && game !== "roulette") {
     return json(400, { error: "Game/action mismatch" });
   }
-  const expectedKeys = action === "bet" ? ["game", "action", "requestId", "target", "units"]
+  if(action==="refill" && game!=="craps")return json(400,{error:"Practice refill is craps-only"});
+  const expectedKeys = action === "join" && game === "craps" && mode !== undefined
+      ? ["game","action","mode"]
+    : action==="refill" ? ["game","action","requestId"]
+    : action === "bet" ? ["game", "action", "requestId", "target", "units"]
     : action === "roll" || action === "spin" ? ["game", "action", "requestId", "expectedRound"]
     : ["game", "action"];
   if (Object.keys(input).some(key => !expectedKeys.includes(key)) ||
       expectedKeys.some(key => !Object.prototype.hasOwnProperty.call(input, key))) {
     return json(400, { error: "Unexpected request fields" });
   }
-  if ((action === "bet" || action === "roll" || action === "spin") &&
+  if(action==="join" && mode!==undefined && (game!=="craps" || !["shooter","action"].includes(String(mode))))
+    return json(400,{error:"Invalid shooter preference"});
+  if ((action === "bet" || action === "roll" || action === "spin" || action === "refill") &&
       (typeof requestId !== "string" || !uuid.test(requestId))) {
     return json(400, { error: "A unique request ID is required" });
   }
@@ -62,11 +68,22 @@ Deno.serve(async (request: Request) => {
   }
 
   const db = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
+  if(action==="refill"){
+    const {data,error}=await db.rpc("ig_mp_craps_refill",{p_actor:user.id,p_request:requestId});
+    if(error){
+      if(error.code==="42501")return json(403,{error:"Account not eligible for practice refill"});
+      if(error.code==="22023")return json(422,{error:"Join craps and wait until your practice balance is 100 or fewer chips. One 500-chip refill per 24 hours."});
+      return json(503,{error:"Practice refill unavailable"});
+    }
+    const fresh=await db.rpc("ig_mp_state",{p_actor:user.id,p_game:game});
+    if(fresh.error)return json(503,{error:"Practice refill recorded; refresh table to see current chips"});
+    return json(200,{action:data,state:fresh.data});
+  }
   if (action !== "state") {
     const { error, data } = await db.rpc("ig_mp_action", {
       p_actor: user.id, p_game: game, p_action: action,
       p_request: requestId ?? null,
-      p_target: target ?? null, p_units: units ?? null, p_expected_round: expectedRound ?? null,
+      p_target: action==="join" ? (mode ?? null) : (target ?? null), p_units: units ?? null, p_expected_round: expectedRound ?? null,
     });
     if (error) {
       if (error.code === "42501") return json(403, { error: "Not authorized for this table action" });

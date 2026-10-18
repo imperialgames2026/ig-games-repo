@@ -97,7 +97,9 @@ export function useMultiplayerPractice(game) {
 
   return {
     table, loading, busy, error, user, isAuthenticated,
-    refresh, join: () => action('join'), leave: () => action('leave'),
+    refresh, join: (mode) => action('join', mode && game==='craps' ? {mode} : {}),
+    refill: () => action('refill', {requestId: crypto.randomUUID()}),
+    leave: () => action('leave'),
     claim: () => action('claim'), placeBet, runRound,
   };
 }
