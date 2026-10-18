@@ -687,6 +687,7 @@ export default function Admin() {
               </Card>
               <Card className="bg-white/5 border-white/10">
                 <CardContent className="p-6">
+                  {user?.role==='superadmin'&&<a href="/SuperadminPokerTournaments" className="mb-4 inline-flex rounded-lg bg-amber-400 px-5 py-3 font-black text-gray-950">Configure 6–8 Seat / 1–30 Table Poker Tournaments →</a>}
                   <TournamentManager />
                 </CardContent>
               </Card>
