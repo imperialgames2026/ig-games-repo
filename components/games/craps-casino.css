@@ -44,3 +44,21 @@
  .ig-craps-die--flight-a,.ig-craps-die--flight-b {animation:none!important;}
  .ig-craps-target {transition:none!important;}
 }
+
+/* Chips are movable only inside an explicit practice-bet gesture. */
+.ig-craps-rack-chip { touch-action:none; user-select:none; -webkit-user-select:none; cursor:grab; box-shadow:0 5px 0 rgba(0,0,0,.38),inset 0 0 0 2px rgba(255,255,255,.14); }
+.ig-craps-rack-chip:enabled:active { cursor:grabbing; transform:scale(1.08); }
+.ig-craps-rack-chip:focus-visible { outline:3px solid #f8d58f; outline-offset:3px; }
+.ig-craps-chip-ghost {
+ position:fixed;z-index:9999;pointer-events:none;touch-action:none;
+ transform:translate(-50%,-50%) rotate(-13deg);
+ width:58px;height:58px;border:5px dashed #f3dfa8;border-radius:50%;
+ display:flex;align-items:center;justify-content:center;
+ background:radial-gradient(circle,#744bb0 5%,#44246e 80%);color:white;
+ font-size:15px;font-weight:900;
+ box-shadow:0 17px 30px rgba(0,0,0,.5),0 0 24px rgba(248,211,117,.45);
+}
+.ig-craps-placed-chip {pointer-events:none;}
+@media (prefers-reduced-motion:reduce) {
+ .ig-craps-rack-chip:active { transform:none; }
+}
