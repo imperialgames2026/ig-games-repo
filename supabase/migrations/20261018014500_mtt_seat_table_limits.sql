@@ -41,7 +41,7 @@ BEGIN
  INSERT INTO public.poker_event_audit_v1(event_id,actor_id,operation,request_id,before_version,after_version,details)
  VALUES(p_event,p_actor,'start',p_request,e.version,e.version+1,jsonb_build_object('tables',table_count,'players',registered));
  RETURN jsonb_build_object('eventId',p_event,'status','running','version',e.version+1,'tables',table_count,'players',registered);
-END $function$
+END $function$;
 
 CREATE OR REPLACE FUNCTION public.poker_event_sync_v1(p_event uuid)
  RETURNS jsonb
@@ -109,5 +109,4 @@ BEGIN
    VALUES(p_event,e.created_by,'system_finish',gen_random_uuid(),old_version,old_version+1,jsonb_build_object('winner',champion,'chips',total_chips));
  END IF;
  RETURN jsonb_build_object('eventId',p_event,'remaining',alive,'finished',alive=1,'moved',move_count,'chips',total_chips);
-END $function$
-
+END $function$;
