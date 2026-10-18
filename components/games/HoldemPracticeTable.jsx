@@ -13,7 +13,8 @@ const cardText = c => {
   return (ranks[c.rank]||c.rank)+(suits[c.suit]||'?');
 };
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-export default function HoldemPracticeTable() {
+export default function HoldemPracticeTable({variant='holdem'}) {
+ const isOmaha=variant==='omaha';
  const {user,isAuthenticated}=useAuth();
  const [params,setParams]=useSearchParams();
  const tableId=params.get('tableId');
@@ -51,7 +52,7 @@ export default function HoldemPracticeTable() {
    setBusy(true);setError('');
    try{
      if(action==='create') {
-       const r=await invoke({action:'create'});
+       const r=await invoke({action:'create',variant});
        if(!uuid.test(r.tableId))throw new Error('Invalid returned table');
        setParams({tableId:r.tableId});return;
      }
@@ -78,23 +79,24 @@ export default function HoldemPracticeTable() {
  const turn=seats.find(s=>s.seat_no===table?.turnIndex);
  const mySeat=seats.find(s=>s.user_id===user?.id);
  const toCall=mySeat?Math.max(0,Number(table?.currentBet||0)-Number(mySeat.street_bet||0)):0;
- const myTurn=!!mySeat && table?.turnIndex===mySeat.seat_no && table?.status==='playing';
+ const wrongVariant=!!table&&table.variant!==variant;
+ const myTurn=!!mySeat && !wrongVariant && table?.turnIndex===mySeat.seat_no && table?.status==='playing';
  const isOwner=table?.ownerId===user?.id;
  const rank=Math.max(0,Number(raise)||0);
  return <main className="min-h-screen bg-[#0a0612] px-4 py-8 text-white">
    <div className="mx-auto max-w-6xl space-y-5">
      <div className="flex flex-wrap items-center justify-between gap-2">
        <Link to="/Games" className="text-amber-300 hover:underline">← Games</Link>
-       <span className="rounded-full border border-amber-300/40 bg-amber-300/10 px-4 py-1 text-xs font-bold uppercase tracking-widest text-amber-200">Practice Hold’em · 6 seats</span>
+       <span className="rounded-full border border-amber-300/40 bg-amber-300/10 px-4 py-1 text-xs font-bold uppercase tracking-widest text-amber-200">Practice {isOmaha?'Omaha':'Hold’em'} · 6 seats</span>
      </div>
      <p className="rounded-xl border border-sky-300/20 bg-sky-950/30 p-4 text-sm text-sky-100">
-       Multiplayer Texas Hold’em with two private hole cards, shared board, forced blinds and server-authoritative action. Only imaginary, nonredeemable 1,000-chip practice stacks. No deposits, prizes or payouts.
+       Multiplayer {isOmaha?'Omaha with four private cards, exactly two private and three community cards at showdown':'Texas Hold’em with two private cards'}; shared board, forced blinds and server-authoritative turns. Only nonredeemable 1,000-chip practice stacks. No deposits, prizes or payouts.
      </p>
      {!tableId && <section className="mx-auto max-w-xl rounded-xl border border-white/10 bg-[#1d1727] p-6">
-       <h1 className="text-3xl font-black">Hold’em table lobby</h1>
+       <h1 className="text-3xl font-black">{isOmaha?'Omaha':'Hold’em'} table lobby</h1>
        <p className="mt-3 text-sm text-gray-300">Create a private practice table, then share its link. Friends can join using the same table ID.</p>
        <button type="button" disabled={busy||!isAuthenticated} onClick={()=>void doAction('create')}
-         className="mt-5 w-full rounded-lg bg-amber-400 p-3 font-black text-slate-950 disabled:opacity-50">Create six-seat practice table</button>
+         className="mt-5 w-full rounded-lg bg-amber-400 p-3 font-black text-slate-950 disabled:opacity-50">Create six-seat {isOmaha?'Omaha':'Hold’em'} table</button>
        <label className="mt-5 block text-sm">Or enter a table ID
          <input value={entry} onChange={e=>setEntry(e.target.value.trim())}
            className="mt-2 w-full rounded-lg border border-white/20 bg-[#0d0915] p-3 text-white" placeholder="UUID table code" />
@@ -104,6 +106,7 @@ export default function HoldemPracticeTable() {
        {!isAuthenticated&&<Link to="/login" className="mt-4 block text-amber-200 underline">Sign in to join a table</Link>}
      </section>}
      {tableId && <section className="space-y-4">
+       {wrongVariant&&<p role="alert" className="rounded-lg border border-red-400 bg-red-950 p-4 text-red-100">This table is {table?.variant}, not {variant}. Use the matching poker page. No actions will be permitted here.</p>}
        <div className="rounded-xl border border-white/10 bg-[#1d1727] p-4 text-sm">
          <p className="font-semibold text-amber-200">Table invite link</p>
          <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -115,7 +118,7 @@ export default function HoldemPracticeTable() {
        </div>
        <div className="rounded-[3rem] border-[12px] border-[#67452a] bg-[#0b4e38] p-4 shadow-2xl sm:p-8">
          <div className="rounded-[2.5rem] border-2 border-amber-200/60 bg-[radial-gradient(ellipse_at_top,_#176448,_#06452f)] px-3 py-8 text-center">
-           <h1 className="text-3xl font-black italic">TEXAS HOLD’EM</h1>
+           <h1 className="text-3xl font-black italic">{isOmaha?'OMAHA':'TEXAS HOLD’EM'}</h1>
            <p className="mt-2 text-sm text-amber-200">Small blind {table?.smallBlind??'—'} · Big blind {table?.bigBlind??'—'}</p>
            <p className="mt-3 text-xs text-white/70">Communal board</p>
            <div className="mt-3 flex min-h-20 flex-wrap items-center justify-center gap-2">
@@ -152,12 +155,12 @@ export default function HoldemPracticeTable() {
              </p>
            </div>
            <div className="flex flex-wrap gap-2">
-             {!mySeat&&<button disabled={busy} onClick={()=>void doAction('join')} className="rounded-lg bg-amber-300 px-5 py-3 font-black text-slate-950">Join open seat</button>}
-             {isOwner&&table?.status==='waiting'&&<button disabled={busy||seats.length<2}
+             {!mySeat&&<button disabled={busy||wrongVariant} onClick={()=>void doAction('join')} className="rounded-lg bg-amber-300 px-5 py-3 font-black text-slate-950">Join open seat</button>}
+             {isOwner&&!wrongVariant&&table?.status==='waiting'&&<button disabled={busy||seats.length<2}
                onClick={()=>void doAction('start')} className="rounded-lg bg-amber-300 px-5 py-3 font-black text-slate-950 disabled:opacity-40">Deal hand · 2+ players</button>}
-             {table?.status==='showdown'&&table?.street!=='river'&&<button disabled={busy}
+             {!wrongVariant&&table?.status==='showdown'&&table?.street!=='river'&&<button disabled={busy}
                onClick={()=>void doAction('advance')} className="rounded-lg bg-amber-300 px-5 py-3 font-black text-slate-950">Deal next street</button>}
-             {table?.status==='showdown'&&table?.street==='river'&&<button disabled={busy}
+             {!wrongVariant&&table?.status==='showdown'&&table?.street==='river'&&<button disabled={busy}
                onClick={()=>void doAction('settle')} className="rounded-lg bg-amber-300 px-5 py-3 font-black text-slate-950">Resolve showdown on server</button>}
              <button type="button" onClick={()=>void fetchState()} className="rounded-lg border border-white/30 px-5 py-2">Refresh</button>
            </div>
