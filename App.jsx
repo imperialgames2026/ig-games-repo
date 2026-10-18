@@ -9,6 +9,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import ProtectedRoute from '@/lib/ProtectedRoute';
 import CommandCenterLayout from '@/components/admin/CommandCenterLayout';
+import PlayerWalletBar from '@/components/casino/PlayerWalletBar';
 import GameUnavailable from '@/components/games/GameUnavailable';
 import Login from './pages/Login';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -93,6 +94,7 @@ function App() {
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <NavigationTracker />
+          <PlayerWalletBar />
           <AuthenticatedApp />
         </Router>
         <Toaster />
