@@ -128,6 +128,27 @@ export default function Games() {
               <p className="mt-2 text-sm text-gray-300">Red, Green or Moon predictions on the same live Crash round.</p>
               <p className="mt-4 text-sm font-bold text-amber-200">Enter Trenball table →</p>
             </Link>
+            <Link to={createPageUrl('PlayBlackjack')}
+              className="rounded-xl border border-amber-400/30 bg-gradient-to-br from-emerald-950 to-[#35271b] p-5 text-white hover:border-amber-300">
+              <div className="text-4xl">♠️</div>
+              <h3 className="mt-2 text-xl font-black">Multiplayer Blackjack</h3>
+              <p className="mt-2 text-sm text-gray-300">Seven shared seats, a server-controlled six-deck dealer, Hit / Stand, and Perfect Pairs practice side bets.</p>
+              <p className="mt-4 text-sm font-bold text-amber-200">Enter Blackjack table →</p>
+            </Link>
+            <Link to={createPageUrl('PlayPoker')}
+              className="rounded-xl border border-amber-400/30 bg-gradient-to-br from-slate-900 to-[#272145] p-5 text-white hover:border-amber-300">
+              <div className="text-4xl">♣️</div>
+              <h3 className="mt-2 text-xl font-black">Texas Hold’em Poker</h3>
+              <p className="mt-2 text-sm text-gray-300">Create a six-seat table with blinds, two private hole cards, shared streets and player-driven practice betting.</p>
+              <p className="mt-4 text-sm font-bold text-amber-200">Create Hold’em table →</p>
+            </Link>
+            <Link to={createPageUrl('PlayOmaha')}
+              className="rounded-xl border border-amber-400/30 bg-gradient-to-br from-blue-950 to-[#293421] p-5 text-white hover:border-amber-300">
+              <div className="text-4xl">♦️</div>
+              <h3 className="mt-2 text-xl font-black">Omaha Poker</h3>
+              <p className="mt-2 text-sm text-gray-300">Four hole cards per player. Server-controlled showdowns must use exactly two private cards and three community cards.</p>
+              <p className="mt-4 text-sm font-bold text-amber-200">Create Omaha table →</p>
+            </Link>
           </div>
         </section>
         <WeeklyTokenLeaderboard />
