@@ -1,6 +1,7 @@
 import React,{useCallback,useEffect,useMemo,useState} from 'react';
 import {useSearchParams} from 'react-router-dom';
 import {supabase} from '@/lib/supabaseClient';
+import {useAuth} from '@/lib/AuthContext';
 import {Search,RefreshCcw,MessageCircle,Send,ChevronLeft,ShieldAlert,Bot,LockKeyhole} from 'lucide-react';
 import {Status,dt,fmt} from '@/components/admin/CommandCenterDataView';
 
@@ -16,6 +17,8 @@ async function supervisor(action){
 }
 export default function AdminSupport(){
  const [params,setParams]=useSearchParams();
+ const {user}=useAuth();
+ const [decisionNote,setDecisionNote]=useState('');
  const ticketId=params.get('ticket');
  const [rows,setRows]=useState([]);
  const [ticket,setTicket]=useState(null);
@@ -29,6 +32,7 @@ export default function AdminSupport(){
  const [reply,setReply]=useState('');
  const [reviews,setReviews]=useState([]);
  const [alerts,setAlerts]=useState([]);
+ const [decisions,setDecisions]=useState([]);
  const [supervisorInfo,setSupervisorInfo]=useState(null);
  const refreshQueue=useCallback(async()=>{
    setLoading(true);setError('');
@@ -38,7 +42,7 @@ export default function AdminSupport(){
  },[]);
  const refreshSupervisor=useCallback(async()=>{
    try{const x=await supervisor('dashboard');
-    setReviews(x.reviews||[]);setAlerts(x.alerts||[]);setSupervisorInfo(x.settings||null);}
+    setReviews(x.reviews||[]);setAlerts(x.alerts||[]);setDecisions(x.decisions||[]);setSupervisorInfo(x.settings||null);}
    catch{setSupervisorInfo({available:false});}
  },[]);
  const refreshTicket=useCallback(async(id)=>{
@@ -57,7 +61,8 @@ export default function AdminSupport(){
     (status==='all'||t.status===status);
  }),[rows,search,status]);
  const currentReview=reviews.find(x=>x.ticket_id===ticketId);
- const openTicket=id=>{setError('');setReply('');setParams({ticket:id});};
+ const currentDecision=decisions.find(x=>x.ticket_id===ticketId&&x.message_id===currentReview?.message_id);
+ const openTicket=id=>{setError('');setReply('');setDecisionNote('');setParams({ticket:id});};
  const closeTicket=()=>{setTicket(null);setReply('');setParams({});};
  const send=async()=>{
   if(!ticketId||busy||!reply.trim()||reply.trim().length>2000||ticket?.status==='closed')return;
@@ -79,6 +84,20 @@ export default function AdminSupport(){
   setBusy(true);setError('');
   try{await supervisor('scan');await Promise.all([refreshSupervisor(),refreshQueue()]);}
   catch(e){setError(e.message||'Supervisor review unavailable');}
+  finally{setBusy(false);}
+ };
+ const recordDecision=async decision=>{
+  if(user?.role!=='superadmin'||!currentReview?.requires_superadmin||busy||
+     !currentReview.message_id||decisionNote.trim().length<3||decisionNote.trim().length>500)return;
+  setBusy(true);setError('');
+  try{
+   const {data,error:fail}=await supabase.functions.invoke('ig-support-supervisor',{
+    body:{action:'decision',ticketId,messageId:currentReview.message_id,decision,
+      note:decisionNote.trim(),requestId:crypto.randomUUID()}
+   });
+   if(fail||data?.error)throw Error(data?.error||'Escalation record could not be saved');
+   setDecisionNote('');await refreshSupervisor();
+  }catch(e){setError(e.message||'Could not record review');}
   finally{setBusy(false);}
  };
  const lastAlert=alerts.find(x=>x.ticket_id===ticketId);
@@ -159,6 +178,33 @@ export default function AdminSupport(){
        {currentReview.requires_superadmin&&<p className="mt-1 text-xs font-bold">Awaiting human Superadmin review — no automatic approval</p>}
        {currentReview.suggested_reply&&<button onClick={()=>setReply(currentReview.suggested_reply)}
          disabled={busy||ticket?.status==='closed'} className="mt-2 rounded-md border border-white/30 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">Use draft (review before sending)</button>}
+      </div>}
+      {currentReview?.requires_superadmin&&<div className="mt-4 rounded-xl border border-amber-300/30 bg-amber-300/5 p-4">
+       <h3 className="flex items-center gap-2 text-sm font-bold text-amber-200"><LockKeyhole size={15}/> Superadmin escalation review</h3>
+       <p className="mt-2 text-xs leading-5 text-[#c4bead]">
+        This records support-handling decisions only. It never approves a payment, withdrawal,
+        account restriction change, identity verification or token transfer.
+       </p>
+       {currentDecision&&<p className="mt-2 text-xs text-emerald-200">
+        Most recent review: {currentDecision.decision.replaceAll('_',' ')} ({dt(currentDecision.created_at)})
+       </p>}
+       {user?.role==='superadmin'?<>
+        <label className="mt-3 block text-xs font-bold text-[#e9d8b3]">Review notes (required)</label>
+        <textarea value={decisionNote} onChange={e=>setDecisionNote(e.target.value)}
+         maxLength={500} rows={2} disabled={busy}
+         aria-label="Superadmin escalation review notes"
+         placeholder="Document your review and the next action (3–500 characters)…"
+         className="mt-2 w-full rounded-lg border border-white/20 bg-[#0d1119] p-3 text-sm text-white disabled:opacity-40"/>
+        <div className="mt-2 flex flex-wrap gap-2">
+         {[
+          ['acknowledged','Acknowledge'],
+          ['followup_required','Request follow-up'],
+          ['review_complete','Mark support review complete'],
+         ].map(([code,label])=><button key={code} disabled={busy||decisionNote.trim().length<3}
+          onClick={()=>void recordDecision(code)}
+          className="rounded-lg border border-amber-300/50 px-3 py-2 text-xs font-bold text-amber-200 hover:bg-amber-300/10 disabled:opacity-35">{label}</button>)}
+        </div>
+       </>:<p className="mt-2 text-xs text-[#a9acbb]">Only Superadmins can record an escalation decision.</p>}
       </div>}
       {lastAlert&&<p className="mt-2 text-xs text-[#9da6ba]">Alert delivery: email {lastAlert.email_state} · SMS {lastAlert.sms_state}</p>}
      </div>
