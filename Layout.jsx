@@ -89,6 +89,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Store', icon: ShoppingBag, page: 'Store' },
     { name: 'Bonuses', icon: Crown, page: 'Bonuses' },
     { name: 'Crypto', icon: Wallet, page: 'CryptoWallet' },
+    { name: 'IGN Staking', icon: Coins, page: 'IGNToken' },
     { name: 'Referrals', icon: Users, page: 'Referrals' },
     { name: 'Support', icon: Settings, page: 'Support' },
   ];
