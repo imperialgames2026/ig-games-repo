@@ -17,7 +17,7 @@ Deno.serve(async (request) => {
    const [account,entries,settings]=await Promise.all([
     client.from("ign_accounts").select("*").eq("user_id",userData.user.id).maybeSingle(),
     client.from("ign_entries").select("kind,amount,created_at,operation_id").order("created_at",{ascending:false}).limit(30),
-    client.from("ign_settings").select("max_supply,hourly_rewards_enabled,onchain_enabled").single()
+    client.from("ign_settings").select("max_supply,hourly_rewards_enabled,onchain_enabled,target_house_edge_bps,wagering_reward_bps_of_edge,staking_reward_bps_of_edge,hourly_cycle_minutes,early_unstake_penalty_bps,penalty_free_after_hours,wagering_rewards_enabled,early_unstake_penalty_enabled").single()
    ]);
    if(account.error||entries.error||settings.error) return send(500,{error:"unable to read staking data"});
    return send(200,{account:account.data,entries:entries.data,settings:settings.data,simulation:true});
