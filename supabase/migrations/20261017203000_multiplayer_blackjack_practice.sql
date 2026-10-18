@@ -189,7 +189,7 @@ begin
    if public.ig_bj_total(array[first_card,second_card])=21 then
      update public.ig_bj_seats set stood=true where seated and main_bet>0;
    end if;
-   select user_id into next_turn from public.ig_bj_seats where seated and main_bet>0 and not stood order by seat_no limit1;
+   select user_id into next_turn from public.ig_bj_seats where seated and main_bet>0 and not stood order by seat_no limit 1;
    update public.ig_bj_table set turn_actor=next_turn,phase=case when next_turn is null then 'showdown' else 'playing' end
       where id='blackjack';
    result:=jsonb_build_object('ok',true,'phase',case when next_turn is null then 'showdown' else 'playing' end);
@@ -204,7 +204,7 @@ begin
      update public.ig_bj_seats set stood=true where user_id=p_actor;
    end if;
    select user_id into next_turn from public.ig_bj_seats where seated and main_bet>0 and not stood
-     order by seat_no limit1;
+     order by seat_no limit 1;
    update public.ig_bj_table set turn_actor=next_turn,
      phase=case when next_turn is null then 'showdown' else 'playing' end,
      revision=revision+1,updated_at=now() where id='blackjack';
