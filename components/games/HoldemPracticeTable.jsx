@@ -87,7 +87,7 @@ export default function HoldemPracticeTable({variant='holdem'}) {
    <div className="mx-auto max-w-6xl space-y-5">
      <div className="flex flex-wrap items-center justify-between gap-2">
        <Link to="/Games" className="text-amber-300 hover:underline">← Games</Link>
-       <span className="rounded-full border border-amber-300/40 bg-amber-300/10 px-4 py-1 text-xs font-bold uppercase tracking-widest text-amber-200">Practice {isOmaha?'Omaha':'Hold’em'} · 6 seats</span>
+       <span className="rounded-full border border-amber-300/40 bg-amber-300/10 px-4 py-1 text-xs font-bold uppercase tracking-widest text-amber-200">Practice {isOmaha?'Omaha · 6 seats':'Hold’em · 8 seats'}</span>
      </div>
      <p className="rounded-xl border border-sky-300/20 bg-sky-950/30 p-4 text-sm text-sky-100">
        Multiplayer {isOmaha?'Omaha with four private cards, exactly two private and three community cards at showdown':'Texas Hold’em with two private cards'}; shared board, forced blinds and server-authoritative turns. Only nonredeemable 1,000-chip practice stacks. No deposits, prizes or payouts.
@@ -128,7 +128,7 @@ export default function HoldemPracticeTable({variant='holdem'}) {
            </div>
            <p className="mt-5 text-sm font-bold text-amber-100">Pot: {seats.reduce((sum,s)=>sum+Number(s.committed||0),0).toLocaleString()} chips</p>
            <div className="mx-auto mt-5 grid max-w-4xl grid-cols-2 gap-2 sm:grid-cols-3">
-             {Array.from({length:6},(_,number)=>{
+             {Array.from({length:isOmaha?6:8},(_,number)=>{
                const s=seats.find(x=>x.seat_no===number);
                return <div key={number} className={'rounded-xl border p-3 text-left text-sm '+(s?.seat_no===turn?.seat_no?'border-amber-300 bg-amber-200/15':'border-white/30 bg-black/15')}>
                  <div className="font-bold">Seat {number+1} {s?.user_id===user?.id?'(You)':''}</div>
