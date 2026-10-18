@@ -1,704 +1,94 @@
-import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
-import { 
-  Gamepad2, Coins, Plus, Edit, Trash2, Power, Star, Save, X, 
-  BarChart3, Users, TrendingUp, Package, Zap, Crown, DollarSign, Ticket, Upload, FileSearch
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { toast } from 'sonner';
-import CrashRoundManager from '@/components/admin/CrashRoundManager';
-import VIPManager from '@/components/admin/VIPManager';
-import WithdrawalManager from '@/components/admin/WithdrawalManager.jsx';
-import VoucherManager from '@/components/admin/VoucherManager';
-import SitAndGoManager from '@/components/admin/SitAndGoManager';
-import TournamentManager from '@/components/admin/TournamentManager';
-import RakeSettings from '@/components/admin/RakeSettings';
-import WheelRewardManager from '@/components/admin/WheelRewardManager';
-import BlackjackTableManager from '@/components/admin/BlackjackTableManager';
-import WeeklyTournamentManager from '@/components/admin/WeeklyTournamentManager';
-import AdminSweepstakesAudit from '@/pages/AdminSweepstakesAudit';
-import SlotDropSettings from '@/components/admin/SlotDropSettings';
-import OriginalsWinLoseSettings from '@/components/admin/OriginalsWinLoseSettings';
+import React,{useCallback,useEffect,useState} from 'react';
+import {Link} from 'react-router-dom';
+import {supabase} from '@/lib/supabaseClient';
+import {useAuth} from '@/lib/AuthContext';
+import {UsersRound,WalletCards,Trophy,LifeBuoy,ArrowUpRight,RefreshCcw,
+ ShieldAlert,Clock3,Activity,Landmark,ArrowRight,ShieldCheck,CheckCircle2} from 'lucide-react';
 
-export default function Admin() {
-  const queryClient = useQueryClient();
-  const [user, setUser] = useState(null);
-  const [gameDialogOpen, setGameDialogOpen] = useState(false);
-  const [packDialogOpen, setPackDialogOpen] = useState(false);
-  const [editingGame, setEditingGame] = useState(null);
-  const [editingPack, setEditingPack] = useState(null);
-
-  useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const u = await base44.auth.me();
-        if (u.role !== 'admin' && u.role !== 'superadmin' && u.role !== 'tester') {
-          window.location.href = '/';
-        }
-        setUser(u);
-      } catch (e) {
-        base44.auth.redirectToLogin();
-      }
-    };
-    loadUser();
-  }, []);
-
-  const { data: games = [] } = useQuery({
-    queryKey: ['games-admin'],
-    queryFn: () => base44.entities.Game.list(),
-  });
-
-  const { data: packs = [] } = useQuery({
-    queryKey: ['packs-admin'],
-    queryFn: () => base44.entities.TokenPack.list(),
-  });
-
-  const { data: transactions = [] } = useQuery({
-    queryKey: ['transactions-admin'],
-    queryFn: () => base44.entities.Transaction.list('-created_date', 100),
-  });
-
-  const { data: wallets = [] } = useQuery({
-    queryKey: ['wallets-admin'],
-    queryFn: () => base44.entities.UserWallet.list(),
-  });
-
-  // Game mutations
-  const createGameMutation = useMutation({
-    mutationFn: (data) => base44.entities.Game.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries(['games-admin']);
-      toast.success('Game created successfully');
-      setGameDialogOpen(false);
-      setEditingGame(null);
-    },
-  });
-
-  const updateGameMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Game.update(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries(['games-admin']);
-      toast.success('Game updated successfully');
-      setGameDialogOpen(false);
-      setEditingGame(null);
-    },
-  });
-
-  const deleteGameMutation = useMutation({
-    mutationFn: (id) => base44.entities.Game.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries(['games-admin']);
-      toast.success('Game deleted successfully');
-    },
-  });
-
-  // Pack mutations
-  const createPackMutation = useMutation({
-    mutationFn: (data) => base44.entities.TokenPack.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries(['packs-admin']);
-      toast.success('Token pack created successfully');
-      setPackDialogOpen(false);
-      setEditingPack(null);
-    },
-  });
-
-  const updatePackMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.TokenPack.update(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries(['packs-admin']);
-      toast.success('Token pack updated successfully');
-      setPackDialogOpen(false);
-      setEditingPack(null);
-    },
-  });
-
-  const deletePackMutation = useMutation({
-    mutationFn: (id) => base44.entities.TokenPack.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries(['packs-admin']);
-      toast.success('Token pack deleted successfully');
-    },
-  });
-
-  // Stats
-  const totalTokensInCirculation = wallets.reduce((sum, w) => sum + (w.cent_balance || 0), 0);
-  const totalRevenue = transactions.filter(t => t.type === 'purchase').reduce((sum, t) => sum + (t.igd_amount || 0), 0);
-  const activeGames = games.filter(g => g.is_active).length;
-
-  const GameForm = ({ game, onSave }) => {
-    const [formData, setFormData] = useState(game || {
-      name: '',
-      slug: '',
-      description: '',
-      image_url: '',
-      category: 'table',
-      min_bet: 10,
-      max_bet: 10000,
-      is_active: true,
-      is_featured: false,
-    });
-
-    return (
-      <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>Name</Label>
-            <Input
-              value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
-              placeholder="Game name"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Slug (URL identifier)</Label>
-            <Input
-              value={formData.slug}
-              onChange={(e) => setFormData({...formData, slug: e.target.value})}
-              placeholder="e.g., Blackjack"
-            />
-          </div>
-        </div>
-        
-        <div className="space-y-2">
-          <Label>Description</Label>
-          <Textarea
-            value={formData.description}
-            onChange={(e) => setFormData({...formData, description: e.target.value})}
-            placeholder="Game description"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label>Image URL</Label>
-          <Input
-            value={formData.image_url}
-            onChange={(e) => setFormData({...formData, image_url: e.target.value})}
-            placeholder="https://..."
-          />
-        </div>
-
-        <div className="grid grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <Label>Category</Label>
-            <Select value={formData.category} onValueChange={(v) => setFormData({...formData, category: v})}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="table">Table</SelectItem>
-                <SelectItem value="slots">Slots</SelectItem>
-                <SelectItem value="instant">Instant</SelectItem>
-                <SelectItem value="cards">Cards</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label>Min Bet</Label>
-            <Input
-              type="number"
-              value={formData.min_bet}
-              onChange={(e) => setFormData({...formData, min_bet: parseInt(e.target.value)})}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Max Bet</Label>
-            <Input
-              type="number"
-              value={formData.max_bet}
-              onChange={(e) => setFormData({...formData, max_bet: parseInt(e.target.value)})}
-            />
-          </div>
-        </div>
-
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <Switch
-              checked={formData.is_active}
-              onCheckedChange={(v) => setFormData({...formData, is_active: v})}
-            />
-            <Label>Active</Label>
-          </div>
-          <div className="flex items-center gap-2">
-            <Switch
-              checked={formData.is_featured}
-              onCheckedChange={(v) => setFormData({...formData, is_featured: v})}
-            />
-            <Label>Featured</Label>
-          </div>
-        </div>
-
-        <Button onClick={() => onSave(formData)} className="w-full bg-gradient-to-r from-pink-500 to-pink-600">
-          <Save className="w-4 h-4 mr-2" />
-          {game ? 'Update Game' : 'Create Game'}
-        </Button>
-      </div>
-    );
-  };
-
-  const PackForm = ({ pack, onSave }) => {
-    const [formData, setFormData] = useState(pack || {
-      name: '',
-      tokens: 1000,
-      cat_dollars: 0,
-      price: 9.99,
-      is_active: true,
-      is_featured: false,
-      badge: '',
-      image_url: '',
-    });
-    const [uploading, setUploading] = useState(false);
-
-    const handleImageUpload = async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-
-      setUploading(true);
-      try {
-        const { data } = await base44.functions.invoke('Core', {
-          method: 'UploadFile',
-          file: file,
-        });
-        setFormData({...formData, image_url: data.file_url});
-      } catch (err) {
-        toast.error('Failed to upload image');
-      } finally {
-        setUploading(false);
-      }
-    };
-
-    return (
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Label>Name</Label>
-          <Input
-            value={formData.name}
-            onChange={(e) => setFormData({...formData, name: e.target.value})}
-            placeholder="Pack name"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label>Package Image</Label>
-          <div className="flex gap-3">
-            <div className="flex-1">
-              <label className="flex items-center justify-center w-full h-24 px-4 transition bg-white/5 border-2 border-dashed border-white/10 rounded-lg cursor-pointer hover:border-pink-500/50">
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <Upload className="w-5 h-5 text-gray-400 mb-1" />
-                  <p className="text-xs text-gray-400">{uploading ? 'Uploading...' : 'Click to upload'}</p>
-                </div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  disabled={uploading}
-                  className="hidden"
-                />
-              </label>
-            </div>
-            {formData.image_url && (
-              <img src={formData.image_url} alt="Preview" className="w-24 h-24 rounded-lg object-cover" />
-            )}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <Label>CENT</Label>
-            <Input
-              type="number"
-              value={formData.tokens}
-              onChange={(e) => setFormData({...formData, tokens: parseInt(e.target.value)})}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>IGD</Label>
-            <Input
-              type="number"
-              value={formData.cat_dollars}
-              onChange={(e) => setFormData({...formData, cat_dollars: parseInt(e.target.value)})}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Price ($)</Label>
-            <Input
-              type="number"
-              step="0.01"
-              value={formData.price}
-              onChange={(e) => setFormData({...formData, price: parseFloat(e.target.value)})}
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Badge (optional)</Label>
-          <Input
-            value={formData.badge}
-            onChange={(e) => setFormData({...formData, badge: e.target.value})}
-            placeholder="e.g., Best Value"
-          />
-        </div>
-
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <Switch
-              checked={formData.is_active}
-              onCheckedChange={(v) => setFormData({...formData, is_active: v})}
-            />
-            <Label>Active</Label>
-          </div>
-          <div className="flex items-center gap-2">
-            <Switch
-              checked={formData.is_featured}
-              onCheckedChange={(v) => setFormData({...formData, is_featured: v})}
-            />
-            <Label>Featured</Label>
-          </div>
-        </div>
-
-        <Button onClick={() => onSave(formData)} className="w-full bg-gradient-to-r from-pink-500 to-pink-600">
-          <Save className="w-4 h-4 mr-2" />
-          {pack ? 'Update Pack' : 'Create Pack'}
-        </Button>
-      </div>
-    );
-  };
-
-  const isTester = user?.role === 'tester';
-
-  return (
-    <div className="min-h-screen bg-[#0A0612] p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-black text-white">Admin Dashboard</h1>
-          <p className="text-gray-400">{isTester ? 'Read-only view — Tester access' : 'Manage your casino games and token packs'}</p>
-          {isTester && (
-            <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-yellow-500/20 border border-yellow-500/30 rounded-full text-yellow-400 text-sm">
-              🔒 Tester Mode — View Only
-            </div>
-          )}
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {[
-            { label: 'Active Games', value: activeGames, icon: Gamepad2, color: 'green' },
-            { label: 'Total Players', value: wallets.length, icon: Users, color: 'blue' },
-            { label: 'Tokens in Circulation', value: totalTokensInCirculation.toLocaleString(), icon: Coins, color: 'amber' },
-            { label: 'Total Purchases', value: totalRevenue.toLocaleString(), icon: TrendingUp, color: 'purple' },
-          ].map((stat) => (
-            <Card key={stat.label} className="bg-white/5 border-white/10">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-4">
-                  <div className={`p-3 rounded-xl bg-${stat.color}-500/20`}>
-                    <stat.icon className={`w-6 h-6 text-${stat.color}-400`} />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-400">{stat.label}</p>
-                    <p className="text-2xl font-bold text-white">{stat.value}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        <Tabs defaultValue="games" className="space-y-6">
-          <TabsList className="bg-white/5 border border-white/10">
-            <TabsTrigger value="games" className="data-[state=active]:bg-pink-500">
-              <Gamepad2 className="w-4 h-4 mr-2" />
-              Games
-            </TabsTrigger>
-            <TabsTrigger value="packs" className="data-[state=active]:bg-pink-500">
-              <Package className="w-4 h-4 mr-2" />
-              Token Packs
-            </TabsTrigger>
-            <TabsTrigger value="crash" className="data-[state=active]:bg-pink-500">
-              <Zap className="w-4 h-4 mr-2" />
-              Crash Rounds
-            </TabsTrigger>
-            <TabsTrigger value="vip" className="data-[state=active]:bg-pink-500">
-              <Crown className="w-4 h-4 mr-2" />
-              VIP System
-            </TabsTrigger>
-            <TabsTrigger value="withdrawals" className="data-[state=active]:bg-pink-500">
-              <DollarSign className="w-4 h-4 mr-2" />
-              Withdrawals
-            </TabsTrigger>
-            <TabsTrigger value="vouchers" className="data-[state=active]:bg-pink-500">
-              <Ticket className="w-4 h-4 mr-2" />
-              Vouchers
-            </TabsTrigger>
-            <TabsTrigger value="poker" className="data-[state=active]:bg-pink-500">
-              ♠ Poker
-            </TabsTrigger>
-            <TabsTrigger value="wheel" className="data-[state=active]:bg-pink-500">
-              🎡 Spin Wheel
-            </TabsTrigger>
-            <TabsTrigger value="blackjack" className="data-[state=active]:bg-pink-500">
-              🃏 Blackjack
-            </TabsTrigger>
-            <TabsTrigger value="weekly-tournaments" className="data-[state=active]:bg-pink-500">
-              🏆 Weekly Tournaments
-            </TabsTrigger>
-            <TabsTrigger value="slot-drops" className="data-[state=active]:bg-pink-500">
-              🎰 Slot Drops
-            </TabsTrigger>
-            <TabsTrigger value="originals-drops" className="data-[state=active]:bg-pink-500">
-              🎮 Originals Drops
-            </TabsTrigger>
-            <TabsTrigger value="sweepstakes-audit" className="data-[state=active]:bg-pink-500">
-              <FileSearch className="w-4 h-4 mr-2" />
-              Sweepstakes Audit
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Games Tab */}
-          <TabsContent value="games">
-            <Card className="bg-white/5 border-white/10">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-white">Games</CardTitle>
-                {!isTester && <Dialog open={gameDialogOpen} onOpenChange={setGameDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button onClick={() => setEditingGame(null)} className="bg-gradient-to-r from-pink-500 to-pink-600">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Game
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="bg-[#1A1528] border-white/10 text-white max-w-lg">
-                    <DialogHeader>
-                      <DialogTitle>{editingGame ? 'Edit Game' : 'New Game'}</DialogTitle>
-                    </DialogHeader>
-                    <GameForm
-                      game={editingGame}
-                      onSave={(data) => {
-                        if (editingGame) {
-                          updateGameMutation.mutate({ id: editingGame.id, data });
-                        } else {
-                          createGameMutation.mutate(data);
-                        }
-                      }}
-                    />
-                  </DialogContent>
-                </Dialog>}
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {games.map((game) => (
-                    <div key={game.id} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
-                          <Gamepad2 className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-bold text-white">{game.name}</h3>
-                            {game.is_featured && <Star className="w-4 h-4 text-pink-400 fill-pink-400" />}
-                          </div>
-                          <p className="text-sm text-gray-400">{game.category} • {game.slug}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className={`px-3 py-1 rounded-full text-xs ${game.is_active ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                          {game.is_active ? 'Active' : 'Inactive'}
-                        </div>
-                        {!isTester && <>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              setEditingGame(game);
-                              setGameDialogOpen(true);
-                            }}
-                          >
-                            <Edit className="w-4 h-4 text-gray-400" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => deleteGameMutation.mutate(game.id)}
-                          >
-                            <Trash2 className="w-4 h-4 text-red-400" />
-                          </Button>
-                        </>}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Token Packs Tab */}
-          <TabsContent value="packs">
-            <Card className="bg-white/5 border-white/10">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-white">Token Packs</CardTitle>
-                {!isTester && <Dialog open={packDialogOpen} onOpenChange={setPackDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button onClick={() => setEditingPack(null)} className="bg-gradient-to-r from-pink-500 to-pink-600">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Pack
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="bg-[#1A1528] border-white/10 text-white max-w-lg">
-                    <DialogHeader>
-                      <DialogTitle>{editingPack ? 'Edit Token Pack' : 'New Token Pack'}</DialogTitle>
-                    </DialogHeader>
-                    <PackForm
-                      pack={editingPack}
-                      onSave={(data) => {
-                        if (editingPack) {
-                          updatePackMutation.mutate({ id: editingPack.id, data });
-                        } else {
-                          createPackMutation.mutate(data);
-                        }
-                      }}
-                    />
-                  </DialogContent>
-                </Dialog>}
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {packs.map((pack) => (
-                    <div key={pack.id} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
-                          <Coins className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-bold text-white">{pack.name}</h3>
-                            {pack.badge && (
-                              <span className="px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-400 text-xs">
-                                {pack.badge}
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-sm text-gray-400">
-                            {pack.tokens.toLocaleString()} CENT
-                            {pack.cat_dollars > 0 && ` + ${pack.cat_dollars} IGD`}
-                            • ${pack.price}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className={`px-3 py-1 rounded-full text-xs ${pack.is_active ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                          {pack.is_active ? 'Active' : 'Inactive'}
-                        </div>
-                        {!isTester && <>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              setEditingPack(pack);
-                              setPackDialogOpen(true);
-                            }}
-                          >
-                            <Edit className="w-4 h-4 text-gray-400" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => deletePackMutation.mutate(pack.id)}
-                          >
-                            <Trash2 className="w-4 h-4 text-red-400" />
-                          </Button>
-                        </>}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Crash Rounds Tab */}
-          <TabsContent value="crash">
-            <CrashRoundManager />
-          </TabsContent>
-
-          {/* VIP System Tab */}
-          <TabsContent value="vip">
-            <VIPManager />
-          </TabsContent>
-
-          {/* Withdrawals Tab */}
-          <TabsContent value="withdrawals">
-            <WithdrawalManager />
-          </TabsContent>
-
-          {/* Vouchers Tab */}
-          <TabsContent value="vouchers">
-            <VoucherManager />
-          </TabsContent>
-
-          {/* Wheel Tab */}
-          <TabsContent value="wheel">
-            <Card className="bg-white/5 border-white/10">
-              <CardContent className="p-6">
-                <WheelRewardManager />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Blackjack Tab */}
-          <TabsContent value="blackjack">
-            <BlackjackTableManager />
-          </TabsContent>
-
-          {/* Weekly Tournaments Tab */}
-          <TabsContent value="weekly-tournaments">
-            <Card className="bg-white/5 border-white/10">
-              <CardContent className="p-6">
-                <WeeklyTournamentManager />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="slot-drops">
-            <SlotDropSettings isTester={isTester} />
-          </TabsContent>
-
-          <TabsContent value="originals-drops">
-            <OriginalsWinLoseSettings isTester={isTester} />
-          </TabsContent>
-
-          {/* Poker Tab */}
-          <TabsContent value="poker">
-            <div className="space-y-8">
-              <Card className="bg-white/5 border-white/10">
-                <CardContent className="p-6">
-                  <RakeSettings />
-                </CardContent>
-              </Card>
-              <Card className="bg-white/5 border-white/10">
-                <CardContent className="p-6">
-                  <SitAndGoManager />
-                </CardContent>
-              </Card>
-              <Card className="bg-white/5 border-white/10">
-                <CardContent className="p-6">
-                  {user?.role==='superadmin'&&<a href="/SuperadminPokerTournaments" className="mb-4 inline-flex rounded-lg bg-amber-400 px-5 py-3 font-black text-gray-950">Configure 6–8 Seat / 1–30 Table Poker Tournaments →</a>}
-                  <TournamentManager />
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="sweepstakes-audit">
-            <AdminSweepstakesAudit />
-          </TabsContent>
-        </Tabs>
-      </div>
+const number=v=>v===null||v===undefined?'—':new Intl.NumberFormat('en-US').format(v);
+const date=v=>v?new Date(v).toLocaleString():'—';
+const styles={
+ amber:'from-[#2c2418] to-[#19181a] border-[#5e4829] text-[#f6cb80]',
+ blue:'from-[#1a2532] to-[#141923] border-[#334866] text-[#9bc9ff]',
+ green:'from-[#1c2d24] to-[#141c1b] border-[#30513e] text-[#9ee5ba]',
+ rose:'from-[#2c1b25] to-[#191721] border-[#593444] text-[#ffadbc]'
+};
+function SummaryTile({label,value,icon:Icon,tone='amber',to,sub}){
+ return <Link to={to} className={'group block rounded-2xl border bg-gradient-to-br p-5 shadow-[0_14px_32px_rgba(0,0,0,.14)] transition hover:-translate-y-0.5 hover:border-[#d4aa64] '+styles[tone]}>
+  <div className="flex items-start justify-between"><span className="flex h-11 w-11 items-center justify-center rounded-xl border border-current/15 bg-black/20"><Icon size={20}/></span><ArrowUpRight size={17} className="opacity-50 group-hover:opacity-100"/></div>
+  <div className="mt-6 text-[31px] font-black leading-none tracking-tight text-white">{number(value)}</div>
+  <div className="mt-2 text-sm font-semibold text-white/85">{label}</div>
+  <div className="mt-2 text-xs text-[#9fa0af]">{sub}</div>
+ </Link>;
+}
+function Panel({title,description,icon:Icon,to,children}){
+ return <section className="overflow-hidden rounded-2xl border border-[#2a2c39] bg-[#12151f]">
+  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.07] px-5 py-5">
+   <div className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-[#e4b76c]"><Icon size={19}/></span><div><h2 className="text-[15px] font-bold text-white">{title}</h2><p className="mt-1 text-xs text-[#9396a8]">{description}</p></div></div>
+   <Link to={to} className="flex items-center gap-2 text-xs font-semibold text-amber-200 hover:text-amber-100">Open module <ArrowUpRight size={15}/></Link>
+  </div>
+  {children}
+ </section>;
+}
+export default function Admin(){
+ const {user}=useAuth(),[data,setData]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState('');
+ const load=useCallback(async()=>{
+  setLoading(true);setError('');
+  try{
+   const {data:result,error:e}=await supabase.functions.invoke('ig-admin-command-center',{body:{action:'overview'}});
+   if(e||result?.error)throw Error(result?.error||'Operator summary could not be loaded');
+   setData(result);
+  }catch(e){setError(e?.message||'Unable to load');setData(null)}finally{setLoading(false)}
+ },[]);
+ useEffect(()=>{void load()},[load]);
+ const m=data?.metrics||{};
+ return <div className="space-y-7">
+  <section className="relative overflow-hidden rounded-[26px] border border-[#544024] bg-[radial-gradient(circle_at_88%_5%,rgba(227,166,75,.24),transparent_38%),linear-gradient(125deg,#24202a,#141720_60%,#17161b)] px-6 py-8 sm:px-9 sm:py-10">
+   <div className="pointer-events-none absolute -right-5 -top-16 hidden select-none font-serif text-[240px] font-black leading-none text-amber-200/[.04] md:block" aria-hidden="true">IG</div>
+   <div className="relative">
+    <div className="mb-5 flex flex-wrap items-center gap-3"><span className="rounded-full border border-amber-300/30 bg-amber-300/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.18em] text-amber-200">Imperial Operations</span><span className="flex items-center gap-2 text-xs text-[#bac0c9]"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400"/> Supabase staging / practice</span></div>
+    <h1 className="max-w-3xl font-serif text-3xl font-bold tracking-tight text-[#faf6ed] sm:text-5xl">Welcome to your<br/><span className="text-[#e5b66b]">Command Center.</span></h1>
+    <p className="mt-4 max-w-xl text-sm leading-7 text-[#b9bac9]">One place to review players, support, poker operations and treasury readiness. Actions involving real funds remain gated and unavailable.</p>
+    <div className="mt-7 flex flex-wrap gap-3">
+     <Link to="/SuperadminPokerTournaments" className={'inline-flex items-center gap-2 rounded-xl bg-[#e7bd77] px-5 py-3 text-xs font-black text-[#20160c] transition hover:bg-[#f9d99d] '+(user?.role==='superadmin'?'':'hidden')}>Manage poker tournaments <ArrowUpRight size={16}/></Link>
+     <Link to="/AdminWallets" className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-5 py-3 text-xs font-bold text-white hover:border-amber-200/50">View transaction queues <ArrowRight size={16}/></Link>
     </div>
-  );
+   </div>
+  </section>
+  <div className="flex flex-wrap items-center justify-between gap-3">
+   <div><p className="text-[10px] font-bold tracking-[0.18em] text-[#bb9659]">OPERATIONS SNAPSHOT</p>
+    <h2 className="mt-1 text-xl font-bold text-white">Today's control room</h2></div>
+   <div className="flex flex-wrap items-center gap-3">
+    <span className="text-xs text-[#818596]">{loading?'Loading secure data…':data?.asOf?'Refreshed '+date(data.asOf):'No fresh metrics loaded'}</span>
+    <button onClick={()=>void load()} disabled={loading} className="inline-flex items-center gap-2 rounded-xl border border-[#444654] bg-[#1a1d28] px-4 py-2.5 text-xs font-bold text-white hover:border-amber-200/60 disabled:opacity-50"><RefreshCcw size={14} className={loading?'animate-spin':''}/> Refresh</button>
+   </div>
+  </div>
+  {error&&<div role="alert" className="rounded-xl border border-red-500/40 bg-red-500/10 px-5 py-4 text-sm text-red-200">Secure metrics are unavailable: {error}. No numbers have been estimated.</div>}
+  {data?.incomplete?.length>0&&<div role="status" className="rounded-xl border border-amber-300/20 bg-amber-300/5 px-5 py-4 text-xs text-amber-100">Some counters could not be loaded: {data.incomplete.join(', ')}. Those values are displayed as —, not zero.</div>}
+  <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+   <SummaryTile label="Registered players" value={m.players} sub="Actual profile records" icon={UsersRound} to="/AdminUsers" tone="blue"/>
+   <SummaryTile label="Open support tickets" value={m.openTickets} sub="Cases requiring attention" icon={LifeBuoy} to="/AdminSupport" tone="amber"/>
+   <SummaryTile label="Pending withdrawal requests" value={m.pendingWithdrawals} sub="Review only • no auto-payouts" icon={WalletCards} to="/AdminWallets" tone="rose"/>
+   <SummaryTile label="Running poker events" value={m.activePokerEvents} sub="Existing event-engine records" icon={Trophy} to="/SuperadminPokerTournaments" tone="green"/>
+  </div>
+  <div className="grid gap-4 md:grid-cols-3">
+   <Link to="/AdminWallets" className="group flex items-center justify-between rounded-2xl border border-[#2c2c3a] bg-[#151822] p-5 hover:border-amber-300/50"><div><p className="text-xs font-semibold text-[#9b9eaf]">Uncredited deposit observations</p><p className="mt-1 text-2xl font-black text-white">{number(m.uncreditedObservations)}</p></div><ShieldAlert size={23} className="text-[#e4b76c]"/></Link>
+   <Link to="/AdminKYC" className="group flex items-center justify-between rounded-2xl border border-[#2c2c3a] bg-[#151822] p-5 hover:border-amber-300/50"><div><p className="text-xs font-semibold text-[#9b9eaf]">Submitted KYC profiles</p><p className="mt-1 text-2xl font-black text-white">{number(m.pendingKyc)}</p></div><ShieldCheck size={23} className="text-[#87b9cc]"/></Link>
+   <Link to="/AdminTreasury" className="group flex items-center justify-between rounded-2xl border border-[#2c2c3a] bg-[#151822] p-5 hover:border-amber-300/50"><div><p className="text-xs font-semibold text-[#9b9eaf]">Fireblocks sandbox vault records</p><p className="mt-1 text-2xl font-black text-white">{number(m.sandboxVaults)}</p></div><Landmark size={23} className="text-[#a9a4db]"/></Link>
+  </div>
+  <div className="grid gap-5 xl:grid-cols-[1.25fr_1fr]">
+   <Panel title="Recent poker events" description="Recorded tournament lifecycle • not simulated" icon={Trophy} to="/SuperadminPokerTournaments">
+    {data?.events?.length?<div>{data.events.map(e=><div key={e.id} className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[.06] px-5 py-4 last:border-0"><div><p className="text-sm font-semibold text-white">{e.name}</p><p className="mt-1 text-xs text-[#9598ac]">{e.format} · {date(e.created_at)}</p></div><span className="rounded-lg border border-white/15 px-3 py-1 text-xs capitalize text-[#d7c09a]">{e.status}</span></div>)}</div>
+    :<div className="px-5 py-10 text-center text-sm text-[#9699ac]">{loading?'Loading events…':'No event records to display.'}</div>}
+   </Panel>
+   <Panel title="Customer service inbox" description="Newest support requests" icon={LifeBuoy} to="/AdminSupport">
+    {data?.tickets?.length?<div>{data.tickets.map(t=><div key={t.id} className="flex items-center justify-between gap-3 border-b border-white/[.06] px-5 py-4 last:border-0"><div className="min-w-0"><p className="truncate text-sm font-semibold text-white">{t.subject}</p><p className="mt-1 text-xs text-[#9598ac]">{date(t.created_at)}</p></div><span className="text-xs capitalize text-amber-200">{t.status}</span></div>)}</div>
+    :<div className="px-5 py-10 text-center text-sm text-[#9699ac]">{loading?'Loading tickets…':'No ticket records to display.'}</div>}
+   </Panel>
+  </div>
+  <div className="grid gap-4 md:grid-cols-2">
+   <div className="rounded-2xl border border-[#34433c] bg-[#131d1b] px-6 py-5"><div className="flex items-center gap-2 text-[#a7d5b9]"><CheckCircle2 size={18}/><h3 className="text-sm font-bold">Role-protected workspace</h3></div><p className="mt-3 text-sm leading-6 text-[#a5b9b0]">Summary data is returned by a signed-in, server-authorized Supabase endpoint. Roles are independently checked on every request.</p></div>
+   <div className="rounded-2xl border border-[#55422c] bg-[#211d19] px-6 py-5"><div className="flex items-center gap-2 text-[#f3cc91]"><Clock3 size={18}/><h3 className="text-sm font-bold">Financial enablement: off</h3></div><p className="mt-3 text-sm leading-6 text-[#c2b3a1]">Crypto custody, transfers and prize settlement are not activated by this dashboard. Fireblocks is a sandbox integration, not a live treasury.</p></div>
+  </div>
+ </div>;
 }

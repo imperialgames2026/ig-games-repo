@@ -8,6 +8,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import ProtectedRoute from '@/lib/ProtectedRoute';
+import CommandCenterLayout from '@/components/admin/CommandCenterLayout';
 import GameUnavailable from '@/components/games/GameUnavailable';
 import Login from './pages/Login';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -22,7 +23,7 @@ const publicPages = new Set([
 const verifiedPracticeGames = new Set(['PlayDice', 'PlayCraps', 'PlayRoulette', 'PlayCrash', 'PlayTrenball', 'PlayBaccarat', 'PlayPoker', 'PlayOmaha', 'PlayBlackjack', 'PlayMultiplayerBlackjack']);
 const adminPages = new Set([
   'Admin', 'AdminAnnouncements', 'AdminKYC', 'AdminSupport', 'AdminUsers',
-  'AdminWallets', 'AdminSweepstakesAudit', 'AdminIGTSupply', 'OwnerKeyring', 'SuperadminPokerTournaments',
+  'AdminWallets', 'AdminSweepstakesAudit', 'AdminIGTSupply', 'OwnerKeyring', 'SuperadminPokerTournaments', 'AdminTreasury', 'AdminLegacyTools',
 ]);
 
 const withAccess = (path, element) => {
@@ -37,9 +38,9 @@ const withAccess = (path, element) => {
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
 const MainPage = mainPageKey ? Pages[mainPageKey] : () => null;
 
-const LayoutWrapper = ({ children, currentPageName }) => Layout
-  ? <Layout currentPageName={currentPageName}>{children}</Layout>
-  : <>{children}</>;
+const LayoutWrapper = ({children,currentPageName}) => adminPages.has(currentPageName)
+  ? <CommandCenterLayout>{children}</CommandCenterLayout>
+  : Layout ? <Layout currentPageName={currentPageName}>{children}</Layout> : <>{children}</>;
 
 function AuthenticatedApp() {
   const { isLoadingAuth, authError, navigateToLogin } = useAuth();
