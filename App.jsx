@@ -22,7 +22,7 @@ const publicPages = new Set([
 const verifiedPracticeGames = new Set(['PlayDice', 'PlayCraps', 'PlayRoulette', 'PlayCrash', 'PlayTrenball', 'PlayBaccarat', 'PlayPoker', 'PlayOmaha', 'PlayBlackjack', 'PlayMultiplayerBlackjack']);
 const adminPages = new Set([
   'Admin', 'AdminAnnouncements', 'AdminKYC', 'AdminSupport', 'AdminUsers',
-  'AdminWallets', 'AdminSweepstakesAudit', 'AdminIGTSupply', 'OwnerKeyring',
+  'AdminWallets', 'AdminSweepstakesAudit', 'AdminIGTSupply', 'OwnerKeyring', 'SuperadminPokerTournaments',
 ]);
 
 const withAccess = (path, element) => {
@@ -30,7 +30,7 @@ const withAccess = (path, element) => {
   if (path.startsWith('Play') && !verifiedPracticeGames.has(path)) {
     return <ProtectedRoute><GameUnavailable game={path} /></ProtectedRoute>;
   }
-  const roles = adminPages.has(path) ? ['admin', 'superadmin'] : undefined;
+  const roles = path==='SuperadminPokerTournaments' ? ['superadmin'] : adminPages.has(path) ? ['admin', 'superadmin'] : undefined;
   return <ProtectedRoute roles={roles}>{element}</ProtectedRoute>;
 };
 
