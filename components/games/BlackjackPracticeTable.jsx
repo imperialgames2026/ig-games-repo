@@ -24,6 +24,8 @@ export default function BlackjackPracticeTable() {
  const deadline=Date.parse(state?.bettingClosesAt||'');
  const seconds=Number.isFinite(deadline)?Math.ceil(Math.max(0,deadline-(now-(state?.clockOffsetMs||0)))/1000):0;
  const canBet=state?.phase==='betting'&&seconds>0;
+ const turnDeadline=Date.parse(state?.turnDeadlineAt||'');
+ const turnSeconds=Number.isFinite(turnDeadline)?Math.ceil(Math.max(0,turnDeadline-(now-(state?.clockOffsetMs||0)))/1000):0;
  const players=state?.players||[];
  const me=players.find(x=>x.id===user?.id);
  const controller=state?.controllerId===user?.id;
@@ -44,7 +46,7 @@ export default function BlackjackPracticeTable() {
    </p>
    {state&&<div role="status" className={'flex items-center justify-between rounded-xl border p-4 '+(canBet?'border-green-400/40 bg-green-950/30':'border-amber-300/30 bg-amber-950/20')}>
     <span className="text-sm font-black uppercase tracking-wide">Round {state.round} · {state.phase==='betting'?canBet?'Betting open':'Betting closed':state.phase==='playing'?'Player turns':'Dealer showdown'}</span>
-    <span className="font-mono text-2xl font-black text-amber-200">{state.phase==='betting'?canBet?seconds+'s':'LOCKED':state.phase==='playing'?'PLAY':'SETTLE'}</span>
+    <span className="font-mono text-2xl font-black text-amber-200">{state.phase==='betting'?canBet?seconds+'s':'LOCKED':state.phase==='playing'?turnSeconds+'s TO ACT':'SETTLE'}</span>
    </div>}
    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
     <div className="space-y-5">
@@ -145,7 +147,7 @@ export default function BlackjackPracticeTable() {
      </section>}
      <section className="rounded-xl border border-white/10 bg-[#1b1727] p-5 text-sm text-gray-300">
       <h2 className="text-lg font-black text-white">Table rules</h2>
-      <p className="mt-2">Blackjack 3:2; dealer stands on soft 17; no split, double-down or insurance in this verified practice version. Each player can Hit or Stand and the dealer settles all completed hands.</p>
+      <p className="mt-2">Blackjack 3:2; dealer stands on soft 17; no split, double-down or insurance in this verified practice version. Each player can Hit or Stand within 20 seconds; inactive turns automatically stand. The dealer settles all completed hands.</p>
       <p className="mt-3 text-xs text-amber-100/80">Server timing and shoe resolution are authoritative; no real-money settlement, financial wallet or custody integration.</p>
      </section>
     </aside>
