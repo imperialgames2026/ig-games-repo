@@ -111,7 +111,7 @@ begin
      raise exception 'cannot leave during active hand or pending bets' using errcode='22023';end if;
    update public.ig_bj_seats set seated=false where user_id=p_actor;
    if t.controller=p_actor then
-     select user_id into new_controller from public.ig_bj_seats where seated order by seat_no limit1;
+     select user_id into new_controller from public.ig_bj_seats where seated order by seat_no limit 1;
      update public.ig_bj_table set controller=new_controller,revision=revision+1,
        betting_closes_at=now()+interval '12 seconds',updated_at=now() where id='blackjack';
    else update public.ig_bj_table set revision=revision+1 where id='blackjack';end if;
