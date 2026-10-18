@@ -44,3 +44,17 @@ test('market quote never invents unsupported proprietary token prices',()=>{
  assert.match(ui,/Market value unavailable/);
  assert.match(ui,/not guaranteed settlement values/);
 });
+
+test('prize lookup is authenticated, read-only and hides unpublished drafts',()=>{
+ const viewer=read('supabase/functions/ig-poker-tournament-prizes/index.ts');
+ const page=read('pages/PokerTournamentPrizes.jsx');
+ assert.match(viewer,/auth\.auth\.getUser\(token\)/);
+ assert.match(viewer,/\["registration","running","finished"\]\.includes/);
+ assert.match(viewer,/event\.config\?\.practiceOnly!==true/);
+ assert.match(viewer,/awardScheduleHash/);
+ assert.match(viewer,/payoutsActivated:false/);
+ assert.doesNotMatch(viewer,/\.insert\(|\.update\(|\.delete\(|\.rpc\(/);
+ assert.match(page,/Tournament prize ladder/);
+ assert.match(page,/indicative|Indicative/);
+ assert.match(read('components/games/HoldemPracticeTable.jsx'),/PokerTournamentPrizes\?eventId=/);
+});
