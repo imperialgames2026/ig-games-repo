@@ -3,20 +3,8 @@ import {Link} from 'react-router-dom';
 import {Wallet,ChevronDown,RefreshCw,Check,ArrowUpRight,ShieldCheck} from 'lucide-react';
 import {Dialog,DialogContent,DialogDescription,DialogHeader,DialogTitle,DialogTrigger} from '@/components/ui/dialog';
 import {supabase} from '@/lib/supabaseClient';
+import {PLAYER_WALLET_CURRENCIES,playerWalletCurrency,displayWalletBalance} from '@/lib/playerWalletBalance';
 import {useAuth} from '@/lib/AuthContext';
-
-export const PLAYER_WALLET_CURRENCIES=[
- {code:'CENT',label:'CENT',field:'cent_balance',description:'Site token balance'},
- {code:'IGD',label:'IGD',field:'igd_balance',description:'Imperial Games Dollars balance'},
- {code:'IGT',label:'IGT',field:'igt_balance',description:'Imperial Gaming Token balance'},
-];
-export const playerWalletCurrency=(code)=>PLAYER_WALLET_CURRENCIES.find(c=>c.code===code)||PLAYER_WALLET_CURRENCIES[0];
-export const displayWalletBalance=(wallet,code)=>{
- if(!wallet)return '—';
- const amount=wallet[playerWalletCurrency(code).field];
- if(amount===null||amount===undefined||!Number.isFinite(Number(amount)))return '—';
- return new Intl.NumberFormat('en-US',{maximumFractionDigits:6}).format(Number(amount));
-};
 
 export default function PlayerWalletBar(){
  const {user,isAuthenticated,isLoadingAuth}=useAuth();
