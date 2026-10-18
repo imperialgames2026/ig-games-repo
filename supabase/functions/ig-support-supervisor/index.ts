@@ -92,6 +92,7 @@ Deno.serve(async(req:Request)=>{
  const internal=secureValue("SUPPORT_SUPERVISOR_CRON_TOKEN");
  const internalMode=internal.length>=32&&bearer===secret&&req.headers.get("x-supervisor-token")===internal;
  const db=createClient(url,secret,{auth:{persistSession:false,autoRefreshToken:false}});
+ let operatorId="";let operatorRole="";
  if(!internalMode){
   const auth=createClient(url,pub,{auth:{persistSession:false,autoRefreshToken:false}});
   const {data:{user},error}=await auth.auth.getUser(bearer);
@@ -102,20 +103,46 @@ Deno.serve(async(req:Request)=>{
   ]);
   if(role.error||profile.error||!["admin","superadmin"].includes(role.data?.role)||
       profile.data?.is_excluded!==false)return respond(403,{error:"Operator role required"});
+  operatorId=user.id;operatorRole=role.data.role;
  }
  let raw="";try{raw=await req.text();}catch{return respond(400,{error:"Invalid request"});}
- if(raw.length>500)return respond(413,{error:"Too much data"});
+ if(raw.length>1100)return respond(413,{error:"Too much data"});
  let body;try{body=JSON.parse(raw);}catch{return respond(400,{error:"Invalid JSON"});}
- if(!body||typeof body!=="object"||Array.isArray(body)||!["scan","dashboard"].includes(body.action)||
-    Object.keys(body).length!==1)return respond(400,{error:"Unsupported supervisor action"});
+ if(!body||typeof body!=="object"||Array.isArray(body)||!["scan","dashboard","decision"].includes(body.action))return respond(400,{error:"Unsupported supervisor action"});
+ if(body.action==="decision"){
+  if(internalMode||operatorRole!=="superadmin")return respond(403,{error:"Superadmin role required"});
+  const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if(Object.keys(body).length!==6||
+    !uuid.test(String(body.ticketId))||!uuid.test(String(body.messageId))||
+    !uuid.test(String(body.requestId))||
+    !["acknowledged","followup_required","review_complete"].includes(body.decision)||
+    typeof body.note!=="string"||body.note.trim().length<3||body.note.trim().length>500)
+    return respond(400,{error:"Invalid escalation decision"});
+  // This is ONLY an audit of handling a support escalation. It cannot approve
+  // payment, withdrawal, identity verification, game settlement or wallet changes.
+  const {data:review,error:lookupError}=await db.from("ig_support_supervisor_reviews")
+   .select("ticket_id,message_id,requires_superadmin").eq("ticket_id",body.ticketId).maybeSingle();
+  if(lookupError)return respond(503,{error:"Decision validation unavailable"});
+  if(!review||!review.requires_superadmin||review.message_id!==body.messageId)
+    return respond(404,{error:"Current Superadmin escalation not found"});
+  const saved=await db.from("ig_support_supervisor_decisions").insert({
+   ticket_id:body.ticketId,message_id:body.messageId,reviewer_id:operatorId,
+   request_id:body.requestId,decision:body.decision,note:body.note.trim()
+  });
+  if(saved.error&&saved.error.code!=="23505")return respond(503,{error:"Decision audit unavailable"});
+  return respond(200,{saved:true,action:"support_escalation_only",repeat:saved.error?.code==="23505"});
+ }
+ if(body.action!=="scan"&&Object.keys(body).length!==1)
+   return respond(400,{error:"Invalid request shape"});
  if(body.action==="dashboard"){
-  const [reviews,alerts,pending]=await Promise.all([
-   db.from("ig_support_supervisor_reviews").select("ticket_id,category,priority,requires_superadmin,reason,suggested_reply,classification_source,reviewed_at").order("reviewed_at",{ascending:false}).limit(100),
+  const [reviews,alerts,decisions,pending]=await Promise.all([
+   db.from("ig_support_supervisor_reviews").select("ticket_id,message_id,category,priority,requires_superadmin,reason,suggested_reply,classification_source,reviewed_at").order("reviewed_at",{ascending:false}).limit(100),
    db.from("ig_support_supervisor_alerts").select("ticket_id,category,priority,email_state,sms_state,created_at").order("created_at",{ascending:false}).limit(100),
+   db.from("ig_support_supervisor_decisions").select("ticket_id,message_id,decision,created_at").order("created_at",{ascending:false}).limit(100),
    db.from("ig_support_supervisor_queue").select("ticket_id",{count:"exact",head:true}).eq("state","pending")
   ]);
-  if(reviews.error||alerts.error||pending.error)return respond(503,{error:"Supervisor reporting unavailable"});
-  return respond(200,{reviews:reviews.data||[],alerts:alerts.data||[],
+  if(reviews.error||alerts.error||decisions.error||pending.error)return respond(503,{error:"Supervisor reporting unavailable"});
+  return respond(200,{reviews:reviews.data||[],alerts:alerts.data||[],decisions:decisions.data||[],
    settings:{available:true,aiConfigured:Boolean(secureValue("SUPPORT_OPENAI_API_KEY")&&secureValue("SUPPORT_AI_MODEL")&&secureValue("SUPPORT_AI_ENABLED")==="true"),
     alertsEnabled:secureValue("SUPPORT_ALERTS_ENABLED")==="true",pending:pending.count??null}});
  }
