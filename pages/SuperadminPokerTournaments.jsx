@@ -1,4 +1,5 @@
-import React,{useEffect,useState} from 'react';
+import React,{useCallback,useEffect,useState} from 'react';
+import TournamentPayoutEditor from '@/components/admin/TournamentPayoutEditor';
 import {Link} from 'react-router-dom';
 import {supabase} from '@/lib/supabaseClient';
 import {useAuth} from '@/lib/AuthContext';
@@ -9,10 +10,10 @@ const Field=({label,children})=><label className="flex flex-col gap-1.5 text-sm 
 const fieldStyle='w-full rounded-lg border border-white/25 bg-[#191427] px-3 py-2 text-white';
 export default function SuperadminPokerTournaments(){
  const {user}=useAuth();
- const [form,setForm]=useState(defaults),[presets,setPresets]=useState([]),[saving,setSaving]=useState(false),[notice,setNotice]=useState(''),[error,setError]=useState('');
+ const [form,setForm]=useState(defaults),[presets,setPresets]=useState([]),[saving,setSaving]=useState(false),[notice,setNotice]=useState(''),[error,setError]=useState(''),[selectedPreset,setSelectedPreset]=useState(null);
  const allowed=user?.role==='superadmin'&&!user?.is_excluded;
  const change=(key,value)=>setForm(old=>({...old,[key]:value}));
- const invoke=async body=>{const {data,error}=await supabase.functions.invoke('ig-poker-tournament-admin',{body});if(error||data?.error)throw Error(data?.error||'Staging service unavailable');return data;};
+ const invoke=useCallback(async body=>{const {data,error}=await supabase.functions.invoke('ig-poker-tournament-admin',{body});if(error||data?.error)throw Error(data?.error||'Staging service unavailable');return data;},[]);
  const load=async()=>{if(!allowed)return;try{const r=await invoke({action:'list'});setPresets(r.presets||[]);}catch(e){setError(e.message);}};
  useEffect(()=>{void load();},[allowed]);
  const createEvent=async preset=>{
@@ -64,8 +65,12 @@ export default function SuperadminPokerTournaments(){
   </form>
   <section className="rounded-2xl border border-white/15 bg-[#1c1729] p-5"><h2 className="text-xl font-black">Saved draft tournament presets</h2>
    <div className="mt-4 space-y-2">{presets.map(p=><div key={p.id} className="flex flex-wrap justify-between gap-3 border-b border-white/10 py-3 text-sm"><span>{p.name} · {p.format} · {p.variant}</span><span>{p.seats_per_table} seats × {p.table_count} tables · {p.currency} {p.buy_in_units} · {p.rake_bps/100}% rake</span>
+    <button type="button" onClick={()=>setSelectedPreset(selectedPreset===p.id?null:p.id)} className="rounded-lg border border-amber-300 px-3 py-1 font-bold text-amber-200">{selectedPreset===p.id?'Close prizes':'Configure prize positions (up to 100)'}</button>
     {p.currency==='PRACTICE'&&Number(p.buy_in_units)===0&&<button type="button" disabled={saving} onClick={()=>void createEvent(p)} className="rounded-lg border border-amber-300 px-3 py-1 font-bold text-amber-200 disabled:opacity-50">Create draft event</button>}</div>)}
    {!presets.length&&<p className="text-gray-400">No saved staging presets.</p>}</div>
+   {presets.some(p=>p.id===selectedPreset)&&<div className="mt-5">
+    <TournamentPayoutEditor preset={presets.find(p=>p.id===selectedPreset)} invoke={invoke} onSaved={load}/>
+   </div>}
   </section>
  </div></main>;
 }
