@@ -76,7 +76,7 @@ declare
  dealer_score integer; player_score integer; main_return integer; pair_return integer;
  first_card integer;second_card integer;suit1 integer;suit2 integer;
  is_blackjack boolean;dealer_blackjack boolean;final_status text;
- cards integer[];next_turn uuid; v_status text;
+ v_cards integer[];next_turn uuid; v_status text;
 begin
  if p_action not in ('join','leave','bet','deal','hit','stand','resolve','claim') then raise exception 'invalid action' using errcode='22023';end if;
  select ur.role::text into role_name from public.user_roles ur join public.profiles pr on pr.id=ur.user_id
@@ -148,13 +148,14 @@ begin
      values(p_request,p_actor,'bet',t.round_no,result);
    return result;
  end if;
- if p_request is null or p_expected_round is distinct from t.round_no then
-   raise exception 'invalid or stale round' using errcode='23505';end if;
+ if p_request is null then raise exception 'missing request ID' using errcode='23505';end if;
  select * into old from public.ig_bj_receipts where request_id=p_request;
  if found then
    if old.user_id<>p_actor or old.action<>p_action then raise exception 'invalid replay' using errcode='23505';end if;
    return old.response;
  end if;
+ if p_expected_round is distinct from t.round_no then
+   raise exception 'stale round' using errcode='23505';end if;
 
  if p_action='deal' then
    if t.phase<>'betting' or now()<t.betting_closes_at or t.controller<>p_actor then
@@ -162,7 +163,7 @@ begin
    if not exists(select 1 from public.ig_bj_seats where seated and main_bet>0) then
      raise exception 'need at least one main practice bet' using errcode='22023';end if;
    select array_agg(((n-1)%52) order by n) into shoe from generate_series(1,312) n;
-   for i in 1..312 loop
+   for i in 1..311 loop
      j:=i+public.ig_mp_random(313-i);
      tmp:=shoe[i];shoe[i]:=shoe[j];shoe[j]:=tmp;
    end loop;
@@ -196,8 +197,8 @@ begin
    if t.phase<>'playing' or t.turn_actor<>p_actor then raise exception 'not current player' using errcode='42501';end if;
    if p_action='hit' then
      if t.next_card>312 then raise exception 'shoe exhausted' using errcode='22023';end if;
-     cards:=array_append(me.cards,t.deck[t.next_card]);
-     update public.ig_bj_seats set cards=cards,stood=(public.ig_bj_total(cards)>=21) where user_id=p_actor;
+     v_cards:=array_append(me.cards,t.deck[t.next_card]);
+     update public.ig_bj_seats set cards=v_cards,stood=(public.ig_bj_total(v_cards)>=21) where user_id=p_actor;
      update public.ig_bj_table set next_card=next_card+1 where id='blackjack';
    else
      update public.ig_bj_seats set stood=true where user_id=p_actor;
@@ -210,13 +211,13 @@ begin
    result:=jsonb_build_object('ok',true,'nextActor',next_turn);
  elsif p_action='resolve' then
    if t.phase<>'showdown' or t.controller<>p_actor then raise exception 'not ready for settlement' using errcode='42501';end if;
-   cards:=t.dealer_cards;
+   v_cards:=t.dealer_cards;
    index_next:=t.next_card;
-   while public.ig_bj_total(cards)<17 loop
-     cards:=array_append(cards,t.deck[index_next]);index_next:=index_next+1;
+   while public.ig_bj_total(v_cards)<17 loop
+     v_cards:=array_append(v_cards,t.deck[index_next]);index_next:=index_next+1;
    end loop;
-   dealer_score:=public.ig_bj_total(cards);
-   dealer_blackjack:=(array_length(cards,1)=2 and dealer_score=21);
+   dealer_score:=public.ig_bj_total(v_cards);
+   dealer_blackjack:=(array_length(v_cards,1)=2 and dealer_score=21);
    for player in select * from public.ig_bj_seats where seated and main_bet>0 order by seat_no loop
      player_score:=public.ig_bj_total(player.cards);
      is_blackjack:=array_length(player.cards,1)=2 and player_score=21;
@@ -243,7 +244,7 @@ begin
        'seat',player.seat_no,'status',v_status,'playerCards',to_jsonb(player.cards),
        'playerTotal',player_score,'returned',main_return,'pairsReturned',pair_return));
    end loop;
-   result:=jsonb_build_object('round',t.round_no,'dealerCards',to_jsonb(cards),
+   result:=jsonb_build_object('round',t.round_no,'dealerCards',to_jsonb(v_cards),
      'dealerTotal',dealer_score,'seats',seat_results,'practiceOnly',true);
    insert into public.ig_bj_history(round_no,settled) values(t.round_no,result);
    update public.ig_bj_table set round_no=round_no+1,phase='betting',deck='{}',
