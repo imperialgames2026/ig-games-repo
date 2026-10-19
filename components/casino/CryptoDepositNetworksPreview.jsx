@@ -7,14 +7,14 @@ import { DEPOSIT_NETWORKS, DEPOSITS_ENABLED } from '@/lib/depositNetworks';
  * checkout or payment instructions. This must NEVER accept real transfers.
  */
 export default function CryptoDepositNetworksPreview() {
-  const [status, setStatus] = useState('Checking staging network catalog…');
+  const [status, setStatus] = useState('Checking deposit availability…');
   useEffect(() => {
     let active = true;
     let client;
     try {
       client = requireSupabase();
     } catch {
-      setStatus('Staging configuration unavailable. No deposits accepted.');
+      setStatus('Deposit availability could not be checked. Deposits remain disabled.');
       return () => { active = false; };
     }
     void client.functions.invoke('crypto-deposit-preview-v1', { body: { action: 'catalog' } })
@@ -23,22 +23,22 @@ export default function CryptoDepositNetworksPreview() {
         const valid = !error && data?.acceptsDeposits === false &&
           Array.isArray(data.networks) && data.networks.length === DEPOSIT_NETWORKS.length &&
           data.networks.every(n => n.available === false);
-        setStatus(valid ? 'Staging network catalog verified: all deposits disabled.' :
-          'Staging catalog unavailable or inconsistent. No deposits accepted.');
+        setStatus(valid ? 'Deposit processing is not connected.' :
+          'Deposit availability could not be confirmed. Deposits remain disabled.');
       })
-      .catch(() => { if (active) setStatus('Staging catalog unavailable. No deposits accepted.'); });
+      .catch(() => { if (active) setStatus('Deposit availability could not be checked. Deposits remain disabled.'); });
     return () => { active = false; };
   }, []);
   return <main style={{ minHeight: '100vh', color: '#f9ead4', background: '#100f22', padding: 'clamp(20px,5vw,64px)' }}>
     <div style={{ maxWidth: 1080, margin: '0 auto' }}>
-      <p style={{ color: '#e3b75e', letterSpacing: '.12em', fontWeight: 700 }}>IMPERIAL GAMES · MIGRATION PREVIEW</p>
+      <p style={{ color: '#e3b75e', letterSpacing: '.12em', fontWeight: 700 }}>IMPERIAL GAMES · PLANNED PAYMENT SUPPORT</p>
       <h1 style={{ fontSize: 'clamp(26px,4vw,44px)', lineHeight: 1.2 }}>Planned crypto deposit networks</h1>
       <p style={{ maxWidth: 760, color: '#e6ddec', fontSize: 17 }}>
-        This is a network-support roadmap, not a working deposit page.
-        Do not send cryptocurrency to Imperial Games. No deposit addresses have been issued and no assets can be credited.
+        Explore the networks planned for future payment support. Deposits are not available yet.
+        Do not send cryptocurrency; no deposit addresses have been issued.
       </p>
       <p role="status" style={{ margin: '22px 0', border: '1px solid #9a773b', padding: 16, borderRadius: 12 }}>
-        {status} Deposit acceptance: <strong>{DEPOSITS_ENABLED ? 'Under review' : 'DISABLED'}</strong>. Network and token support require verification before launch.
+        {status} Deposit acceptance: <strong>{DEPOSITS_ENABLED ? 'Under review' : 'DISABLED'}</strong>.
       </p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 16 }}>
         {DEPOSIT_NETWORKS.map(network => <article key={network.id}
@@ -54,8 +54,7 @@ export default function CryptoDepositNetworksPreview() {
         </article>)}
       </div>
       <p style={{ color: '#bbb0c9', marginTop: 28 }}>
-        EVM chain IDs, token contracts/mints, destination tags, custody, minimum confirmations,
-        privacy-coin monitoring, compliance and reconciliation are not yet configured.
+        Supported assets and networks will be confirmed before payments become available.
       </p>
     </div>
   </main>;

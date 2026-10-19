@@ -59,15 +59,14 @@ export default function ProvablyFair() {
         </div>
       </div>
       <p className="mb-3 text-gray-300 leading-relaxed">
-        This page verifies <strong>staging practice rounds only</strong> for dice, coin flip and number games.
-        It does not verify the legacy slot machines, poker, wagers, payouts, or the full casino yet.
-        Those systems remain disabled pending server-authoritative migration and security review.
+        Verify your revealed <strong>Dice, Coin Flip and Number practice rounds</strong>.
+        Select a round below to check its original commitment and recorded outcome.
       </p>
       <p className="text-sm text-gray-400 mb-8">
         For each already revealed round, the browser hashes the disclosed server seed using SHA-256,
         checks it against the original commitment, then recalculates the HMAC-SHA-256 outcome
-        from the same client seed and nonce. A green result means this algorithm reproduces
-        the stored outcome; it does not independently prove regulatory fairness or financial settlement.
+        from the same client seed and nonce. A verified result means the calculation matches
+        the stored outcome.
       </p>
       <section className="rounded-2xl border border-white/10 bg-[#1A1528] p-5">
         <div className="flex justify-between items-center gap-3 flex-wrap mb-5">

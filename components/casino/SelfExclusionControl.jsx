@@ -46,9 +46,8 @@ export default function SelfExclusionControl() {
       <h2 className="font-black text-xl">Self-exclude from Imperial Games</h2>
     </div>
     <p className="text-sm text-amber-100 mb-4">
-      Exclusion takes effect across the Supabase-managed practice game services. You will not be
-      able to reactivate play yourself. Any reinstatement requires separate staff/compliance review;
-      this control is not a substitute for independent gambling support or legally required protections.
+      Exclusion immediately restricts access to practice games. You cannot reactivate play
+      from your account. Contact support if you need help with an account restriction.
     </p>
     {user?.is_excluded && <p role="status" className="mb-4 text-amber-200 font-semibold">
       Your account is already excluded from games. You can contact support for an appeal.

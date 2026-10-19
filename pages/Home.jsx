@@ -12,11 +12,11 @@ import WeeklyTokenLeaderboard from '@/components/casino/WeeklyTokenLeaderboard';
  * deposit, staking, leaderboard or client-authoritative wagering actions.
  */
 const safeLinks = [
-  { label: 'Player profile', to: '/Profile', icon: UserRound, description: 'Account settings and staging balances' },
-  { label: 'Game library', to: '/Games', icon: Dices, description: 'Server-approved practice games only' },
+  { label: 'Player profile', to: '/Profile', icon: UserRound, description: 'Account settings and test balances' },
+  { label: 'Game library', to: '/Games', icon: Dices, description: 'Browse multiplayer practice games' },
   { label: 'Player analytics', to: '/ProfileStats', icon: ShieldCheck, description: 'Verified post-hand poker statistics' },
   { label: 'Weekly practice board', to: '/Leaderboard', icon: Dices, description: 'Anonymous practice results' },
-  { label: 'Verification status', to: '/KYCVerification', icon: UserRound, description: 'Check verified account status safely' },
+  { label: 'Verification status', to: '/KYCVerification', icon: UserRound, description: 'View your account verification status' },
   { label: 'Transaction history', to: '/TransactionHistory', icon: Wallet, description: 'Your own internal test-currency history' },
   { label: 'Provably Fair', to: '/ProvablyFair', icon: ShieldCheck, description: 'Verify revealed practice rounds' },
   { label: 'Support center', to: '/Support', icon: Headphones, description: 'Private support tickets' },

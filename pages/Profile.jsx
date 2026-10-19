@@ -91,13 +91,13 @@ export default function Profile() {
           </div>
         </section>
         <section className="rounded-2xl border border-white/10 bg-[#1A1528] p-6">
-          <div className="flex items-center gap-3 mb-5"><Wallet className="w-7 h-7 text-amber-300"/><h2 className="text-xl font-bold">Staging balances</h2></div>
+          <div className="flex items-center gap-3 mb-5"><Wallet className="w-7 h-7 text-amber-300"/><h2 className="text-xl font-bold">Test balances</h2></div>
           <p className="text-sm text-amber-200 mb-5">
-            These are internal test-currency balances, not verified crypto deposits, redeemable tokens or available cash.
+            These test currencies have no cash value and are separate from the fictional chips at practice tables.
           </p>
-          {wallets.isLoading && <p role="status">Loading staging balances…</p>}
-          {wallets.error && <p role="alert">Staging wallet is unavailable. No balance is assumed.</p>}
-          {!wallets.isLoading && !wallets.error && !wallet && <p>No staging wallet has been initialized.</p>}
+          {wallets.isLoading && <p role="status">Loading test balances…</p>}
+          {wallets.error && <p role="alert">Your test balances could not be loaded. Please try again.</p>}
+          {!wallets.isLoading && !wallets.error && !wallet && <p>Your test wallet is not available yet.</p>}
           {wallet && <dl className="space-y-4">
             {currencyRows.map(entry => <div key={entry.name} className="flex justify-between gap-4 rounded-xl border border-white/10 bg-white/5 p-4">
               <dt className="font-bold">{entry.name}</dt>

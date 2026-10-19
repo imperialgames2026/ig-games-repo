@@ -38,8 +38,8 @@ export default function TransactionHistory() {
       </div>
       <div role="status" className="mb-6 rounded-xl border border-amber-400/30 bg-amber-950/20 p-4 text-sm text-amber-100">
         <AlertTriangle className="inline h-4 w-4 mr-2" aria-hidden="true"/>
-        Supabase staging-ledger history only. These transactions do not prove
-        real cryptocurrency deposits, payouts, bank payments or redeemable winnings.
+        Your internal test-currency activity. Test currencies have no cash value.
+        Payment preparation requests appear on the Deposits &amp; withdrawals page.
       </div>
       <div className="rounded-2xl border border-white/10 bg-[#1A1528] p-5">
         <div className="flex flex-wrap items-end gap-4 mb-5">
@@ -66,10 +66,10 @@ export default function TransactionHistory() {
         </div>
         {query.isLoading && <p role="status" className="text-gray-300">Loading own transactions…</p>}
         {query.error && <p role="alert" className="text-red-300">
-          Transaction history could not be loaded. No amount is assumed.
+          Transaction history could not be loaded. Please try again.
         </p>}
         {!query.isLoading && !query.error && filtered.length === 0 &&
-          <p className="p-6 text-center text-gray-400">No matching staging transactions.</p>}
+          <p className="p-6 text-center text-gray-400">No matching transactions.</p>}
         {!query.isLoading && !query.error && filtered.length > 0 && <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-white/10 text-gray-400">
