@@ -22,7 +22,7 @@ Deno.serve(async (request: Request) => {
   const url = Deno.env.get("SUPABASE_URL") ?? "";
   const anon = Deno.env.get("SUPABASE_ANON_KEY") || Deno.env.get("SUPABASE_PUBLISHABLE_KEY") || "";
   const service = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-  if (url !== `https://${PROJECT}.supabase.co` || !anon || !service)
+  if ((url !== `https://${PROJECT}.supabase.co` && !(Deno.env.get('IG_LOCAL_PRACTICE')==='true' && url==='http://kong:8000')) || !anon || !service)
     return reply({ error: "Staging environment is unavailable" }, 503);
   const token = request.headers.get("authorization")?.match(/^Bearer (\S+)$/i)?.[1];
   if (!token) return reply({ error: "Authentication required" }, 401);

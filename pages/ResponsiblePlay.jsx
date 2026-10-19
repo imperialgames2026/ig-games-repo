@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { ArrowLeft, Heart, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import SelfExclusionControl from '@/components/casino/SelfExclusionControl';
 
 export default function ResponsiblePlay() {
   return (
@@ -22,6 +23,8 @@ export default function ResponsiblePlay() {
             </div>
             <h1 className="text-3xl font-black text-white">Responsible Play</h1>
           </div>
+
+          <SelfExclusionControl />
 
           <div className="text-gray-300 space-y-6 text-sm">
             <div className="p-4 bg-pink-500/10 border border-pink-500/30 rounded-xl">

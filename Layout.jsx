@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -17,12 +18,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Drawer, DrawerContent } from '@/components/ui/drawer';
-import ReferralHandler from '@/components/casino/ReferralHandler';
 import BottomTabBar from '@/components/mobile/BottomTabBar';
 import MobileHeader from '@/components/mobile/MobileHeader';
 import PageTransition from '@/components/mobile/PageTransition';
-import KYCPrompt from '@/components/casino/KYCPrompt';
-import GlobalChat from '@/components/chat/GlobalChat';
 
 function useMediaQuery(query) {
   const [matches, setMatches] = useState(false);
@@ -44,33 +42,13 @@ function useMediaQuery(query) {
 }
 
 export default function Layout({ children, currentPageName }) {
-    const [user, setUser] = useState(null);
+    const { user } = useAuth();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const location = useLocation();
     const isMobile = useMediaQuery('(max-width: 768px)');
 
-    useEffect(() => {
-      const loadUser = async () => {
-        try {
-          const u = await base44.auth.me();
-          setUser(u);
-          if (u) {
-            base44.functions.invoke('initializeUserIdentity', {}).catch(() => {});
-            // Silent session tracking (IP, geo, device)
-            base44.functions.invoke('trackSession', {}).catch((error) => {
-              if (error?.response?.data?.reason === 'restricted_region' || error?.data?.reason === 'restricted_region') {
-                alert('Access is not available in Washington or Idaho.');
-                base44.auth.logout(window.location.href);
-              }
-            });
-          }
-        } catch (e) {
-          // User not logged in
-        }
-      };
-      loadUser();
-    }, []);
+
 
   const { data: pendingKYC = [] } = useQuery({
     queryKey: ['pending-kyc-count'],
@@ -85,11 +63,11 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Home', icon: Home, page: 'Home' },
     { name: 'Games', icon: Gamepad2, page: 'Games' },
     { name: 'Poker', icon: Crown, page: 'PokerLobby' },
-    { name: 'Store', icon: ShoppingBag, page: 'Store' },
-    { name: 'Bonuses', icon: Crown, page: 'Bonuses' },
-    { name: 'Crypto', icon: Wallet, page: 'CryptoWallet' },
+    { name: 'Study', icon: ShoppingBag, page: 'PastPlayedHands' },
+    { name: 'Practice board', icon: Crown, page: 'Leaderboard' },
+    { name: 'Payments', icon: Wallet, page: 'Payments' },
     { name: 'IGN Staking', icon: Coins, page: 'IGNToken' },
-    { name: 'Referrals', icon: Users, page: 'Referrals' },
+    { name: 'Fairness', icon: Users, page: 'ProvablyFair' },
     { name: 'Support', icon: Settings, page: 'Support' },
   ];
 
@@ -104,15 +82,12 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0A0612]" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
-      <ReferralHandler />
       <MobileHeader />
       {currentPageName!=='Support'&&<Link to={createPageUrl('Support')}
         aria-label="Open customer support tickets"
         className="fixed bottom-24 right-4 z-40 flex items-center gap-2 rounded-full border border-amber-200/55 bg-[#251c17] px-4 py-3 text-sm font-bold text-amber-200 shadow-xl hover:bg-[#39291a] md:bottom-6">
         <MessageCircle size={18}/> <span className="hidden sm:inline">Support tickets</span>
       </Link>}
-      <KYCPrompt />
-      <GlobalChat user={user} />
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-[#0A0612]/80 backdrop-blur-xl border-b border-gray-200 dark:border-white/5 hidden md:block">
         <div className="max-w-7xl mx-auto px-4">
@@ -476,13 +451,13 @@ export default function Layout({ children, currentPageName }) {
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl('Store')} className="text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-colors">
-                    Store
+                  <Link to={createPageUrl('Payments')} className="text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-colors">
+                    Payments
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl('Referrals')} className="text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-colors">
-                    Referrals
+                  <Link to={createPageUrl('ProvablyFair')} className="text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-colors">
+                    Fairness
                   </Link>
                 </li>
                 <li>

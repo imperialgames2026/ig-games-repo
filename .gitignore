@@ -7,3 +7,6 @@ dist/
 game-migration-inventory.json
 
 supabase/.temp/
+
+playwright-report/
+test-results/

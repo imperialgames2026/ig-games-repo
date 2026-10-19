@@ -1,0 +1,49 @@
+name: Practice release integration validation
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm test
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.65.10
+      - name: Assemble checksum-verified backend
+        run: node scripts/prepare-reviewed-backend.mjs "$RUNNER_TEMP/ig-reviewed" --local-dev
+      - name: Start isolated backend and replay reviewed migrations
+        run: supabase start --workdir "$RUNNER_TEMP/ig-reviewed" --exclude studio,imgproxy,logflare,vector,postgres-meta,storage-api,realtime
+      - name: Run transactional database tests
+        run: npm run test:database
+      - name: Save local test connection
+        run: |
+          supabase status --workdir "$RUNNER_TEMP/ig-reviewed" --output json > /tmp/ig-local-runtime.json
+          node scripts/write-local-test-env.mjs
+      - name: Serve authenticated Edge Functions
+        run: |
+          echo IG_LOCAL_PRACTICE=true > "$RUNNER_TEMP/ig-local-functions.env"
+          supabase functions serve --workdir "$RUNNER_TEMP/ig-reviewed" --env-file "$RUNNER_TEMP/ig-local-functions.env" > "$RUNNER_TEMP/ig-functions.log" 2>&1 &
+          node scripts/wait-local-functions.mjs
+      - run: npm run build -- --mode test
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - run: npm run test:auth
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: practice-browser-results
+          path: test-results/
+      - name: Stop local backend
+        if: always()
+        run: supabase stop --workdir "$RUNNER_TEMP/ig-reviewed" --no-backup

@@ -1,0 +1,33 @@
+begin;
+do $test$
+declare a uuid:=gen_random_uuid();b uuid:=gen_random_uuid();req uuid:=gen_random_uuid();ticket uuid;r jsonb;blocked boolean;amount numeric;
+begin
+ insert into auth.users(id,email,role,aud) values(a,'ready-'||a||'@example.invalid','authenticated','authenticated'),(b,'ready-'||b||'@example.invalid','authenticated','authenticated');
+ if not exists(select 1 from public.user_roles where user_id=a and role='player') then raise exception 'new registration has no canonical player role';end if;
+ ticket:=public.ig_support_open(a,'Readiness ticket','Original message',req);
+ if public.ig_support_open(a,'Readiness ticket','Original message',req)<>ticket then raise exception 'ticket replay created duplicate';end if;
+ blocked:=false;begin perform public.ig_support_post(b,ticket,'Unauthorized reply',gen_random_uuid(),false);
+ exception when sqlstate '42501' then blocked:=true;end;
+ if not blocked then raise exception 'support ownership bypass';end if;
+ r:=public.payment_prepare(a,req,'deposit','BTC','bitcoin',0.01,null);
+ if r->>'status'<>'awaiting_provider' then raise exception 'unconnected payment has wrong status';end if;
+ if (public.payment_prepare(a,req,'deposit','BTC','bitcoin',0.01,null))->>'id'<>r->>'id' then raise exception 'payment replay duplicated request';end if;
+ blocked:=false;begin perform public.payment_prepare(a,req,'deposit','BTC','bitcoin',0.02,null);
+ exception when sqlstate '23505' then blocked:=true;end;
+ if not blocked then raise exception 'payment idempotency payload changed';end if;
+ blocked:=false;begin perform public.payment_prepare(a,gen_random_uuid(),'deposit','BTC','solana',1,null);
+ exception when sqlstate '22023' then blocked:=true;end;
+ if not blocked then raise exception 'cross-network asset accepted';end if;
+ select cent_balance+igd_balance+igt_balance into amount from public.wallets where user_id=a;
+ if amount<>0 then raise exception 'preparation moved actual funds';end if;
+ if has_function_privilege('authenticated','public.payment_prepare(uuid,uuid,text,text,text,numeric,text)','execute') then raise exception 'payment RPC exposed to browsers';end if;
+ if has_column_privilege('authenticated','public.fair_seed_commitments','server_seed','select') then raise exception 'unrevealed seeds exposed';end if;
+ if has_column_privilege('authenticated','public.profiles','role','update') then raise exception 'browser can promote own role';end if;
+ if has_table_privilege('authenticated','public.user_roles','update') then raise exception 'browser can update canonical role';end if;
+ update public.user_roles set role='tester' where user_id=a;
+ blocked:=false;begin perform public.payment_prepare(a,gen_random_uuid(),'deposit','BTC','bitcoin',1,null);
+ exception when sqlstate '42501' then blocked:=true;end;
+ if not blocked then raise exception 'tester can create payment preparation';end if;
+ raise notice 'PASS canonical signup, private support, payment replay, asset network validation, financial isolation, and tester restrictions';
+end $test$;
+rollback;

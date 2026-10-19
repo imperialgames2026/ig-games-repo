@@ -210,6 +210,15 @@
       "files": [
         "index.ts"
       ]
+    },
+    {
+      "name": "ig-payment-requests",
+      "deployed_version": null,
+      "verify_jwt": true,
+      "files": [
+        "index.ts"
+      ],
+      "status": "pending_deployment"
     }
   ],
   "migrations": [
@@ -548,6 +557,11 @@
     {
       "file": "20261019195106_canonical_signup_and_ign_replay_guards.sql",
       "sha256": "1516d2248432395e61fa65f4355e07eb5803347445f5f73502df71f63614d328"
+    },
+    {
+      "file": "20261019203000_payment_preparation_requests.sql",
+      "sha256": "d3570d6ca458ec6412550b79044369b01af40edcad4ad69d80a054f35b5fd662",
+      "status": "pending_deployment"
     }
   ]
 }

@@ -29,6 +29,7 @@ export function AuthProvider({ children }) {
     let timer;
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       ++generation.current;
+      if (_event === 'PASSWORD_RECOVERY' && window.location.pathname !== '/ResetPassword') {window.location.assign('/ResetPassword');return;}
       setUser(null);
       setError(null);
       clearTimeout(timer);
