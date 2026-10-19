@@ -31,10 +31,12 @@ jobs:
       - name: Replay recorded SQL and verify actual role policies
         run: node scripts/test-local-database.mjs replay-cron
       - run: npx playwright install --with-deps chromium
-      - name: Real local Auth, REST, and browser sign-in
+      - name: Real local Auth, Storage, REST, handlers and browser sign-in
         run: node scripts/test-local-auth.mjs
         env:
           IG_LOCAL_BROWSER: '1'
+          IG_LOCAL_STORAGE: '1'
+          IG_LOCAL_EDGE: '1'
   build:
     runs-on: ubuntu-latest
     steps:

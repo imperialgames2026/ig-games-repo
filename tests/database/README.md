@@ -34,17 +34,17 @@ it stops at migration 30 because that image lacks pg_cron.
 ```sh
 npm ci
 npx playwright install --with-deps chromium
-IG_LOCAL_BROWSER=1 node scripts/test-local-auth.mjs
+IG_LOCAL_BROWSER=1 IG_LOCAL_STORAGE=1 IG_LOCAL_EDGE=1 node scripts/test-local-auth.mjs
 ```
 
-This starts digest-pinned GoTrue 2.197.0 and PostgREST 14.18 on a dedicated Docker
+This starts digest-pinned GoTrue 2.197.0, PostgREST 14.18 and Storage API 1.81.0 on a dedicated Docker
 bridge. Only API ports are published, bound to 127.0.0.1; the database is not
 published. All HTTP test targets are asserted to be loopback. Browser requests
 to other hosts are blocked. Docker internal networks suppress host port
 publication in this environment, so this service harness uses a dedicated bridge
 rather than `--internal`.
 
-GoTrue initializes its real Auth schema before all 87 application migrations run.
+GoTrue and Storage API initialize their real schemas before all 87 application migrations run.
 Two disposable users then sign up and log in through HTTP. Real signed JWTs test
 canonical signup roles, cross-owner wallet read isolation, denied role writes,
 and an owner profile update. Browser coverage signs in, restores a session on
@@ -52,11 +52,28 @@ reload, and rejects access to the Superadmin user directory. It uses a local
 routing proxy for the standard `/auth/v1` and `/rest/v1` paths. Autoconfirm is
 only for these ephemeral local users; email delivery is not tested.
 
+With `IG_LOCAL_STORAGE=1`, real HTTP tests verify owned avatar uploads, intentional
+public image reads, MIME and 5 MB limits, denied overwrite/upsert, cross-owner
+listing/deletion isolation, and tester/exclusion restrictions. A synthetic image
+in the private KYC bucket is readable with the local service token but not through
+the public route or player token. Client KYC writes remain denied. Fixtures are
+removed and the file backend lives only in temporary container storage. If the
+flag is omitted, the faster Auth/REST suite uses Storage schema fixtures.
+
+With `IG_LOCAL_EDGE=1`, unchanged source handlers run through a Node adapter for
+`Deno.serve`, with the real locked Supabase SDK and actual local Auth/REST. Support
+read requests verify missing/forged/anonymous session rejection, bound ownership,
+canonical staff roles and exclusion. Four staging-bound handlers are verified to
+fail closed on the local URL; the guards are never patched out. This is handler
+integration coverage, **not Edge Runtime or hosted gateway JWT verification**.
+The browser also verifies disabled Base44 legacy dispatch throws before any
+function HTTP request.
+
 Set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium` when using an installed
 system Chromium. Omit `IG_LOCAL_BROWSER` to run only the HTTP assertions.
 
-Limits: Storage still uses schema fixtures; no Storage API, Edge Runtime,
-Realtime, email delivery or production configuration is emulated. Several deployed
+Limits: Edge Runtime/gateway, Realtime, email delivery, image transformation,
+S3/provider backends, CDN behavior and production configuration are not emulated. Several deployed
 handlers deliberately require the staging URL and should not be modified to
 bypass that protection merely for local testing. These tests do not establish
 staging multi-account browser gameplay or full platform parity.

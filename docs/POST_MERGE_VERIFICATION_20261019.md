@@ -125,3 +125,33 @@ The remaining external input is a supported Base44 export inventory and confirme
 source environment, detailed in `BASE44_EXPORT_INPUTS.md`. No customer records,
 live credentials, live database objects, deployed functions or permissions were
 changed in this follow-up. All PRs remain drafts; no merge or live deployment.
+
+
+## Extended isolated Storage and handler verification
+
+The extended suite supersedes the Storage-fixture-only limit above. Storage API
+1.81.0 now initializes its actual schema alongside GoTrue before all 87 recorded
+application migrations replay. The file backend is temporary and all service
+credentials are generated only for the local run.
+
+- Real Storage HTTP checks pass for owned avatar uploads and public reads, MIME
+  and 5 MB restrictions, rejected overwrite/upsert, cross-owner listing/deletion
+  isolation, and tester/exclusion write denial. Anonymous upload is rejected for
+  missing authorization.
+- A synthetic image stored in the private KYC bucket is readable with the local
+  service token, inaccessible publicly/to the player, and removed afterward. No
+  customer documents were accessed. Client KYC writes remain denied.
+- Unchanged support handler source, running through a Node `Deno.serve` adapter
+  with the real SDK/Auth/REST, rejects missing/forged/anonymous sessions and
+  cross-owner support reads. Canonical staff roles and exclusion boundaries pass.
+- Four staging-bound handlers return 503 against a local target as intended; no
+  target guard is bypassed. No financial/game action is invoked.
+- The real-service browser check also confirms disabled Base44 dispatch throws
+  before any function HTTP request.
+
+These checks do not prove deployed Edge Runtime/gateway behavior. The adapter is
+explicitly different from the Deno runtime; hosted JWT-verification settings and
+Staging-only URL guards remain part of a later deployed integration gate. Storage
+S3 backends, transformations, CDN behavior, Realtime and email/provider delivery
+are also not covered. The Base44 export inventory question remains pending; no
+new user credentials or live approval were needed for these isolated checks.
