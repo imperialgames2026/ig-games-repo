@@ -34,14 +34,13 @@ export default function Home() {
       <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-br from-pink-900/30 via-[#100923] to-purple-900/30"/>
       <div aria-hidden="true" className="absolute top-[-120px] right-[-90px] h-[420px] w-[420px] rounded-full bg-pink-600/15 blur-3xl"/>
       <div className="relative mx-auto max-w-7xl px-4 py-14 md:py-24">
-        <p className="font-bold uppercase tracking-[0.24em] text-amber-300 text-sm mb-5">Imperial Games · Secure staging preview</p>
+        <p className="font-bold uppercase tracking-[0.24em] text-amber-300 text-sm mb-5">Imperial Games · Practice preview</p>
         <h1 className="text-4xl md:text-6xl font-black max-w-3xl leading-tight">
-          The original casino. <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-pink-400 to-purple-300">A new foundation.</span>
+          Join the table. <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-pink-400 to-purple-300">Play together.</span>
         </h1>
         <p className="mt-6 max-w-2xl text-lg leading-relaxed text-gray-300">
-          Imperial Games is being migrated from Base44 to Supabase. Account security,
-          customer support and verifiable practice games are available for testing.
-          Financial gaming and crypto payments remain disabled during review.
+          Play multiplayer poker and casino-style games with fictional practice chips.
+          Explore the tables, review completed hands and track your progress.
         </p>
         <div className="flex flex-wrap gap-3 mt-8">
           <Link to="/PlayDice" className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 px-7 py-4 font-bold hover:brightness-110">
@@ -53,21 +52,22 @@ export default function Home() {
         </div>
         <div role="status" className="mt-8 flex max-w-2xl items-start gap-3 rounded-xl border border-amber-400/30 bg-black/30 p-4 text-amber-100 text-sm">
           <CircleAlert className="h-5 w-5 shrink-0 text-amber-300"/>
-          Do not send funds to Imperial Games. No cryptocurrency deposit addresses, withdrawals,
-          real-money wagers, or redeemable prizes are active in this preview.
+          Practice chips have no cash value and cannot be purchased or redeemed.
+          Payment processing is not active.
         </div>
       </div>
     </section>
     <div className="mx-auto max-w-7xl px-4 py-12 space-y-12">
       <section aria-labelledby="available-games">
         <div className="mb-5">
-          <p className="uppercase tracking-widest text-pink-300 text-xs font-bold">Verified Supabase backend</p>
+          <p className="uppercase tracking-widest text-pink-300 text-xs font-bold">Your next game</p>
           <h2 id="available-games" className="text-3xl font-black mt-1">Available practice games</h2>
-          <p className="text-gray-400 mt-2">Only games with a tested server-authoritative practice flow appear here.</p>
+          <p className="text-gray-400 mt-2">Browse multiplayer tables and explore games with fictional practice chips.</p>
         </div>
         {approvedGames.isLoading && <p role="status">Loading approved games…</p>}
         {approvedGames.error && <p role="alert">The approved game catalog is unavailable. No game has been enabled.</p>}
-        {!approvedGames.isLoading && !approvedGames.error && (approvedGames.data || []).length === 0 &&
+        {!user && <p className="rounded-xl border border-white/10 p-5 text-gray-300"><Link to="/Games" className="text-pink-300 underline">Browse the practice tables</Link> or <Link to="/login" className="text-pink-300 underline">sign in to open your game library</Link>.</p>}
+        {user && !approvedGames.isLoading && !approvedGames.error && (approvedGames.data || []).length === 0 &&
           <p className="rounded-xl border border-white/10 p-5 text-gray-400">No approved games are currently available.</p>}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {(approvedGames.data || []).map(game => <GameCard key={game.id} game={game}/>)}

@@ -87,7 +87,7 @@ export default function Profile() {
           </form>}
           <div className="mt-6 flex items-start gap-3 text-sm text-gray-400">
             <ShieldCheck className="w-5 h-5 text-green-300 shrink-0"/>
-            Sign-in, roles and exclusion status are verified by Supabase. Legacy photo uploads and unreviewed profile changes remain disabled.
+            Choose your display name once. Contact support if you need help with your account.
           </div>
         </section>
         <section className="rounded-2xl border border-white/10 bg-[#1A1528] p-6">

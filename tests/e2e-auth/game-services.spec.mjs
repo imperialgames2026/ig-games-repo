@@ -16,7 +16,7 @@ test.beforeAll(async()=>{
 });
 async function call(client,name,body){
  const {data,error}=await client.functions.invoke(name,{body});
- if(error){const detail=await error.context?.clone().json().catch(()=>null);throw Error(name+': '+(detail?.error||error.message));}
+ if(error){const detail=await error.context?.clone().json().catch(()=>null);throw Error(name+': '+(detail?.error||detail?.message||detail?.msg||error.message));}
  if(data?.error)throw Error(data.error);return data;
 }
 for(const [game,name] of [['craps','ig-multiplayer-practice'],['roulette','ig-multiplayer-practice'],['blackjack','ig-blackjack-practice'],['baccarat','ig-shared-event-practice']]){
@@ -34,6 +34,8 @@ for(const [game,name] of [['craps','ig-multiplayer-practice'],['roulette','ig-mu
 }
 for(const variant of ['holdem','omaha']){
  test('authenticated '+variant+' tables deal private cards to their owners only',async()=>{
+  const preflight=await fetch(config.API_URL+'/functions/v1/poker-table-v1',{method:'OPTIONS',headers:{Origin:'http://127.0.0.1:4173','Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'authorization, apikey, content-type, x-client-info'}});
+  expect(preflight.headers.get('access-control-allow-headers')?.toLowerCase()).toContain('x-client-info');
   const {tableId}=await call(clients[0],'poker-table-v1',{action:'create',variant});
   await call(clients[1],'poker-table-v1',{action:'join',tableId});
   await call(clients[0],'poker-table-v1',{action:'start',tableId});

@@ -2,12 +2,17 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { requireSupabase } from '@/lib/supabaseClient';
 import { Trophy } from 'lucide-react';
+import {Link} from 'react-router-dom';
+import {useAuth} from '@/lib/AuthContext';
 
 // The preserved original layout uses this card on Home. This read-only replacement
 // deliberately labels the new Supabase leaderboard as practice-only, not IGN/IGT.
 export default function WeeklyTokenLeaderboard() {
+  const {user,isAuthenticated}=useAuth();
+  const mayRead=isAuthenticated&&!user?.is_excluded;
   const { data, isPending, error } = useQuery({
-    queryKey: ['staging-practice-leaderboard'],
+    queryKey: ['staging-practice-leaderboard',user?.id],
+    enabled:mayRead,
     queryFn: async () => {
       const { data, error } = await requireSupabase().functions.invoke('legacy-leaderboard-v1', {
         body: { action: 'getWeeklyTokenLeaderboard' },
@@ -27,15 +32,17 @@ export default function WeeklyTokenLeaderboard() {
       <Trophy className="h-6 w-6 text-amber-300" aria-hidden="true" />
       <div>
         <h2 className="text-xl font-bold">Weekly practice-coin wins</h2>
-        <p className="text-sm text-gray-400">Staging test data only. Pseudonymous names; no cash, IGN or IGT prizes.</p>
+        <p className="text-sm text-gray-400">Practice results only. Player names are private; no cash prizes.</p>
       </div>
     </div>
-    {isPending && <p role="status" className="mt-4 text-gray-300">Loading practice results…</p>}
-    {error && <p role="alert" className="mt-4 text-amber-200">Practice leaderboard is unavailable right now.</p>}
-    {!isPending && !error && entries.length === 0 &&
+    {!isAuthenticated && <p className="mt-4 text-gray-300"><Link to="/login" className="text-pink-300 underline">Sign in to view the practice leaderboard</Link></p>}
+    {user?.is_excluded && <p className="mt-4 text-gray-300">Practice results are unavailable for this account.</p>}
+    {mayRead && isPending && <p role="status" className="mt-4 text-gray-300">Loading practice results…</p>}
+    {mayRead && error && <p role="alert" className="mt-4 text-amber-200">Practice leaderboard is unavailable right now.</p>}
+    {mayRead && !isPending && !error && entries.length === 0 &&
       <p className="mt-4 text-gray-300">No completed practice wins this week.</p>}
     <ol className="mt-4 space-y-2">
-      {entries.map(({ rank, name, total_won }) => <li key={rank}
+      {(mayRead?entries:[]).map(({ rank, name, total_won }) => <li key={rank}
         className="flex justify-between gap-3 rounded-lg border border-white/10 bg-white/5 p-3">
         <span>#{rank} · {name}</span>
         <strong>{Number(total_won).toLocaleString(undefined, { maximumFractionDigits: 2 })} practice coins</strong>

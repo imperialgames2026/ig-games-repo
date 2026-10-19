@@ -39,6 +39,18 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
       - run: npm run test:auth
+      - name: Function startup diagnostics
+        if: failure()
+        run: |
+          python3 - <<'PYTHON'
+          import os,re
+          from pathlib import Path
+          path=Path(os.environ['RUNNER_TEMP'])/'ig-functions.log'
+          if path.exists():
+              for line in path.read_text(errors='replace').splitlines():
+                  if re.search(r'error|failed|exception',line,re.I) and not re.search(r'bearer|authorization|password|secret|token',line,re.I):
+                      print(line[:500])
+          PYTHON
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
