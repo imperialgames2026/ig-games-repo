@@ -16,6 +16,25 @@ permissions:
   contents: read
 
 jobs:
+  local-backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Build isolated Postgres with pinned pg_cron
+        run: docker build -t ig-local-postgres-cron -f tests/database/Dockerfile tests/database
+      - name: Replay recorded SQL and verify actual role policies
+        run: node scripts/test-local-database.mjs replay-cron
+      - run: npx playwright install --with-deps chromium
+      - name: Real local Auth, REST, and browser sign-in
+        run: node scripts/test-local-auth.mjs
+        env:
+          IG_LOCAL_BROWSER: '1'
   build:
     runs-on: ubuntu-latest
     steps:
@@ -34,6 +53,8 @@ jobs:
         run: node scripts/audit-game-backends.mjs
       - name: Verify proposed legacy record read isolation in disposable Postgres
         run: node scripts/test-local-database.mjs app-records
+      - name: Verify recovered handlers and backend source checksums
+        run: node --test tests/canonicalMoneyHandlers.test.mjs tests/originalsHandler.test.mjs tests/backendPackaging.test.mjs
       - name: Upload route migration inventory
         if: always()
         uses: actions/upload-artifact@v4

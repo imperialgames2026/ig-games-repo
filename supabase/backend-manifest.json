@@ -4,19 +4,25 @@
   "functions": [
     {
       "name": "admin-mutations",
-      "deployed_version": 1,
+      "deployed_version": 3,
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "sha256": {
+        "index.ts": "aec1f640858104ebd1c47e3d8bb76ead20cd6be201c0c90d4819f7b6fe9f4a6c"
+      }
     },
     {
       "name": "secure-wallet",
-      "deployed_version": 1,
+      "deployed_version": 3,
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "sha256": {
+        "index.ts": "cd6daf54ba5a3a2d5e43d38f0d69090826dcc88f3da83e561155b238509261e4"
+      }
     },
     {
       "name": "provably-fair-demo",
@@ -24,7 +30,10 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "sha256": {
+        "index.ts": "47f5aed35275fe2a76fd273158ec3fbe8f0d4f43ce997c1c8086f47b9f1953fc"
+      }
     },
     {
       "name": "provably-fair-v2",
@@ -32,7 +41,10 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "sha256": {
+        "index.ts": "b6ba77034f0c20e6f000c657f562c2a917be922a9de55d10b619cffac94197c8"
+      }
     },
     {
       "name": "admin-crash-rounds",
@@ -40,7 +52,10 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "sha256": {
+        "index.ts": "14c521eb0d4fd92364a7ebd1ae377dcf99feb77af116a66729333ab097280f1f"
+      }
     },
     {
       "name": "poker-table-v1",
@@ -48,7 +63,10 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "sha256": {
+        "index.ts": "8aebdb82a874cf545f42f5005add46d6e678cf5b25af835532c0ee672f026fa7"
+      }
     },
     {
       "name": "admin-poker-events",
@@ -56,7 +74,10 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "sha256": {
+        "index.ts": "4f8c8ba38a3bb605315122e2a4dce907f8f5d6607875618de6912ac3adf0d032"
+      }
     },
     {
       "name": "poker-events-v1",
@@ -64,7 +85,10 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "sha256": {
+        "index.ts": "2682ab4fecbd1eaecb49663210bb12340fe16654d7a7d239389ed313169b9afe"
+      }
     },
     {
       "name": "legacy-leaderboard-v1",
@@ -72,7 +96,10 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "sha256": {
+        "index.ts": "5940b4c88e7d9dabded8087aa4d923c368068149eb043c91f4f4bc62dc5755e4"
+      }
     },
     {
       "name": "crypto-deposit-preview-v1",
@@ -80,7 +107,10 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "sha256": {
+        "index.ts": "4a777f7f068ea6f0de2c5af1b9fadf75251ffa889b263cfb68ec262f618d5f85"
+      }
     },
     {
       "name": "ig-support-v1",
@@ -88,7 +118,10 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "sha256": {
+        "index.ts": "030840549c130280b5a3c12027b1b5b653a524b75c9aa74237713e2f773dd1da"
+      }
     },
     {
       "name": "ig-self-exclusion-v1",
@@ -96,7 +129,10 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "sha256": {
+        "index.ts": "640031d7a117382e0b8b4e4e9982a2081aeed5af75ec5e07567ddeb2500abfc1"
+      }
     },
     {
       "name": "ig-multiplayer-practice",
@@ -104,7 +140,10 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "sha256": {
+        "index.ts": "661bb00f7feee72aed26c399b5848a1a6dfb8dcbc5f4523fea45f62ec2b4f1ec"
+      }
     },
     {
       "name": "ig-shared-event-practice",
@@ -112,7 +151,10 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "sha256": {
+        "index.ts": "88b1c982ad87db80e7d501178b816cb88f6ce9433cca897509205df23e8e16f1"
+      }
     },
     {
       "name": "ig-blackjack-practice",
@@ -120,7 +162,10 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "sha256": {
+        "index.ts": "c31cd2d50868456820ad0c88605b26194b57f9e00adc3050fdb47d6f63a2e2e8"
+      }
     },
     {
       "name": "ig-poker-tournament-admin",
@@ -128,7 +173,10 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "sha256": {
+        "index.ts": "78627834da0493d2c1b011c26e9f60e509631d94c0f1da627ff7be23bbf772ff"
+      }
     },
     {
       "name": "ig-poker-tournament-prizes",
@@ -136,7 +184,10 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "sha256": {
+        "index.ts": "1b641df67972e892776f82cdf804c0df986992da8ffab1f801397b84f0f3172f"
+      }
     },
     {
       "name": "ig-fireblocks-sandbox-admin",
@@ -144,7 +195,10 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "sha256": {
+        "index.ts": "31a8b0a4b70bb6d968b14ad3f63f3bd6cc55ca295056ecac532e29b10c0a21cf"
+      }
     },
     {
       "name": "ig-fireblocks-sandbox-webhook",
@@ -152,7 +206,10 @@
       "verify_jwt": false,
       "files": [
         "index.ts"
-      ]
+      ],
+      "sha256": {
+        "index.ts": "67f7b7a2081f791dbbff5563a9fcdbdedd1822c00ed8efa52d9c1e1265052d98"
+      }
     },
     {
       "name": "ig-admin-command-center",
@@ -160,7 +217,10 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "sha256": {
+        "index.ts": "2c4142d95bbb2d420e8aa89e568f629f3f4347a34dd68ffbc4ef1e953819b5aa"
+      }
     },
     {
       "name": "ign-staking-v1",
@@ -168,7 +228,10 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "sha256": {
+        "index.ts": "6bbd6e6a2312e6b864727093877adfac4a1938f11152921edadfe34cec7a2aae"
+      }
     },
     {
       "name": "ig-support-supervisor",
@@ -177,7 +240,11 @@
       "files": [
         "index.ts",
         "triage.js"
-      ]
+      ],
+      "sha256": {
+        "index.ts": "4a0267d64a100aee467160c9c7c4338cb8561fd40b21a7d1386fddb45f706ae9",
+        "triage.js": "35d0e53e11c5a00ffde4bb34bf31e0e17b55b8a7863dc1d7f3bc208a491bc65b"
+      }
     },
     {
       "name": "ig-crash-v2",
@@ -185,7 +252,10 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "sha256": {
+        "index.ts": "af3b6d73152b3ecbf1498a896726cc8c2589f7e6463b4950d85c514b8a79448f"
+      }
     },
     {
       "name": "ig-player-analytics-v1",
@@ -193,7 +263,10 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "sha256": {
+        "index.ts": "f43016edac68ce37b851f1826616ac890c9b0fd7aff751f73707d10e8a06afe3"
+      }
     },
     {
       "name": "ig-admin-users-preview-v1",
@@ -201,7 +274,10 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "sha256": {
+        "index.ts": "e7744b036e5094e3d88d2b04a722042a64c0eba7f20a6383b627fb0f6f6cc19a"
+      }
     },
     {
       "name": "ig-poker-bot-lab",
@@ -209,7 +285,21 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "sha256": {
+        "index.ts": "9da93daf2b06192c0461192172f966c444478bf2c53c40b2241ce5bf1524f2a5"
+      }
+    },
+    {
+      "name": "ig-originals-practice",
+      "deployed_version": 1,
+      "verify_jwt": true,
+      "files": [
+        "index.ts"
+      ],
+      "sha256": {
+        "index.ts": "787ee06b3b229d43901d27996e98d0e8c57426269cf731dc88cb88131de1d159"
+      }
     }
   ],
   "migrations": [
@@ -548,6 +638,18 @@
     {
       "file": "20261019195106_canonical_signup_and_ign_replay_guards.sql",
       "sha256": "1516d2248432395e61fa65f4355e07eb5803347445f5f73502df71f63614d328"
+    },
+    {
+      "file": "20261019200452_canonical_wallet_admin_authorization.sql",
+      "sha256": "81ac5ef25f1116ab30e69f5578ad9ae27ef1e5a3efab3683c31536393fc1c078"
+    },
+    {
+      "file": "20261019200745_profile_settings_and_avatar_storage.sql",
+      "sha256": "6bb973a8ff322f8fbe43458d79ffffa040297f3192ab7555bf00f1f95c71eb60"
+    },
+    {
+      "file": "20261019201632_verified_originals_practice_rounds.sql",
+      "sha256": "071eb0c886cf9a65d59b56c82623ea0ad5f29874cc39e0737e14242c143808fc"
     }
   ]
 }

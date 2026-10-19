@@ -7,8 +7,8 @@ import { setTimeout } from 'node:timers/promises';
 
 // Deliberately accepts no connection URL: this harness cannot target a hosted DB.
 const mode = process.argv[2] || 'app-records';
-if (!['app-records', 'replay'].includes(mode) || process.argv.length > 3) {
-  throw new Error('Usage: node scripts/test-local-database.mjs [app-records|replay]');
+if (!['app-records', 'replay', 'replay-cron'].includes(mode) || process.argv.length > 3) {
+  throw new Error('Usage: node scripts/test-local-database.mjs [app-records|replay|replay-cron]');
 }
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const name = `ig-local-test-${randomUUID()}`;
@@ -19,7 +19,9 @@ let started = false;
 try {
   docker(['run', '-d', '--name', name, '--network', 'none',
     '--tmpfs', '/var/lib/postgresql/data', '-e', 'POSTGRES_HOST_AUTH_METHOD=trust',
-    'postgres:17-alpine@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24']);
+    ...(mode === 'replay-cron'
+      ? ['ig-local-postgres-cron', '-c', 'shared_preload_libraries=pg_cron', '-c', 'cron.database_name=postgres', '-c', 'cron.launch_active_jobs=off']
+      : ['postgres:17-alpine@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24'])]);
   started = true;
   let ready = false;
   for (let i = 0; i < 60; i++) {
@@ -41,6 +43,8 @@ try {
       sql('begin;\n' + content + '\ncommit;');
     }
     console.log(`PASS: ${manifest.migrations.length} migrations structurally replayed with minimal Auth/Storage fixtures. Full Supabase service validation still required.`);
+    sql(read('tests/database/replayed-records-before.sql') + read('supabase/proposals/app-records-owner-read.sql') + read('tests/database/replayed-records-after.sql'));
+    console.log('PASS: replayed signup rejects metadata escalation; actual canonical-role policies preserve owner/admin isolation after proposed correction. Rolled back.');
   }
 } finally {
   if (started) docker(['rm', '-fv', name]);

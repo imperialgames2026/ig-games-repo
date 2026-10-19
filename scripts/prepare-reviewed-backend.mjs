@@ -29,6 +29,7 @@ for(const fn of manifest.functions){
  config+=`\n[functions.${fn.name}]\nverify_jwt = ${fn.verify_jwt}\n`;
  for(const name of fn.files){
   const src=safe(join(root,'supabase/functions',fn.name),name);
+  if(createHash('sha256').update(readFileSync(src)).digest('hex')!==fn.sha256?.[name])throw new Error('Function checksum mismatch: '+fn.name+'/'+name);
   if(/@base44\/sdk|base44Compat/.test(readFileSync(src,'utf8')))throw new Error('Legacy SDK in deployment');
   const dest=safe(join(out,'supabase/functions',fn.name),name);
   mkdirSync(dirname(dest),{recursive:true});copyFileSync(src,dest);
