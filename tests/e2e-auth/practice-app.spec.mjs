@@ -64,6 +64,27 @@ test('payment preparation records, lists and cancels without moving wallet funds
  const {data,error}=await admin.from('wallets').select('cent_balance,igd_balance,igt_balance').eq('user_id',fixtures[0].id).single();
  expect(error).toBeNull();expect(Number(data.cent_balance)+Number(data.igd_balance)+Number(data.igt_balance)).toBe(0);
 });
+test('withdrawal preparation preserves the selected asset, network and destination without debiting funds',async({page})=>{
+ await signin(page);await page.goto('/Withdraw',{waitUntil:'domcontentloaded'});
+ await expect(page.getByLabel('Request type',{exact:true})).toHaveValue('withdrawal');
+ await page.getByLabel('Asset',{exact:true}).selectOption('USDC');
+ await page.getByLabel('Network',{exact:true}).selectOption('solana');
+ await page.getByLabel('Amount',{exact:true}).fill('1.25');
+ const destination='11111111111111111111111111111111';
+ await page.getByLabel('Destination address',{exact:true}).fill(destination);
+ await page.getByRole('button',{name:'Save preparation request'}).click();
+ await expect(page.getByRole('status')).toContainText('No funds have moved');
+ const {data,error}=await admin.from('payment_preparation_requests').select('kind,asset,network,amount,destination,status').eq('user_id',fixtures[0].id).eq('kind','withdrawal').single();
+ expect(error).toBeNull();expect(data).toEqual({kind:'withdrawal',asset:'USDC',network:'solana',amount:1.25,destination,status:'awaiting_provider'});
+ const other=createClient(url,config.ANON_KEY,{auth:{persistSession:false}});
+ expect((await other.auth.signInWithPassword({email:fixtures[1].email,password})).error).toBeNull();
+ const privateRows=await other.from('payment_preparation_requests').select('id').eq('user_id',fixtures[0].id);
+ expect(privateRows.error).toBeNull();expect(privateRows.data).toEqual([]);
+ await page.getByRole('button',{name:'Cancel request'}).click();
+ await expect(page.locator('article').filter({hasText:'withdrawal'}).getByText('Cancelled',{exact:false})).toBeVisible();
+ const wallet=await admin.from('wallets').select('cent_balance,igd_balance,igt_balance').eq('user_id',fixtures[0].id).single();
+ expect(wallet.error).toBeNull();expect(Number(wallet.data.cent_balance)+Number(wallet.data.igd_balance)+Number(wallet.data.igt_balance)).toBe(0);
+});
 test('a recovery link can set a new password and the new password signs in',async({page})=>{
  const {data,error}=await admin.auth.admin.generateLink({type:'recovery',email:fixtures[1].email,options:{redirectTo:'http://127.0.0.1:4173/ResetPassword'}});
  expect(error).toBeNull();
