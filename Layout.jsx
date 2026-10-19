@@ -95,7 +95,7 @@ export default function Layout({ children, currentPageName }) {
             {/* Logo */}
             <Link to={createPageUrl('Home')} className="flex items-center gap-2">
               <img 
-                src="https://media.base44.com/images/public/697dc67abbb768c5bbbab5d5/669cada57_692efb11e_generated_image.png"
+                src="/imperial-gaming.png"
                 alt="Imperial Gaming"
                 className="w-10 h-10 rounded-full object-cover"
               />
@@ -430,7 +430,7 @@ export default function Layout({ children, currentPageName }) {
             <div className="md:col-span-1">
               <div className="flex items-center gap-2 mb-4">
                 <img 
-                  src="https://media.base44.com/images/public/697dc67abbb768c5bbbab5d5/669cada57_692efb11e_generated_image.png"
+                  src="/imperial-gaming.png"
                   alt="Imperial Gaming"
                   className="w-8 h-8 rounded-full object-cover"
                 />

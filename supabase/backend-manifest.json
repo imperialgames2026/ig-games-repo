@@ -48,7 +48,8 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "status": "pending_deployment"
     },
     {
       "name": "admin-poker-events",
@@ -104,7 +105,8 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "status": "pending_deployment"
     },
     {
       "name": "ig-shared-event-practice",
@@ -112,7 +114,8 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "status": "pending_deployment"
     },
     {
       "name": "ig-blackjack-practice",
@@ -120,7 +123,8 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "status": "pending_deployment"
     },
     {
       "name": "ig-poker-tournament-admin",
@@ -185,7 +189,8 @@
       "verify_jwt": true,
       "files": [
         "index.ts"
-      ]
+      ],
+      "status": "pending_deployment"
     },
     {
       "name": "ig-player-analytics-v1",

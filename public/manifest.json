@@ -1,0 +1,18 @@
+{
+  "name": "Imperial Gaming",
+  "short_name": "Imperial Gaming",
+  "description": "Multiplayer practice games with fictional chips.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0A0612",
+  "theme_color": "#ec4899",
+  "icons": [
+    {
+      "src": "/imperial-gaming.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
