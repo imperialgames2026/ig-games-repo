@@ -1,36 +1,43 @@
-name: Deploy Imperial Games to Supabase
-
+name: Verify and deploy reviewed Supabase staging backend
 on:
+  pull_request:
+    branches: [main]
+    paths: ['supabase/**', 'scripts/prepare-reviewed-backend.mjs', '.github/workflows/deploy-supabase.yml']
   workflow_dispatch:
-  push:
-    branches: [migration/supabase-finalization]
-    paths:
-      - 'supabase/**'
-      - 'scripts/prepare-supabase-functions.mjs'
-      - '.github/workflows/deploy-supabase.yml'
-
+    inputs:
+      deploy_staging:
+        description: Apply reviewed history and functions to Imperial Games staging
+        type: boolean
+        default: false
 permissions:
   contents: read
-
 jobs:
-  deploy:
+  prepare:
     runs-on: ubuntu-latest
-    env:
-      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
     steps:
       - uses: actions/checkout@v4
-      - name: Install Supabase CLI
-        run: npm install --global supabase
-      - name: Validate deployment secrets
-        run: test -n "$SUPABASE_ACCESS_TOKEN" && test -n "$SUPABASE_PROJECT_REF"
-      - name: Download preserved Base44 archive
-        run: curl -fsSL https://github.com/imperialgames2026/casino-zip/raw/refs/heads/main/ig-games.zip -o ig-games.zip
-      - name: Prepare Edge Functions
-        run: node scripts/prepare-supabase-functions.mjs
-      - name: Link project
-        run: supabase link --project-ref "$SUPABASE_PROJECT_REF"
-      - name: Apply database migrations
-        run: supabase db push
-      - name: Deploy Edge Functions
-        run: supabase functions deploy --project-ref "$SUPABASE_PROJECT_REF"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Assemble only reviewed Supabase sources
+        run: node scripts/prepare-reviewed-backend.mjs "$RUNNER_TEMP/imperial-backend"
+      - name: Preserve reviewable backend package
+        uses: actions/upload-artifact@v4
+        with:
+          name: imperial-reviewed-staging-backend
+          path: ${{ runner.temp }}/imperial-backend/
+      - uses: supabase/setup-cli@v1
+        if: github.event_name == 'workflow_dispatch' && inputs.deploy_staging
+        with:
+          version: 2.121.0
+      - name: Apply to dedicated staging project
+        if: github.event_name == 'workflow_dispatch' && inputs.deploy_staging
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.STAGING_SUPABASE_DB_PASSWORD }}
+        run: |
+          test -n "$SUPABASE_ACCESS_TOKEN" && test -n "$SUPABASE_DB_PASSWORD"
+          supabase link --workdir "$RUNNER_TEMP/imperial-backend" --project-ref qonqemhljgxlwpghkxhn
+          supabase db push --workdir "$RUNNER_TEMP/imperial-backend" --dry-run
+          supabase db push --workdir "$RUNNER_TEMP/imperial-backend" --yes
+          supabase functions deploy --workdir "$RUNNER_TEMP/imperial-backend" --project-ref qonqemhljgxlwpghkxhn

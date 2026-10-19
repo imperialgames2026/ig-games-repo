@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PokerPlayerAnalytics from '@/components/poker/PokerPlayerAnalytics';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -127,6 +128,7 @@ export default function Profile() {
         >
           <VIPLevelUpToast wallet={wallet} />
           <h1 className="text-3xl font-bold text-white mb-8">Profile Settings</h1>
+          <div className="mb-6"><PokerPlayerAnalytics /></div>
 
           {wallet && <div className="mb-6"><VIPProgressCard wallet={wallet} /></div>}
 

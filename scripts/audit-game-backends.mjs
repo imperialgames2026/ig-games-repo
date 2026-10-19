@@ -17,7 +17,7 @@ for (const filename of pages) {
   const approvedInApp = app.includes("'" + page + "'") && approved.has(page);
   if (approved.has(page)) {
     if (!approvedInApp || invocations.length || directWalletMutation) bad = true;
-    if (!/MultiplayerPracticeTable|SharedEventPracticeTable|BlackjackPracticeTable|HoldemPracticeTable|verifyPracticeDice/.test(code)) bad = true;
+    if (!/CrashPracticeV2|MultiplayerPracticeTable|SharedEventPracticeTable|BlackjackPracticeTable|HoldemPracticeTable|verifyPracticeDice/.test(code)) bad = true;
   }
   rows.push({page, status: approved.has(page) ? 'practice_backend' : 'blocked_pending_migration',
     legacyFunctions: invocations, containsLegacyFinancialMutation: directWalletMutation});

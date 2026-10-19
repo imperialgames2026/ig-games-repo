@@ -25,7 +25,7 @@ test('admin routes are protected and render dedicated operator shell',()=>{
  assert.match(app,/adminPages\.has\(currentPageName\)/);
  assert.match(app,/<CommandCenterLayout>/);
  assert.match(app,/AdminTreasury/);
- assert.match(app,/path==='SuperadminPokerTournaments' \? \['superadmin'\]/);
+ assert.match(app,/\['SuperadminPokerTournaments', 'AdminUsers', 'PokerBotLab'\]\.includes\(path\)/);
  assert.match(layout,/role==='superadmin'/);
  assert.match(layout,/aria-current/);
  assert.match(layout,/lg:translate-x-0/);
@@ -39,10 +39,15 @@ test('dashboard uses Supabase rather than unsafe legacy Base44 mutating managers
  assert.match(admin,/Pending withdrawal requests/);
 });
 test('financial modules are read-only and Support uses separately authorized ticket operations',()=>{
- for(const page of [users,wallets,kyc,treasury]){
+ for(const page of [wallets,kyc,treasury]){
   assert.match(page,/CommandCenterDataView/);
   assert.doesNotMatch(page,/base44|private[_-]?key|signTransaction|\.rpc\(/i);
  }
+ assert.match(users,/VerifiedAdminUsers/);
+ const directory=load('components/VerifiedAdminUsers.jsx');
+ assert.match(directory,/user\?\.role === 'superadmin'/);
+ assert.match(directory,/ig-admin-users-preview-v1/);
+ assert.doesNotMatch(directory,/\.insert\(|\.update\(|\.delete\(/);
  assert.match(wallets,/unverified accounting units/);
  assert.match(treasury,/not real funded wallets/);
  assert.match(support,/ig-support-v1/);
