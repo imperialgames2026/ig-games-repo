@@ -1,0 +1,2 @@
+revoke execute on function public.handle_new_user() from public, anon, authenticated; revoke execute on function public.protect_profile_privileged_fields() from public, anon, authenticated; revoke execute on function public.is_admin() from public, anon; revoke execute on function public.is_admin_or_superadmin() from public, anon; revoke execute on function public.is_superadmin() from public, anon;
+

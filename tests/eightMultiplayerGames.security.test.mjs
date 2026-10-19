@@ -9,7 +9,7 @@ const expected={
   PlayBlackjack:'BlackjackPracticeTable',PlayMultiplayerBlackjack:'BlackjackPracticeTable',
   PlayBaccarat:'SharedEventPracticeTable',
   PlayCraps:'MultiplayerPracticeTable',PlayRoulette:'MultiplayerPracticeTable',
-  PlayCrash:'SharedEventPracticeTable',PlayTrenball:'SharedEventPracticeTable',
+  PlayCrash:'CrashPracticeV2',PlayTrenball:'CrashPracticeV2',
 };
 
 test('requested eight games have staging-only authorized multiplayer routes',()=>{
@@ -105,14 +105,14 @@ test('Blackjack abandoned turns expire on server clock without giving browser au
 });
 
 
-test('Crash and Trenball share one nonredeemable event room and server-defined fixed payouts',()=>{
+test('Retained shared-event engine enforces nonredeemable rounds and fixed payouts',()=>{
   const engine=file('supabase/migrations/20261017202000_crash_trenball_baccarat_practice.sql');
   const screen=file('components/games/SharedEventPracticeTable.jsx');
   const hook=file('hooks/useSharedEventPractice.js');
   const crash=file('pages/PlayCrash.jsx');
   const trenball=file('pages/PlayTrenball.jsx');
-  assert.match(crash,/mode="crash"/);
-  assert.match(trenball,/mode="trenball"/);
+  assert.match(crash,/initialMode='crash'/);
+  assert.match(trenball,/initialMode='trenball'/);
   assert.match(screen,/const game=mode==='baccarat'\?'baccarat':'crash'/);
   assert.match(hook,/ig-shared-event-practice/);
   assert.match(engine,/p_game='crash'/);

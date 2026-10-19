@@ -16,7 +16,7 @@ test('superadmin tournament presets are staging-only and 6-8 seats x 1-30 tables
  assert.match(sql,/rake_from_forced_bets boolean not null default false check\(rake_from_forced_bets=false\)/);
  assert.match(sql,/v_variant='omaha' and v_seats<>6/);
  assert.match(sql,/to service_role/);
- assert.match(routes, /path==='SuperadminPokerTournaments' \? \['superadmin'\]/);
+ assert.match(routes, /\['SuperadminPokerTournaments', 'AdminUsers', 'PokerBotLab'\]\.includes\(path\)/);
 });
 test('rake controls are an uncollected draft, not wallet deductions',()=>{
  assert.match(ui,/Rake percentage per contested pot/);

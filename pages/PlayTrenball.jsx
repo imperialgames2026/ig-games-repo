@@ -1,7 +1,3 @@
 import React from 'react';
-import SharedEventPracticeTable from '@/components/games/SharedEventPracticeTable';
-
-// Staging-only server-settled shared practice chips. No financial gameplay.
-export default function PlayTrenball() {
-  return <SharedEventPracticeTable mode="trenball" />;
-}
+import CrashPracticeV2 from '@/components/games/CrashPracticeV2';
+export default function PlayTrenball() { return <CrashPracticeV2 initialMode='trenball' />; }

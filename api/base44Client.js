@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { resolveIdentity } from '@/lib/identity';
 
 const ENTITY_TABLES = {
   User: 'profiles',
@@ -172,11 +173,9 @@ const entities = new Proxy({}, { get(_target, entity) {
 export const base44 = {
   auth: {
     async me() {
-      const user = await getCurrentUser();
-      if (!user) throw new Error('Not authenticated');
-      const { data: profile, error } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-      if (error) throw error;
-      return { ...profile, user_email: user.email, email: user.email, id: user.id };
+      const identity = await resolveIdentity(supabase);
+      if (!identity) throw new Error('Not authenticated');
+      return identity;
     },
     async updateMe(updates) {
       const user = await getCurrentUser();

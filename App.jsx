@@ -17,14 +17,14 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 const { Pages, Layout, mainPage } = pagesConfig;
 const publicPages = new Set([
   'Home', 'Games', 'CookiesPolicy', 'Licensing', 'PrivacyPolicy',
-  'ResponsiblePlay', 'TermsOfService', 'Leaderboard', 'FairnessManifesto',
+  'ResponsiblePlay', 'TermsOfService', 'FairnessManifesto',
 ]);
 // Only these game pages have reviewed zero-wager server handlers.
 // A successful Vite build never authorizes direct legacy wallet settlement.
 const verifiedPracticeGames = new Set(['PlayDice', 'PlayCraps', 'PlayRoulette', 'PlayCrash', 'PlayTrenball', 'PlayBaccarat', 'PlayPoker', 'PlayOmaha', 'PlayBlackjack', 'PlayMultiplayerBlackjack']);
 const adminPages = new Set([
   'Admin', 'AdminAnnouncements', 'AdminKYC', 'AdminSupport', 'AdminUsers',
-  'AdminWallets', 'AdminSweepstakesAudit', 'AdminIGTSupply', 'OwnerKeyring', 'SuperadminPokerTournaments', 'AdminTreasury', 'AdminLegacyTools',
+  'AdminWallets', 'AdminSweepstakesAudit', 'AdminIGTSupply', 'OwnerKeyring', 'SuperadminPokerTournaments', 'PokerBotLab', 'AdminTreasury', 'AdminLegacyTools',
 ]);
 
 const withAccess = (path, element) => {
@@ -32,7 +32,7 @@ const withAccess = (path, element) => {
   if (path.startsWith('Play') && !verifiedPracticeGames.has(path)) {
     return <ProtectedRoute><GameUnavailable game={path} /></ProtectedRoute>;
   }
-  const roles = path==='SuperadminPokerTournaments' ? ['superadmin'] : adminPages.has(path) ? ['admin', 'superadmin'] : undefined;
+  const roles = ['SuperadminPokerTournaments', 'AdminUsers', 'PokerBotLab'].includes(path) ? ['superadmin'] : adminPages.has(path) ? ['admin', 'superadmin'] : undefined;
   return <ProtectedRoute roles={roles}>{element}</ProtectedRoute>;
 };
 

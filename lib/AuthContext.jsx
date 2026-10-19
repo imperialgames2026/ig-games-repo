@@ -1,102 +1,66 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
+import { resolveIdentity } from './identity.js';
 
 const AuthContext = createContext(null);
-
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
-  const [authError, setAuthError] = useState(null);
-
-  const loadSessionUser = useCallback(async (sessionUser) => {
-    if (!sessionUser) {
-      setUser(null);
-      setIsAuthenticated(false);
-      return;
-    }
-
-    // Auth identity is authoritative. Profile data is optional and must never
-    // prevent an otherwise valid Auth session from opening the application.
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('id,email,full_name,profile_picture,role,is_excluded,kyc_status')
-      .eq('id', sessionUser.id)
-      .maybeSingle();
-
-    if (error) console.error('Could not load profile:', error.message);
-
-    setUser({
-      ...(profile ?? {}),
-      id: sessionUser.id,
-      email: sessionUser.email ?? profile?.email ?? null,
-      role: profile?.role ?? 'player',
-      is_excluded: profile?.is_excluded ?? false,
-    });
-    setIsAuthenticated(true);
-  }, []);
-
+  const [isLoadingAuth, setLoading] = useState(true);
+  const [authError, setError] = useState(null);
+  const generation = useRef(0);
   const checkAppState = useCallback(async () => {
-    setIsLoadingAuth(true);
-    setAuthError(null);
+    const request = ++generation.current;
+    setLoading(true);
     try {
-      const { data, error } = await supabase.auth.getSession();
-      if (error) throw error;
-      await loadSessionUser(data.session?.user ?? null);
+      const identity = await resolveIdentity(supabase);
+      if (request !== generation.current) return;
+      setUser(identity);
+      setError(null);
     } catch (error) {
-      console.error('Supabase auth check failed:', error);
-      setAuthError({ type: 'unknown', message: error.message || 'Failed to load session' });
+      if (request !== generation.current) return;
       setUser(null);
-      setIsAuthenticated(false);
+      setError({ type: 'account_unverified', message: error.message });
     } finally {
-      setIsLoadingAuth(false);
+      if (request === generation.current) setLoading(false);
     }
-  }, [loadSessionUser]);
-
+  }, []);
   useEffect(() => {
     let mounted = true;
-    // Subscribe before checking the current session so sign-in events aren't missed.
+    let timer;
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!mounted) return;
-      setAuthError(null);
-      void loadSessionUser(session?.user ?? null).catch((error) => {
-        console.error('Failed to synchronize auth state:', error);
-        setAuthError({ type: 'unknown', message: error.message || 'Failed to load profile' });
-      }).finally(() => {
-        if (mounted) setIsLoadingAuth(false);
-      });
+      ++generation.current;
+      setUser(null);
+      setError(null);
+      clearTimeout(timer);
+      if (!session) { setLoading(false); return; }
+      setLoading(true);
+      // Leave the auth callback before calling Supabase APIs (auth lock).
+      timer = setTimeout(() => { if (mounted) void checkAppState(); }, 0);
     });
     void checkAppState();
     return () => {
       mounted = false;
+      ++generation.current;
+      clearTimeout(timer);
       subscription.unsubscribe();
     };
-  }, [checkAppState, loadSessionUser]);
-
+  }, [checkAppState]);
   const logout = async (shouldRedirect = true) => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
+    ++generation.current;
     setUser(null);
-    setIsAuthenticated(false);
     if (shouldRedirect) window.location.assign('/login');
   };
-
-  const navigateToLogin = () => window.location.assign('/login');
-
-  return (
-    <AuthContext.Provider value={{
-      user, isAuthenticated, isLoadingAuth, authError,
-      isLoadingPublicSettings: false,
-      appPublicSettings: { provider: 'supabase' },
-      logout, navigateToLogin, checkAppState,
-    }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={{
+    user, isAuthenticated: !!user, isLoadingAuth, authError,
+    authChecked: !isLoadingAuth, checkUserAuth: checkAppState,
+    isLoadingPublicSettings: false, appPublicSettings: { provider: 'supabase' },
+    logout, navigateToLogin: () => window.location.assign('/login'), checkAppState,
+  }}>{children}</AuthContext.Provider>;
 }
-
 export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within an AuthProvider');
-  return context;
+  const value = useContext(AuthContext);
+  if (!value) throw new Error('useAuth must be used within an AuthProvider');
+  return value;
 }

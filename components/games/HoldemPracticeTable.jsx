@@ -86,12 +86,12 @@ export default function HoldemPracticeTable({variant='holdem'}) {
  return <main className="min-h-screen bg-[#0a0612] px-4 py-8 text-white">
    <div className="mx-auto max-w-6xl space-y-5">
      <div className="flex flex-wrap items-center justify-between gap-2">
-       <div className="flex flex-wrap gap-4"><Link to="/Games" className="text-amber-300 hover:underline">← Games</Link>{!isOmaha&&<Link to="/PokerMultiTable" className="font-bold text-amber-300 underline">+ Add table · Open up to 3</Link>}</div>
+       <div className="flex flex-wrap gap-4"><Link to="/Games" className="text-amber-300 hover:underline">← Games</Link><Link to="/PokerBotLab" className="text-amber-300 hover:underline">AI Poker Lab</Link><Link to="/PastPlayedHands" className="text-amber-300 hover:underline">Past Played Hands</Link><Link to="/ImperialMembership" className="text-amber-300 hover:underline">3-Bet Membership</Link>{!isOmaha&&<Link to="/PokerMultiTable" className="font-bold text-amber-300 underline">+ Add table · Open up to 3</Link>}</div>
        <span className="rounded-full border border-amber-300/40 bg-amber-300/10 px-4 py-1 text-xs font-bold uppercase tracking-widest text-amber-200">Practice {isOmaha?'Omaha · 6 seats':'Hold’em · 8 seats'}</span>
        {table?.eventId&&<Link to={"/PokerTournamentPrizes?eventId="+encodeURIComponent(table.eventId)} className="text-sm font-semibold text-amber-300 underline">Tournament prize ladder</Link>}
      </div>
      <p className="rounded-xl border border-sky-300/20 bg-sky-950/30 p-4 text-sm text-sky-100">
-       Multiplayer {isOmaha?'Omaha with four private cards, exactly two private and three community cards at showdown':'Texas Hold’em with two private cards'}; shared board, forced blinds and server-authoritative turns. Only nonredeemable 1,000-chip practice stacks. No deposits, prizes or payouts.
+       Multiplayer {isOmaha?'Omaha with four private cards, exactly two private and three community cards at showdown':'Texas Hold’em with two private cards'}; shared board, forced blinds and server-authoritative turns. Only nonredeemable 1,000-chip practice stacks. No deposits, prizes or payouts. Planned fees (not active): 1% of each participating player's ante at hand start, plus 2% of the final pot after ante fees. Whole practice-chip fees round down; winners split the net pot.
      </p>
      {!tableId && <section className="mx-auto max-w-xl rounded-xl border border-white/10 bg-[#1d1727] p-6">
        <h1 className="text-3xl font-black">{isOmaha?'Omaha':'Hold’em'} table lobby</h1>

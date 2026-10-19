@@ -1,39 +1,15 @@
-**Welcome to your Base44 project** 
+# Imperial Games
 
-**About**
+Original React/Vite app with Supabase Auth, server-authoritative practice games, player pages and operator tools.
 
-View and Edit  your app on [Base44.com](http://Base44.com) 
+Read [current integration status](docs/INTEGRATION_STATUS_20261019.md) before deployment. Branch consolidation is not completion of the financial or production migration.
 
-This project contains everything you need to run your app locally.
+## Develop
 
-**Edit the code in your local development environment**
+Use Node.js 22, run `npm ci`, copy `.env.example` to `.env.local`, and configure `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`. Never use a service-role key in the browser. Current practice handlers target the dedicated staging project.
 
-Any change pushed to the repo will also be reflected in the Base44 Builder.
+Run `npm run dev` or `npm run build`. The build does not deploy the website. GitHub Actions verifies migration contracts and builds the app. Archived Base44 source is preserved for reference; do not restore its SDK or client-side balance writes.
 
-**Prerequisites:** 
+## Repositories
 
-1. Clone the repository using the project's Git URL 
-2. Navigate to the project directory
-3. Install dependencies: `npm install`
-4. Create an `.env.local` file and set the right environment variables
-
-```
-VITE_BASE44_APP_ID=your_app_id
-VITE_BASE44_APP_BASE_URL=your_backend_url
-
-e.g.
-VITE_BASE44_APP_ID=cbef744a8545c389ef439ea6
-VITE_BASE44_APP_BASE_URL=https://my-to-do-list-81bfaad7.base44.app
-```
-
-Run the app: `npm run dev`
-
-**Publish your changes**
-
-Open [Base44.com](http://Base44.com) and click on Publish.
-
-**Docs & Support**
-
-Documentation: [https://docs.base44.com/Integrations/Using-GitHub](https://docs.base44.com/Integrations/Using-GitHub)
-
-Support: [https://app.base44.com/support](https://app.base44.com/support)
+This repository is the full application baseline. `casino-zip` preserves the ZIP and its independently migrated source and test scaffold. Newer migrated account screens, Crash v2 and the poker lab have been integrated here without replacing the full app with that scaffold.
