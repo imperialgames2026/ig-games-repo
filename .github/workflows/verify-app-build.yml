@@ -16,6 +16,24 @@ permissions:
   contents: read
 
 jobs:
+  browser-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Exercise profile and game UI with controlled API contracts
+        run: npx playwright test --config playwright.migration.config.mjs
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-ui-failures
+          path: test-results/
   build:
     runs-on: ubuntu-latest
     steps:
@@ -29,6 +47,9 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
       - name: Check migration security guards
+        # Dedicated profile and server-round behavior tests supplement historical guards.
+        run: node --test tests/canonicalMoneyHandlers.test.mjs tests/profileSettings.test.mjs tests/originalsFairness.test.mjs tests/originalsHandler.test.mjs
+      - name: Check existing migration security guards
         run: node --test tests/ignStakingHandler.test.mjs tests/migrationVersions.test.mjs tests/crashV2Integration.test.mjs tests/identity.test.mjs tests/legacyBackendGuard.test.mjs tests/multiplayerPractice.test.mjs tests/crapsCasinoJoinModes.test.mjs tests/crapsDragDrop.test.mjs tests/practiceFairDice.test.mjs tests/eightMultiplayerGames.security.test.mjs tests/omahaActualEvaluator.test.mjs tests/nlheEightSeat.test.mjs tests/pokerTournamentPresets.test.mjs tests/pokerTournamentPrizes.test.mjs tests/adminCommandCenter.test.mjs tests/globalPlayerWallet.test.mjs tests/supportSupervisor.test.mjs
       - name: Audit all game backend routes
         run: node scripts/audit-game-backends.mjs

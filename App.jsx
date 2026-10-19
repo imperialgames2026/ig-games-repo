@@ -1,5 +1,6 @@
 import React from 'react';
 import { Toaster } from '@/components/ui/toaster';
+import { Toaster as SonnerToaster } from 'sonner';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClientInstance } from '@/lib/query-client';
 import NavigationTracker from '@/lib/NavigationTracker';
@@ -21,7 +22,7 @@ const publicPages = new Set([
 ]);
 // Only these game pages have reviewed zero-wager server handlers.
 // A successful Vite build never authorizes direct legacy wallet settlement.
-const verifiedPracticeGames = new Set(['PlayDice', 'PlayCraps', 'PlayRoulette', 'PlayCrash', 'PlayTrenball', 'PlayBaccarat', 'PlayPoker', 'PlayOmaha', 'PlayBlackjack', 'PlayMultiplayerBlackjack']);
+const verifiedPracticeGames = new Set(['PlayDice', 'PlayCraps', 'PlayRoulette', 'PlayCrash', 'PlayTrenball', 'PlayBaccarat', 'PlayPoker', 'PlayOmaha', 'PlayBlackjack', 'PlayMultiplayerBlackjack', 'PlayCoinFlip', 'PlayHashDice', 'PlayLimbo', 'PlayPlinko', 'PlayWheel']);
 const adminPages = new Set([
   'Admin', 'AdminAnnouncements', 'AdminKYC', 'AdminSupport', 'AdminUsers',
   'AdminWallets', 'AdminSweepstakesAudit', 'AdminIGTSupply', 'OwnerKeyring', 'SuperadminPokerTournaments', 'PokerBotLab', 'AdminTreasury', 'AdminLegacyTools',
@@ -29,7 +30,7 @@ const adminPages = new Set([
 
 const withAccess = (path, element) => {
   if (publicPages.has(path)) return element;
-  if (path.startsWith('Play') && !verifiedPracticeGames.has(path)) {
+  if (/^Play[A-Z]/.test(path) && !verifiedPracticeGames.has(path)) {
     return <ProtectedRoute><GameUnavailable game={path} /></ProtectedRoute>;
   }
   const roles = ['SuperadminPokerTournaments', 'AdminUsers', 'PokerBotLab'].includes(path) ? ['superadmin'] : adminPages.has(path) ? ['admin', 'superadmin'] : undefined;
@@ -98,6 +99,7 @@ function App() {
           <AuthenticatedApp />
         </Router>
         <Toaster />
+        <SonnerToaster richColors position="top-right" />
       </QueryClientProvider>
     </AuthProvider>
   );

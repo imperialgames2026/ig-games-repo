@@ -15,8 +15,7 @@ const CORE_ENTITIES = new Set(Object.keys(ENTITY_TABLES));
 const READ_ONLY_CORE_ENTITIES = new Set(['User', 'UserWallet', 'Transaction', 'WeeklyWager', 'WithdrawalRequest', 'TokenPack']);
 const legacyWriteBlocked = (entity) => new Error(`Legacy ${entity} writes are disabled until a dedicated authorized Supabase handler is verified. No mutation was submitted.`);
 const FUNCTION_NAME = 'api';
-// No Supabase Edge Functions are deployed in this environment yet.
-// Explicit opt-in prevents legacy operations from silently appearing functional.
+// Dedicated Supabase services are deployed; unreviewed legacy operations remain disabled.
 const LEGACY_EDGE_FUNCTIONS_ENABLED = import.meta.env.VITE_ENABLE_LEGACY_EDGE_FUNCTIONS === 'true';
 
 function mapRow(entity, row) {
@@ -178,16 +177,17 @@ export const base44 = {
       return identity;
     },
     async updateMe(updates) {
-      const user = await getCurrentUser();
-      const allowed = ['full_name', 'profile_picture', 'username'];
-      const safe = Object.fromEntries(Object.entries(updates || {}).filter(([key]) => allowed.includes(key)));
-      if (Object.keys(safe).length) {
-        const { error } = await supabase.from('profiles').update(safe).eq('id', user.id);
-        if (error) throw error;
+      const identity = await resolveIdentity(supabase);
+      if (!identity || identity.is_excluded) throw new Error('Profile unavailable');
+      const allowed = new Set(['full_name', 'profile_picture', 'display_name']);
+      if (!updates || typeof updates !== 'object' || Array.isArray(updates) ||
+          !Object.keys(updates).length || Object.keys(updates).some(key => !allowed.has(key))) {
+        throw new Error('Unsupported profile fields');
       }
-      const { data, error } = await supabase.auth.updateUser({ data: safe });
+      if (identity.role === 'tester' && Object.keys(updates).some(key => key !== 'display_name')) throw new Error('Read-only account');
+      const { error } = await supabase.from('profiles').update(updates).eq('id', identity.id).select('id').single();
       if (error) throw error;
-      return data.user;
+      return resolveIdentity(supabase);
     },
     async logout(shouldRedirect = true) {
       await supabase.auth.signOut();
