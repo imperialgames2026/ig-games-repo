@@ -59,21 +59,23 @@ for (const route of ['PlayCoinFlip','PlayHashDice','PlayLimbo','PlayPlinko','Pla
     await expect(page.getByRole('alert')).toHaveCount(0);
   });
 }
-test('a failed reveal resumes the same saved round after page reload', async ({ page }) => {
+for (const [route, choice, action] of [['PlayCoinFlip', 'tails', 'Flip coin'], ['PlayHashDice', 'high', 'Roll hash dice'], ['PlayPlinko', 'right', 'Drop ball'], ['PlayWheel', 'purple', 'Spin wheel']]) {
+test(`${route} resumes the same saved prediction after page reload`, async ({ page }) => {
   const state = await setup(page, { failReveal: true });
-  await page.goto('/PlayCoinFlip');
+  await page.goto('/' + route);
   await page.getByLabel('Client seed', { exact: true }).fill('saved-round-seed');
-  await page.getByRole('button', { name: 'tails', exact: true }).click();
-  await page.getByRole('button', { name: 'Flip coin', exact: true }).click();
+  await page.getByRole('button', { name: choice, exact: true }).click();
+  await page.getByRole('button', { name: action, exact: true }).click();
   await expect(page.getByRole('button', { name: 'Retry pending round' })).toBeVisible();
   await page.reload();
   await expect(page.getByLabel('Client seed', { exact: true })).toHaveValue('saved-round-seed');
-  await expect(page.getByRole('button', { name: 'tails', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: choice, exact: true })).toHaveAttribute('aria-pressed', 'true');
   await page.getByRole('button', { name: 'Retry pending round' }).click();
   await expect(page.getByText('Fairness proof verified on your device', { exact: false })).toBeVisible();
   expect(state.rounds.size).toBe(1);
   expect(new Set(state.commits).size).toBe(1);
 });
+}
 test('profile saves a name, locks the chosen display name and uploads an avatar', async ({ page }) => {
   const state = await setup(page);
   await page.goto('/Profile');
