@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import PokerPlayerAnalytics from '@/components/poker/PokerPlayerAnalytics';
 import { base44 } from '@/api/base44Client';
+import { supabase } from '@/lib/supabaseClient';
+import { createProfileSettings } from '@/lib/profileSettings';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +13,8 @@ import PullToRefresh from '@/components/mobile/PullToRefresh';
 import VIPLevelUpToast from '@/components/casino/VIPLevelUpToast';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
+
+const profileSettings = createProfileSettings(supabase);
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -52,16 +56,10 @@ export default function Profile() {
 
     setUploading(true);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      
-      await base44.auth.updateMe({
-        profile_picture: file_url,
-      });
-
-      setUser({ ...user, profile_picture: file_url });
+      setUser(await profileSettings.uploadAvatar(file));
       toast.success('Profile picture updated!');
     } catch (error) {
-      toast.error('Failed to upload image');
+      toast.error(error.message || 'Failed to upload image');
     } finally {
       setUploading(false);
     }
@@ -75,14 +73,12 @@ export default function Profile() {
 
     setSaving(true);
     try {
-      await base44.auth.updateMe({
-        full_name: fullName,
-      });
-
-      setUser({ ...user, full_name: fullName });
+      const saved = await profileSettings.updateName(fullName);
+      setUser(saved);
+      setFullName(saved.full_name);
       toast.success('Name updated!');
     } catch (error) {
-      toast.error('Failed to update name');
+      toast.error(error.message || 'Failed to update name');
     } finally {
       setSaving(false);
     }
@@ -96,10 +92,10 @@ export default function Profile() {
 
     setSavingUsername(true);
     try {
-      const response = await base44.functions.invoke('updateUsername', { username });
-      setUser(response.data.user);
-      setUsername(response.data.user.username || '');
-      toast.success('Username updated!');
+      const saved = await profileSettings.setDisplayName(username);
+      setUser(saved);
+      setUsername(saved.display_name || '');
+      toast.success('Display name saved!');
     } catch (error) {
       toast.error(error.response?.data?.error || error.message || 'Failed to update username');
     } finally {
@@ -167,16 +163,16 @@ export default function Profile() {
                   <input
                     id="profile-upload"
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
                     onChange={handleImageUpload}
-                    disabled={uploading}
+                    disabled={uploading || user.role === 'tester' || user.is_excluded}
                     className="hidden"
                   />
                 </div>
                 <div>
                   <p className="text-white font-medium mb-1">Upload a photo</p>
                   <p className="text-sm text-gray-400">
-                    JPG, PNG or GIF. Max size 5MB.
+                    JPG, PNG, WebP or GIF. Max size 5MB. Profile photos are public.
                   </p>
                 </div>
               </div>
@@ -200,7 +196,7 @@ export default function Profile() {
                   />
                   <Button
                     onClick={handleSaveName}
-                    disabled={saving || fullName === user.full_name}
+                    disabled={saving || fullName === user.full_name || user.role === 'tester' || user.is_excluded}
                     className="bg-pink-500 hover:bg-pink-600 w-full sm:w-auto"
                   >
                     {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save'}
@@ -217,12 +213,13 @@ export default function Profile() {
               </div>
 
               <div>
-                <label className="text-sm text-gray-300 mb-2 block">Username</label>
+                <label className="text-sm text-gray-300 mb-2 block">Public display name</label>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10 flex-1 min-h-[44px]">
                     <AtSign className="w-4 h-4 text-gray-300" />
                     <Input
                       value={username}
+                      disabled={!!user.display_name || user.is_excluded}
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="Choose a username"
                       className="bg-transparent border-0 text-white p-0 h-auto shadow-none focus-visible:ring-0 text-base"
@@ -230,13 +227,13 @@ export default function Profile() {
                   </div>
                   <Button
                     onClick={handleSaveUsername}
-                    disabled={savingUsername || username === (user.username || '')}
+                    disabled={savingUsername || !!user.display_name || !username.trim() || user.is_excluded}
                     className="bg-pink-500 hover:bg-pink-600 w-full sm:w-auto"
                   >
                     {savingUsername ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save'}
                   </Button>
                 </div>
-                <p className="text-xs text-gray-500 mt-2">Usernames are unique and checked case-insensitively.</p>
+                <p className="text-xs text-gray-500 mt-2">Choose carefully: your public display name can be set once. Names are unique without regard to capitalization.</p>
               </div>
 
               <div>
