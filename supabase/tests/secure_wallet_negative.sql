@@ -11,7 +11,7 @@ begin
      or not has_function_privilege('service_role','public.secure_wallet_operation(uuid,uuid,text,numeric,uuid,integer)','EXECUTE') then
     raise exception 'RPC grants unsafe';
   end if;
-  perform set_config('request.jwt.claim.role','service_role',true);
+  perform set_config('request.jwt.claims','{"role":"service_role"}',true);
   blocked := false;
   begin perform public.secure_wallet_operation(actor,op,'dice',1,null,null);
   exception when sqlstate '22023' then blocked := true; end;
