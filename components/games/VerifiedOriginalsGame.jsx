@@ -91,7 +91,7 @@ export default function VerifiedOriginalsGame({ game }) {
             <fieldset disabled={busy || readonly || !!pending} className="space-y-5 disabled:opacity-60">
               <legend className="mb-4 text-lg font-bold">Your prediction</legend>
               {config.choices ? <div className="grid grid-cols-2 gap-2">
-                {config.choices.map(option => <button key={option} type="button" aria-pressed={choice === option} onClick={() => setChoice(option)}
+                {config.choices.map(option => <button key={option} type="button" aria-pressed={activeChoice === option} onClick={() => setChoice(option)}
                   className={`rounded-xl border px-3 py-4 font-bold capitalize ${activeChoice === option ? 'border-pink-400 bg-pink-500/20 text-pink-100' : 'border-white/15 text-gray-300'}`}>{option}</button>)}
               </div> : <label className="block text-sm text-gray-300">Target multiplier
                 <input type="number" min="1.01" max="1000" step="0.01" value={activeChoice} onChange={e => setChoice(e.target.value)} className="mt-2 w-full rounded-xl border border-white/15 bg-black/25 p-3 text-xl text-white" />
