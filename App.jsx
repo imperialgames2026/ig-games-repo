@@ -14,6 +14,7 @@ import PlayerWalletBar from '@/components/casino/PlayerWalletBar';
 import GameUnavailable from '@/components/games/GameUnavailable';
 import Login from './pages/Login';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import { Analytics } from '@vercel/analytics/react';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const publicPages = new Set([
@@ -100,6 +101,7 @@ function App() {
         </Router>
         <Toaster />
         <SonnerToaster richColors position="top-right" />
+        <Analytics />
       </QueryClientProvider>
     </AuthProvider>
   );
