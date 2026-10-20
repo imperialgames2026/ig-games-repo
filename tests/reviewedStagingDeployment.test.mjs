@@ -1,27 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { planMigrations, migrationTransaction, websiteAuthPatch, planFunctions } from '../scripts/deploy-reviewed-staging.mjs';
+import { planMigrations, migrationTransaction, websiteAuthPatch } from '../scripts/deploy-reviewed-staging.mjs';
 
 const sql = '-- Reviewed SQL\ncreate table public.example(id uuid);\n';
 const migration = { file: '20261019203000_example.sql', sha256: createHash('sha256').update(sql).digest('hex') };
 const manifest = { project_ref: 'qonqemhljgxlwpghkxhn', migrations: [migration] };
 const history = [{ version: '20261019203000', name: 'example', statements: [sql] }];
-
-test('partial deployment resumes only matching source and JWT settings; unrelated changes stop it', async () => {
-  const source = 'reviewed function';
-  const fn = {name:'example',status:'pending_deployment',deployed_version:1,verify_jwt:true,files:['index.ts'],sha256:{'index.ts':createHash('sha256').update(source).digest('hex')}};
-  const m = {functions:[fn]};
-  const files = async () => ({'index.ts':source});
-  assert.deepEqual(await planFunctions(m,[{slug:'example',version:2,verify_jwt:true}],files),[]);
-  assert.deepEqual(await planFunctions(m,[{slug:'example',version:1,verify_jwt:true}],async()=>({'index.ts':'old'})),[fn]);
-  assert.deepEqual(await planFunctions({functions:[{...fn,deployed_version:null}]},[],files),[{...fn,deployed_version:null}]);
-  for (const [remote,read] of [
-    [{slug:'example',version:2,verify_jwt:false},files],
-    [{slug:'example',version:2,verify_jwt:true},async()=>({'index.ts':'unrelated'})],
-    [{slug:'example',version:2,verify_jwt:true},async()=>({'index.ts':source,'extra.ts':'unexpected'})],
-  ]) await assert.rejects(planFunctions(m,[remote],read),/changed outside/);
-});
 
 test('website Auth settings use the current domain, preserve existing redirects and omit unrelated credentials', () => {
   const auth = {site_url:'https://previous.example', uri_allow_list:'https://previous.example/ResetPassword', smtp_pass:'not-a-real-secret', disable_signup:true};

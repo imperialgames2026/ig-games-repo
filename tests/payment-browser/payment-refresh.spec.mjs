@@ -1,7 +1,7 @@
 import {test,expect} from '@playwright/test';
 const actor='11111111-1111-4111-8111-111111111111';
-async function setup(page,{lostResponse=false}={}) {
- const role='player'; let failList=false, prepared=0; const ids=[];
+async function setup(page,{lostResponse=false,history=[],excludeRefreshFails=false}={}) {
+ let exclusionCalls=0,excludeActive=false; const role='player'; let failList=false, prepared=0; const ids=[];
   const user = { id: actor, email: 'ui-fixture@example.invalid', aud: 'authenticated', role: 'authenticated', is_anonymous: false,
     app_metadata: { provider: 'email', providers: ['email'] }, user_metadata: {}, created_at: new Date().toISOString() };
   const profile = { id: actor, email: user.email, full_name: 'UI Player', display_name: null, profile_picture: null, is_excluded: false, kyc_status: 'pending' };
@@ -20,6 +20,7 @@ async function setup(page,{lostResponse=false}={}) {
     if (path === '/auth/v1/user') return reply(user);
     if (path === '/rest/v1/user_roles') return reply([{ role }]);
     if (path === '/rest/v1/profiles') {
+      if(excludeActive && excludeRefreshFails) return reply({message:'profile refresh unavailable'},400);
       if (request.method() === 'PATCH') {
         const patch = request.postDataJSON(); writes.push(patch); Object.assign(profile, patch);
         return reply({ id: actor });
@@ -31,6 +32,7 @@ async function setup(page,{lostResponse=false}={}) {
     if (path.startsWith('/storage/v1/object/public/')) return route.fulfill({ status: 200, contentType: 'image/png', body: png });
     if (path.startsWith('/storage/v1/object/')) return reply({ Key: path.split('/object/')[1], Id: actor });
 
+    if(path==='/functions/v1/ig-self-exclusion-v1') {exclusionCalls++;excludeActive=true;return reply({isExcluded:true});}
     if(path==='/functions/v1/ig-payment-requests') {
       const body=request.postDataJSON();
       if(body.action==='prepare') {
@@ -41,12 +43,12 @@ async function setup(page,{lostResponse=false}={}) {
       }
       if(body.action==='list') {
         if(failList) {failList=false;return reply({error:'History unavailable'},503);}
-        return reply({requests:[]});
+        return reply({requests:history});
       }
     }
     return reply({});
   });
-  return {ids,count:()=>prepared};
+  return {ids,count:()=>prepared,exclusions:()=>exclusionCalls};
 }
 test('saved request plus refresh failure offers history retry without a second preparation',async({page})=>{
  const state=await setup(page);await page.goto('/Withdraw');
@@ -70,4 +72,23 @@ test('uncertain preparation retry reuses the original UUID',async({page})=>{
  await page.getByRole('button',{name:'Save preparation request',exact:true}).click();
  await expect(page.getByRole('alert')).toContainText('Your request was saved');
  expect(state.ids).toHaveLength(2);expect(new Set(state.ids).size).toBe(1);
+});
+
+test('withdrawal history shows its exact destination without exposing it on deposit rows',async({page})=>{
+ await setup(page,{history:[{id:'w',kind:'withdrawal',amount:'1',asset:'SOL',network:'solana',destination:'synthetic-destination-123',status:'awaiting_provider',created_at:'2026-10-20T00:00:00Z'},
+ {id:'d',kind:'deposit',amount:'2',asset:'SOL',network:'solana',destination:'must-not-display',status:'awaiting_provider',created_at:'2026-10-20T00:00:00Z'}]});
+ await page.goto('/Withdraw');
+ await expect(page.getByText('Destination: synthetic-destination-123',{exact:true})).toBeVisible();
+ await expect(page.getByText('Destination: must-not-display',{exact:true})).toHaveCount(0);
+});
+test('confirmed self-exclusion remains successful and cannot be resubmitted after account refresh failure',async({page})=>{
+ const state=await setup(page,{excludeRefreshFails:true});
+ await page.goto('/ResponsiblePlay');
+ await page.getByLabel('Type EXCLUDE',{exact:true}).fill('EXCLUDE');
+ await page.getByLabel('Confirm self-exclusion',{exact:true}).check();
+ await page.getByRole('button',{name:'Activate self-exclusion',exact:true}).click();
+ await expect(page.getByRole('status').filter({hasText:'Self-exclusion is active.'})).toBeVisible();
+ await expect(page.getByRole('alert').filter({hasText:'Self-exclusion is confirmed active'})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Activate self-exclusion',exact:true})).toHaveCount(0);
+ expect(state.exclusions()).toBe(1);
 });

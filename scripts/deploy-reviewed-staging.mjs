@@ -1,6 +1,5 @@
-import { readFileSync, writeFileSync, mkdtempSync, mkdirSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { execFileSync } from 'node:child_process';
+import { planFunctions, readFunctionMultipart } from './plan-reviewed-functions.mjs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { resolve, dirname } from 'node:path';
@@ -85,25 +84,6 @@ values ('${version}','${name}',array[${tag}${sql}${tag}]);
 commit;`;
 }
 
-// A previous run may have deployed some functions before failing. Resume only
-// after verifying the downloaded source bytes and JWT setting, never version alone.
-export async function planFunctions(manifest, remoteFunctions, loadRemoteFiles) {
-  const pending = [];
-  for (const fn of manifest.functions.filter(f => f.status === 'pending_deployment')) {
-    const remote = remoteFunctions.find(f => f.slug === fn.name || f.name === fn.name);
-    if (remote) {
-      const files = await loadRemoteFiles(fn.name);
-      const same = remote.verify_jwt === fn.verify_jwt &&
-        Object.keys(files).length === fn.files.length &&
-        fn.files.every(name => typeof files[name] === 'string' && sha256(files[name]) === fn.sha256[name]);
-      if (same) continue;
-    }
-    if ((remote?.version ?? null) !== fn.deployed_version) throw Error('Hosted function changed outside this reviewed deployment: ' + fn.name);
-    pending.push(fn);
-  }
-  return pending;
-}
-
 async function main() {
   const token = process.env.SUPABASE_ACCESS_TOKEN;
   if (!token) throw Error('Missing Actions secret SUPABASE_ACCESS_TOKEN');
@@ -122,25 +102,19 @@ async function main() {
   });
   const pending = planMigrations(manifest, history, file => readFileSync(resolve(root, 'supabase/deployed-migrations', file), 'utf8'));
   const remoteFunctions = await api('/functions');
-  const functions = await planFunctions(manifest, remoteFunctions, async name => {
-    const directory = mkdtempSync(resolve(tmpdir(), 'ig-remote-function-'));
-    try {
-      mkdirSync(resolve(directory, 'supabase'));
-      writeFileSync(resolve(directory, 'supabase/config.toml'), `project_id = "${project}"\n`);
-      execFileSync('supabase', ['functions', 'download', name, '--project-ref', project, '--use-api', '--workdir', directory], { stdio: 'pipe' });
-      const { readdirSync } = await import('node:fs');
-      const base = resolve(directory, 'supabase/functions', name);
-      const files = {};
-      function walk(path = '') {
-        for (const entry of readdirSync(resolve(base, path), { withFileTypes: true })) {
-          const relative = path ? path + '/' + entry.name : entry.name;
-          if (entry.isDirectory()) walk(relative);
-          else files[relative] = readFileSync(resolve(base, relative), 'utf8');
-        }
+  const functions = await planFunctions(manifest.functions, remoteFunctions,
+    (name,file) => readFileSync(resolve(root,'supabase/functions',name,file)),
+    async (name,remote) => {
+      const response = await fetch('https://api.supabase.com/v1/projects/'+project+'/functions/'+encodeURIComponent(name)+'/body', {
+        headers:{Authorization:'Bearer '+token,Accept:'multipart/form-data'},signal:AbortSignal.timeout(120000),
+      });
+      const files = await readFunctionMultipart(response,remote);
+      const current = await api('/functions/'+encodeURIComponent(name));
+      for(const field of ['version','ezbr_sha256','verify_jwt','entrypoint_path','import_map','status']) {
+        if(current[field]!==remote[field]) throw Error('Hosted function changed during source verification: '+name);
       }
-      walk(); return files;
-    } finally { rmSync(directory, { recursive: true, force: true }); }
-  });
+      return files;
+    });
   console.log(JSON.stringify({ project, reviewedAppliedMigrations: history.length, pendingMigrations: pending.map(m => m.file), pendingFunctions: functions.map(f => f.name) }));
   if (!process.argv.includes('--apply')) return;
   const versions = history.map(m => m.version);
