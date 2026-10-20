@@ -19,7 +19,7 @@ select set_config('request.jwt.claim.sub',current_setting('test.owner_a'),true),
  set_config('request.jwt.claims',jsonb_build_object('sub',current_setting('test.owner_a'),'role','authenticated','is_anonymous',false)::text,true);
 set local role authenticated;
 do $$ begin
- if (select count(*) from public.app_records where entity='__local_rls__') <> 2 then
- raise exception 'Could not reproduce deployed ownerless visibility'; end if;
+ if (select count(*) from public.app_records where entity='__local_rls__') <> 1 then
+ raise exception 'Recorded migration did not enforce ownerless isolation'; end if;
 end $$;
 reset role;

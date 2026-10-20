@@ -1,3 +1,5 @@
+> The ownerless-record policy is now restricted by the recorded catalog/isolation migration. The standalone reproduction still models the old policy; full replay asserts the corrected owner/admin boundary. The separate full Supabase workflow runs all 13 rollback-only SQL suites.
+
 # Isolated migration checks
 
 No script accepts a hosted connection URL or live credentials. Docker resources

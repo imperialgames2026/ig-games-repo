@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import React from 'react';
+import { useAuth } from '@/lib/AuthContext';
+import { readApprovedPracticeGames } from '@/lib/supabaseLegacyReads';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import PullToRefresh from '@/components/mobile/PullToRefresh';
@@ -11,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import GameCard from '@/components/casino/GameCard';
 import WeeklyTokenLeaderboard from '@/components/casino/WeeklyTokenLeaderboard';
+import { approvedPracticeGames } from '@/lib/approvedPracticeGames';
 
 const categoryIcons = {
   all: LayoutGrid,
@@ -23,15 +25,12 @@ const categoryIcons = {
 };
 
 export default function Games() {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const queryClient = useQueryClient();
-  useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => {});
-  }, []);
-
-  const { data: games = [], isLoading } = useQuery({
-    queryKey: ['games'],
-    queryFn: () => base44.entities.Game.filter({ is_active: true }),
+  const { data: games = [], isLoading, error } = useQuery({
+    queryKey: ['games', user?.id],
+    queryFn: () => readApprovedPracticeGames({ is_active: true }),
+    enabled: !!user?.id && !user.is_excluded,
   });
 
   if (user?.is_excluded) return <ExclusionBanner />;
@@ -151,8 +150,20 @@ export default function Games() {
             </Link>
           </div>
         </section>
+        <section aria-label="Verified Originals practice games" className="mb-10 rounded-2xl border border-violet-400/20 bg-[#181525] p-5 sm:p-7">
+          <h2 className="text-2xl font-black text-white">Verified Originals</h2>
+          <p className="mt-2 text-sm text-gray-300">Free practice rounds with server commitments and proofs you can verify on your device. No money, tokens or prizes.</p>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {approvedPracticeGames.filter(game => ['provably-fair-v2','ig-originals-practice','ig-mines-practice'].includes(game.backend)).map(game =>
+              <Link key={game.slug} to={game.route} className="rounded-xl border border-violet-400/25 bg-violet-950/30 p-5 text-white hover:border-amber-300">
+                <span aria-hidden="true" className="text-3xl">{game.icon}</span><h3 className="mt-2 text-xl font-bold">{game.name}</h3>
+                <p className="mt-2 text-sm text-gray-300">{game.description}</p><p className="mt-4 text-sm font-bold text-amber-200">Play free practice →</p>
+              </Link>)}
+          </div>
+        </section>
         <WeeklyTokenLeaderboard />
 
+        {error && <p role="alert" className="mb-5 rounded-xl border border-red-400/30 p-4 text-red-200">Your approved game catalog could not load. Refresh to try again.</p>}
         <Tabs defaultValue="all" className="space-y-8">
           <TabsList className="bg-white/5 border border-white/10 p-1 rounded-xl flex-wrap h-auto gap-1">
             {[

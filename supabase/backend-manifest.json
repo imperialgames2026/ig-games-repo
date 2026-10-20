@@ -680,6 +680,10 @@
     {
       "file": "20261020204117_payment_preparation_requests.sql",
       "sha256": "fde55de4d048d9f69d7de2529956c53bea7a3e12432d2d5234a657b8468e4032"
+    },
+    {
+      "file": "20261020215129_verified_practice_catalog_and_record_isolation.sql",
+      "sha256": "0d9eccd00825a0539bf0dd9fe970cb915e0fbd02294b23f54ae4a0efa256c99f"
     }
   ]
 }

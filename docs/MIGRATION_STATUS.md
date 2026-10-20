@@ -1,3 +1,5 @@
+> Historical foundation checklist. Current verified scope and remaining work: [SUPABASE_MIGRATION_STATUS.md](SUPABASE_MIGRATION_STATUS.md).
+
 # Imperial Games — Base44 → Supabase Migration Status
 
 ## Source snapshot
