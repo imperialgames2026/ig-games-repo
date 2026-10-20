@@ -3,8 +3,8 @@
   "retrieved_at": "2026-10-20",
   "source": "Read-only Supabase recorded-history digests and get_edge_function readbacks after staging deployment",
   "migration_comparison": {
-    "migrations": 90,
-    "exact_bytes": 7,
+    "migrations": 92,
+    "exact_bytes": 9,
     "two_terminal_newlines_only": 83
   },
   "function_comparison": "Exact bytes except three historical terminal-whitespace differences; deployment package retains checksums of committed bytes",
@@ -269,6 +269,15 @@
       "exact_bytes": true,
       "source_sha256": {
         "index.ts": "54286ed60e759106bb1ebac6495cce7e15707b45257713883f9583761a1e429d"
+      }
+    },
+    {
+      "name": "ig-final-practice",
+      "version": 1,
+      "verify_jwt": true,
+      "exact_bytes": true,
+      "source_sha256": {
+        "index.ts": "17d3d1a16be829bf76010d06562556e891b4b252b8fedcd68ef7caa87b009dce"
       }
     }
   ],
@@ -812,6 +821,18 @@
       "name": "verified_practice_catalog_and_record_isolation",
       "sha256": "0d9eccd00825a0539bf0dd9fe970cb915e0fbd02294b23f54ae4a0efa256c99f",
       "reviewed_sha256": "0d9eccd00825a0539bf0dd9fe970cb915e0fbd02294b23f54ae4a0efa256c99f"
+    },
+    {
+      "version": "20261020220837",
+      "name": "final_approved_practice_games",
+      "sha256": "848e257eb33674090514822dbf3db302b4d6e44b93ffcd2c82d65ccbf51128e1",
+      "reviewed_sha256": "848e257eb33674090514822dbf3db302b4d6e44b93ffcd2c82d65ccbf51128e1"
+    },
+    {
+      "version": "20261020221122",
+      "name": "final_approved_game_catalog",
+      "sha256": "efd6434ee2cddaa73a29d1c1652956f97cc7b1e7c7307867b5301a955406be93",
+      "reviewed_sha256": "efd6434ee2cddaa73a29d1c1652956f97cc7b1e7c7307867b5301a955406be93"
     }
   ]
 }

@@ -11,7 +11,7 @@ const games = [
  ['PlayTrenball','Multiplayer Trenball'],
 ];
 
-const originals=[['PlayDice','Practice Dice'],['PlayCoinFlip','Coin Flip'],['PlayHashDice','Hash Dice'],['PlayLimbo','Limbo'],['PlayPlinko','Plinko'],['PlayWheel','Wheel'],['PlayMines','Mines']];
+const originals=[['PlayDarts','Darts'],['PlayDiceZone','Dice Zone'],['PlayHiLo','HiLo'],['PlayRocket','Rocket'],['PlayTowers','Towers'],['PlayDice','Practice Dice'],['PlayCoinFlip','Coin Flip'],['PlayHashDice','Hash Dice'],['PlayLimbo','Limbo'],['PlayPlinko','Plinko'],['PlayWheel','Wheel'],['PlayMines','Mines']];
 test('verified Originals are discoverable in the public game library', async ({page})=>{
  await page.goto('/Games',{waitUntil:'domcontentloaded'});
  const library=page.getByRole('region',{name:'Verified Originals practice games'});
