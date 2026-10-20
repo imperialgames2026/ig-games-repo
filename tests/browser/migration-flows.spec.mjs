@@ -6,7 +6,7 @@ import { calculateMinesBoard } from '../../lib/minesFairness.js';
 const actor = '11111111-1111-4111-8111-111111111111';
 const seed = 'ab'.repeat(32);
 const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a8V0AAAAASUVORK5CYII=', 'base64');
-async function setup(page, { role = 'player', failReveal = false } = {}) {
+async function setup(page, { role = 'player', failReveal = false, minesLostStart = false, minesSubstituteSeed = false } = {}) {
   const user = { id: actor, email: 'ui-fixture@example.invalid', aud: 'authenticated', role: 'authenticated', is_anonymous: false,
     app_metadata: { provider: 'email', providers: ['email'] }, user_metadata: {}, created_at: new Date().toISOString() };
   const profile = { id: actor, email: user.email, full_name: 'UI Player', display_name: null, profile_picture: null, is_excluded: false, kyc_status: 'pending' };
@@ -42,8 +42,10 @@ async function setup(page, { role = 'player', failReveal = false } = {}) {
         minesRound = { roundId: body.roundId,mineCount: body.mineCount,phase: 'committed',version: 0,
           picks: [],endReason: null,clientSeed: null,serverSeedHash: await sha256Hex(seed),algorithm: 'hmac-sha256-mines-v1',practiceOnly: true };
       } else if (body.action === 'start') {
+        if (minesSubstituteSeed) body.clientSeed = 'substituted';
         mines = await calculateMinesBoard(seed,body.clientSeed,minesRound.mineCount);
         minesRound = { ...minesRound,clientSeed: body.clientSeed,phase: 'active',version: 1 };
+        if (minesLostStart) { minesLostStart = false; return reply({error:'Response lost; retry'},503); }
       } else if (body.action === 'pick') {
         minesRound = { ...minesRound,picks: [...minesRound.picks,body.cell],version: minesRound.version+1 };
         if (mines.includes(body.cell)) minesRound = { ...minesRound,phase: 'ended',endReason: 'mine',mines,serverSeed: seed };
@@ -65,7 +67,7 @@ async function setup(page, { role = 'player', failReveal = false } = {}) {
     }
     return reply({ error: 'Unexpected browser test API request' }, 400);
   });
-  return { rounds, commits, writes, profile };
+  return { rounds, commits, writes, profile, replaceMines: patch => { minesRound = { ...minesRound,...patch }; } };
 }
 for (const route of ['PlayCoinFlip','PlayHashDice','PlayLimbo','PlayPlinko','PlayWheel']) {
   test(`${route} displays a locally verified server outcome`, async ({ page }) => {
@@ -78,21 +80,23 @@ for (const route of ['PlayCoinFlip','PlayHashDice','PlayLimbo','PlayPlinko','Pla
     await expect(page.getByRole('alert')).toHaveCount(0);
   });
 }
-test('a failed reveal resumes the same saved round after page reload', async ({ page }) => {
+for (const [route, choice, action] of [['PlayCoinFlip', 'tails', 'Flip coin'], ['PlayHashDice', 'high', 'Roll hash dice'], ['PlayPlinko', 'right', 'Drop ball'], ['PlayWheel', 'purple', 'Spin wheel']]) {
+test(`${route} resumes the same saved prediction after page reload`, async ({ page }) => {
   const state = await setup(page, { failReveal: true });
-  await page.goto('/PlayCoinFlip');
+  await page.goto('/' + route);
   await page.getByLabel('Client seed', { exact: true }).fill('saved-round-seed');
-  await page.getByRole('button', { name: 'tails', exact: true }).click();
-  await page.getByRole('button', { name: 'Flip coin', exact: true }).click();
+  await page.getByRole('button', { name: choice, exact: true }).click();
+  await page.getByRole('button', { name: action, exact: true }).click();
   await expect(page.getByRole('button', { name: 'Retry pending round' })).toBeVisible();
   await page.reload();
   await expect(page.getByLabel('Client seed', { exact: true })).toHaveValue('saved-round-seed');
-  await expect(page.getByRole('button', { name: 'tails', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: choice, exact: true })).toHaveAttribute('aria-pressed', 'true');
   await page.getByRole('button', { name: 'Retry pending round' }).click();
   await expect(page.getByText('Fairness proof verified on your device', { exact: false })).toBeVisible();
   expect(state.rounds.size).toBe(1);
   expect(new Set(state.commits).size).toBe(1);
 });
+}
 test('profile saves a name, locks the chosen display name and uploads an avatar', async ({ page }) => {
   const state = await setup(page);
   await page.goto('/Profile');
@@ -135,4 +139,46 @@ test('Mines keeps tiles hidden, resumes a server-owned round and verifies the fi
   await expect(page.getByText('Board proof verified on your device',{ exact: false })).toBeVisible();
   await expect(page.getByRole('button',{ name: 'Tile 1 mine',exact: true })).toBeVisible();
   await expect(page.getByRole('alert')).toHaveCount(0);
+});
+
+async function startMines(page) {
+ await page.goto('/PlayMines');
+ await page.getByRole('button',{name:'Commit round',exact:true}).click();
+ await expect(page.getByRole('button',{name:'Start committed round',exact:true})).toBeVisible();
+ await page.getByLabel('Client seed',{exact:true}).fill('client:unicode-🎲');
+ await page.getByRole('button',{name:'Start committed round',exact:true}).click();
+}
+for (const changed of ['server commitment','client seed','missing local commitment']) {
+ test('Mines rejects reloaded ' + changed + ' even with a valid replacement board', async ({page}) => {
+  const fixture = await setup(page);
+  await startMines(page);
+  await expect(page.getByRole('button',{name:'Stop and reveal board',exact:true})).toBeVisible();
+  const replacementSeed = changed === 'server commitment' ? 'cd'.repeat(32) : seed;
+  const replacementClient = changed === 'client seed' ? 'substituted' : 'client:unicode-🎲';
+  fixture.replaceMines({phase:'ended',endReason:'stopped',picks:[],serverSeed:replacementSeed,
+   serverSeedHash:await sha256Hex(replacementSeed),clientSeed:replacementClient,
+   mines:await calculateMinesBoard(replacementSeed,replacementClient,3)});
+  if (changed === 'missing local commitment') await page.evaluate(() => {
+   for (const key of Object.keys(localStorage)) if (key.startsWith('imperial-mines-proof:')) localStorage.removeItem(key);
+  });
+  await page.reload();
+  await expect(page.getByRole('alert')).toBeVisible();
+  await expect(page.getByText('Board proof verified on your device',{exact:false})).toHaveCount(0);
+ });
+}
+test('Mines rejects a substituted client seed immediately after start', async ({page}) => {
+ await setup(page,{minesSubstituteSeed:true});
+ await startMines(page);
+ await expect(page.getByRole('alert')).toContainText('submitted client seed changed');
+ await expect(page.getByRole('button',{name:'Stop and reveal board',exact:true})).toHaveCount(0);
+});
+test('Mines retains the original commitment and seed across a lost start response and reload', async ({page}) => {
+ await setup(page,{minesLostStart:true});
+ await startMines(page);
+ await expect(page.getByRole('button',{name:'Retry pending request',exact:true})).toBeVisible();
+ await page.reload();
+ await expect(page.getByRole('button',{name:'Retry pending request',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Retry pending request',exact:true}).click();
+ await page.getByRole('button',{name:'Stop and reveal board',exact:true}).click();
+ await expect(page.getByText('Board proof verified on your device',{exact:false})).toBeVisible();
 });

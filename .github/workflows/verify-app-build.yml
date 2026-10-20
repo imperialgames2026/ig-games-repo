@@ -16,6 +16,27 @@ permissions:
   contents: read
 
 jobs:
+  local-backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Build isolated Postgres with pinned pg_cron
+        run: docker build -t ig-local-postgres-cron -f tests/database/Dockerfile tests/database
+      - name: Replay recorded SQL and verify actual role policies
+        run: node scripts/test-local-database.mjs replay-cron
+      - run: npx playwright install --with-deps chromium
+      - name: Real local Auth, Storage, REST, handlers and browser sign-in
+        run: node scripts/test-local-auth.mjs
+        env:
+          IG_LOCAL_BROWSER: '1'
+          IG_LOCAL_STORAGE: '1'
+          IG_LOCAL_EDGE: '1'
   browser-ui:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -53,6 +74,10 @@ jobs:
         run: node --test tests/ignStakingHandler.test.mjs tests/migrationVersions.test.mjs tests/crashV2Integration.test.mjs tests/identity.test.mjs tests/legacyBackendGuard.test.mjs tests/multiplayerPractice.test.mjs tests/crapsCasinoJoinModes.test.mjs tests/crapsDragDrop.test.mjs tests/practiceFairDice.test.mjs tests/eightMultiplayerGames.security.test.mjs tests/omahaActualEvaluator.test.mjs tests/nlheEightSeat.test.mjs tests/pokerTournamentPresets.test.mjs tests/pokerTournamentPrizes.test.mjs tests/adminCommandCenter.test.mjs tests/globalPlayerWallet.test.mjs tests/supportSupervisor.test.mjs
       - name: Audit all game backend routes
         run: node scripts/audit-game-backends.mjs
+      - name: Verify proposed legacy record read isolation in disposable Postgres
+        run: node scripts/test-local-database.mjs app-records
+      - name: Verify recovered handlers and backend source checksums
+        run: node --test tests/canonicalMoneyHandlers.test.mjs tests/originalsHandler.test.mjs tests/backendPackaging.test.mjs
       - name: Upload route migration inventory
         if: always()
         uses: actions/upload-artifact@v4
