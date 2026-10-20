@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
+import { supabase } from '@/lib/supabaseClient';
+import { createAnnouncements } from '@/lib/announcements';
+const announcementsService=createAnnouncements(supabase);
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Trophy, Gift, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 const typeIcons = {
   special: Gift,
@@ -22,11 +23,7 @@ export default function AnnouncementBanner() {
 
   const { data: announcements = [] } = useQuery({
     queryKey: ['announcements'],
-    queryFn: async () => {
-      const all = await base44.entities.Announcement.filter({ is_active: true }, '-priority');
-      // Filter out expired ones
-      return all.filter(a => !a.expires_at || new Date(a.expires_at) > new Date());
-    },
+    queryFn: () => announcementsService.list(),
     refetchInterval: 60000, // Refresh every minute
   });
 
@@ -50,9 +47,9 @@ export default function AnnouncementBanner() {
 
   if (!announcements.length) return null;
 
-  const current = announcements[currentIndex];
-  const Icon = typeIcons[current.type];
-  const gradient = typeColors[current.type];
+  const current = announcements[currentIndex % announcements.length];
+  const Icon = typeIcons[current.type] || Gift;
+  const gradient = typeColors[current.type] || typeColors.special;
 
   return (
     <div className="relative bg-gradient-to-r from-[#1A1528] to-[#0F0A1E] border-b border-white/10 overflow-hidden">
@@ -64,14 +61,13 @@ export default function AnnouncementBanner() {
         <div className="flex items-center justify-between gap-4">
           {/* Previous Button */}
           {announcements.length > 1 && (
-            <Button
-              variant="ghost"
-              size="icon"
+            <button
+              aria-label="Previous announcement"
               onClick={prevAnnouncement}
               className="text-white hover:bg-white/10 shrink-0"
             >
               <ChevronLeft className="w-5 h-5" />
-            </Button>
+            </button>
           )}
 
           {/* Announcement Content */}
@@ -108,14 +104,13 @@ export default function AnnouncementBanner() {
 
           {/* Next Button */}
           {announcements.length > 1 && (
-            <Button
-              variant="ghost"
-              size="icon"
+            <button
+              aria-label="Next announcement"
               onClick={nextAnnouncement}
               className="text-white hover:bg-white/10 shrink-0"
             >
               <ChevronRight className="w-5 h-5" />
-            </Button>
+            </button>
           )}
         </div>
 

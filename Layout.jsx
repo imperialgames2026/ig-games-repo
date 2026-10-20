@@ -20,6 +20,7 @@ import {
 import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import BottomTabBar from '@/components/mobile/BottomTabBar';
 import MobileHeader from '@/components/mobile/MobileHeader';
+import AnnouncementBanner from '@/components/casino/AnnouncementBanner';
 import PageTransition from '@/components/mobile/PageTransition';
 
 function useMediaQuery(query) {
@@ -417,6 +418,7 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Main Content */}
       <main style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 60px)' }} className="md:pb-0 text-[16px] overflow-x-hidden">
+        <AnnouncementBanner />
         <PageTransition>{children}</PageTransition>
       </main>
       
