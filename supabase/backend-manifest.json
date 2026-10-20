@@ -707,6 +707,10 @@
     {
       "file": "20261020223222_private_ign_action_boundary.sql",
       "sha256": "081805e3e7df78be6f59d2d7461f75d0342967c9018a89832a7a49b881e1bf77"
+    },
+    {
+      "file": "20261020224547_explicit_backend_only_rls_boundaries.sql",
+      "sha256": "798e02f6f4a760b8de6f027b8db131fe7db0e404a5e1b28dfc2791b6dbfa93d4"
     }
   ]
 }

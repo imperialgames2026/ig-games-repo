@@ -2,7 +2,7 @@
 
 Updated 2026-10-20. The migration is **not complete**.
 
-Staging `qonqemhljgxlwpghkxhn` has 93 recorded migrations and 30 reviewed deployed
+Staging `qonqemhljgxlwpghkxhn` has 94 recorded migrations and 30 reviewed deployed
 functions. Source checksums, recorded SQL history and JWT settings are reconciled
 in `supabase/backend-manifest.json` and `supabase/backend-readback-20261020.json`.
 Use `scripts/prepare-reviewed-backend.mjs` to assemble the reviewed backend;
@@ -17,7 +17,7 @@ approved catalog expose these practice games; other game routes remain gated.
 
 GitHub verification includes locked dependency builds, isolated recorded SQL
 replay, real local Auth/REST/Storage and session/browser checks, game/account
-browser tests, and 15 transactional SQL suites. Hosted staging rollback tests and
+browser tests, and 16 transactional SQL suites. Hosted staging rollback tests and
 public endpoint preflight/auth-denial checks supplement these isolated checks.
 No production cutover or real-money readiness is established by this coverage.
 
@@ -26,6 +26,12 @@ privileged implementation is in the unexposed `internal` schema with an empty
 search path. Hosted rollback tests under the actual authenticated role passed,
 and the authenticated SECURITY DEFINER advisor finding is cleared. See
 `docs/IGN_FUNCTION_SECURITY_20261020.md`.
+
+All 56 formerly policy-less backend tables now have explicit restrictive client-deny
+policies. Obsolete idempotency table privileges and five owned sequence grants
+were revoked; service access is preserved. The hosted role-matrix test passed,
+and a fresh security advisor read returned no findings. The per-table review is
+in `docs/BACKEND_ONLY_RLS_REVIEW_20261020.md`.
 
 Remaining work:
 
