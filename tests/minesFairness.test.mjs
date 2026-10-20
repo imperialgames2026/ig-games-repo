@@ -9,7 +9,7 @@ test('Mines matches independent Python HMAC/shuffle vectors at minimum, typical 
  assert.deepEqual(await calculateMinesBoard(seed,clientSeed,24),[0,1,2,3,4,5,6,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]);
 });
 test('Mines verifies completed transcripts and rejects hidden/forged or impossible outcomes', async () => {
- const commit = { roundId: 'round',mineCount: 3,serverSeedHash: await sha256Hex(seed),algorithm: 'hmac-sha256-mines-v1',practiceOnly: true };
+ const commit = { roundId: 'round',clientSeed,mineCount: 3,serverSeedHash: await sha256Hex(seed),algorithm: 'hmac-sha256-mines-v1',practiceOnly: true };
  const ended = { ...commit,serverSeed: seed,clientSeed,phase: 'ended',mines: [0,12,18],picks: [1,2],endReason: 'stopped' };
  assert.equal(await verifyMinesRound(commit,ended),true);
  assert.equal(await verifyMinesRound(commit,{ ...ended,picks: [1,0],endReason: 'mine' }),true);
@@ -18,4 +18,11 @@ test('Mines verifies completed transcripts and rejects hidden/forged or impossib
   { ...ended,clientSeed: 'altered' },{ ...ended,endReason: 'cleared' },{ ...ended,mineCount: 24 }]) {
   assert.equal(await verifyMinesRound(commit,changed),false);
  }
+});
+test('Mines rejects a mathematically valid board for an unsubmitted seed or missing local binding', async () => {
+ const commit = {roundId:'round',clientSeed,mineCount:3,serverSeedHash:await sha256Hex(seed),algorithm:'hmac-sha256-mines-v1',practiceOnly:true};
+ const substituted = 'server-selected';
+ const ended = {...commit,phase:'ended',clientSeed:substituted,serverSeed:seed,mines:await calculateMinesBoard(seed,substituted,3),picks:[],endReason:'stopped'};
+ assert.equal(await verifyMinesRound(commit,ended),false);
+ assert.equal(await verifyMinesRound({...commit,clientSeed:undefined},{...ended,clientSeed,mines:await calculateMinesBoard(seed,clientSeed,3)}),false);
 });
