@@ -3,8 +3,8 @@
   "retrieved_at": "2026-10-20",
   "source": "Read-only Supabase recorded-history digests and get_edge_function readbacks after staging deployment",
   "migration_comparison": {
-    "migrations": 93,
-    "exact_bytes": 10,
+    "migrations": 94,
+    "exact_bytes": 11,
     "two_terminal_newlines_only": 83
   },
   "function_comparison": "Exact bytes except three historical terminal-whitespace differences; deployment package retains checksums of committed bytes",
@@ -845,5 +845,23 @@
       "ign_invoker_boundary_rollback.sql",
       "canonical_signup_ign_replay_rollback.sql"
     ]
+  },
+  "backend_only_rls_review": {
+    "recorded_migration": "20261020224547_explicit_backend_only_rls_boundaries.sql",
+    "reviewed_tables": 56,
+    "restrictive_deny_policies": 56,
+    "client_table_acl_changes": [
+      "idempotency_keys"
+    ],
+    "client_owned_sequence_acl_changes": [
+      "crash_round_queue_id_seq",
+      "poker_event_audit_v1_id_seq",
+      "ig_poker_tournament_award_audit_id_seq",
+      "ig_fb_sandbox_ops_audit_id_seq",
+      "ig_crash_v2_queue_id_seq"
+    ],
+    "service_role_table_grants": "unchanged",
+    "hosted_role_matrix_rollback": "passed",
+    "security_advisor_findings_after": 0
   }
 }
