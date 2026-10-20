@@ -1,5 +1,7 @@
 name: Eight-game desktop and mobile browser smoke
 on:
+  pull_request:
+    branches: [main]
   push:
     branches: [integration/casino-zip, main]
     paths:
@@ -10,6 +12,8 @@ on:
       - 'lib/**'
       - 'tests/e2e/**'
       - 'playwright.config.mjs'
+      - 'package.json'
+      - 'package-lock.json'
       - '.github/workflows/staging-eight-game-browser-smoke.yml'
   workflow_dispatch:
 
@@ -28,8 +32,6 @@ jobs:
           cache: npm
       - name: Install production-locked app dependencies
         run: npm ci --no-audit --no-fund
-      - name: Install isolated browser test dependency
-        run: npm install --no-save --package-lock=false --ignore-scripts @playwright/test@1.56.1
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Build practice-only app

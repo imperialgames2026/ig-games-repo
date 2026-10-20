@@ -12,7 +12,7 @@ export default function VerifiedMinesGame() {
  const [busy,setBusy] = useState(true), [error,setError] = useState('');
  const [pending,setPending] = useState(() => { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } });
  const locked = useRef(false);
- const commitments = useRef(new Map());
+ const commitmentKey = roundId => `imperial-mines-proof:${user?.id}:${roundId}`;
  const readonly = !user || user.role === 'tester' || user.is_excluded;
  async function invoke(body) {
   const { data,error } = await supabase.functions.invoke('ig-mines-practice',{ body });
@@ -24,12 +24,31 @@ export default function VerifiedMinesGame() {
   if (!data || data.error || !Object.hasOwn(data,'state')) throw new Error(data?.error || 'Invalid round response');
   return data.state;
  }
+ function savedCommitment(roundId) {
+  const raw = localStorage.getItem(commitmentKey(roundId));
+  return raw ? JSON.parse(raw) : null;
+ }
+ function persistCommitment(commitment) {
+  localStorage.setItem(commitmentKey(commitment.roundId),JSON.stringify(commitment));
+ }
  async function accept(state) {
-  const known = state && (commitments.current.get(state.roundId) || state);
-  if (state && (known.serverSeedHash !== state.serverSeedHash || known.mineCount !== state.mineCount)) throw new Error('The saved commitment changed. This round was not accepted.');
-  if (state?.phase === 'ended' && !await verifyMinesRound(known,state)) throw new Error('Board proof did not match. This result was not accepted.');
-  if (state?.phase !== 'ended' && state && (Object.hasOwn(state,'serverSeed') || Object.hasOwn(state,'mines'))) throw new Error('Active board privacy check failed.');
-  if (state) commitments.current.set(state.roundId,{ roundId: state.roundId,mineCount: state.mineCount,serverSeedHash: state.serverSeedHash,algorithm: state.algorithm,practiceOnly: true });
+  if (!state) { setRound(null); return; }
+  let known = savedCommitment(state.roundId);
+  if (!known) {
+   if (state.phase !== 'committed') throw new Error('The original commitment is unavailable on this device. This round cannot be verified.');
+   known = { roundId: state.roundId,mineCount: state.mineCount,serverSeedHash: state.serverSeedHash,algorithm: state.algorithm,practiceOnly: state.practiceOnly };
+  }
+  if (known.roundId !== state.roundId || known.serverSeedHash !== state.serverSeedHash || known.mineCount !== state.mineCount ||
+      known.algorithm !== 'hmac-sha256-mines-v1' || state.algorithm !== known.algorithm || known.practiceOnly !== true || state.practiceOnly !== true) {
+   throw new Error('The saved commitment changed. This round was not accepted.');
+  }
+  if (!['committed','active','ended'].includes(state.phase)) throw new Error('Invalid round phase');
+  if (state.phase !== 'committed' && (!known.clientSeed || known.clientSeed !== state.clientSeed)) {
+   throw new Error('The submitted client seed changed or is unavailable. This round was not accepted.');
+  }
+  if (state.phase === 'ended' && !await verifyMinesRound(known,state)) throw new Error('Board proof did not match. This result was not accepted.');
+  if (state.phase !== 'ended' && (Object.hasOwn(state,'serverSeed') || Object.hasOwn(state,'mines'))) throw new Error('Active board privacy check failed.');
+  persistCommitment(known);
   setRound(state);
  }
  useEffect(() => {
@@ -45,12 +64,18 @@ export default function VerifiedMinesGame() {
   if (locked.current || readonly) return;
   locked.current = true; setBusy(true); setError('');
   try {
+   if (body.action === 'start') {
+    const known = savedCommitment(body.roundId);
+    if (!known || (known.clientSeed && known.clientSeed !== body.clientSeed)) throw new Error('The saved commitment or submitted seed is unavailable or changed.');
+    // Persist before the request: even a lost response must retain both inputs.
+    persistCommitment({ ...known,clientSeed: body.clientSeed });
+   }
    localStorage.setItem(key,JSON.stringify(body)); setPending(body);
    const state = await invoke(body);
    const latest = await invoke({ action: 'state', roundId: state.roundId });
    await accept(latest);
    localStorage.removeItem(key); setPending(null);
-  } catch (error) { setError(error.message); }
+  } catch (error) { setRound(null); setError(error.message); }
   finally { locked.current = false; setBusy(false); }
  }
  async function refresh() {
@@ -58,8 +83,7 @@ export default function VerifiedMinesGame() {
   locked.current = true; setBusy(true); setError('');
   try {
    await accept(await invoke({ action: 'current' }));
-   localStorage.removeItem(key); setPending(null);
-  } catch (error) { setError(error.message); }
+  } catch (error) { setRound(null); setError(error.message); }
   finally { locked.current = false; setBusy(false); }
  }
  const active = round?.phase === 'active', committed = round?.phase === 'committed', ended = round?.phase === 'ended';

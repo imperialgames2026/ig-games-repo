@@ -1,0 +1,16 @@
+set local role anon;
+do $$ begin if exists(select from public.app_records) then raise exception 'anonymous visibility'; end if; end $$;
+reset role;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-000000000001';
+set local role authenticated;
+do $$ begin if (select array_agg(id) from public.app_records) is distinct from array[1] then raise exception 'owner isolation'; end if; end $$;
+reset role;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-000000000002';
+set local role authenticated;
+do $$ begin if (select array_agg(id) from public.app_records) is distinct from array[2] then raise exception 'second owner isolation'; end if; end $$;
+reset role;
+set local test.canonical_admin = 'true';
+set local role authenticated;
+do $$ begin if (select count(*) from public.app_records) <> 3 then raise exception 'admin read regression'; end if; end $$;
+reset role;
+rollback;
