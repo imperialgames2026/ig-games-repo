@@ -1,3 +1,5 @@
+> Follow-up: PR20 merged the Mines proof fixes, backend verification and prediction regression coverage. Current account reconciliation is documented in [ACCOUNT_BACKEND_INTEGRATION_20261020.md](ACCOUNT_BACKEND_INTEGRATION_20261020.md). Findings below record the earlier review baseline.
+
 # Integration refresh — 2026-10-20
 
 Baseline: main 599e54db02e89658e46a65b16292d741215b1a76, containing merged PR12 (4d7423b) and PR16 (cf3a9bf). PR15 is now cc974478c2291fd708d28d30b6e364d213af44bd. The prior local rehearsal 88b02bd is historical and must not be reused as the current baseline.

@@ -8,9 +8,9 @@ export function AuthProvider({ children }) {
   const [isLoadingAuth, setLoading] = useState(true);
   const [authError, setError] = useState(null);
   const generation = useRef(0);
-  const checkAppState = useCallback(async () => {
+  const checkAppState = useCallback(async ({background=false}={}) => {
     const request = ++generation.current;
-    setLoading(true);
+    if (!background) setLoading(true);
     try {
       const identity = await resolveIdentity(supabase);
       if (request !== generation.current) return;
@@ -29,13 +29,13 @@ export function AuthProvider({ children }) {
     let timer;
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       ++generation.current;
-      setUser(null);
-      setError(null);
+      if (_event === 'PASSWORD_RECOVERY' && window.location.pathname !== '/ResetPassword') {window.location.assign('/ResetPassword');return;}
       clearTimeout(timer);
-      if (!session) { setLoading(false); return; }
-      setLoading(true);
+      if (!session) { setUser(null);setError(null);setLoading(false);return; }
+      const background = _event === 'USER_UPDATED' || _event === 'TOKEN_REFRESHED';
+      if (!background) { setUser(null);setError(null);setLoading(true); }
       // Leave the auth callback before calling Supabase APIs (auth lock).
-      timer = setTimeout(() => { if (mounted) void checkAppState(); }, 0);
+      timer = setTimeout(() => { if (mounted) void checkAppState({background}); }, 0);
     });
     void checkAppState();
     return () => {

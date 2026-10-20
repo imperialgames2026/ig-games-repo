@@ -18,7 +18,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 const { Pages, Layout, mainPage } = pagesConfig;
 const publicPages = new Set([
   'Home', 'Games', 'CookiesPolicy', 'Licensing', 'PrivacyPolicy',
-  'ResponsiblePlay', 'TermsOfService', 'FairnessManifesto',
+  'ResponsiblePlay', 'TermsOfService', 'FairnessManifesto', 'ResetPassword',
 ]);
 // Only these game pages have reviewed zero-wager server handlers.
 // A successful Vite build never authorizes direct legacy wallet settlement.

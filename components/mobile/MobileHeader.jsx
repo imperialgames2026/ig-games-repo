@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { ArrowLeft } from 'lucide-react';
 
-const rootPages = ['Home', 'Games', 'Store', 'Profile'];
+const rootPages = ['Home', 'Games', 'Payments', 'Profile'];
 
 export default function MobileHeader() {
   const location = useLocation();

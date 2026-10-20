@@ -20,7 +20,7 @@ Deno.serve(async (request: Request) => {
   const url = Deno.env.get("SUPABASE_URL") || "";
   const publishable = Deno.env.get("SUPABASE_ANON_KEY") || Deno.env.get("SUPABASE_PUBLISHABLE_KEY") || "";
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-  if (url !== "https://" + STAGING_REF + ".supabase.co" || !publishable || !serviceKey) {
+  if ((url !== "https://" + STAGING_REF + ".supabase.co" && !(Deno.env.get('IG_LOCAL_PRACTICE')==='true' && url==='http://kong:8000')) || !publishable || !serviceKey) {
     return json(503, { error: "Staging-only multiplayer table service is unavailable" });
   }
   const token = request.headers.get("authorization")?.match(/^Bearer (\S+)$/i)?.[1];

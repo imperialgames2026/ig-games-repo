@@ -55,6 +55,18 @@ jobs:
         with:
           name: browser-ui-failures
           path: test-results/
+  payment-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test --config playwright.payment.config.mjs
   build:
     runs-on: ubuntu-latest
     steps:

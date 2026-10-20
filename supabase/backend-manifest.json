@@ -59,13 +59,13 @@
     },
     {
       "name": "poker-table-v1",
-      "deployed_version": 11,
+      "deployed_version": 12,
       "verify_jwt": true,
       "files": [
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "8aebdb82a874cf545f42f5005add46d6e678cf5b25af835532c0ee672f026fa7"
+        "index.ts": "e4fde9cfb9e95dedb21cbd4b74b8b8bf013a8ca257af807670024315f29d21a6"
       }
     },
     {
@@ -136,35 +136,35 @@
     },
     {
       "name": "ig-multiplayer-practice",
-      "deployed_version": 3,
+      "deployed_version": 4,
       "verify_jwt": true,
       "files": [
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "661bb00f7feee72aed26c399b5848a1a6dfb8dcbc5f4523fea45f62ec2b4f1ec"
+        "index.ts": "235788a1b653cfa65b7952ab88c1d12664e52bbd60437eb5413d69eced9d6d90"
       }
     },
     {
       "name": "ig-shared-event-practice",
-      "deployed_version": 1,
-      "verify_jwt": true,
-      "files": [
-        "index.ts"
-      ],
-      "sha256": {
-        "index.ts": "88b1c982ad87db80e7d501178b816cb88f6ce9433cca897509205df23e8e16f1"
-      }
-    },
-    {
-      "name": "ig-blackjack-practice",
       "deployed_version": 2,
       "verify_jwt": true,
       "files": [
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "c31cd2d50868456820ad0c88605b26194b57f9e00adc3050fdb47d6f63a2e2e8"
+        "index.ts": "6b35aaeb63bbb23c6146d29fe9b2ec4ee4bf6f9213fb5524e15a5a52a25c6bb6"
+      }
+    },
+    {
+      "name": "ig-blackjack-practice",
+      "deployed_version": 3,
+      "verify_jwt": true,
+      "files": [
+        "index.ts"
+      ],
+      "sha256": {
+        "index.ts": "73e9c00f57f25b377e266d16299efbcacd3ede6bd06903afce1f5abc888a679d"
       }
     },
     {
@@ -248,13 +248,13 @@
     },
     {
       "name": "ig-crash-v2",
-      "deployed_version": 1,
+      "deployed_version": 2,
       "verify_jwt": true,
       "files": [
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "af3b6d73152b3ecbf1498a896726cc8c2589f7e6463b4950d85c514b8a79448f"
+        "index.ts": "cad2557c8ab2535a3f63addc5deb59855148fc7a0c04eb124b5d685583342a83"
       }
     },
     {
@@ -310,6 +310,17 @@
       ],
       "sha256": {
         "index.ts": "af2691403b235c0e4768946d20500d378b8274fbb1f13782cf621bb5e919688c"
+      }
+    },
+    {
+      "name": "ig-payment-requests",
+      "deployed_version": 1,
+      "verify_jwt": true,
+      "files": [
+        "index.ts"
+      ],
+      "sha256": {
+        "index.ts": "54286ed60e759106bb1ebac6495cce7e15707b45257713883f9583761a1e429d"
       }
     }
   ],
@@ -665,6 +676,10 @@
     {
       "file": "20261020162817_server_owned_mines_practice.sql",
       "sha256": "28800ade049e99573f66511ebb9b648de3c5a36c2067e9794000ae4aa670d472"
+    },
+    {
+      "file": "20261020204117_payment_preparation_requests.sql",
+      "sha256": "fde55de4d048d9f69d7de2529956c53bea7a3e12432d2d5234a657b8468e4032"
     }
   ]
 }
