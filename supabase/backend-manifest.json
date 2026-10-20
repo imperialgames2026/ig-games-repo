@@ -218,6 +218,14 @@
       "files": [
         "index.ts"
       ]
+    },
+    {
+      "name": "ig-mines-practice",
+      "deployed_version": 1,
+      "verify_jwt": true,
+      "files": [
+        "index.ts"
+      ]
     }
   ],
   "migrations": [
@@ -568,6 +576,10 @@
     {
       "file": "20261019201632_verified_originals_practice_rounds.sql",
       "sha256": "071eb0c886cf9a65d59b56c82623ea0ad5f29874cc39e0737e14242c143808fc"
+    },
+    {
+      "file": "20261020162817_server_owned_mines_practice.sql",
+      "sha256": "28800ade049e99573f66511ebb9b648de3c5a36c2067e9794000ae4aa670d472"
     }
   ]
 }
