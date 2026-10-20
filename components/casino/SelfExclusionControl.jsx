@@ -13,7 +13,8 @@ export default function SelfExclusionControl() {
   const [working, setWorking] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
-  const maySubmit = user && !user.is_excluded && user.role !== 'tester';
+  const [confirmed, setConfirmed] = useState(false);
+  const maySubmit = !confirmed && user && !user.is_excluded && user.role !== 'tester';
   const valid = confirmation === 'EXCLUDE' && agreed;
 
   async function activate(event) {
@@ -28,8 +29,13 @@ export default function SelfExclusionControl() {
       });
       if (requestError || data?.isExcluded !== true)
         throw new Error(data?.error || requestError?.message || 'Could not verify the account restriction');
+      setConfirmed(true);
       setNotice('Self-exclusion is active. Game access is restricted and the account must be reviewed before any reinstatement.');
-      await checkUserAuth();
+      try {
+        const refreshed = await checkUserAuth({background:true});
+        if (!refreshed?.is_excluded) throw new Error('Account refresh did not confirm the restriction');
+      }
+      catch { setError('Self-exclusion is confirmed active, but account details could not refresh. Reload to update the display or contact support.'); }
     } catch (err) {
       setError(err?.message || 'Self-exclusion could not be confirmed. Contact support.');
     } finally {

@@ -1,3 +1,4 @@
+import { planFunctions, readFunctionMultipart } from './plan-reviewed-functions.mjs';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
@@ -101,11 +102,19 @@ async function main() {
   });
   const pending = planMigrations(manifest, history, file => readFileSync(resolve(root, 'supabase/deployed-migrations', file), 'utf8'));
   const remoteFunctions = await api('/functions');
-  const functions = manifest.functions.filter(f => f.status === 'pending_deployment');
-  for (const fn of functions) {
-    const remote = remoteFunctions.find(f => f.slug === fn.name || f.name === fn.name);
-    if ((remote?.version ?? null) !== fn.deployed_version) throw Error('Hosted function version changed: ' + fn.name);
-  }
+  const functions = await planFunctions(manifest.functions, remoteFunctions,
+    (name,file) => readFileSync(resolve(root,'supabase/functions',name,file)),
+    async (name,remote) => {
+      const response = await fetch('https://api.supabase.com/v1/projects/'+project+'/functions/'+encodeURIComponent(name)+'/body', {
+        headers:{Authorization:'Bearer '+token,Accept:'multipart/form-data'},signal:AbortSignal.timeout(120000),
+      });
+      const files = await readFunctionMultipart(response,remote);
+      const current = await api('/functions/'+encodeURIComponent(name));
+      for(const field of ['version','ezbr_sha256','verify_jwt','entrypoint_path','import_map','status']) {
+        if(current[field]!==remote[field]) throw Error('Hosted function changed during source verification: '+name);
+      }
+      return files;
+    });
   console.log(JSON.stringify({ project, reviewedAppliedMigrations: history.length, pendingMigrations: pending.map(m => m.file), pendingFunctions: functions.map(f => f.name) }));
   if (!process.argv.includes('--apply')) return;
   const versions = history.map(m => m.version);

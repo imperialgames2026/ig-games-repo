@@ -16,10 +16,12 @@ export function AuthProvider({ children }) {
       if (request !== generation.current) return;
       setUser(identity);
       setError(null);
+      return identity;
     } catch (error) {
       if (request !== generation.current) return;
       setUser(null);
       setError({ type: 'account_unverified', message: error.message });
+      return null;
     } finally {
       if (request === generation.current) setLoading(false);
     }
