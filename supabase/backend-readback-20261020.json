@@ -3,8 +3,8 @@
   "retrieved_at": "2026-10-20",
   "source": "Read-only Supabase recorded-history digests and get_edge_function readbacks after staging deployment",
   "migration_comparison": {
-    "migrations": 92,
-    "exact_bytes": 9,
+    "migrations": 93,
+    "exact_bytes": 10,
     "two_terminal_newlines_only": 83
   },
   "function_comparison": "Exact bytes except three historical terminal-whitespace differences; deployment package retains checksums of committed bytes",
@@ -834,5 +834,16 @@
       "sha256": "efd6434ee2cddaa73a29d1c1652956f97cc7b1e7c7307867b5301a955406be93",
       "reviewed_sha256": "efd6434ee2cddaa73a29d1c1652956f97cc7b1e7c7307867b5301a955406be93"
     }
-  ]
+  ],
+  "ign_security_boundary": {
+    "recorded_migration": "20261020223222_private_ign_action_boundary.sql",
+    "public_security": "invoker",
+    "implementation_schema": "internal",
+    "implementation_search_path": "",
+    "authenticated_security_definer_advisor_findings": 0,
+    "hosted_rollback_suites": [
+      "ign_invoker_boundary_rollback.sql",
+      "canonical_signup_ign_replay_rollback.sql"
+    ]
+  }
 }

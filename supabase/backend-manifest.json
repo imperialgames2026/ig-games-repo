@@ -703,6 +703,10 @@
     {
       "file": "20261020221122_final_approved_game_catalog.sql",
       "sha256": "efd6434ee2cddaa73a29d1c1652956f97cc7b1e7c7307867b5301a955406be93"
+    },
+    {
+      "file": "20261020223222_private_ign_action_boundary.sql",
+      "sha256": "081805e3e7df78be6f59d2d7461f75d0342967c9018a89832a7a49b881e1bf77"
     }
   ]
 }
