@@ -2,6 +2,7 @@
 import { test, expect } from '@playwright/test';
 import { calculateOriginalsOutcome } from '../../lib/originalsFairness.js';
 import { sha256Hex } from '../../lib/practiceFairDice.js';
+import { calculateMinesBoard } from '../../lib/minesFairness.js';
 const actor = '11111111-1111-4111-8111-111111111111';
 const seed = 'ab'.repeat(32);
 const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a8V0AAAAASUVORK5CYII=', 'base64');
@@ -10,6 +11,7 @@ async function setup(page, { role = 'player', failReveal = false } = {}) {
     app_metadata: { provider: 'email', providers: ['email'] }, user_metadata: {}, created_at: new Date().toISOString() };
   const profile = { id: actor, email: user.email, full_name: 'UI Player', display_name: null, profile_picture: null, is_excluded: false, kyc_status: 'pending' };
   const rounds = new Map(), commits = [], writes = [];
+  let minesRound = null, mines = [];
   const payload = Buffer.from(JSON.stringify({ sub: actor, aud: 'authenticated', role: 'authenticated', exp: Math.floor(Date.now()/1000)+3600 })).toString('base64url');
   await page.addInitScript(({ user, payload }) => {
     localStorage.setItem('sb-qonqemhljgxlwpghkxhn-auth-token', JSON.stringify({ access_token: `e30.${payload}.fixture`, refresh_token: 'fixture', token_type: 'bearer', expires_in: 3600, expires_at: Math.floor(Date.now()/1000)+3600, user }));
@@ -33,6 +35,23 @@ async function setup(page, { role = 'player', failReveal = false } = {}) {
     if (path.startsWith('/rest/v1/')) return reply([]);
     if (path.startsWith('/storage/v1/object/public/')) return route.fulfill({ status: 200, contentType: 'image/png', body: png });
     if (path.startsWith('/storage/v1/object/')) return reply({ Key: path.split('/object/')[1], Id: actor });
+    if (path === '/functions/v1/ig-mines-practice') {
+      const body = request.postDataJSON();
+      if (body.action === 'current' || body.action === 'state') return reply({ state: minesRound });
+      if (body.action === 'commit') {
+        minesRound = { roundId: body.roundId,mineCount: body.mineCount,phase: 'committed',version: 0,
+          picks: [],endReason: null,clientSeed: null,serverSeedHash: await sha256Hex(seed),algorithm: 'hmac-sha256-mines-v1',practiceOnly: true };
+      } else if (body.action === 'start') {
+        mines = await calculateMinesBoard(seed,body.clientSeed,minesRound.mineCount);
+        minesRound = { ...minesRound,clientSeed: body.clientSeed,phase: 'active',version: 1 };
+      } else if (body.action === 'pick') {
+        minesRound = { ...minesRound,picks: [...minesRound.picks,body.cell],version: minesRound.version+1 };
+        if (mines.includes(body.cell)) minesRound = { ...minesRound,phase: 'ended',endReason: 'mine',mines,serverSeed: seed };
+      } else if (body.action === 'finish') {
+        minesRound = { ...minesRound,phase: 'ended',endReason: 'stopped',mines,serverSeed: seed,version: minesRound.version+1 };
+      }
+      return reply({ state: minesRound });
+    }
     if (path === '/functions/v1/ig-originals-practice') {
       const body = request.postDataJSON();
       if (body.action === 'commit') {
@@ -98,4 +117,22 @@ test('tester cannot start a round or change protected profile fields', async ({ 
   await expect(page.getByRole('button', { name: 'Save', exact: true }).first()).toBeDisabled();
   await expect(page.locator('#profile-upload')).toBeDisabled();
   expect(state.writes).toHaveLength(0);
+});
+test('Mines keeps tiles hidden, resumes a server-owned round and verifies the final board', async ({ page }) => {
+  await setup(page);
+  await page.goto('/PlayMines');
+  await page.getByRole('button',{ name: 'Commit round',exact: true }).click();
+  await expect(page.getByRole('button',{ name: 'Start committed round',exact: true })).toBeVisible();
+  await page.getByLabel('Client seed',{ exact: true }).fill('client:unicode-🎲');
+  await page.getByRole('button',{ name: 'Start committed round',exact: true }).click();
+  await expect(page.getByRole('button',{ name: 'Tile 2',exact: true })).toBeEnabled();
+  await expect(page.getByText('Board proof verified on your device',{ exact: false })).toHaveCount(0);
+  await page.getByRole('button',{ name: 'Tile 2',exact: true }).click();
+  await expect(page.getByText('Gems found: 1',{ exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByText('Gems found: 1',{ exact: true })).toBeVisible();
+  await page.getByRole('button',{ name: 'Stop and reveal board',exact: true }).click();
+  await expect(page.getByText('Board proof verified on your device',{ exact: false })).toBeVisible();
+  await expect(page.getByRole('button',{ name: 'Tile 1 mine',exact: true })).toBeVisible();
+  await expect(page.getByRole('alert')).toHaveCount(0);
 });
