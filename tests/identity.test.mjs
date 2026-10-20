@@ -20,3 +20,7 @@ test('exclusion is preserved and anonymous accounts are rejected', async () => {
   assert.equal((await resolveIdentity(client({profile:{id:'owner',is_excluded:true}}))).is_excluded,true);
   await assert.rejects(resolveIdentity(client({anonymous:true})), /registered account/);
 });
+test('a browser without a stored session is signed out while other auth errors remain visible', async () => {
+  assert.equal(await resolveIdentity({auth:{getUser:async()=>({data:{user:null},error:{name:'AuthSessionMissingError'}})}}),null);
+  await assert.rejects(resolveIdentity({auth:{getUser:async()=>({data:{user:null},error:new Error('Auth server unavailable')})}}),/Auth server unavailable/);
+});

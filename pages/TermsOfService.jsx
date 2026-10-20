@@ -116,7 +116,7 @@ export default function TermsOfService() {
                 <li><strong>"Game"</strong> – means any one or more Game(s) available on the Platform in either Standard Play or Promotional Play.</li>
                 <li><strong>"Imperial Coins" (IC)</strong> – means the virtual social gameplay currency which enables you to play the Standard Play Games. Imperial Coins have no monetary value and cannot under any circumstance be redeemed for Prizes.</li>
                 <li><strong>"Imperial Dollars" (ID)</strong> – means sweepstakes entries that can be used for Promotional Play.</li>
-                <li><strong>"Platform"</strong> – means the services provided through imperialhouse.online and all subdomains, subpages and successor sites thereof.</li>
+                <li><strong>"Platform"</strong> – means the services provided through imperialgaming.llc and all subdomains, subpages and successor sites thereof.</li>
                 <li><strong>"Customer" or "you"</strong> – means any person who Participates, whether or not a Registered Customer.</li>
                 <li><strong>"Prizes"</strong> – means valuable prizes that can be redeemed using Imperial Dollars won through Promotional Play in accordance with these Terms.</li>
                 <li><strong>"Promotional Play" or "Sweepstakes"</strong> – means Participation in our sweepstakes promotions by playing the Platform's game with Imperial Dollars.</li>

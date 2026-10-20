@@ -55,6 +55,18 @@ jobs:
         with:
           name: browser-ui-failures
           path: test-results/
+  payment-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test --config playwright.payment.config.mjs
   build:
     runs-on: ubuntu-latest
     steps:
@@ -72,6 +84,8 @@ jobs:
         run: node --test tests/minesFairness.test.mjs tests/minesHandler.test.mjs tests/canonicalMoneyHandlers.test.mjs tests/profileSettings.test.mjs tests/originalsFairness.test.mjs tests/originalsHandler.test.mjs
       - name: Check existing migration security guards
         run: node --test tests/ignStakingHandler.test.mjs tests/migrationVersions.test.mjs tests/crashV2Integration.test.mjs tests/identity.test.mjs tests/legacyBackendGuard.test.mjs tests/multiplayerPractice.test.mjs tests/crapsCasinoJoinModes.test.mjs tests/crapsDragDrop.test.mjs tests/practiceFairDice.test.mjs tests/eightMultiplayerGames.security.test.mjs tests/omahaActualEvaluator.test.mjs tests/nlheEightSeat.test.mjs tests/pokerTournamentPresets.test.mjs tests/pokerTournamentPrizes.test.mjs tests/adminCommandCenter.test.mjs tests/globalPlayerWallet.test.mjs tests/supportSupervisor.test.mjs
+      - name: Verify deployment resume and domain guards
+        run: node --test tests/reviewedFunctions.test.mjs tests/reviewedStagingDeployment.test.mjs
       - name: Audit all game backend routes
         run: node scripts/audit-game-backends.mjs
       - name: Verify proposed legacy record read isolation in disposable Postgres

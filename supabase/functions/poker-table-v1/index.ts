@@ -1,6 +1,6 @@
-import {createClient} from "https://esm.sh/@supabase/supabase-js@2.57.0";
+import {createClient} from "npm:@supabase/supabase-js@2.57.4";
 type C={rank:number;suit:"c"|"d"|"h"|"s"};
-const json=(v:unknown,status=200)=>new Response(JSON.stringify(v),{status,headers:{"Content-Type":"application/json","Cache-Control":"no-store","Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization, apikey, content-type"}});
+const json=(v:unknown,status=200)=>new Response(JSON.stringify(v),{status,headers:{"Content-Type":"application/json","Cache-Control":"no-store","Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization, apikey, content-type, x-client-info, x-supabase-api-version","Access-Control-Allow-Methods":"POST, OPTIONS"}});
 const hex=(x:Uint8Array)=>Array.from(x,b=>b.toString(16).padStart(2,"0")).join("");
 const score5=(hand:C[]):number[]=>{
  const ranks=hand.map(c=>c.rank).sort((a,b)=>b-a),count=new Map<number,number>();
@@ -70,7 +70,7 @@ Deno.serve(async(req)=>{
  const url=Deno.env.get("SUPABASE_URL")!,key=Deno.env.get("SUPABASE_ANON_KEY")!,secret=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
  const auth=createClient(url,key,{auth:{persistSession:false}});
  const {data:{user},error:authError}=await auth.auth.getUser(jwt);
- if(authError||!user)return json({error:"Invalid session"},401);
+ if(authError||!user||user.is_anonymous)return json({error:"Invalid session"},401);
  const db=createClient(url,secret,{auth:{persistSession:false}});
  try{
   const body=await req.json();const action=body.action;

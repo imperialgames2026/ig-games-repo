@@ -12,6 +12,7 @@ begin
     raise exception 'RPC grants unsafe';
   end if;
   perform set_config('request.jwt.claim.role','service_role',true);
+  perform set_config('request.jwt.claims','{"role":"service_role"}',true);
   blocked := false;
   begin perform public.secure_wallet_operation(actor,op,'dice',1,null,null);
   exception when sqlstate '22023' then blocked := true; end;

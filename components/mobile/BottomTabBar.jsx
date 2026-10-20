@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Home, Gamepad2, ShoppingBag, User } from 'lucide-react';
+import { Home, Gamepad2, Wallet, User } from 'lucide-react';
 
 const tabs = [
   { name: 'Home', icon: Home, page: 'Home' },
   { name: 'Games', icon: Gamepad2, page: 'Games' },
-  { name: 'Store', icon: ShoppingBag, page: 'Store' },
+  { name: 'Payments', icon: Wallet, page: 'Payments' },
   { name: 'Profile', icon: User, page: 'Profile' },
 ];
 
@@ -14,7 +14,7 @@ const tabs = [
 const tabStacks = {
   Home: [],
   Games: [],
-  Store: [],
+  Payments: [],
   Profile: [],
 };
 
@@ -28,7 +28,7 @@ export default function BottomTabBar() {
   const getActiveTab = () => {
     // Game play pages belong to Games tab
     if (currentPage.startsWith('Play') || currentPage === 'Games') return 'Games';
-    if (currentPage === 'Store') return 'Store';
+    if (['Payments','CryptoWallet','Withdraw','DepositNetworks'].includes(currentPage)) return 'Payments';
     if (currentPage === 'Profile' || currentPage === 'TransactionHistory') return 'Profile';
     return 'Home';
   };
