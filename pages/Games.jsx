@@ -154,7 +154,7 @@ export default function Games() {
           <h2 className="text-2xl font-black text-white">Verified Originals</h2>
           <p className="mt-2 text-sm text-gray-300">Free practice rounds with server commitments and proofs you can verify on your device. No money, tokens or prizes.</p>
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {approvedPracticeGames.filter(game => ['provably-fair-v2','ig-originals-practice','ig-mines-practice'].includes(game.backend)).map(game =>
+            {approvedPracticeGames.filter(game => ['provably-fair-v2','ig-originals-practice','ig-mines-practice','ig-final-practice'].includes(game.backend) || game.slug==='rocket').map(game =>
               <Link key={game.slug} to={game.route} className="rounded-xl border border-violet-400/25 bg-violet-950/30 p-5 text-white hover:border-amber-300">
                 <span aria-hidden="true" className="text-3xl">{game.icon}</span><h3 className="mt-2 text-xl font-bold">{game.name}</h3>
                 <p className="mt-2 text-sm text-gray-300">{game.description}</p><p className="mt-4 text-sm font-bold text-amber-200">Play free practice →</p>

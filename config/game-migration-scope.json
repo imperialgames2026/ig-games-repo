@@ -1,0 +1,34 @@
+{
+  "approvedForMigration": [
+    "PlayDarts",
+    "PlayDiceZone",
+    "PlayHiLo",
+    "PlayRocket",
+    "PlayTowers"
+  ],
+  "nonMigration": [
+    "PlayAztecTreasure",
+    "PlayBalloons",
+    "PlayCactusCassidy",
+    "PlayCosmicCrown",
+    "PlayDiamondDynasty",
+    "PlayEmeraldEmpire",
+    "PlayExternal",
+    "PlayFarmageddon",
+    "PlayGoldenDragon",
+    "PlayHotPot",
+    "PlayImperialGold",
+    "PlayImperialLightning",
+    "PlayLuckyFortune",
+    "PlayMysticForest",
+    "PlayNeonNights",
+    "PlayOceanTreasure",
+    "PlayPhoenixFire",
+    "PlayRoyalRuby",
+    "PlaySapphireStorm",
+    "PlaySlide",
+    "PlaySlots",
+    "PlayStellarRush",
+    "PlayTwist"
+  ]
+}

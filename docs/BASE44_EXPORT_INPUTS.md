@@ -1,3 +1,5 @@
+> Superseded by owner instruction: this is a fresh start on Supabase. No customer accounts, balances, history or files will be imported. No Base44 customer export is required. The checklist below is historical reference only, not an active release gate.
+
 # Inputs still needed for actual Base44 data migration
 
 Only application archives were found in the saved repository/library files. The

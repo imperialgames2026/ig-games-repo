@@ -57,7 +57,7 @@ do $$ begin
 end $$;
 reset role;
 do $$ begin
- if (select count(*) from public.ig_practice_game_catalog where is_active and practice_only and not real_wagers_enabled)<>15 then raise exception 'Reviewed catalog incomplete';end if;
+ if (select count(*) from public.ig_practice_game_catalog where is_active and practice_only and not real_wagers_enabled)<>20 then raise exception 'Reviewed catalog incomplete';end if;
  begin
  insert into public.ig_practice_game_catalog(slug,name,description,category,backend_slug,route,is_active)
  values('invalid-pair','Invalid Pair','Should never become a published game.','instant','ig-crash-v2','/PlayMines',true);
