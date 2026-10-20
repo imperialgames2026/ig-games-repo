@@ -19,7 +19,9 @@ export default function Payments({initialKind='deposit'}){
   const input={action:'prepare',kind,asset,network,amount,...(kind==='withdrawal'?{destination:destination.trim()}:{})};
   const fingerprint=JSON.stringify(input);
   if(pending.current?.fingerprint!==fingerprint)pending.current={fingerprint,id:crypto.randomUUID()};
-  try{const data=await call({...input,requestId:pending.current.id});pending.current=null;setNotice(data.message);setAmount('');setDestination('');await refresh();}
+  try{const data=await call({...input,requestId:pending.current.id});pending.current=null;setNotice(data.message);setAmount('');setDestination('');try { await refresh(); }
+   catch { setError('Your request was saved, but request history could not refresh. Refresh history; do not resubmit.'); }
+  }
   catch(e){setError(e.message);}finally{setBusy(false);}
  }
  async function cancel(id){setBusy(true);setError('');try{await call({action:'cancel',id});await refresh();}catch(e){setError(e.message);}finally{setBusy(false);}}
@@ -36,6 +38,6 @@ export default function Payments({initialKind='deposit'}){
    {kind==='withdrawal'&&<label className="sm:col-span-2">Destination address<input aria-label="Destination address" required minLength={8} maxLength={256} value={destination} onChange={e=>setDestination(e.target.value)} className="mt-2 block w-full rounded bg-slate-800 p-3"/><span className="text-sm text-slate-400">Address validation occurs when a provider is connected. Do not send funds based on this preparation.</span></label>}
    <button disabled={busy} className="rounded bg-amber-300 p-3 font-bold text-slate-950 disabled:opacity-50 sm:col-span-2">{busy?'Saving…':'Save preparation request'}</button>
   </form>
-  <section><h2 className="mb-3 text-xl font-bold">Your requests</h2>{rows.length===0?<p className="text-slate-400">No preparation requests.</p>:<div className="space-y-3">{rows.map(row=><article key={row.id} className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-white/15 p-4"><div><p>{row.kind} · {row.amount} {row.asset} · {row.network}</p><p className="text-sm text-slate-400">{row.status==='cancelled'?'Cancelled':'Awaiting provider connection'} · {new Date(row.created_at).toLocaleString()}</p></div>{row.status==='awaiting_provider'&&<button disabled={busy} onClick={()=>void cancel(row.id)} className="rounded border border-white/20 px-4 py-2">Cancel request</button>}</article>)}</div>}</section>
+  <section><h2 className="mb-3 text-xl font-bold">Your requests</h2><button type="button" disabled={busy} onClick={async()=>{setBusy(true);try{await refresh();setError('');}catch{setError('Request history is unavailable. Try refreshing history again.');}finally{setBusy(false);}}} className="mb-3 underline">Refresh history</button>{rows.length===0?<p className="text-slate-400">No preparation requests.</p>:<div className="space-y-3">{rows.map(row=><article key={row.id} className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-white/15 p-4"><div><p>{row.kind} · {row.amount} {row.asset} · {row.network}</p><p className="text-sm text-slate-400">{row.status==='cancelled'?'Cancelled':'Awaiting provider connection'} · {new Date(row.created_at).toLocaleString()}</p></div>{row.status==='awaiting_provider'&&<button disabled={busy} onClick={()=>void cancel(row.id)} className="rounded border border-white/20 px-4 py-2">Cancel request</button>}</article>)}</div>}</section>
  </div></main>;
 }
