@@ -1,12 +1,23 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { planMigrations, migrationTransaction } from '../scripts/deploy-reviewed-staging.mjs';
+import { planMigrations, migrationTransaction, websiteAuthPatch } from '../scripts/deploy-reviewed-staging.mjs';
 
 const sql = '-- Reviewed SQL\ncreate table public.example(id uuid);\n';
 const migration = { file: '20261019203000_example.sql', sha256: createHash('sha256').update(sql).digest('hex') };
 const manifest = { project_ref: 'qonqemhljgxlwpghkxhn', migrations: [migration] };
 const history = [{ version: '20261019203000', name: 'example', statements: [sql] }];
+
+test('website Auth settings use the current domain, preserve existing redirects and omit unrelated credentials', () => {
+  const auth = {site_url:'https://previous.example', uri_allow_list:'https://previous.example/ResetPassword', smtp_pass:'not-a-real-secret', disable_signup:true};
+  const patch = websiteAuthPatch(auth);
+  assert.equal(patch.site_url, 'https://imperialgaming.llc');
+  const redirects = patch.uri_allow_list.split(',');
+  for (const url of ['https://previous.example/ResetPassword', 'https://imperialgaming.llc', 'https://imperialgaming.llc/ResetPassword', 'https://www.imperialgaming.llc/ResetPassword', 'https://ig-games-repo.vercel.app/ResetPassword']) assert.ok(redirects.includes(url));
+  assert.deepEqual(Object.keys(patch).sort(), ['site_url', 'uri_allow_list']);
+  assert.ok(redirects.every(url => !url.includes('*')));
+  assert.deepEqual(websiteAuthPatch({...auth,...patch}), {});
+});
 
 test('deployment rejects a different project, unknown history, absent recorded history and changed SQL', () => {
   for (const [m, h, source] of [

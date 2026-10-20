@@ -7,6 +7,19 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const project = 'qonqemhljgxlwpghkxhn';
 const sha256 = value => createHash('sha256').update(value).digest('hex');
 
+export function websiteAuthPatch(auth) {
+  const siteUrl = 'https://imperialgaming.llc';
+  const destinations = new Set((auth.uri_allow_list || '').split(',').map(s => s.trim()).filter(Boolean));
+  for (const origin of [siteUrl, 'https://www.imperialgaming.llc', 'https://ig-games-repo.vercel.app']) {
+    for (const path of ['', '/', '/ResetPassword']) destinations.add(origin + path);
+  }
+  const patch = {};
+  if (auth.site_url !== siteUrl) patch.site_url = siteUrl;
+  const allowlist = [...destinations].join(',');
+  if (allowlist !== (auth.uri_allow_list || '')) patch.uri_allow_list = allowlist;
+  return patch;
+}
+
 // Restored migrations preserve the SQL stored by Supabase. Its history can store
 // one query or multiple statements; compare exact reconstructions, never strip
 // comments, alter SQL, or replace the reviewed checksum.
@@ -101,15 +114,13 @@ async function main() {
     versions.push(migration.version);
     console.log('Applied reviewed migration: ' + migration.file);
   }
-  // Preserve existing Auth settings and redirect entries; add only this verified
-  // public deployment's confirmation and recovery destinations.
+  // Use the owner's primary website while preserving other Auth settings and
+  // existing redirect entries, including the fallback hosting address.
   const auth = await api('/config/auth');
-  const destinations = new Set((auth.uri_allow_list || '').split(',').map(s => s.trim()).filter(Boolean));
-  for (const path of ['', '/', '/ResetPassword']) destinations.add('https://ig-games-repo.vercel.app' + path);
-  const allowlist = [...destinations].join(',');
-  if (allowlist !== (auth.uri_allow_list || '')) {
-    await api('/config/auth', { uri_allow_list: allowlist }, 'PATCH');
-    console.log('Added verified frontend confirmation and recovery redirects; preserved existing Auth configuration');
+  const patch = websiteAuthPatch(auth);
+  if (Object.keys(patch).length) {
+    await api('/config/auth', patch, 'PATCH');
+    console.log('Configured imperialgaming.llc and its confirmation/recovery redirects; preserved other Auth settings');
   }
   const workdir = process.argv.find(arg => arg.startsWith('--functions-file='))?.slice('--functions-file='.length);
   if (workdir) writeFileSync(workdir, functions.map(f => f.name).join('\n') + '\n');

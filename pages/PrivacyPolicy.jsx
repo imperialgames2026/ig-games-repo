@@ -28,8 +28,8 @@ export default function PrivacyPolicy() {
 
             <p>
               This Privacy Policy governs the manner in which Imperial House Gaming LLC (hereinafter "Imperial Gaming", "We", "us", or "our"), 
-              collects, use, maintain and disclose information collected from customers of its website imperialhouse.online. This Privacy Policy 
-              applies to imperialhouse.online and all products and services offered through imperialhouse.online.
+              collects, use, maintain and disclose information collected from customers of its website imperialgaming.llc. This Privacy Policy
+              applies to imperialgaming.llc and all products and services offered through imperialgaming.llc.
             </p>
 
             <section>
@@ -45,7 +45,7 @@ export default function PrivacyPolicy() {
               <p>
                 Imperial House Gaming LLC is a company incorporated under the laws of Virginia, with the register number VA262385288 and 
                 registered office at 391 Brook Dr. Hot Springs, Virginia 24445 U.S.A. Imperial House Gaming LLC is responsible for processing 
-                the data collected from you using the website imperialhouse.online.
+                the data collected from you using the website imperialgaming.llc.
               </p>
             </section>
 
@@ -70,15 +70,15 @@ export default function PrivacyPolicy() {
               <h2 className="text-xl font-bold text-white mb-3">4. How We Collect Your Information</h2>
               <p className="mb-3">
                 We collect your information in a variety of ways, including when you visit, register, make purchases or redemptions on 
-                imperialhouse.online, or communicate with us through filling out a form, using our chats or other means of communications.
+                imperialgaming.llc, or communicate with us through filling out a form, using our chats or other means of communications.
               </p>
               <p className="mb-3">
                 We also collect information about your use of our products and services through a variety of technologies that are present when 
-                you visit imperialhouse.online or use our applications on third-party sites or platforms (whether or not you are logged in or 
+                you visit imperialgaming.llc or use our applications on third-party sites or platforms (whether or not you are logged in or
                 registered) including cookies, flash cookies, pixels, tags and application program interfaces ("API").
               </p>
               <p>
-                Analytics tools are also used by us to collect information, including when you visit imperialhouse.online or use our applications 
+                Analytics tools are also used by us to collect information, including when you visit imperialgaming.llc or use our applications
                 or services on third-party sites or platforms.
               </p>
             </section>
@@ -200,7 +200,7 @@ export default function PrivacyPolicy() {
                 We will notify you of material changes and, where required by law, will obtain your consent.
               </p>
               <p className="mb-3">
-                Any changes to the Privacy Policy will become effective when the updated policy is posted on imperialhouse.online.
+                Any changes to the Privacy Policy will become effective when the updated policy is posted on imperialgaming.llc.
               </p>
               <p>
                 We encourage you to frequently check this page for any changes to stay informed about how we are helping to protect the personal 

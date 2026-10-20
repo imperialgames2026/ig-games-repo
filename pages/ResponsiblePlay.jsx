@@ -79,8 +79,8 @@ export default function ResponsiblePlay() {
               <h2 className="text-xl font-bold text-white mb-3">4. Filtering Options and Account Security</h2>
               <p className="mb-3">
                 Filtering and account security options, such as multi-factor authentication, can be enabled to help prevent unauthorized 
-                persons from entering imperialhouse.online or gaining access to your account. If minors or any other persons have access 
-                to the device that you use to access imperialhouse.online, we strongly encourage you to use multi-factor authentication 
+                persons from entering imperialgaming.llc or gaining access to your account. If minors or any other persons have access
+                to the device that you use to access imperialgaming.llc, we strongly encourage you to use multi-factor authentication
                 and filtering software to help secure your account and prevent access to our platform by minors.
               </p>
               <p className="font-bold text-pink-400">
@@ -103,7 +103,7 @@ export default function ResponsiblePlay() {
             <section>
               <h2 className="text-xl font-bold text-white mb-3">6. Break-in-Play</h2>
               <p className="mb-3">
-                Should you need a short break from imperialhouse.online, you can do so by taking a break for the following periods:
+                Should you need a short break from imperialgaming.llc, you can do so by taking a break for the following periods:
               </p>
               <ul className="list-disc pl-6 space-y-1 mb-3">
                 <li>24 hours</li>
@@ -116,7 +116,7 @@ export default function ResponsiblePlay() {
               <p className="mb-3">
                 You can set a break on your account under "Responsible Gaming" tab. Once you begin your break, you will still be able 
                 to log in and make redemptions, but you will not be able to use your account for gaming, to claim daily bonuses or claim 
-                reload bonus via the imperialhouse.online site. It will not be possible to reactivate your account until your chosen 
+                reload bonus via the imperialgaming.llc site. It will not be possible to reactivate your account until your chosen
                 period has ended.
               </p>
               <p className="italic text-gray-400">
