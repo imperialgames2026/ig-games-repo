@@ -711,6 +711,14 @@
     {
       "file": "20261020224547_explicit_backend_only_rls_boundaries.sql",
       "sha256": "798e02f6f4a760b8de6f027b8db131fe7db0e404a5e1b28dfc2791b6dbfa93d4"
+    },
+    {
+      "file": "20261020231614_dedicated_announcement_content.sql",
+      "sha256": "b3a14b9c047473b7d0e03372e0776b460ddfaed73333e3a9e8699f4a6e7101c2"
+    },
+    {
+      "file": "20261020231753_announcement_public_field_grants.sql",
+      "sha256": "032e75bcd1c2ae4801825f24b0ff2f2e0bea09e214cdd1605cc82c81798f4f02"
     }
   ]
 }

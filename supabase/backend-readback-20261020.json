@@ -3,8 +3,8 @@
   "retrieved_at": "2026-10-20",
   "source": "Read-only Supabase recorded-history digests and get_edge_function readbacks after staging deployment",
   "migration_comparison": {
-    "migrations": 94,
-    "exact_bytes": 11,
+    "migrations": 96,
+    "exact_bytes": 13,
     "two_terminal_newlines_only": 83
   },
   "function_comparison": "Exact bytes except three historical terminal-whitespace differences; deployment package retains checksums of committed bytes",
@@ -863,5 +863,14 @@
     "service_role_table_grants": "unchanged",
     "hosted_role_matrix_rollback": "passed",
     "security_advisor_findings_after": 0
+  },
+  "announcements": {
+    "recorded_migrations": [
+      "20261020231614_dedicated_announcement_content.sql",
+      "20261020231753_announcement_public_field_grants.sql"
+    ],
+    "hosted_rollback_suite": "announcements_rollback.sql passed",
+    "frontend": "dedicated Supabase adapter and public banner",
+    "author_identity": "not selectable by API roles"
   }
 }

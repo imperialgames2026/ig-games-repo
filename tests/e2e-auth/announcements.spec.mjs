@@ -1,0 +1,25 @@
+import {test,expect} from '@playwright/test';
+import {createClient} from '@supabase/supabase-js';
+import {readFileSync} from 'node:fs';
+const c=JSON.parse(readFileSync('/tmp/ig-local-runtime.json','utf8'));
+if(!/^http:\/\/(127\.0\.0\.1|localhost):54321$/.test(c.API_URL))throw Error('Announcement checks require isolated local Supabase');
+const admin=createClient(c.API_URL,c.SERVICE_ROLE_KEY,{auth:{persistSession:false}});
+test('canonical admin creates, publishes, edits and archives a banner through the real app',async({page})=>{
+ const email='announce-'+crypto.randomUUID()+'@example.invalid',password='Local-'+crypto.randomUUID()+'-A8!';
+ const account=await admin.auth.admin.createUser({email,password,email_confirm:true});expect(account.error).toBeNull();
+ expect((await admin.from('user_roles').update({role:'admin'}).eq('user_id',account.data.user.id)).error).toBeNull();
+ const title='Release notice '+crypto.randomUUID();
+ await page.goto('/login');await page.getByLabel('Email',{exact:true}).fill(email);await page.getByLabel('Password',{exact:true}).fill(password);await page.getByRole('button',{name:'Sign in',exact:true}).click();await expect(page).not.toHaveURL(/\/login$/);
+ await page.goto('/AdminAnnouncements');await expect(page.getByRole('heading',{name:'Manage Announcements'})).toBeVisible();
+ await page.getByLabel('Title',{exact:true}).fill(title);await page.getByLabel('Message',{exact:true}).fill('New verified practice release');await page.getByLabel('Priority',{exact:true}).fill('1000');await page.getByLabel('Active',{exact:true}).check();
+ await page.getByRole('button',{name:'Create',exact:true}).click();await expect(page.getByRole('status')).toHaveText('Announcement saved.');
+ const row=page.getByRole('article').filter({hasText:title});await expect(row).toBeVisible();
+ await page.goto('/Games');await expect(page.getByText(title,{exact:true})).toBeVisible();
+ const publicClient=createClient(c.API_URL,c.ANON_KEY,{auth:{persistSession:false}});
+ const published=await publicClient.from('ig_announcements').select('id,title,revision').eq('title',title);expect(published.error).toBeNull();expect(published.data).toHaveLength(1);
+ expect((await publicClient.from('ig_announcements').select('created_by')).error?.code).toBe('42501');
+ await page.goto('/AdminAnnouncements');await page.getByRole('button',{name:'Edit '+title,exact:true}).click();await page.getByLabel('Message',{exact:true}).fill('Updated practice notice');await page.getByRole('button',{name:'Update',exact:true}).click();await expect(page.getByRole('article').filter({hasText:title})).toContainText('Updated practice notice');
+ await page.getByRole('button',{name:'Archive '+title,exact:true}).click();await expect(page.getByRole('status')).toHaveText('Announcement archived.');
+ await expect.poll(async()=>{const r=await publicClient.from('ig_announcements').select('id').eq('title',title);if(r.error)throw r.error;return r.data.length;}).toBe(0);
+ await page.goto('/Games');await expect(page.getByText(title,{exact:true})).toHaveCount(0);
+});
