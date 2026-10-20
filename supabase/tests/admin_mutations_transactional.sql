@@ -3,6 +3,7 @@ begin;
 do $test$
 declare a uuid:=gen_random_uuid(); b uuid:=gen_random_uuid(); p uuid:=gen_random_uuid(); t uuid:=gen_random_uuid(); k uuid; result jsonb; n numeric; blocked boolean;
 begin
+ perform set_config('request.jwt.claims','{"role":"service_role"}',true);
  insert into auth.users(id,email,role,aud) values
  (a,'sql-super-'||a||'@example.invalid','authenticated','authenticated'),
  (b,'sql-admin-'||b||'@example.invalid','authenticated','authenticated'),
@@ -10,6 +11,8 @@ begin
  (t,'sql-target-'||t||'@example.invalid','authenticated','authenticated');
  update public.profiles set role='superadmin' where id=a;
  update public.profiles set role='admin' where id=b;
+ update public.user_roles set role='superadmin' where user_id=a;
+ update public.user_roles set role='admin' where user_id=b;
  update public.wallets set igt_balance=5 where user_id=t;
  blocked:=false;
  begin perform internal.admin_mutation(p,t,'wallet_adjustment','Security test player role',gen_random_uuid(),'IGT',1);
