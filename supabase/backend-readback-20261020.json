@@ -3,8 +3,8 @@
   "retrieved_at": "2026-10-20",
   "source": "Read-only Supabase recorded-history digests and get_edge_function readbacks after staging deployment",
   "migration_comparison": {
-    "migrations": 89,
-    "exact_bytes": 6,
+    "migrations": 90,
+    "exact_bytes": 7,
     "two_terminal_newlines_only": 83
   },
   "function_comparison": "Exact bytes except three historical terminal-whitespace differences; deployment package retains checksums of committed bytes",
@@ -806,6 +806,12 @@
       "name": "payment_preparation_requests",
       "sha256": "fde55de4d048d9f69d7de2529956c53bea7a3e12432d2d5234a657b8468e4032",
       "reviewed_sha256": "fde55de4d048d9f69d7de2529956c53bea7a3e12432d2d5234a657b8468e4032"
+    },
+    {
+      "version": "20261020215129",
+      "name": "verified_practice_catalog_and_record_isolation",
+      "sha256": "0d9eccd00825a0539bf0dd9fe970cb915e0fbd02294b23f54ae4a0efa256c99f",
+      "reviewed_sha256": "0d9eccd00825a0539bf0dd9fe970cb915e0fbd02294b23f54ae4a0efa256c99f"
     }
   ]
 }

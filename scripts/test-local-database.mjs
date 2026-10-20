@@ -44,7 +44,7 @@ try {
     }
     console.log(`PASS: ${manifest.migrations.length} migrations structurally replayed with minimal Auth/Storage fixtures. Full Supabase service validation still required.`);
     sql(read('tests/database/replayed-records-before.sql') + read('supabase/proposals/app-records-owner-read.sql') + read('tests/database/replayed-records-after.sql'));
-    console.log('PASS: replayed signup rejects metadata escalation; actual canonical-role policies preserve owner/admin isolation after proposed correction. Rolled back.');
+    console.log('PASS: replayed signup rejects metadata escalation; recorded canonical-role policies preserve owner/admin isolation, including ownerless records. Rolled back.');
   }
 } finally {
   if (started) docker(['rm', '-fv', name]);

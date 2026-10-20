@@ -11,6 +11,18 @@ const games = [
  ['PlayTrenball','Multiplayer Trenball'],
 ];
 
+const originals=[['PlayDice','Practice Dice'],['PlayCoinFlip','Coin Flip'],['PlayHashDice','Hash Dice'],['PlayLimbo','Limbo'],['PlayPlinko','Plinko'],['PlayWheel','Wheel'],['PlayMines','Mines']];
+test('verified Originals are discoverable in the public game library', async ({page})=>{
+ await page.goto('/Games',{waitUntil:'domcontentloaded'});
+ const library=page.getByRole('region',{name:'Verified Originals practice games'});
+ for(const [route,label] of originals) await expect(library.locator(`a[href="/${route}"]`).filter({hasText:label})).toBeVisible();
+});
+for(const [route,label] of originals) test(label+' requires sign-in from its public library entry',async({page})=>{
+ await page.goto('/'+route,{waitUntil:'domcontentloaded'});
+ await expect(page).toHaveURL(/\/login(?:\?.*)?$/i);
+ await expect(page.getByRole('heading',{name:'Welcome back'})).toBeVisible();
+});
+
 test('the public lobby offers exactly the targeted multiplayer table entry points', async ({page})=>{
  await page.goto('/Games', {waitUntil:'domcontentloaded'});
  await expect(page.getByRole('heading',{name:'Join a live casino-style table'})).toBeVisible();

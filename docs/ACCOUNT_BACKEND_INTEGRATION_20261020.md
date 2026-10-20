@@ -1,3 +1,5 @@
+> Catalog/isolation follow-up: staging now has 90 migrations / 29 functions and 13 SQL suites. See [CATALOG_RECORD_ISOLATION_20261020.md](CATALOG_RECORD_ISOLATION_20261020.md). Counts below describe the account integration commit.
+
 # Account backend integration — 2026-10-20
 
 This integration preserves current main's profile names, immutable display names,

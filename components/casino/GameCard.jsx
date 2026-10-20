@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Users, Play, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { approvedCatalogRoute } from '@/lib/approvedPracticeGames';
 
 
 
@@ -62,9 +63,9 @@ export default function GameCard({ game }) {
   };
 
   // Determine play page based on game type
-  const playUrl = game.game_type === 'external' 
+  const playUrl = approvedCatalogRoute(game) || (game.game_type === 'external'
     ? createPageUrl('PlayExternal') + `?game=${game.slug}`
-    : createPageUrl(slugToPage[game.slug] || `Play${toPascalCase(game.slug)}`);
+    : createPageUrl(slugToPage[game.slug] || `Play${toPascalCase(game.slug)}`));
 
   return (
     <motion.div
