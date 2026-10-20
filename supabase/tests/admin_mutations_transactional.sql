@@ -8,7 +8,10 @@ begin
  (b,'sql-admin-'||b||'@example.invalid','authenticated','authenticated'),
  (p,'sql-player-'||p||'@example.invalid','authenticated','authenticated'),
  (t,'sql-target-'||t||'@example.invalid','authenticated','authenticated');
+ perform set_config('request.jwt.claims','{"role":"service_role"}',true);
  update public.profiles set role='superadmin' where id=a;
+ update public.user_roles set role='superadmin' where user_id=a;
+ update public.user_roles set role='admin' where user_id=b;
  update public.profiles set role='admin' where id=b;
  update public.wallets set igt_balance=5 where user_id=t;
  blocked:=false;
