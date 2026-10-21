@@ -4,8 +4,7 @@ on:
   pull_request:
     paths:
       - 'pages/Login.jsx'
-      - 'tests/mobileBuildRegression.test.mjs'
-      - 'tests/mobileClientConfig.test.mjs'
+      - 'tests/mobile*.test.mjs'
       - 'package.json'
       - 'package-lock.json'
       - 'vite.config.js'
@@ -13,7 +12,7 @@ on:
       - 'android/**'
       - 'scripts/*mobile*.mjs'
       - 'scripts/bootstrap-android.mjs'
-      - 'scripts/android-emulator-smoke.mjs'
+      - 'scripts/android-*.mjs'
       - '.github/workflows/android-practice.yml'
       - 'docs/MOBILE_ANDROID_IMPLEMENTATION.md'
 permissions:
@@ -31,6 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
@@ -38,7 +38,9 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Test login syntax and native Auth guard without hosted calls
-        run: node --test tests/mobileBuildRegression.test.mjs tests/mobileClientConfig.test.mjs
+        run: node --test tests/mobileBuildRegression.test.mjs tests/mobileClientConfig.test.mjs tests/mobileIsolation.test.mjs
+      - name: Run existing application and backend unit/security regressions
+        run: npm test
       - name: Compile web assets (not a hosted authentication test)
         run: npm run build
   debug-apk:
@@ -85,9 +87,9 @@ jobs:
           log-accepted-android-sdk-licenses: false
       - name: Install Android SDK
         run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
-      - name: Build debug APK and unsigned release candidates
+      - name: Build and validate debug APK and unsigned release candidates
         working-directory: android
-        run: bash ./gradlew assembleDebug assembleRelease bundleRelease --no-daemon
+        run: bash ./gradlew assembleDebug assembleRelease bundleRelease testDebugUnitTest lintDebug --no-daemon
       - name: Collect artifacts without production signing
         shell: bash
         run: |
@@ -102,6 +104,13 @@ jobs:
         with:
           name: imperial-games-android-${{ steps.source.outputs.sha }}
           path: mobile-artifacts/
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-validation-${{ steps.source.outputs.sha }}
+          path: android/app/build/reports/
+          if-no-files-found: warn
           retention-days: 14
   emulator-smoke:
     needs: debug-apk
@@ -143,7 +152,7 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-      - name: Install and exercise the actual native WebView
+      - name: Install and exercise the actual native WebView with pre-launch network isolation
         uses: reactivecircus/android-emulator-runner@v2
         env:
           SOURCE_SHA: ${{ needs.debug-apk.outputs.source_sha }}
