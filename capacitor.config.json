@@ -1,0 +1,12 @@
+{
+  "appId": "com.imperialgaming.practice.dev",
+  "appName": "Imperial Games Practice DEV",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "android": {
+    "allowMixedContent": false
+  },
+  "server": {
+    "cleartext": false
+  }
+}
