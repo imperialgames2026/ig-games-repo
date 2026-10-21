@@ -1,0 +1,2877 @@
+{
+  "schema_version": 1,
+  "source_repository": "https://github.com/imperialgames2026/casino-zip",
+  "source_commit": "0ad8fbbac3f2cace14ec40264e299faf46a4053d",
+  "application_repository": "https://github.com/imperialgames2026/ig-games-repo",
+  "application_baseline_commit": "c0d1d1019f4fa40094bd5a6beb8b6d759202291b",
+  "application_root": ".",
+  "archive": {
+    "source": "ig-games.zip",
+    "target": "ig-games.zip",
+    "sha256": "b30b795cd8f135ca96111695a1af2c6838f32608f3efdcadaa3b8f6a57a4939f"
+  },
+  "references": [
+    {
+      "source": "docs/IMPERIAL_GAMES_BLUEPRINT.md",
+      "target": "docs/reference/casino-zip/IMPERIAL_GAMES_BLUEPRINT.md",
+      "sha256": "948f89969bb43ac4270c5ac01faa5c4cba74aeb4c7e47ed2f93800c540a95e9d"
+    },
+    {
+      "source": "docs/audits/INTEGRATION_STATUS_20261019.md",
+      "target": "docs/reference/casino-zip/audits/INTEGRATION_STATUS_20261019.md",
+      "sha256": "ae83569711527b7137887cdd2c245aab108cef74326f173d5058874972d48d47"
+    },
+    {
+      "source": "docs/audits/ORIGINAL_APP_RELEASE_READINESS_20261017.md",
+      "target": "docs/reference/casino-zip/audits/ORIGINAL_APP_RELEASE_READINESS_20261017.md",
+      "sha256": "6a53b118a515248aa0c4d02807cdccc38fe31c0de542a476117a8bcea6a82df4"
+    },
+    {
+      "source": "docs/audits/application-inventory.md",
+      "target": "docs/reference/casino-zip/audits/application-inventory.md",
+      "sha256": "f5b2415ddc607d2bc5708c96ca41a4b8be9a01f05b263ded41279b30e0db6c6e"
+    },
+    {
+      "source": "docs/audits/base44-admin-users-preview-20261019.md",
+      "target": "docs/reference/casino-zip/audits/base44-admin-users-preview-20261019.md",
+      "sha256": "16842ac661550dad04ceb658fa831421080a36ed52374c6efca2f2dc56277c19"
+    },
+    {
+      "source": "docs/audits/base44-player-surfaces-20261019.md",
+      "target": "docs/reference/casino-zip/audits/base44-player-surfaces-20261019.md",
+      "sha256": "dfaec35682235af9ec488f1e1a9182114b70e8839986a86b1be9995ee6dc2913"
+    },
+    {
+      "source": "docs/audits/ign_staging_security_check_20261017.md",
+      "target": "docs/reference/casino-zip/audits/ign_staging_security_check_20261017.md",
+      "sha256": "4511f162b63e050fb5c8cd9343ab14bbda349b1bef7276dfc9c5dfb614861382"
+    },
+    {
+      "source": "docs/audits/original_app_migration_progress_20261017.md",
+      "target": "docs/reference/casino-zip/audits/original_app_migration_progress_20261017.md",
+      "sha256": "41bb1bf525f036bbd3e20a89c89190ce2bea4995bd5b98da422f6870b391f73d"
+    },
+    {
+      "source": "docs/audits/supabase-migration-status.md",
+      "target": "docs/reference/casino-zip/audits/supabase-migration-status.md",
+      "sha256": "124c6f37c83201cc2e031eca4ab98a98a9371ccf82577226d3786f0e6d1d8f72"
+    },
+    {
+      "source": "docs/blueprints/HOT_WALLET_ELLIPAL_CUSTODY.md",
+      "target": "docs/reference/casino-zip/blueprints/HOT_WALLET_ELLIPAL_CUSTODY.md",
+      "sha256": "d6a5a22898a74e9557fef8362d4f5492e85fe19cee4b62103b1db197fad0f7a2"
+    },
+    {
+      "source": "docs/blueprints/IGN_SUMSUB_KYC_DECISION.md",
+      "target": "docs/reference/casino-zip/blueprints/IGN_SUMSUB_KYC_DECISION.md",
+      "sha256": "2fb7eec6cbbfbda1133a4765789fa1dfaced57b50634974f8d45e90a97b023a8"
+    },
+    {
+      "source": "docs/blueprints/IGN_TOKENOMICS_BENCHMARKS_PROPOSAL.md",
+      "target": "docs/reference/casino-zip/blueprints/IGN_TOKENOMICS_BENCHMARKS_PROPOSAL.md",
+      "sha256": "b71178d4a983b0b0694f50d3a3298aea8b8acf6c974fe4a391db1939f9ea33fe"
+    },
+    {
+      "source": "docs/blueprints/IGN_TREASURY_AND_DASHBOARD_DESIGN.md",
+      "target": "docs/reference/casino-zip/blueprints/IGN_TREASURY_AND_DASHBOARD_DESIGN.md",
+      "sha256": "6cee36a41e3cda276ca46506b46ea2be7c48a3a28f8e5630998cfd12665e6b9b"
+    },
+    {
+      "source": "docs/blueprints/IGN_WALLET_TREASURY_STAGING_QA.md",
+      "target": "docs/reference/casino-zip/blueprints/IGN_WALLET_TREASURY_STAGING_QA.md",
+      "sha256": "7b4d1d3f0de9587dda68d48541a5c16bb798635da3b32bdee5be03fd9a6f2a42"
+    },
+    {
+      "source": "docs/blueprints/MULTICHAIN_CRYPTO_DEPOSITS.md",
+      "target": "docs/reference/casino-zip/blueprints/MULTICHAIN_CRYPTO_DEPOSITS.md",
+      "sha256": "2a71e8bbe8e735d3299de0aa0c3010d2932ad21bd037ecaa3cf0dbd4a1915d95"
+    },
+    {
+      "source": "docs/blueprints/solana-casino-platform.md",
+      "target": "docs/reference/casino-zip/blueprints/solana-casino-platform.md",
+      "sha256": "545275272c799866c796262ef41e0cda482eb97ea80865c6b399b7e911ebc70f"
+    },
+    {
+      "source": "docs/game-engines/POKER_AI_BOT_LAB.md",
+      "target": "docs/reference/casino-zip/game-engines/POKER_AI_BOT_LAB.md",
+      "sha256": "fb445905b83a30e376e05d678d0d271a429755b8597f81ff60f548a3e231ad7e"
+    },
+    {
+      "source": "docs/game-engines/POKER_STAGING_TEST.md",
+      "target": "docs/reference/casino-zip/game-engines/POKER_STAGING_TEST.md",
+      "sha256": "1f391cb4d0ce252d29030a729912572b025b2b334f483dc48488d2017556bed2"
+    },
+    {
+      "source": "docs/game-engines/poker-blackjack-roulette.md",
+      "target": "docs/reference/casino-zip/game-engines/poker-blackjack-roulette.md",
+      "sha256": "12ba24c671a893d63d5eec9f870aa9d37f86402ec5f04d0633bd91fb30f0bb2c"
+    },
+    {
+      "source": "docs/game-engines/poker-tournaments-and-ring.md",
+      "target": "docs/reference/casino-zip/game-engines/poker-tournaments-and-ring.md",
+      "sha256": "4576fa3a6b40b85a5a53f24ee86937014d3b1db40ae66b6b8d800a5a1c3ad46f"
+    },
+    {
+      "source": "docs/provably-fair.md",
+      "target": "docs/reference/casino-zip/provably-fair.md",
+      "sha256": "cb5f71f6efebc3f1a703efd0bdc23bda3ecfe4f9edbdce6da6b0431f3b63fb67"
+    },
+    {
+      "source": "README.md",
+      "target": "docs/reference/casino-zip/REPOSITORY_README.md",
+      "sha256": "aca7778efde61c1235b81f70729cf422d08a6a43ed02d19108464bad911c3500"
+    }
+  ],
+  "frontend": [
+    {
+      "source": "original-app/src/App.jsx",
+      "source_sha256": "94e07bd69897145cf3843ac772f6564ca35c18c877002b427744738d19860f00",
+      "targets": [
+        "App.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/Layout.jsx",
+      "source_sha256": "5addbb4055431022877d301f0401bb4881f8453667921605c610a29effad31ca",
+      "targets": [
+        "Layout.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/api/base44Client.js",
+      "source_sha256": "4cf8b72c7f162b8eb7534460fb28bb49caf62c1b85e2d15a57d150c207a67c60",
+      "targets": [
+        "api/base44Client.js"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/components/ProtectedRoute.jsx",
+      "source_sha256": "f1121449bc7f8f31b2ed2d4a6e0211c8d300319efd58919efdd313dc7b586068",
+      "targets": [
+        "components/ProtectedRoute.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/SupabaseSignIn.jsx",
+      "source_sha256": "6bc34af1c85da55b3e5e7a3ec2b59763b7d9a1683c3aca70eb58ca945c4abb30",
+      "targets": [
+        "pages/Login.jsx",
+        "lib/AuthContext.jsx"
+      ],
+      "disposition": "replaced",
+      "reason": "Supabase sign-in is handled by the active Login page and Auth provider."
+    },
+    {
+      "source": "original-app/src/components/UserNotRegisteredError.jsx",
+      "source_sha256": "a16b2f00877295a3dd49e3f3abcfe2b1ee8ad79793fb308c39218c06a94745aa",
+      "targets": [
+        "components/UserNotRegisteredError.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/VerifiedLayout.jsx",
+      "source_sha256": "6499c091b4510310a2c8632005e9850afc5b0a4dfc8ff4e65f8713a94a473830",
+      "targets": [
+        "Layout.jsx"
+      ],
+      "disposition": "replaced",
+      "reason": "The full active layout owns navigation and player session display."
+    },
+    {
+      "source": "original-app/src/components/admin/BlackjackTableManager.jsx",
+      "source_sha256": "4cbc2cc4e101d543a6e51f12b098cde82be2acdf866974d4d6a2b28c7d92c1b0",
+      "targets": [
+        "components/admin/BlackjackTableManager.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/admin/CrashRoundManager.jsx",
+      "source_sha256": "e1a6f50f9a64a61d8074ce974800956f1a0f45d5720014b108591697a2a0a761",
+      "targets": [
+        "components/admin/CrashRoundManager.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/admin/IGTSupplyBar.jsx",
+      "source_sha256": "6c7a49a3520b0ff7ec4a796cfbb610b7e237f11d3d4021eaaf4d6e77b654e626",
+      "targets": [
+        "components/admin/IGTSupplyBar.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/admin/IGTSupplyStatCard.jsx",
+      "source_sha256": "0cc0311b5fa17bd2ce383795dda2f15f1216839de21048fc0b465e682a86d303",
+      "targets": [
+        "components/admin/IGTSupplyStatCard.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/admin/OriginalsWinLoseSettings.jsx",
+      "source_sha256": "21b11cc310a842b09f16c2b0f80f46dc72f7b8a8671ddfc3c31b834071b662c1",
+      "targets": [
+        "components/admin/OriginalsWinLoseSettings.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/admin/RakeSettings.jsx",
+      "source_sha256": "884cf33ef5f81a34945844b6811d1102c2a86c58c722646bead82b0661478300",
+      "targets": [
+        "components/admin/RakeSettings.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/admin/SitAndGoManager.jsx",
+      "source_sha256": "c237a32a2b33e05a3116050c7ac818a27ccdd262530ffa192d69607368483f97",
+      "targets": [
+        "components/admin/SitAndGoManager.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/admin/SlotDropSettings.jsx",
+      "source_sha256": "06e213fd8cada5717acb414953bf63be413a63d8c6475af7789c9b36bce95a6d",
+      "targets": [
+        "components/admin/SlotDropSettings.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/admin/TournamentManager.jsx",
+      "source_sha256": "d335785ec6d0e766cc5f7c6b74d43f30933e2ead9a0e230faee548c07b56915c",
+      "targets": [
+        "components/admin/TournamentManager.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/admin/UserStatementModal.jsx",
+      "source_sha256": "b84d47c509b284d15105721f0f663b787f72e94c878dbe760ba858d7bd42bafd",
+      "targets": [
+        "components/admin/UserStatementModal.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/admin/VIPBonusIssuer.jsx",
+      "source_sha256": "b7c374f0c4da3c240ee25c26d956f47148ac17de124fa82d7ca2e382b79f678d",
+      "targets": [
+        "components/admin/VIPBonusIssuer.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/admin/VIPManager.jsx",
+      "source_sha256": "2424fa85690bc27d4117df922ecc8a630863b9ce2003affd6b4987455ad7133e",
+      "targets": [
+        "components/admin/VIPManager.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/admin/VoucherManager.jsx",
+      "source_sha256": "4273fc48fee49be51fc2da36a2060698f514fbb2b4a2cd7c46f3ff23761028d6",
+      "targets": [
+        "components/admin/VoucherManager.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/admin/WeeklyTournamentManager.jsx",
+      "source_sha256": "b037a51f646cc3514fe6d561179dd632cddef7637b5fded8030cefc741522889",
+      "targets": [
+        "components/admin/WeeklyTournamentManager.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/admin/WheelRewardManager.jsx",
+      "source_sha256": "3faf16e0e6508835821a3fbc62105777721535cde8932a4ca2dd75c8e9805d9b",
+      "targets": [
+        "components/admin/WheelRewardManager.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/admin/WithdrawalManager.jsx",
+      "source_sha256": "a0d4b72c5fb0f011c3e3dfbf14a0e8684de81c45ff342bfbcddf07daafcf12ed",
+      "targets": [
+        "components/admin/WithdrawalManager.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/blackjack/BlackjackStoolSeat.jsx",
+      "source_sha256": "2e013ab4b845b5858b727e7f9bddfb5aa45f553b841b50d816fdc954685b3f0b",
+      "targets": [
+        "components/blackjack/BlackjackStoolSeat.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/blackjack/ChipRail.jsx",
+      "source_sha256": "e5dfacf2871ecb8544223f95ee4f161ad63c5a169156ff75c06c64b903fc469f",
+      "targets": [
+        "components/blackjack/ChipRail.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/blackjack/ChipStack.jsx",
+      "source_sha256": "fb1955770f876b64bbfc4cadbe12c05033615f5de3f96d3168fce5d6abc34f1a",
+      "targets": [
+        "components/blackjack/ChipStack.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/blackjack/DealerAvatar.jsx",
+      "source_sha256": "cef7b2a61d73c7092c43fe8753ae3e9dafae03ddcda6d25dead80c8019630010",
+      "targets": [
+        "components/blackjack/DealerAvatar.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/blackjack/TableBetSpots.jsx",
+      "source_sha256": "28fa0338f9d524d17240d024520ce7fe13af6e00b32bcea9814bb51f283ebeab",
+      "targets": [
+        "components/blackjack/TableBetSpots.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/blackjack/TableSeatLayer.jsx",
+      "source_sha256": "78fab4ad18411d94ab74569ce9c1e5947dbb6bbdbb68e84e3a731b83ec6cd6ca",
+      "targets": [
+        "components/blackjack/TableSeatLayer.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/bonuses/BonusHero.jsx",
+      "source_sha256": "d51b92d00565664adb9db8616fd8865cd0257d1d99a90dbcc0e85e78bddf6450",
+      "targets": [
+        "components/bonuses/BonusHero.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/bonuses/BonusSectionsGrid.jsx",
+      "source_sha256": "1c67c45531ec184cc4aeae2cb40706977f800440bf625b4e2fcf9d382171a92d",
+      "targets": [
+        "components/bonuses/BonusSectionsGrid.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/bonuses/BonusSummaryCards.jsx",
+      "source_sha256": "ff9af0ea45034b382dca7c5a794c4aae63b3128625eda3d839753971c94093d2",
+      "targets": [
+        "components/bonuses/BonusSummaryCards.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/bonuses/LockedBonusBreakdown.jsx",
+      "source_sha256": "bdc9e9b67e3505aa6db12ac4e926f4c9dec315c05748a1c1e0de18b63371a08a",
+      "targets": [
+        "components/bonuses/LockedBonusBreakdown.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/bonuses/WagerWheelLinkCard.jsx",
+      "source_sha256": "cb138ec85e56fd83b79aed054d326d72b57ab8ea72ce58768792146c667c3ced",
+      "targets": [
+        "components/bonuses/WagerWheelLinkCard.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/casino/AnnouncementBanner.jsx",
+      "source_sha256": "5049d85e6f9fc999719646bd893dc64ab9e4262f05d2c025287eefe1b6592669",
+      "targets": [
+        "components/casino/AnnouncementBanner.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/components/casino/BonusActivator.jsx",
+      "source_sha256": "f62b126d84b69acdca44683ba1ac47f4275598146296c0099fc0bd6cd8a23b0e",
+      "targets": [
+        "components/casino/BonusActivator.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/casino/CryptoDepositNetworksPreview.jsx",
+      "source_sha256": "fb7a28d6e912c8675a15eb8573a3dbdb68c0fe6f7d5bbec56df6b0528442ee62",
+      "targets": [
+        "components/casino/CryptoDepositNetworksPreview.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/components/casino/CryptoPaymentDialog.jsx",
+      "source_sha256": "bc446b0dd485cc95b14ae9fda464e4af6df0cc5567c9bb2ab72661eac4897e6b",
+      "targets": [
+        "components/casino/CryptoPaymentDialog.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/components/casino/DailyQuests.jsx",
+      "source_sha256": "9a54bfc8770baedd42e58824d73e336ba3e40fd1b3370045ba863b5d9f44799b",
+      "targets": [
+        "components/casino/DailyQuests.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/casino/DailyReward.jsx",
+      "source_sha256": "c850c5bc4957c7710fc5ea8b30dcdc071c9de731dd8716296e68f9ff7d5fc699",
+      "targets": [
+        "components/casino/DailyReward.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/casino/DailyWagerTracker.jsx",
+      "source_sha256": "0972fb7d04766d21a8ab54a778ed9b0b7bd979e4e2bc0229bb1bebf597e7a0ab",
+      "targets": [
+        "components/casino/DailyWagerTracker.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/casino/ExclusionBanner.jsx",
+      "source_sha256": "f6c53657bd8911958d2ff908b094ce30b189ebcdbeacf5ddb5ed2b8b0c1a7f59",
+      "targets": [
+        "components/casino/ExclusionBanner.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/casino/GameCard.jsx",
+      "source_sha256": "b700bd6b4d8060438b2b4b1a4ef73db8fff21541743bd9b5c0141343dd833887",
+      "targets": [
+        "components/casino/GameCard.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/components/casino/HouseEdge.jsx",
+      "source_sha256": "c3b8984b485aa0240f042e10f1fc51a81fc57f4c39aebd648291e809d61d13a7",
+      "targets": [
+        "components/casino/HouseEdge.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/casino/KYCPrompt.jsx",
+      "source_sha256": "da92f9ca92204c31fc122ac4f0f27ddc00fa2d6f6981d2d014ff8b41ec35cdc4",
+      "targets": [
+        "components/casino/KYCPrompt.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/casino/LiveBetFeed.jsx",
+      "source_sha256": "b66b072efee476e30bccd5d4932efbf3be3405d22c01ce1e670d60aa4ab1a8aa",
+      "targets": [
+        "components/casino/LiveBetFeed.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/casino/LiveBetsPanel.jsx",
+      "source_sha256": "b0abb6548d66fa5df51287dd8e8fe502cee757cf3ae089c9ab218a834924b516",
+      "targets": [
+        "components/casino/LiveBetsPanel.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/casino/LuckySpinWheel.jsx",
+      "source_sha256": "6545725f16a0dccd914f98f8eccde758259ee180eb7db97b4e74054dabe4b80b",
+      "targets": [
+        "components/casino/LuckySpinWheel.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/casino/ProvablyFairBadge.jsx",
+      "source_sha256": "37f486aca47f21633bd166cfdc6b1d1d309aa2cd20cd550df7d343fbf1e1c72d",
+      "targets": [
+        "components/casino/ProvablyFairBadge.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/casino/RedeemVoucher.jsx",
+      "source_sha256": "459a48f204cb57f65c4030fdf0584bbca0a1a3859233170681117e48b282a803",
+      "targets": [
+        "components/casino/RedeemVoucher.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/casino/ReferralCodePrompt.jsx",
+      "source_sha256": "c9189308d86c93e6b29d31df7e8bdab0e639a857adfcfdf83aa64ca9dad98e92",
+      "targets": [
+        "components/casino/ReferralCodePrompt.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/casino/ReferralHandler.jsx",
+      "source_sha256": "6736e57b0abb6d7dab0c42f6be74b6df7bcd908691c2da6eee4fe895a8a567fc",
+      "targets": [
+        "components/casino/ReferralHandler.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/casino/SelfExclusionControl.jsx",
+      "source_sha256": "7b12815f72773626ce53144bb6181e637645143ff282e06d4ff40c2c36bcf1f2",
+      "targets": [
+        "components/casino/SelfExclusionControl.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/components/casino/TokenPackCard.jsx",
+      "source_sha256": "6442f97d4f978cc606715a585f3526a0953a3c8d420c7409060f18f1f9e66e80",
+      "targets": [
+        "components/casino/TokenPackCard.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/casino/VIPHelper.jsx",
+      "source_sha256": "567f2ad7b78b5a4938a14261855c4c3337033d9f7914d38bf37af17ae54bfab5",
+      "targets": [
+        "components/casino/VIPHelper.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/casino/VIPLevelUpToast.jsx",
+      "source_sha256": "8f01009dcae383afb8a2dc5c0afd84e335902fabde9e2a1781cd565662b39bb2",
+      "targets": [
+        "components/casino/VIPLevelUpToast.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/casino/VIPProgressCard.jsx",
+      "source_sha256": "86965b2a31b566a03ed5804a2756d412cb01a5e5a2cd792abc0e41d84b999d22",
+      "targets": [
+        "components/casino/VIPProgressCard.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/casino/VIPTierExplainer.jsx",
+      "source_sha256": "5e4e305e79989d6a58c5100c827eb726c2d5685935e81cdb4d11fece3eaebcd9",
+      "targets": [
+        "components/casino/VIPTierExplainer.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/casino/VoucherRedeemer.jsx",
+      "source_sha256": "1e60246e4e79e2c043336446d9ba9097715de5921432f34508ee3ccd0c0e605f",
+      "targets": [
+        "components/casino/VoucherRedeemer.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/casino/WagerProgressBar.jsx",
+      "source_sha256": "229ac3ca9109c574dbb713bbc21810c6aab5abb4bf5ff26a3d10df5fdd7d0140",
+      "targets": [
+        "components/casino/WagerProgressBar.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/casino/WalletDisplay.jsx",
+      "source_sha256": "7a9b901a1a386803fd8b4b0ee8b95e8a9c2975aea99ad123409836b5f216e36c",
+      "targets": [
+        "components/casino/WalletDisplay.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/components/casino/WalletGiftDialog.jsx",
+      "source_sha256": "bdd69d63eb36eacc475db008ad74615811a09bec89953889094a29216958909d",
+      "targets": [
+        "components/casino/WalletGiftDialog.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/components/casino/WeeklyQuests.jsx",
+      "source_sha256": "412beda63e0dcdd2c8d64bbe4d996aa15db814974509711b03beaee145350cc1",
+      "targets": [
+        "components/casino/WeeklyQuests.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/casino/WeeklyTokenLeaderboard.jsx",
+      "source_sha256": "543419b034dcb63f34ff4922d873f32047ccd07a2c52507eafd96b1a5bf08cb6",
+      "targets": [
+        "components/casino/WeeklyTokenLeaderboard.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/components/chat/GlobalChat.jsx",
+      "source_sha256": "04b607d73bbbff4fed3c993c4be3f32dffea07ac6c3ed7fa08ca977db13464c7",
+      "targets": [
+        "components/chat/GlobalChat.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/crypto/CryptoDepositPanel.jsx",
+      "source_sha256": "e60d04c7ce655cccc5d1aedbdccf322cd518b3b429fa8a2d0c59ca68d3460585",
+      "targets": [
+        "components/crypto/CryptoDepositPanel.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/crypto/CryptoStatusBadge.jsx",
+      "source_sha256": "a59c03f5dca2d5f3d7f0e66977fff3714e862a83d6316d095873a5c63417d930",
+      "targets": [
+        "components/crypto/CryptoStatusBadge.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/crypto/CryptoTransferList.jsx",
+      "source_sha256": "f97d4347fcc43acbd2e6be017c43caf5d81f811ed56fba594d16c388d4fdff0f",
+      "targets": [
+        "components/crypto/CryptoTransferList.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/crypto/CryptoWithdrawalPanel.jsx",
+      "source_sha256": "afd20fb8c534dc2a33d2a56768a0e14d9fb54d805fb5c9c3b43cd2d3b3c9db50",
+      "targets": [
+        "components/crypto/CryptoWithdrawalPanel.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/BalloonsGame.jsx",
+      "source_sha256": "a166fe3bb849520414c8cbaa3ea5928f47624be92a8e2fd1a7a5a4fb8120dc1c",
+      "targets": [
+        "components/games/BalloonsGame.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/BlackjackGame.jsx",
+      "source_sha256": "ca178a26a14365408a876b2d74907ac4781c2ff47f6cd6c944f8f0d1a6aa6a24",
+      "targets": [
+        "components/games/BlackjackGame.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/CoinFlipGame.jsx",
+      "source_sha256": "987db4f0db076ef854fd8e7ef837f64c35c4ec970efdee3bb246ab8fcd62eb0d",
+      "targets": [
+        "components/games/CoinFlipGame.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/CrapsGame.jsx",
+      "source_sha256": "761f53bfd7710a363268ba37f60b1e6ba873a43dd45145cee9181846c07683cf",
+      "targets": [
+        "components/games/CrapsGame.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/CrashPlayersList.jsx",
+      "source_sha256": "3e840bfcaf7b8b02e554196b1e9d7c054cd9238d9c1d2e90f367cca1d407bdbd",
+      "targets": [
+        "components/games/CrashPlayersList.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/CrashPracticeV2.jsx",
+      "source_sha256": "c714d0048c9f4351c0516d8a13c866ccc3d435372cc57b36c3c0048309ef0499",
+      "targets": [
+        "components/games/CrashPracticeV2.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/DartsGame.jsx",
+      "source_sha256": "2c5ce4c3bcb02205333d31cc7bd7a952e0acb92d9e081ba1d778e59cbea4e082",
+      "targets": [
+        "components/games/DartsGame.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/DiceGame.jsx",
+      "source_sha256": "c8e2d789b12217a68df52315c28a95932169130fd9881490e4c49cb17c1210bd",
+      "targets": [
+        "components/games/DiceGame.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/DiceZoneGame.jsx",
+      "source_sha256": "ae429cd713455f4396a499de8e0273ee309c60c8423b9b4933e8449efe5b7b27",
+      "targets": [
+        "components/games/DiceZoneGame.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/HashDiceGame.jsx",
+      "source_sha256": "dc291a816673123052071976508d76cc75ce4df64fbe508f4fba2a7756990376",
+      "targets": [
+        "components/games/HashDiceGame.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/HiLoGame.jsx",
+      "source_sha256": "68c11dabc53450c4904b3a3995a706a8e5447c2fecd2e6f516763043bccedcba",
+      "targets": [
+        "components/games/HiLoGame.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/ImperialLightningGame.jsx",
+      "source_sha256": "1ad360e8acc66539e8a0cf08e70984df74458b2142aa3ab2b1105cff89ff3a49",
+      "targets": [
+        "components/games/ImperialLightningGame.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/LimboGame.jsx",
+      "source_sha256": "88c963d678e9f40a412eedab35a0d84129426f5f9b43427f9ff678b5083f75f9",
+      "targets": [
+        "components/games/LimboGame.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/LimboLeaderboard.jsx",
+      "source_sha256": "4b6bbaeb4d471807c58ccd00a3304882eb960d4ecbe9ba3d6f85c2a29bcf3374",
+      "targets": [
+        "components/games/LimboLeaderboard.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/MinesGame.jsx",
+      "source_sha256": "e6524058c437661b7ca962de163a98fda91064820ac9764da839460ad258441c",
+      "targets": [
+        "components/games/MinesGame.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/PlinkoBoard.jsx",
+      "source_sha256": "59e7357c96f83e2bc03135b74ac94e851ec516d79328c945cea078447a3dd9bd",
+      "targets": [
+        "components/games/PlinkoBoard.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/PlinkoGame.jsx",
+      "source_sha256": "4af6c9f9b7db3a59294642a3034a259d199d7219b0b8a6c3c57300a13725b753",
+      "targets": [
+        "components/games/PlinkoGame.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/RocketGame.jsx",
+      "source_sha256": "39e7dce158286949fe185274fa8cdca6e445561198cfd36a24cb1d7084d1f809",
+      "targets": [
+        "components/games/RocketGame.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/RouletteGame.jsx",
+      "source_sha256": "c34cd59d5627d6ad16bb23bcf442cc1a973d953b21426ce473cca0e2dccfe7e8",
+      "targets": [
+        "components/games/RouletteGame.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/RouletteWheelVisual.jsx",
+      "source_sha256": "94f02bd6bdaf0bfa7f1eb381c6ffce6e6e140d8359aa2a854a00a8288902e4cc",
+      "targets": [
+        "components/games/RouletteWheelVisual.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/SlideGame.jsx",
+      "source_sha256": "ee1538262eb4d2cf8dc7329916d0b9228c88afa6b85c3838d9f37652d30c5d96",
+      "targets": [
+        "components/games/SlideGame.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/SlotsGame.jsx",
+      "source_sha256": "869eea54390d8c5ecbedfd553bc4bebc295a2942e23165988166b0ecd66b989b",
+      "targets": [
+        "components/games/SlotsGame.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/StellarRushGame.jsx",
+      "source_sha256": "78a72b122fc9e03066663545636e7f1568dca752170d27b06f0485799e22909b",
+      "targets": [
+        "components/games/StellarRushGame.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/TowersGame.jsx",
+      "source_sha256": "979837bfa265f43ac76c03028c38be49238ae852cebcd09841670a2532a942a2",
+      "targets": [
+        "components/games/TowersGame.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/TwistGame.jsx",
+      "source_sha256": "b30aa96bd5d5bae10f89b9cc931306996fe85e1ca573f67120cc6a042dc96f70",
+      "targets": [
+        "components/games/TwistGame.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/WheelGame.jsx",
+      "source_sha256": "bd81ed51e5a26cead8077d202b2b557c4d33c179a7418033a1af425db0d99027",
+      "targets": [
+        "components/games/WheelGame.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/games/rouletteData.jsx",
+      "source_sha256": "445b28fb6b5806612801ec16ad5d119844b3f0dac4d038ff8f0d31b84ce485fc",
+      "targets": [
+        "components/games/rouletteData.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/mobile/BottomTabBar.jsx",
+      "source_sha256": "70c400e00942a9ca55ca47082c039f8dfe0ab3e9d274c31c661a242428f9c5f0",
+      "targets": [
+        "components/mobile/BottomTabBar.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/components/mobile/MobileHeader.jsx",
+      "source_sha256": "5809dc2640f922854e2fe96ca31af67b74491aea3f3ecf0fcbd03930a5d9ebee",
+      "targets": [
+        "components/mobile/MobileHeader.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/components/mobile/PageTransition.jsx",
+      "source_sha256": "273d94898d665c966028ab1cd7479cd4cf413d1e83b71ecb48a7e8189b8c61d7",
+      "targets": [
+        "components/mobile/PageTransition.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/mobile/PullToRefresh.jsx",
+      "source_sha256": "20348cbd8dc351fd0c8a95d72c81a5456273a6d6b03eab390bc591bc9049d21e",
+      "targets": [
+        "components/mobile/PullToRefresh.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/mobile/TouchOptimized.jsx",
+      "source_sha256": "f5d3770d8cc181176487a87e0ae884a3d1a4288102c1f998a2771b3356ecfbd9",
+      "targets": [
+        "components/mobile/TouchOptimized.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/poker/AllInOverlay.jsx",
+      "source_sha256": "d3e3e701902fe1c85e05f2e7e396e82ac8e555c2e30a6afec6f605994d863d94",
+      "targets": [
+        "components/poker/AllInOverlay.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/poker/BombPotAlert.jsx",
+      "source_sha256": "9847ae42b1574ef5ca38ed018fcc9d0890f544fc315b09328277620c959b9d4d",
+      "targets": [
+        "components/poker/BombPotAlert.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/poker/HandVerifier.jsx",
+      "source_sha256": "fc82312122eeaa62b53819e03d9a464063317a65ead202e0de5c258ba9629518",
+      "targets": [
+        "components/poker/HandVerifier.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/poker/InsuranceOffer.jsx",
+      "source_sha256": "052a16798c9fd5756d4237a4ed15987b54c753b76d033389cf1b3b4caf7cbc94",
+      "targets": [
+        "components/poker/InsuranceOffer.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/poker/LobbyChat.jsx",
+      "source_sha256": "23c5632a6634fd426d90eb61bcd5474b6886396aefdb05804b5d44b09f6a212e",
+      "targets": [
+        "components/poker/LobbyChat.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/poker/PokerSettingsModal.jsx",
+      "source_sha256": "0caf6e81c58de37153b3a2a0f8a119c64033bc44418cb78201272c3b3b25b593",
+      "targets": [
+        "components/poker/PokerSettingsModal.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/poker/SitAndGoTableCard.jsx",
+      "source_sha256": "40b69f524de3ce96ec58b56b6ec2025716a495791aa115493253f8c935d0b38b",
+      "targets": [
+        "components/poker/SitAndGoTableCard.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/poker/TableChat.jsx",
+      "source_sha256": "8ad6079d67ca640f2c2e1f9bb6cc49c28ded155cdca9219f3674a40c9e2ec324",
+      "targets": [
+        "components/poker/TableChat.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/poker/TournamentCard.jsx",
+      "source_sha256": "57a8a097aa2a48d8062e7a2b76cc525d1a9573b24908bff2df1a130eedd0d9b0",
+      "targets": [
+        "components/poker/TournamentCard.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/poker/usePokerSounds.jsx",
+      "source_sha256": "6d6ffeec29c97b96fe2e2bb483f44520cc680916ddae3fd6b10a6957917e487f",
+      "targets": [
+        "components/poker/usePokerSounds.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/slots/AztecTreasureSlot.jsx",
+      "source_sha256": "d41dc08eb0975215c2aad26091cf4df05a8ed535d597dc2d64f6c953bc59a809",
+      "targets": [
+        "components/slots/AztecTreasureSlot.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/slots/CactusCassidySlot.jsx",
+      "source_sha256": "cbb91b0284ca7c07d623eb3e59267a9a9d1fb9d98e3d08da25d95aac2d5ffc2d",
+      "targets": [
+        "components/slots/CactusCassidySlot.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/slots/CosmicCrownSlot.jsx",
+      "source_sha256": "be6113ecf6bf8d6b163e756516f194fbab9b8ab56ea3c751361f4d57bbe4edd8",
+      "targets": [
+        "components/slots/CosmicCrownSlot.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/slots/DiamondDynastySlot.jsx",
+      "source_sha256": "6745e47ad084192e24fd7db0fcc922e59ec39ed7d6641f82eead4316885e7f81",
+      "targets": [
+        "components/slots/DiamondDynastySlot.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/slots/EmeraldEmpireSlot.jsx",
+      "source_sha256": "0c414ed752f681b7d550de1d2bc4fa54b0ed0cb8ca03d43210ce2866a9961bb5",
+      "targets": [
+        "components/slots/EmeraldEmpireSlot.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/slots/FarmageddonBonusMiniSlot.jsx",
+      "source_sha256": "ff7ed8fa5069a396bd2d1d7ee0f8c8031886d70426b4ec6b7ad7762f866a4ccf",
+      "targets": [
+        "components/slots/FarmageddonBonusMiniSlot.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/slots/FarmageddonBonusModal.jsx",
+      "source_sha256": "dc529de73d25d61081620764fab414fdedcb5283737c1c1af0ea05d9446a301b",
+      "targets": [
+        "components/slots/FarmageddonBonusModal.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/slots/FarmageddonSlot.jsx",
+      "source_sha256": "631f045f1244ab4fc054513a582cd55cca3bd2ac7faec03177a0acbac71a8d28",
+      "targets": [
+        "components/slots/FarmageddonSlot.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/slots/GoldenDragonSlot.jsx",
+      "source_sha256": "0d989b165b696c94a426f7769d26a917abe56f6d6d159abdab01faaab7fcc4cd",
+      "targets": [
+        "components/slots/GoldenDragonSlot.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/slots/HotPotSlot.jsx",
+      "source_sha256": "79c377a38dbdfcca5542147f59c62c4a63b2b3953834ec9086a3e4dd7d8cdf44",
+      "targets": [
+        "components/slots/HotPotSlot.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/slots/ImperialGoldSlot.jsx",
+      "source_sha256": "357416cf358c8c27e67728e0613c9a8c3a2e2acac0f4c00ad818f048e555e659",
+      "targets": [
+        "components/slots/ImperialGoldSlot.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/slots/IndividualSlotLayout.jsx",
+      "source_sha256": "0c4c637fc6ea76232e7470795cabb3b4b165d27b8aa361cbc5bc4ad4436486bc",
+      "targets": [
+        "components/slots/IndividualSlotLayout.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/slots/LuckyFortuneSlot.jsx",
+      "source_sha256": "d6b962e9de6bbfa57699ec5e39ba2cb1a8d6c4635902966d59d3e92bc8055108",
+      "targets": [
+        "components/slots/LuckyFortuneSlot.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/slots/MysticForestSlot.jsx",
+      "source_sha256": "0303981e97db6e0925a1b99cbddbc8df46f41e8ba45cab6110d933c513468541",
+      "targets": [
+        "components/slots/MysticForestSlot.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/slots/NeonNightsSlot.jsx",
+      "source_sha256": "95d4f184e73def96614fc1bc1c90a293b65830292500c6efc43dea6cd67fdb51",
+      "targets": [
+        "components/slots/NeonNightsSlot.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/slots/OceanTreasureSlot.jsx",
+      "source_sha256": "7b7b7ad402e2ef4ef612da92315489dc90fd93291ba63aef4035872a1628dd22",
+      "targets": [
+        "components/slots/OceanTreasureSlot.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/slots/PhoenixFireSlot.jsx",
+      "source_sha256": "429c9cf8e0aea6aa7275c30657596dcbe2b77a11200b0cadb8c55af94498a6eb",
+      "targets": [
+        "components/slots/PhoenixFireSlot.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/slots/PremiumSlot.jsx",
+      "source_sha256": "7aca9c81cd1150da9791aee9b7c982942eb24c8aa76537dfe4a1b213b0e797ed",
+      "targets": [
+        "components/slots/PremiumSlot.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/slots/RealisticSlotMachine.jsx",
+      "source_sha256": "d6059db33513bed012146fee383a6b3db94ca745e322a28f72f8a0f4a073cc80",
+      "targets": [
+        "components/slots/RealisticSlotMachine.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/slots/RoyalRubySlot.jsx",
+      "source_sha256": "4a894af2a591f5d29a164b5b22b49452bc6c2f718cee716099dde3bc7f473c7d",
+      "targets": [
+        "components/slots/RoyalRubySlot.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/slots/SapphireStormSlot.jsx",
+      "source_sha256": "8cbcde55dd5b2862d348aa24d97e2043571adb60dddffc77e85424f2ff0f6842",
+      "targets": [
+        "components/slots/SapphireStormSlot.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/slots/SlotCelebrationFX.jsx",
+      "source_sha256": "ec6724aca640bce9f69eb3da6796327754fca31f27ec59fa0c0adb26f0c0954c",
+      "targets": [
+        "components/slots/SlotCelebrationFX.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/slots/SlotEngine.jsx",
+      "source_sha256": "42de7f19e15dcc4545df001b130c32369aa02c081c0853d137bdc7d2c72b2fba",
+      "targets": [
+        "components/slots/SlotEngine.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/slots/StandaloneSlotGame.jsx",
+      "source_sha256": "3ce479c11bd8042e4f340666c70f051b437809dc77070485be02ff8d74378673",
+      "targets": [
+        "components/slots/StandaloneSlotGame.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/slots/slotStandaloneThemes.jsx",
+      "source_sha256": "e732d8091016aadc0892cca43c6d911e2a75c32c4f9d5206e8ea577960875f28",
+      "targets": [
+        "components/slots/slotStandaloneThemes.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/slots/slotThemes.jsx",
+      "source_sha256": "b848ad8141760b76a790893b8444576ac3e33151d2e17df9e62beaf098f2a883",
+      "targets": [
+        "components/slots/slotThemes.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/staking/StakingForm.jsx",
+      "source_sha256": "39d69a4ded025766f89a23d02d7ca2a12ef5664575a70ca307ba090f423e3c4e",
+      "targets": [
+        "components/staking/StakingForm.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/staking/StakingHero.jsx",
+      "source_sha256": "834f32ea35a2ffaeb0bc02996ad7080b106d2dd6359ccd4ca4611dee29c1cee5",
+      "targets": [
+        "components/staking/StakingHero.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/staking/StakingPositions.jsx",
+      "source_sha256": "4522ac29c2bce5f6db071184819719ba402bde9f0a6b671b9d7bdf6d30523763",
+      "targets": [
+        "components/staking/StakingPositions.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/staking/StakingStats.jsx",
+      "source_sha256": "ad2a75bd658ae487cbb9806e2b00ed347567e3852340342fbed634f86bc35ce4",
+      "targets": [
+        "components/staking/StakingStats.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/staking/TokenTransparency.jsx",
+      "source_sha256": "d8898887802147f9271addf7eef9bc6e91306fa11c329d4e5ced14367a11fc4a",
+      "targets": [
+        "components/staking/TokenTransparency.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/support/SupportChatWidget.jsx",
+      "source_sha256": "ab0149d357727a8288b0294ec698a3c0a49ecc69b9a2b6c47bdb43ef5ec9d8a2",
+      "targets": [
+        "components/support/SupportChatWidget.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/components/ui/accordion.jsx",
+      "source_sha256": "b47533b3783b8149550b8481e4ae93d54bdcbc51d434793c176b0aec5558ee1c",
+      "targets": [
+        "components/ui/accordion.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/alert-dialog.jsx",
+      "source_sha256": "a20098cdc2eb2b5915575d3f0fb7a3e8e6c1035c7eef77144f3fc389e0fdbda0",
+      "targets": [
+        "components/ui/alert-dialog.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/alert.jsx",
+      "source_sha256": "c5baf27fb6a4bf130236fa0f336c21084fee192e8215bb6b20c87436c27f3b38",
+      "targets": [
+        "components/ui/alert.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/aspect-ratio.jsx",
+      "source_sha256": "08b0aa0b05efc573c7d63363c03e83d4b101bfeb54140764e96ddea30659cfcc",
+      "targets": [
+        "components/ui/aspect-ratio.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/avatar.jsx",
+      "source_sha256": "703fb6852952bd039b68dc494c004eee1d835fa12647b851722ab9b6b3058b32",
+      "targets": [
+        "components/ui/avatar.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/badge.jsx",
+      "source_sha256": "380dcda78ff8fdd80c82b89cb7dd38ffd84c355735fc8f16300ff647e15988aa",
+      "targets": [
+        "components/ui/badge.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/breadcrumb.jsx",
+      "source_sha256": "4c0972765dc0212c5101446cb931db44b7db68a21ef9d7bc8a75c46f9bb96e42",
+      "targets": [
+        "components/ui/breadcrumb.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/button.jsx",
+      "source_sha256": "42f9d7fd027abac6f78d0621415ea5a12572248ff956c5fd4140f269dc58dc77",
+      "targets": [
+        "components/ui/button.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/calendar.jsx",
+      "source_sha256": "06e0c81497bda70ac24855b54fddd385557cbc3be8d8066a345bedbec551b3ee",
+      "targets": [
+        "components/ui/calendar.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/card.jsx",
+      "source_sha256": "8ab6f42e722e9c51752ce2f14aabb2696bddc0b6818041fb8f313f670955c2c4",
+      "targets": [
+        "components/ui/card.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/carousel.jsx",
+      "source_sha256": "55eb9456609f96f5c28c1fa35fe79554fc0ffab12883e3aceb041ff10e347e83",
+      "targets": [
+        "components/ui/carousel.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/chart.jsx",
+      "source_sha256": "c4684b470cae53b857a08e5fe006d4406450a442a103858beb179ec810aba2b3",
+      "targets": [
+        "components/ui/chart.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/checkbox.jsx",
+      "source_sha256": "b0260cb7767493d8273f5def1b7d32e844d068db5f5760258d333ae6ad88f0d8",
+      "targets": [
+        "components/ui/checkbox.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/collapsible.jsx",
+      "source_sha256": "f4cdd104de29928bfcd40b865c7d08eed9157a537fbb8b5e6d0921f02b63cc04",
+      "targets": [
+        "components/ui/collapsible.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/command.jsx",
+      "source_sha256": "e7cea37aff49e211ffea1bf3ed67add6ce1ab29862e902aff739fcd11014f06f",
+      "targets": [
+        "components/ui/command.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/context-menu.jsx",
+      "source_sha256": "5fe320cad9ee1833e9528f86e340f83f419f77790549f4cff083fad329e8dc4c",
+      "targets": [
+        "components/ui/context-menu.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/dialog.jsx",
+      "source_sha256": "50a7cc4ae5ce0f2527662ed9742d35b8c4933d1629a2740b26890793aee00742",
+      "targets": [
+        "components/ui/dialog.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/drawer.jsx",
+      "source_sha256": "3d2dce97d3f6bc5dfa887e87c6688228298526bfdc29a28f2edbd6c1dc2eb47a",
+      "targets": [
+        "components/ui/drawer.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/dropdown-menu.jsx",
+      "source_sha256": "d36cd67e71781bbb03059b057b6f686445477a4275120359178729574398c465",
+      "targets": [
+        "components/ui/dropdown-menu.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/form.jsx",
+      "source_sha256": "d899b071230c321acdb2996cbe02d84a46dd9825f81af1015f7e54c6b9ee211c",
+      "targets": [
+        "components/ui/form.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/hover-card.jsx",
+      "source_sha256": "3b49e533ad60995767a3419351642037438e8f27b62132115fc71115cf1fd0ad",
+      "targets": [
+        "components/ui/hover-card.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/input-otp.jsx",
+      "source_sha256": "78a437a82203c1d9d22d47db830bdc67d49d6473c5c28ad77634eeb8c399a649",
+      "targets": [
+        "components/ui/input-otp.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/input.jsx",
+      "source_sha256": "4455aea152904f128df0ecd82047bbceb23e06ffcc9ccc7cbb3bcc87df5bcc4f",
+      "targets": [
+        "components/ui/input.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/label.jsx",
+      "source_sha256": "37c6425d2a5c798ade4e60f89f86054d703433a8977e12d796de2b5bb4e3d0b7",
+      "targets": [
+        "components/ui/label.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/menubar.jsx",
+      "source_sha256": "5411f1b8221d9a34fc9b58f830642cfa3a33c776d0072014690e2f024515391d",
+      "targets": [
+        "components/ui/menubar.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/navigation-menu.jsx",
+      "source_sha256": "a1f789747cb750329a33ee04c54209b044239a15ba200fb9d7da1f2ce6b73403",
+      "targets": [
+        "components/ui/navigation-menu.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/pagination.jsx",
+      "source_sha256": "1d519fc3ba1c8c6cf7f2d30c98739ecba2fa7af35cbc024d6793785e7a6d65c8",
+      "targets": [
+        "components/ui/pagination.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/popover.jsx",
+      "source_sha256": "199cc7b3d810013867ae91305f0966b8a66526a1c13d10248c38ee1797d169db",
+      "targets": [
+        "components/ui/popover.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/progress.jsx",
+      "source_sha256": "1ad2808d51c365f04f23a4e985b03274dcc30735d74db68e1f78332a6533859c",
+      "targets": [
+        "components/ui/progress.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/radio-group.jsx",
+      "source_sha256": "10ced1e6932e4fe53d6c18201f50b8bb4b334b4372f01ce5f0993aa2a6bb9110",
+      "targets": [
+        "components/ui/radio-group.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/resizable.jsx",
+      "source_sha256": "4e74fb31b8321012570554dc8c55a58aacf1adcced2fdc43085c67ff96ce9773",
+      "targets": [
+        "components/ui/resizable.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/scroll-area.jsx",
+      "source_sha256": "3de4bed34be51a940243b0fbf8c6d9324ecb416a91a919d65ca18d15a7ba32a1",
+      "targets": [
+        "components/ui/scroll-area.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/select.jsx",
+      "source_sha256": "d03814c7a6070d8f226cae69cabe555a767063beac7d53402fc7dfacb61a82ff",
+      "targets": [
+        "components/ui/select.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/separator.jsx",
+      "source_sha256": "2c82247abd573d0f4a93eb259166e3b778365b58c0d18921b4739d5ba4b29e7e",
+      "targets": [
+        "components/ui/separator.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/sheet.jsx",
+      "source_sha256": "33f27d1b55925dbc354d0a61b0cbc6f977352da13f4df519f06e5b5bd9ed2d5c",
+      "targets": [
+        "components/ui/sheet.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/sidebar.jsx",
+      "source_sha256": "828bec5ac1ec715fe50deebae08a7da23f01e9b0dcb221b110e37de63eb22d3c",
+      "targets": [
+        "components/ui/sidebar.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/skeleton.jsx",
+      "source_sha256": "c5f32316d9f8feeba529bac6321766424067185afee5f29a15bb18145adaf1bc",
+      "targets": [
+        "components/ui/skeleton.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/slider.jsx",
+      "source_sha256": "1761bfaa0a06480b76b31511e4a5c24903b407732e027fc11ad615dd3d93a562",
+      "targets": [
+        "components/ui/slider.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/sonner.jsx",
+      "source_sha256": "f1309f953467d583202225d08414161fc3183758ac38c997249eb63686a27ba8",
+      "targets": [
+        "components/ui/sonner.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/switch.jsx",
+      "source_sha256": "880e95637cc1d90ef4476f79114afd2fa7b5f6e5da1f49a70e0efc1f84aa0c8a",
+      "targets": [
+        "components/ui/switch.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/table.jsx",
+      "source_sha256": "301509bb8337184f1b299cb15b8d4f8ec8f0d3bbc17a2ffdf33ff58f7eaa444e",
+      "targets": [
+        "components/ui/table.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/tabs.jsx",
+      "source_sha256": "57591bdfb3fa931b06edcf4168b6881a79785c674ad0618003d12cd656072350",
+      "targets": [
+        "components/ui/tabs.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/textarea.jsx",
+      "source_sha256": "b64a8fabf495dd59dbfd23914334ffbdfa695f506a133370603a49eca1243f62",
+      "targets": [
+        "components/ui/textarea.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/toast.jsx",
+      "source_sha256": "8a98ef70908fd33627d09f6a5c715417b243502836539acda857843dd4817070",
+      "targets": [
+        "components/ui/toast.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/toaster.jsx",
+      "source_sha256": "fc1bce32d9a45f5be28c67b486962b90eed76742f3c0995f5fb908ffc6bde3cd",
+      "targets": [
+        "components/ui/toaster.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/toggle-group.jsx",
+      "source_sha256": "1c7566b9f2aa00f0afdf161527be90588a11386158dca55425ea0d8c0e3883e4",
+      "targets": [
+        "components/ui/toggle-group.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/toggle.jsx",
+      "source_sha256": "e8fe6de52ef73d6fa868229ae7a21e681fb3088975847d6ee65a8387731c1c79",
+      "targets": [
+        "components/ui/toggle.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/tooltip.jsx",
+      "source_sha256": "73e47a5dde6c55aca2e32e429ba95d8746ce2cca02cc718613f337b5bc9f5f19",
+      "targets": [
+        "components/ui/tooltip.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/components/ui/use-toast.jsx",
+      "source_sha256": "9e77c84fcf12f6492430f618443d7432cf0c1baa51c750d3e4a57f1b7c0e54bc",
+      "targets": [
+        "components/ui/use-toast.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/hooks/use-mobile.jsx",
+      "source_sha256": "a136217739e79f9d02440e711b9bd1abb6adf60f1a83b45a39a009a09568ad1c",
+      "targets": [
+        "hooks/use-mobile.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/hooks/useCasinoEffects.js",
+      "source_sha256": "1059f18b773077553eba5a3870ddc203fde786c185440f2accf43210c0776e9e",
+      "targets": [
+        "hooks/useCasinoEffects.js"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/hooks/useExclusionCheck.js",
+      "source_sha256": "f7a4bfe641bc4d936e83c693fbfd3b1d0edc87f4358810de04c5f5e3fea7970b",
+      "targets": [
+        "hooks/useExclusionCheck.js"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/hooks/useSlotSounds.js",
+      "source_sha256": "c24b20cd6ed3f0f6590d1e69225d6a57cb07db4068688113279e0d925b49c8a5",
+      "targets": [
+        "hooks/useSlotSounds.js"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/hooks/useWeeklyWagerTracker.js",
+      "source_sha256": "9b9aaa630227d33bdea7016c52bc56133690a1e0ab65a0d94b588299b5961084",
+      "targets": [
+        "hooks/useWeeklyWagerTracker.js"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/index.css",
+      "source_sha256": "8b3995528215d96ef6ca852d09a7677d08b62048f7b248287b883b29a0a8c80b",
+      "targets": [
+        "index.css"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/lib/AuthContext.jsx",
+      "source_sha256": "55ec70f1b7846d11406784cbf95ba6ee4fed2fe3570b3b3407f89331bd471bcb",
+      "targets": [
+        "lib/AuthContext.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/lib/NavigationTracker.jsx",
+      "source_sha256": "e622217b61703c752fa5486a72c78d383afb91ca528baecbd229a9761cca15b6",
+      "targets": [
+        "lib/NavigationTracker.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/lib/PageNotFound.jsx",
+      "source_sha256": "8536e2091188275762a6729ecd77a77b8c5f1187525ae4189df42c95ca42f196",
+      "targets": [
+        "lib/PageNotFound.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/lib/app-params.js",
+      "source_sha256": "d0c8c149528b705355dbc842096b6662df4610eba1f356285fee74211fc580d3",
+      "targets": [
+        "lib/app-params.js"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/lib/crapsRound.js",
+      "source_sha256": "0b1d6e5246eafb98aecda30b90248faedbbd7177bf3816a75643c300047752f0",
+      "targets": [
+        "components/games/CrapsGame.jsx"
+      ],
+      "disposition": "replaced",
+      "reason": "Client-only demo engine is superseded by the server-authoritative practice table."
+    },
+    {
+      "source": "original-app/src/lib/crapsRound.test.js",
+      "source_sha256": "d00b1a0d2e06b847a483a730614ca85a8583c6ab1a2076c89130c53ed0aa7894",
+      "targets": [
+        "tests/crapsCasinoJoinModes.test.mjs",
+        "tests/crapsDragDrop.test.mjs"
+      ],
+      "disposition": "replaced",
+      "reason": "Main app verifies its server-backed craps join and drag/drop contracts."
+    },
+    {
+      "source": "original-app/src/lib/depositNetworks.js",
+      "source_sha256": "9455c15816d11add142115f7e8f1b11e8afbc983ec07b530935f379d750e9bb6",
+      "targets": [
+        "lib/depositNetworks.js"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/lib/fairness.ts",
+      "source_sha256": "6766daed837c1e560bf19f98e0c03438bf863882afd1e3edc056acc75d4cbe1d",
+      "targets": [
+        "lib/fairness.ts"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/lib/practicePoker.js",
+      "source_sha256": "064283966f6236ed68622551ce8793527a320d9e554d8a8a7a2bfc864896be9f",
+      "targets": [
+        "components/games/HoldemPracticeTable.jsx"
+      ],
+      "disposition": "replaced",
+      "reason": "Active poker component transports actions to the same authenticated poker-table-v1 service."
+    },
+    {
+      "source": "original-app/src/lib/practicePokerEvents.js",
+      "source_sha256": "33f225829e06f3844b8ac299bdf93dcd01f07b6485e42ec9e32ee03d961771e5",
+      "targets": [
+        "supabase/functions/poker-events-v1/index.ts"
+      ],
+      "disposition": "replaced",
+      "reason": "Event backend is integrated; player event registration UI is reviewed separately for this test release."
+    },
+    {
+      "source": "original-app/src/lib/query-client.js",
+      "source_sha256": "0a080b6d9a1ed9f5f32150d9e3faa928f955d2b8d6206831e2b1658e84612c92",
+      "targets": [
+        "lib/query-client.js"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/lib/supabaseClient.js",
+      "source_sha256": "4abbe168c8453fcb652941b3fc16938fc83c44256413fb507e44eda3efca7cd5",
+      "targets": [
+        "lib/supabaseClient.js"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/lib/supabaseIdentity.js",
+      "source_sha256": "a849cbbe942ce126a59ae33361687241c8394dae134bf3a9ae9fbac754639e07",
+      "targets": [
+        "lib/supabaseIdentity.js"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/lib/supabaseLegacyReads.js",
+      "source_sha256": "d0891f31fdebc74c90edcb13b2f7413263e95bb654011e8594424f53de33c4b4",
+      "targets": [
+        "lib/supabaseLegacyReads.js"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/lib/utils.js",
+      "source_sha256": "4f592359765d69c32c3617700fa111af9a6a9cac8f18cb1987c25503a343c203",
+      "targets": [
+        "lib/utils.js"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/main.jsx",
+      "source_sha256": "caa3bab80b647fbb53fccd2e80d6e190d45a4b06c92bf85e3968d87e8d891cec",
+      "targets": [
+        "main.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/AMOE.jsx",
+      "source_sha256": "780b36b2d0bbdb09aa808eb1bcbe161492052b39d0a8e6168eb77291ba09d8b2",
+      "targets": [
+        "pages/AMOE.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/Admin.jsx",
+      "source_sha256": "b4373ba12dca088661c62aec4fdd274c8dd93d267659be448537e18b03c673e1",
+      "targets": [
+        "pages/Admin.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/AdminAnnouncements.jsx",
+      "source_sha256": "88a0d172a2daa71f677a927a67e762c4e06d3ae6d653ac1cfc5b74d3d4a955bb",
+      "targets": [
+        "pages/AdminAnnouncements.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/AdminIGTSupply.jsx",
+      "source_sha256": "5471e3024fac86d1683d8766609b7d8490917d333478be34e7fa268edcbbefce",
+      "targets": [
+        "pages/AdminIGTSupply.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/AdminKYC.jsx",
+      "source_sha256": "99255d2b4f65585f25cba2f53db60f2c2f461ef9d17eb9e48d10700767137fe7",
+      "targets": [
+        "pages/AdminKYC.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/AdminSupport.jsx",
+      "source_sha256": "96032d5016120851fbf6ea5fe3a2265824054816fac1b5e75e72ffcf9d9149bc",
+      "targets": [
+        "pages/AdminSupport.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/AdminSweepstakesAudit.jsx",
+      "source_sha256": "ee70cd3784ee82f004cc3a0ef7a4fcef62e93426b355f8d651627c2e3a816055",
+      "targets": [
+        "pages/AdminSweepstakesAudit.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/AdminUsers.jsx",
+      "source_sha256": "4afa1aed9fffc9050f1da831a41d2a6595f544d2308a8830c2ef4753aa6d5ed5",
+      "targets": [
+        "pages/AdminUsers.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/AdminWallets.jsx",
+      "source_sha256": "1496d43a85fe7bb3e448f642469e441ab0c4bb5813ab473f174e24e0f788f127",
+      "targets": [
+        "pages/AdminWallets.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/BlackjackLobby.jsx",
+      "source_sha256": "a34cc4755df02e0c9134b63b16b16abe16bc375c2fc1a03c77b464372f2792bc",
+      "targets": [
+        "pages/BlackjackLobby.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/Bonuses.jsx",
+      "source_sha256": "1dbdd15416545b35fe95e041ca4f720dfcc5f9a97dc94641405bdf8f66714e96",
+      "targets": [
+        "pages/Bonuses.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/CookiesPolicy.jsx",
+      "source_sha256": "db44770e568cca61309960809b16d825fb7b1edaab0b0a8df22c3c87120ad036",
+      "targets": [
+        "pages/CookiesPolicy.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/CryptoWallet.jsx",
+      "source_sha256": "63d0dc57e510795058889aae21c02f438c71558529a81ac238743aae698bfd02",
+      "targets": [
+        "pages/CryptoWallet.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/FairnessManifesto.jsx",
+      "source_sha256": "f699859024f95a626f855e64277604e710e874895e3097675ebebed31a8595d1",
+      "targets": [
+        "pages/FairnessManifesto.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/Games.jsx",
+      "source_sha256": "8e3fd892c273f7b3714a1ea34f520a695e8848957479c1b8fc5a97099bc978e3",
+      "targets": [
+        "pages/Games.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/Home.jsx",
+      "source_sha256": "076adf7820ef86298bd5ea6597169b8f22f7d0c4fad761c20c40a79c7f1ee438",
+      "targets": [
+        "pages/Home.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/KYCVerification.jsx",
+      "source_sha256": "dcc398d9547f2a877738db109a0f0d8a44dbf9cec099ad95b58cfc09e94f42aa",
+      "targets": [
+        "pages/KYCVerification.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/Leaderboard.jsx",
+      "source_sha256": "ed7a0127fd6661ca6af0751eb9a5914e748e4fc84716374a2ebbb2adcd7dfae0",
+      "targets": [
+        "pages/Leaderboard.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/Licensing.jsx",
+      "source_sha256": "d40c4dbc693a0c5b93f500cbcd7f7b58bd4c54b9269ce8175a64775a3f47046a",
+      "targets": [
+        "pages/Licensing.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/OwnerKeyring.jsx",
+      "source_sha256": "71f65d62a022fd08134bdc93e3a14f0649b37700b6c6d989dfe8bae2c927e870",
+      "targets": [
+        "pages/OwnerKeyring.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/PlayAztecTreasure.jsx",
+      "source_sha256": "b69242c5b615ff05b0baac46e6df674597d063fb96281d07ee3b22602a54f64b",
+      "targets": [
+        "pages/PlayAztecTreasure.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/PlayBalloons.jsx",
+      "source_sha256": "3f6cbe7a1d8a4db9d75a22e57df576d3e3a86cf7a0d0d9226d433a90343a475b",
+      "targets": [
+        "pages/PlayBalloons.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/PlayBlackjack.jsx",
+      "source_sha256": "41956cb7377d0782819ef1701e581b79d16a3f3e6887ed62be2d27292974cda0",
+      "targets": [
+        "pages/PlayBlackjack.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/PlayCactusCassidy.jsx",
+      "source_sha256": "3172b8f2ae784a9ea2e4a00183769f625a7a8e295f900c3ddb89c1deda3caf38",
+      "targets": [
+        "pages/PlayCactusCassidy.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/PlayCoinFlip.jsx",
+      "source_sha256": "f42a87f29ffc4eabd386efa5a849f2d2874b0a2e840af06a72067530ed2cc076",
+      "targets": [
+        "pages/PlayCoinFlip.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/PlayCosmicCrown.jsx",
+      "source_sha256": "58978c33e6d45c2a0c1527844498c40b3b23b6e0b27aedf525909ce6b551bfd5",
+      "targets": [
+        "pages/PlayCosmicCrown.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/PlayCraps.jsx",
+      "source_sha256": "8be9169a330b9a17d0ce0043f716bda8a1579107ec50c6758788e5dac099ebd6",
+      "targets": [
+        "pages/PlayCraps.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/PlayDarts.jsx",
+      "source_sha256": "99f2e758d3200be1eeb16cdd0344b48849c833dd0461a53ca3fb7a7fef58b48c",
+      "targets": [
+        "pages/PlayDarts.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/PlayDiamondDynasty.jsx",
+      "source_sha256": "a4f69cf3a452b87ced94ea88a2815c6ac5847adb853271ab38680a59426c2db3",
+      "targets": [
+        "pages/PlayDiamondDynasty.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/PlayDice.jsx",
+      "source_sha256": "970dc503615864eaec432d5f52083aa02dc45210f1bb8fb85cef97e1225329ba",
+      "targets": [
+        "pages/PlayDice.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/PlayDiceZone.jsx",
+      "source_sha256": "ba4119dc2a5ff8db5f51edadc0afef1dea7569ec3e0ff6dc649269f9cc14d2f3",
+      "targets": [
+        "pages/PlayDiceZone.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/PlayEmeraldEmpire.jsx",
+      "source_sha256": "f257aa2a4d8a021fd861d5bcc9251def05f3c0cfed178a2f3dbde62cb3a2716c",
+      "targets": [
+        "pages/PlayEmeraldEmpire.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/PlayExternal.jsx",
+      "source_sha256": "c58e176a9a6d84c5362f8ffe758d3939b0b7477db85bac7880d6dd5952d00599",
+      "targets": [
+        "pages/PlayExternal.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/PlayFarmageddon.jsx",
+      "source_sha256": "20414090e6a026a98396954335378e45bacace6148edc65101bf4c79e240fad8",
+      "targets": [
+        "pages/PlayFarmageddon.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/PlayGoldenDragon.jsx",
+      "source_sha256": "1fa3d78c11d9c201d74289cfe3d45fd400fe4669fffa8b96af2b777de5bb043d",
+      "targets": [
+        "pages/PlayGoldenDragon.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/PlayHashDice.jsx",
+      "source_sha256": "ee9cb24d8617cf918132c5c6dfc972338702badc32956358cabee69367ed862b",
+      "targets": [
+        "pages/PlayHashDice.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/PlayHiLo.jsx",
+      "source_sha256": "a3596d5814931b189393186dd98ad932c429d12c2c42352233214e68025720bd",
+      "targets": [
+        "pages/PlayHiLo.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/PlayHotPot.jsx",
+      "source_sha256": "58dda1ce84635da822ff1d9f9a5fe4841e7862d62d6c27c404bad1a68eae0c5a",
+      "targets": [
+        "pages/PlayHotPot.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/PlayImperialGold.jsx",
+      "source_sha256": "aa135baad74ab4d507e89b93f93bd9583e44a1c046cd89e9535623b5ee66c4cd",
+      "targets": [
+        "pages/PlayImperialGold.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/PlayImperialLightning.jsx",
+      "source_sha256": "e1ddb36df2b63fe8472d63f94efe3a631022e6f7d067ea5b23605e049a45f0ec",
+      "targets": [
+        "pages/PlayImperialLightning.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/PlayLimbo.jsx",
+      "source_sha256": "d0fc3d6128dd50aad5608538cd13b2e15ae09b0a51423275c0be203c8f883c11",
+      "targets": [
+        "pages/PlayLimbo.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/PlayLuckyFortune.jsx",
+      "source_sha256": "d013f6c7ac71c91cd08b62ee2fdf9548a9a26abf213d20ac19ddcaa33d65d005",
+      "targets": [
+        "pages/PlayLuckyFortune.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/PlayMines.jsx",
+      "source_sha256": "a1af54f12b017265e46f495310339292b41e56bd55c8a755b1f3d75086b7ca78",
+      "targets": [
+        "pages/PlayMines.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/PlayMultiplayerBlackjack.jsx",
+      "source_sha256": "a3b7ea5a9492a44013018201bcac10fced38bfee313c66c7e52da04452b5edf2",
+      "targets": [
+        "pages/PlayMultiplayerBlackjack.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/PlayMysticForest.jsx",
+      "source_sha256": "c3b21748b3deced43be17fddcbe2ab4d71dfcfb8c3298c1b6b7896b126f45b70",
+      "targets": [
+        "pages/PlayMysticForest.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/PlayNeonNights.jsx",
+      "source_sha256": "fed3cea8127669f14624945aa8d934b7f8d9757f8998a105696c93fee8d71df4",
+      "targets": [
+        "pages/PlayNeonNights.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/PlayOceanTreasure.jsx",
+      "source_sha256": "62732cf2d6c49a24d630635e27f6dc78d6e36767f74eeb0119fcc231b3ea6385",
+      "targets": [
+        "pages/PlayOceanTreasure.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/PlayPhoenixFire.jsx",
+      "source_sha256": "ce71b314f5b8c42b6a8cb2ff467850ecc937d2f6e33c4b2c1abcbf90487e4a7d",
+      "targets": [
+        "pages/PlayPhoenixFire.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/PlayPlinko.jsx",
+      "source_sha256": "0fcd93f7fbe1f1319f8e102c1774e4d662e0700ea4010e148dcc2780ffd77b9a",
+      "targets": [
+        "pages/PlayPlinko.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/PlayPoker.jsx",
+      "source_sha256": "9306e2185a9c37632c7d20b0a4f6305c0c7a4e215be6f514d0781a5dd701e285",
+      "targets": [
+        "pages/PlayPoker.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/PlayRocket.jsx",
+      "source_sha256": "60918329aab95df14f431b1b1e8f9f7a76040def24c4c54ac5eef04ab131691e",
+      "targets": [
+        "pages/PlayRocket.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/PlayRoulette.jsx",
+      "source_sha256": "554924f4284abffa07d8f06b750d18706343de85cedab2bb383ff87d57c1fcf4",
+      "targets": [
+        "pages/PlayRoulette.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/PlayRoyalRuby.jsx",
+      "source_sha256": "9d888c1721ac47aeef4a332acb4e24af76f45bc29437b997401345cc9479e93e",
+      "targets": [
+        "pages/PlayRoyalRuby.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/PlaySapphireStorm.jsx",
+      "source_sha256": "33ee5cd3e4af9385016273d3d2b8c61693aa0338f4ce433c2e7f981929886bd1",
+      "targets": [
+        "pages/PlaySapphireStorm.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/PlaySlide.jsx",
+      "source_sha256": "659a7d423ec5181220f574401f7df732b41fe130e71a8698f028cbd1ded02d90",
+      "targets": [
+        "pages/PlaySlide.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/PlaySlots.jsx",
+      "source_sha256": "7e56f208835ef91659ee259741bb251c356bafede349874d3f159434abf02cc7",
+      "targets": [
+        "pages/PlaySlots.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/PlayStellarRush.jsx",
+      "source_sha256": "d5b806402e1520ba9df9a5b7b0090f3e12fa441ddaa08c636939d199f981123b",
+      "targets": [
+        "pages/PlayStellarRush.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/PlayTowers.jsx",
+      "source_sha256": "72389111bb3503c9dd1d6fa2b1b11497df4919a7b0b9bcf3b5b41e078aa24195",
+      "targets": [
+        "pages/PlayTowers.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/PlayTrenball.jsx",
+      "source_sha256": "c62c8656ac2f96739610a6ebbeee35b061bb59c6aaadf7ffc7069783836a115b",
+      "targets": [
+        "pages/PlayTrenball.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/PlayTwist.jsx",
+      "source_sha256": "76221f6e27dd006a0aebbe61da63e90c82ef0f2f0e896181da190563ecd6643b",
+      "targets": [
+        "pages/PlayTwist.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/PlayWheel.jsx",
+      "source_sha256": "2babc0a951493c9146c22a06f4216da4f9ef26f5566ddd7e2a3fd3ff3b7a0ff7",
+      "targets": [
+        "pages/PlayWheel.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/PlayerProfile.jsx",
+      "source_sha256": "5ac4fa8bcd1b238f2f861e480b8f61a6e4623cc5bcaaa59138305099fd05ead5",
+      "targets": [
+        "pages/PlayerProfile.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/PokerBotLab.jsx",
+      "source_sha256": "417103943bef73edc189a9c51a34336de4ca291b7bda576cb1471f63af10285b",
+      "targets": [
+        "pages/PokerBotLab.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/PokerLobby.jsx",
+      "source_sha256": "92ba382b1bae5d3f1d3c91175eedf11011edafc9997c69066f011db78c571e09",
+      "targets": [
+        "pages/PokerLobby.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/PrivacyPolicy.jsx",
+      "source_sha256": "f3c02a33f7c96470c338819d23324fe8808e601117bc35c24f7f70aabe2d0cc9",
+      "targets": [
+        "pages/PrivacyPolicy.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/PrizeClaims.jsx",
+      "source_sha256": "479d19e805ba867be0d998d39d7680db06bac810f580d794d1eb5437ce076c54",
+      "targets": [
+        "pages/PrizeClaims.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/Profile.jsx",
+      "source_sha256": "fc7ea35554728366ace83ae4de80f2839074dd07058bc36d055dbe60194956e7",
+      "targets": [
+        "pages/Profile.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/ProfileStats.jsx",
+      "source_sha256": "7a9a59d591ec179052e56ff24d765b4e4caa08c5e5b04e2911c5e1e304bee26b",
+      "targets": [
+        "pages/ProfileStats.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/Progression.jsx",
+      "source_sha256": "1d97f5b74cb75fd4001bce05d8385166ff7d00c7ab8accb16debd3f52b2130e3",
+      "targets": [
+        "pages/Progression.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/ProvablyFair.jsx",
+      "source_sha256": "56e0cf91c536db3138c3f30498481d7812080bbfdccfe007ac4b7777c4d1f349",
+      "targets": [
+        "pages/ProvablyFair.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/Referrals.jsx",
+      "source_sha256": "657cce6d732c013dfc3113c1efe6b6b36f8957f786b7425dc4f1853ca984ca12",
+      "targets": [
+        "pages/Referrals.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/ResponsiblePlay.jsx",
+      "source_sha256": "53927f6476c7ba77319ede81f380c01c892744dd1ec764efbc55862b2e2bc9cd",
+      "targets": [
+        "pages/ResponsiblePlay.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/Staking.jsx",
+      "source_sha256": "2d06e6ac740e0e588299e8d5e794e1024dbb928c493c7caed081fc96a95e3d31",
+      "targets": [
+        "pages/Staking.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/Store.jsx",
+      "source_sha256": "71ef75034927388e8a0ed91623cc050aa49ae93a31c0f480f9662ff8a89cc2d0",
+      "targets": [
+        "pages/Store.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/Support.jsx",
+      "source_sha256": "1f45fba70236462b3988bea9bf542d57f482e1d3e310d0929e7f0ec0caefc368",
+      "targets": [
+        "pages/Support.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/TermsOfService.jsx",
+      "source_sha256": "c5e841b860f2903d816f9d5d904a480459b23612acbea4c4d3b0e945e865e533",
+      "targets": [
+        "pages/TermsOfService.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/ThankYou.jsx",
+      "source_sha256": "cf9ae92cc63f15b0da0a33772f092333cb9294cb675c1b82e69022d0dc7bf176",
+      "targets": [
+        "pages/ThankYou.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/TransactionHistory.jsx",
+      "source_sha256": "6be07191a6a64e1e81322d44d091fe9c509a97d88a05ca2c403ba145955649dd",
+      "targets": [
+        "pages/TransactionHistory.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages/VIP.jsx",
+      "source_sha256": "3816547083d413ffa4f2d3a9195997d7d0589755404530c2712fb65c2ac2e073",
+      "targets": [
+        "pages/VIP.jsx"
+      ],
+      "disposition": "preserved"
+    },
+    {
+      "source": "original-app/src/pages/VerifiedAdminUsers.jsx",
+      "source_sha256": "dba0673baca21cfafd0e527124373c34087b766adf6f87a9e890e2ec6fbf71e9",
+      "targets": [
+        "components/VerifiedAdminUsers.jsx",
+        "pages/AdminUsers.jsx"
+      ],
+      "disposition": "replaced",
+      "reason": "Verified component is exposed through the canonical AdminUsers route."
+    },
+    {
+      "source": "original-app/src/pages/VerifiedKYCStatus.jsx",
+      "source_sha256": "2e8a9a9b9c8e3dac9d7ac5aa9dd85f37491c0f3f3d44f4e66c6773aeed89ef9e",
+      "targets": [
+        "components/VerifiedKYCStatus.jsx",
+        "pages/KYCVerification.jsx"
+      ],
+      "disposition": "replaced",
+      "reason": "Verified component is exposed through the canonical KYCVerification route."
+    },
+    {
+      "source": "original-app/src/pages/VerifiedPlayerAnalytics.jsx",
+      "source_sha256": "166ab1f1e52305cbbdc3b0d4ff9e024dd0274f3b96bfdfbde2bd5ac22ce8d20e",
+      "targets": [
+        "components/VerifiedPlayerAnalytics.jsx"
+      ],
+      "disposition": "replaced",
+      "reason": "Verified owner-only analytics component is integrated into the main app."
+    },
+    {
+      "source": "original-app/src/pages/VerifiedPracticeCatalog.jsx",
+      "source_sha256": "9a9ef72ce0bcc8a826e6bbb49e6736dfe512f53d7ed89d247e1fc73a228cf966",
+      "targets": [
+        "pages/Games.jsx",
+        "lib/approvedPracticeGames.js"
+      ],
+      "disposition": "replaced",
+      "reason": "The active approved game catalog supersedes the source scaffold single-game catalog."
+    },
+    {
+      "source": "original-app/src/pages/VerifiedPracticeLeaderboard.jsx",
+      "source_sha256": "f1dde4dcd2d5c3bbddd959133a8d75a5f06d6540ead42686315ac8d80b8c25a1",
+      "targets": [
+        "components/VerifiedPracticeLeaderboard.jsx",
+        "pages/Leaderboard.jsx"
+      ],
+      "disposition": "replaced",
+      "reason": "Verified component is exposed through the canonical Leaderboard route."
+    },
+    {
+      "source": "original-app/src/pages/Withdraw.jsx",
+      "source_sha256": "559bdc76604b32e664191e7d8946276fbf82ffffd6e1321da37707fa88c30540",
+      "targets": [
+        "pages/Withdraw.jsx"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/pages.config.js",
+      "source_sha256": "d518e782a031e21dc71040c8c33d5c9b1ebb5b19997a7905a4bc24462e450730",
+      "targets": [
+        "pages.config.js"
+      ],
+      "disposition": "migrated"
+    },
+    {
+      "source": "original-app/src/utils/index.ts",
+      "source_sha256": "1bd31d3e8630b19dcb1d92878a2501d5e29fc935eab48ec5d90e66c410cf7e1a",
+      "targets": [
+        "utils/index.ts"
+      ],
+      "disposition": "preserved"
+    }
+  ],
+  "functions": [
+    {
+      "source": "supabase/functions/admin-crash-rounds/index.ts",
+      "source_sha256": "463ed84180c16c8aa8de2e6480db92f81e9d057056bd9145056c947f7f8b3c45",
+      "target": "supabase/functions/admin-crash-rounds/index.ts",
+      "disposition": "main_version"
+    },
+    {
+      "source": "supabase/functions/admin-poker-events/index.ts",
+      "source_sha256": "c32e1e9c7f4af6e165a081abe33f41adab7697938339b2938459237390b1cb20",
+      "target": "supabase/functions/admin-poker-events/index.ts",
+      "disposition": "main_version"
+    },
+    {
+      "source": "supabase/functions/crypto-deposit-preview-v1/index.ts",
+      "source_sha256": "4a777f7f068ea6f0de2c5af1b9fadf75251ffa889b263cfb68ec262f618d5f85",
+      "target": "supabase/functions/crypto-deposit-preview-v1/index.ts",
+      "disposition": "preserved"
+    },
+    {
+      "source": "supabase/functions/ig-admin-users-preview-v1/index.ts",
+      "source_sha256": "e7744b036e5094e3d88d2b04a722042a64c0eba7f20a6383b627fb0f6f6cc19a",
+      "target": "supabase/functions/ig-admin-users-preview-v1/index.ts",
+      "disposition": "preserved"
+    },
+    {
+      "source": "supabase/functions/ig-crash-v2/index.ts",
+      "source_sha256": "af3b6d73152b3ecbf1498a896726cc8c2589f7e6463b4950d85c514b8a79448f",
+      "target": "supabase/functions/ig-crash-v2/index.ts",
+      "disposition": "main_version"
+    },
+    {
+      "source": "supabase/functions/ig-player-analytics-v1/index.ts",
+      "source_sha256": "f43016edac68ce37b851f1826616ac890c9b0fd7aff751f73707d10e8a06afe3",
+      "target": "supabase/functions/ig-player-analytics-v1/index.ts",
+      "disposition": "preserved"
+    },
+    {
+      "source": "supabase/functions/ig-poker-bot-lab/index.ts",
+      "source_sha256": "9da93daf2b06192c0461192172f966c444478bf2c53c40b2241ce5bf1524f2a5",
+      "target": "supabase/functions/ig-poker-bot-lab/index.ts",
+      "disposition": "preserved"
+    },
+    {
+      "source": "supabase/functions/ig-self-exclusion-v1/index.ts",
+      "source_sha256": "640031d7a117382e0b8b4e4e9982a2081aeed5af75ec5e07567ddeb2500abfc1",
+      "target": "supabase/functions/ig-self-exclusion-v1/index.ts",
+      "disposition": "preserved"
+    },
+    {
+      "source": "supabase/functions/ig-support-v1/index.ts",
+      "source_sha256": "030840549c130280b5a3c12027b1b5b653a524b75c9aa74237713e2f773dd1da",
+      "target": "supabase/functions/ig-support-v1/index.ts",
+      "disposition": "preserved"
+    },
+    {
+      "source": "supabase/functions/kyc-start-v1/index.ts",
+      "source_sha256": "a8a4d5e6892ff1955e366e210b261ea35949d7057cf72b3b9066564a93159523",
+      "disposition": "deferred",
+      "reason": "Provider KYC functionality is outside the tester-chip release; source remains in the reference repository."
+    },
+    {
+      "source": "supabase/functions/kyc-sumsub-webhook/index.ts",
+      "source_sha256": "a53ed52b82e16366933c1ffca04a11ceb07e0db7580449c735f4510ba1307908",
+      "disposition": "deferred",
+      "reason": "Provider KYC functionality is outside the tester-chip release; source remains in the reference repository."
+    },
+    {
+      "source": "supabase/functions/legacy-leaderboard-v1/index.ts",
+      "source_sha256": "5940b4c88e7d9dabded8087aa4d923c368068149eb043c91f4f4bc62dc5755e4",
+      "target": "supabase/functions/legacy-leaderboard-v1/index.ts",
+      "disposition": "preserved"
+    },
+    {
+      "source": "supabase/functions/poker-events-v1/index.ts",
+      "source_sha256": "aa3a05054781f907892608c68f028d16feed7b8e227d18383aa774e2e1a8b18d",
+      "target": "supabase/functions/poker-events-v1/index.ts",
+      "disposition": "main_version"
+    },
+    {
+      "source": "supabase/functions/poker-table-v1/index.ts",
+      "source_sha256": "b1ebc05d6e7e50525f05f004d0a84f89cf27ad00f0bf3c3f6ece2d0f6de89d79",
+      "target": "supabase/functions/poker-table-v1/index.ts",
+      "disposition": "main_version"
+    },
+    {
+      "source": "supabase/functions/provably-fair-demo/index.ts",
+      "source_sha256": "47f5aed35275fe2a76fd273158ec3fbe8f0d4f43ce997c1c8086f47b9f1953fc",
+      "target": "supabase/functions/provably-fair-demo/index.ts",
+      "disposition": "preserved"
+    },
+    {
+      "source": "supabase/functions/provably-fair-v2/index.ts",
+      "source_sha256": "b6ba77034f0c20e6f000c657f562c2a917be922a9de55d10b619cffac94197c8",
+      "target": "supabase/functions/provably-fair-v2/index.ts",
+      "disposition": "preserved"
+    }
+  ],
+  "migrations": [
+    {
+      "source": "supabase/migrations/20261017000100_identity_and_wallet.sql",
+      "source_sha256": "f0ed86a99dcb4491bbd23afd48770b1d54685d6019829bb8c3d662ff7f131372",
+      "disposition": "historical_schema",
+      "reason": "The separate scaffold GC/SC identity and wallet baseline is not replayed beside the complete main identity/ledger schema."
+    },
+    {
+      "source": "supabase/migrations/202610170001_identity_roles.sql",
+      "source_sha256": "0f1a348cb6f074c5c84853f46bdabfb66762fe5080c133bcbfdb5945677910b2",
+      "disposition": "reviewed_feature_equivalent",
+      "reason": "Feature mapping to the reviewed main history, not a byte-identical source import; main checksums are verified by prepare-reviewed-backend.mjs.",
+      "targets": [
+        "supabase/deployed-migrations/20261017110525_imperial_roles_access_control.sql"
+      ]
+    },
+    {
+      "source": "supabase/migrations/20261017090000_poker_tournament_drafts.sql",
+      "source_sha256": "cc8fb302c30ad0464617326ad02c66fb15bcc20e3508b2eb248ecf318e55eb88",
+      "disposition": "reviewed_feature_equivalent",
+      "reason": "Feature mapping to the reviewed main history, not a byte-identical source import; main checksums are verified by prepare-reviewed-backend.mjs.",
+      "targets": [
+        "supabase/deployed-migrations/20261017120555_poker_superadmin_tournament_drafts_v1.sql"
+      ]
+    },
+    {
+      "source": "supabase/migrations/20261017100000_poker_tournament_runtime.sql",
+      "source_sha256": "67e575c8b13aedb7efb6ed1cfef1323d433a85e00a89b5216e814cbf31c9b50d",
+      "disposition": "reviewed_feature_equivalent",
+      "reason": "Feature mapping to the reviewed main history, not a byte-identical source import; main checksums are verified by prepare-reviewed-backend.mjs.",
+      "targets": [
+        "supabase/deployed-migrations/20261017120139_poker_transactional_freeplay_v1.sql",
+        "supabase/deployed-migrations/20261017124852_poker_event_registration_seating_v1.sql",
+        "supabase/deployed-migrations/20261017125901_poker_tournament_elimination_and_balancing_v1.sql"
+      ]
+    },
+    {
+      "source": "supabase/migrations/20261017140000_poker_turn_timebank.sql",
+      "source_sha256": "6039d96ffbab8e5c3719a06cdcffab768f72c65a24d62e1da97b9f8fcff712b6",
+      "disposition": "reviewed_feature_equivalent",
+      "reason": "Feature mapping to the reviewed main history, not a byte-identical source import; main checksums are verified by prepare-reviewed-backend.mjs.",
+      "targets": [
+        "supabase/deployed-migrations/20261017133438_poker_turn_timebank_staging_v4.sql"
+      ]
+    },
+    {
+      "source": "supabase/migrations/20261017141000_poker_turn_watchdog.sql",
+      "source_sha256": "c58ffed9ae1fa862da6519ff03bb70b36d08788ad2d154e2b55915e56cab8e4a",
+      "disposition": "reviewed_feature_equivalent",
+      "reason": "Feature mapping to the reviewed main history, not a byte-identical source import; main checksums are verified by prepare-reviewed-backend.mjs.",
+      "targets": [
+        "supabase/deployed-migrations/20261017134057_poker_turn_timeout_watchdog.sql"
+      ]
+    },
+    {
+      "source": "supabase/migrations/20261017180000_ign_one_time_names_and_kyc_status.sql",
+      "source_sha256": "f142038a7300ee2bdd5624fd73fe900a3e6f184d638646629ced770eff05720f",
+      "disposition": "reviewed_feature_equivalent",
+      "reason": "Feature mapping to the reviewed main history, not a byte-identical source import; main checksums are verified by prepare-reviewed-backend.mjs.",
+      "targets": [
+        "supabase/deployed-migrations/20261017165808_ign_one_time_names_and_kyc_status.sql"
+      ]
+    },
+    {
+      "source": "supabase/migrations/20261017181000_grant_one_time_display_name.sql",
+      "source_sha256": "e1e8531a2b70da19a776f2ff8ef348cd2ad21cfed7a09fa72e0401d8cdc24291",
+      "disposition": "reviewed_feature_equivalent",
+      "reason": "Feature mapping to the reviewed main history, not a byte-identical source import; main checksums are verified by prepare-reviewed-backend.mjs.",
+      "targets": [
+        "supabase/deployed-migrations/20261017165851_grant_one_time_display_name.sql"
+      ]
+    },
+    {
+      "source": "supabase/migrations/20261017210000_lock_timestamp_function_search_paths.sql",
+      "source_sha256": "1291196d69ab030ab746482117b005c109fbfbcc34cb3d6e6ec230143981e327",
+      "disposition": "reviewed_feature_equivalent",
+      "reason": "Feature mapping to the reviewed main history, not a byte-identical source import; main checksums are verified by prepare-reviewed-backend.mjs.",
+      "targets": [
+        "supabase/deployed-migrations/20261017201859_lock_timestamp_function_search_paths.sql"
+      ]
+    },
+    {
+      "source": "supabase/migrations/20261017223000_legacy_weekly_practice_leaderboard.sql",
+      "source_sha256": "90c338d40007a5fd01220f13827ca50564b6e6f297549c0ea3d3493a3f2d4285",
+      "disposition": "reviewed_feature_equivalent",
+      "reason": "Feature mapping to the reviewed main history, not a byte-identical source import; main checksums are verified by prepare-reviewed-backend.mjs.",
+      "targets": [
+        "supabase/deployed-migrations/20261017212231_legacy_weekly_practice_leaderboard.sql"
+      ]
+    },
+    {
+      "source": "supabase/migrations/20261017233000_crypto_deposit_network_catalog.sql",
+      "source_sha256": "03f70e743236f5e997b0c34b16ec84968c45b5491e9478863cfb7b27bb11308f",
+      "disposition": "reviewed_feature_equivalent",
+      "reason": "Feature mapping to the reviewed main history, not a byte-identical source import; main checksums are verified by prepare-reviewed-backend.mjs.",
+      "targets": [
+        "supabase/deployed-migrations/20261017212950_crypto_deposit_network_catalog_disabled.sql"
+      ]
+    },
+    {
+      "source": "supabase/migrations/20261017235500_user_crypto_deposit_destinations.sql",
+      "source_sha256": "1cf82aa36fd289ffcc210883901e67b723ef59826248ca00ae4fbe65779fb4da",
+      "disposition": "reviewed_feature_equivalent",
+      "reason": "Feature mapping to the reviewed main history, not a byte-identical source import; main checksums are verified by prepare-reviewed-backend.mjs.",
+      "targets": [
+        "supabase/deployed-migrations/20261017215108_user_crypto_deposit_destinations_pending_only.sql"
+      ]
+    },
+    {
+      "source": "supabase/migrations/20261017235600_staging_crypto_withdrawal_policy.sql",
+      "source_sha256": "bcd6e742857552f007ecc272095a7ddcb9241d669a034d10b92d2c55b496497f",
+      "disposition": "reviewed_feature_equivalent",
+      "reason": "Feature mapping to the reviewed main history, not a byte-identical source import; main checksums are verified by prepare-reviewed-backend.mjs.",
+      "targets": [
+        "supabase/deployed-migrations/20261017215111_staging_crypto_withdrawal_policy_2500.sql"
+      ]
+    },
+    {
+      "source": "supabase/migrations/20261017235700_provision_pending_crypto_routes.sql",
+      "source_sha256": "7d36f291f32c50143aa9ebab345f8b06f1e56ed331f95f300e5fe2beb1d112ad",
+      "disposition": "reviewed_feature_equivalent",
+      "reason": "Feature mapping to the reviewed main history, not a byte-identical source import; main checksums are verified by prepare-reviewed-backend.mjs.",
+      "targets": [
+        "supabase/deployed-migrations/20261017215133_provision_pending_crypto_routes_on_profile_create.sql"
+      ]
+    },
+    {
+      "source": "supabase/migrations/20261018000000_staging_hot_cold_treasury_accounts.sql",
+      "source_sha256": "692bd80b183cd41220a2e34d0d18b67aced2cf2ada941d22657760a164ac933d",
+      "disposition": "reviewed_feature_equivalent",
+      "reason": "Feature mapping to the reviewed main history, not a byte-identical source import; main checksums are verified by prepare-reviewed-backend.mjs.",
+      "targets": [
+        "supabase/deployed-migrations/20261017215424_staging_ellipal_hot_cold_treasury_accounts.sql"
+      ]
+    },
+    {
+      "source": "supabase/migrations/20261018000100_configure_hot_wallet_provider_candidate.sql",
+      "source_sha256": "5d18331a07b18ac8ed47e875f850bd91f0e4bc2409115eaa27efa0d3f6ce935e",
+      "disposition": "reviewed_feature_equivalent",
+      "reason": "Feature mapping to the reviewed main history, not a byte-identical source import; main checksums are verified by prepare-reviewed-backend.mjs.",
+      "targets": [
+        "supabase/deployed-migrations/20261017215535_configure_hot_wallet_provider_candidate.sql"
+      ]
+    },
+    {
+      "source": "supabase/migrations/20261018000600_staging_payment_rail_plan.sql",
+      "source_sha256": "b84db453ab5988ef591e284b0a7a3e46fd46097a9287ed6f7221255f1a9b9cf2",
+      "disposition": "reviewed_feature_equivalent",
+      "reason": "Feature mapping to the reviewed main history, not a byte-identical source import; main checksums are verified by prepare-reviewed-backend.mjs.",
+      "targets": [
+        "supabase/deployed-migrations/20261017215834_staging_deferred_payment_rails_stripe_paypal_cash_app.sql"
+      ]
+    },
+    {
+      "source": "supabase/migrations/20261018100000_support_tickets_backend.sql",
+      "source_sha256": "6ee534f4fc1d9de89fac409719d0422cff175ac50aadc2ab8d8ffa10b1f02728",
+      "disposition": "reviewed_feature_equivalent",
+      "reason": "Feature mapping to the reviewed main history, not a byte-identical source import; main checksums are verified by prepare-reviewed-backend.mjs.",
+      "targets": [
+        "supabase/deployed-migrations/20261017221213_create_atomic_ig_support_tickets.sql"
+      ]
+    },
+    {
+      "source": "supabase/migrations/20261018102000_block_legacy_app_records_direct_writes.sql",
+      "source_sha256": "92fb3b2b0918e1083e3add91036bd4c58466d8786997af3475b82e34a2094d48",
+      "disposition": "reviewed_feature_equivalent",
+      "reason": "Feature mapping to the reviewed main history, not a byte-identical source import; main checksums are verified by prepare-reviewed-backend.mjs.",
+      "targets": [
+        "supabase/deployed-migrations/20261017222417_lock_down_legacy_app_records_client_mutations.sql"
+      ]
+    },
+    {
+      "source": "supabase/migrations/20261018113000_approved_practice_game_catalog.sql",
+      "source_sha256": "14b08a7462eb9ffe5cada1c78ca8e1c549b3295e645da5eea8cab046b805336d",
+      "disposition": "reviewed_feature_equivalent",
+      "reason": "Feature mapping to the reviewed main history, not a byte-identical source import; main checksums are verified by prepare-reviewed-backend.mjs.",
+      "targets": [
+        "supabase/deployed-migrations/20261017225140_approved_practice_games_readonly_catalog.sql"
+      ]
+    },
+    {
+      "source": "supabase/migrations/20261018120000_self_exclusion_server_only.sql",
+      "source_sha256": "4f70fec0ae3d80cc90e2ef53e2cd00a7cf98f464e1657f40c5fd9eba3a626612",
+      "disposition": "reviewed_feature_equivalent",
+      "reason": "Feature mapping to the reviewed main history, not a byte-identical source import; main checksums are verified by prepare-reviewed-backend.mjs.",
+      "targets": [
+        "supabase/deployed-migrations/20261017225803_player_self_exclusion_one_way_server_only.sql"
+      ]
+    },
+    {
+      "source": "supabase/migrations/20261018234308_crash_trenball_server_timed_practice_v2.sql",
+      "source_sha256": "dbfeaf550877665be8f49b1b6c6735f20fcf07599726e5781e24ebc593e6e11f",
+      "targets": [
+        "supabase/migrations/20261018234308_crash_trenball_server_timed_practice_v2.sql"
+      ],
+      "disposition": "main_reference"
+    },
+    {
+      "source": "supabase/migrations/20261018234437_crash_v2_fix_secure_random_schema.sql",
+      "source_sha256": "caa3928a6a3bff2885b8dcb8f0e43f10c1550d51699136ebb6f76bdae459a744",
+      "targets": [
+        "supabase/migrations/20261018234437_crash_v2_fix_secure_random_schema.sql"
+      ],
+      "disposition": "main_reference"
+    },
+    {
+      "source": "supabase/migrations/20261018235300_crash_v2_prevent_early_auto_cashout_beyond_committed_result.sql",
+      "source_sha256": "7b6e796fe2a8661ee340b922f4ba4f2f6e3838340d468abc9c7041dfdfaf1962",
+      "targets": [
+        "supabase/migrations/20261018235300_crash_v2_prevent_early_auto_cashout_beyond_committed_result.sql"
+      ],
+      "disposition": "main_reference"
+    },
+    {
+      "source": "supabase/migrations/20261019043000_poker_staging_bot_accounts.sql",
+      "source_sha256": "0adcd1a278b552bc069964e274bc4011a67e41fcefc765a4a7b66293bd0b8c99",
+      "targets": [
+        "supabase/migrations/20261019043000_poker_staging_bot_accounts.sql"
+      ],
+      "disposition": "main_reference"
+    }
+  ],
+  "excluded_runtimes": [
+    "src/App.tsx (React 19 scaffold)",
+    "original-app (duplicate full frontend)",
+    "migration/legacy-overlay (partial migration preview)"
+  ]
+}

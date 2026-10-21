@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import PokerPlayerAnalytics from '@/components/poker/PokerPlayerAnalytics';
 import { base44 } from '@/api/base44Client';
 import { supabase } from '@/lib/supabaseClient';
@@ -6,11 +6,8 @@ import { createProfileSettings } from '@/lib/profileSettings';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Camera, Mail, Crown, Loader2, AtSign, Hash, ShieldCheck, Ticket, Gift } from 'lucide-react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import VIPProgressCard from '@/components/casino/VIPProgressCard';
+import { Camera, Mail, Crown, Loader2, AtSign, Hash, ShieldCheck, Coins, BookOpen } from 'lucide-react';
 import PullToRefresh from '@/components/mobile/PullToRefresh';
-import VIPLevelUpToast from '@/components/casino/VIPLevelUpToast';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 
@@ -18,39 +15,33 @@ const profileSettings = createProfileSettings(supabase);
 
 export default function Profile() {
   const [user, setUser] = useState(null);
-  const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [savingUsername, setSavingUsername] = useState(false);
   const [fullName, setFullName] = useState('');
   const [username, setUsername] = useState('');
+  const [loadError, setLoadError] = useState('');
+  const [loading, setLoading] = useState(true);
+  const uploadInput = useRef(null);
 
-  const { data: wallets = [] } = useQuery({
-    queryKey: ['profile-wallet', user?.email],
-    queryFn: () => base44.entities.UserWallet.filter({ user_email: user?.email }),
-    enabled: !!user?.email,
-  });
-
-  useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const u = await base44.auth.me();
-        setUser(u);
-        setFullName(u.full_name || '');
-        setUsername(u.username || '');
-      } catch (e) {
-        base44.auth.redirectToLogin();
-      }
-    };
-    loadUser();
+  const loadUser = useCallback(async () => {
+    setLoading(true); setLoadError('');
+    try {
+      const current = await base44.auth.me();
+      setUser(current); setFullName(current.full_name || '');
+      setUsername(current.display_name || current.username || '');
+    } catch (error) { setLoadError(error.message || 'Your profile could not be loaded. Please try again.'); }
+    finally { setLoading(false); }
   }, []);
+  useEffect(() => { void loadUser(); }, [loadUser]);
 
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    e.target.value = '';
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image must be less than 5MB');
+      toast.error('Image must be 5MB or smaller');
       return;
     }
 
@@ -104,29 +95,25 @@ export default function Profile() {
   };
 
 
-  const wallet = wallets[0];
-
   if (!user) {
     return (
       <div className="min-h-screen bg-[#0A0612] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-pink-400 animate-spin" />
+        {loading ? <p role="status" className="flex items-center gap-3 text-gray-300"><Loader2 className="w-6 h-6 text-pink-400 animate-spin" /> Loading your profile…</p> : <div role="alert" className="max-w-md space-y-4 rounded-2xl border border-white/10 bg-[#1b1227] p-6 text-center"><h1 className="text-xl font-bold text-white">Profile unavailable</h1><p className="text-sm leading-6 text-gray-400">{loadError}</p><Button onClick={() => void loadUser()} className="bg-pink-600 hover:bg-pink-500">Try again</Button></div>}
       </div>
     );
   }
 
   return (
-    <PullToRefresh onRefresh={() => queryClient.invalidateQueries({ queryKey: ['profile-wallet', user?.email] })}>
+    <PullToRefresh onRefresh={loadUser}>
       <div className="min-h-screen bg-[#0A0612] py-12">
       <div className="max-w-2xl mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <VIPLevelUpToast wallet={wallet} />
           <h1 className="text-3xl font-bold text-white mb-8">Profile Settings</h1>
+          {loadError && <div role="alert" className="mb-6 rounded-xl border border-amber-300/25 bg-amber-300/5 p-4 text-sm text-amber-100"><p>{loadError}</p><Button onClick={() => void loadUser()} disabled={loading} variant="outline" className="mt-3 border-amber-300/30 text-amber-100">Retry profile refresh</Button></div>}
           <div className="mb-6"><PokerPlayerAnalytics /></div>
-
-          {wallet && <div className="mb-6"><VIPProgressCard wallet={wallet} /></div>}
 
           {/* Profile Picture */}
           <Card className="bg-gradient-to-br from-[#1A1528] to-[#0F0A1E] border-white/10 mb-6">
@@ -149,9 +136,11 @@ export default function Profile() {
                       </span>
                     </div>
                   )}
-                  <label
-                    htmlFor="profile-upload"
-                    className="absolute bottom-0 right-0 w-11 h-11 bg-pink-500 rounded-full flex items-center justify-center cursor-pointer hover:bg-pink-600 transition-colors"
+                  <button
+                    type="button"
+                    onClick={() => uploadInput.current?.click()}
+                    disabled={uploading || user.role === 'tester' || user.is_excluded}
+                    className="absolute bottom-0 right-0 w-11 h-11 bg-pink-500 rounded-full flex items-center justify-center cursor-pointer hover:bg-pink-600 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-300 disabled:opacity-50"
                     aria-label="Upload profile picture"
                   >
                     {uploading ? (
@@ -159,9 +148,11 @@ export default function Profile() {
                     ) : (
                       <Camera className="w-4 h-4 text-white" />
                     )}
-                  </label>
+                  </button>
                   <input
+                    ref={uploadInput}
                     id="profile-upload"
+                    aria-label="Upload profile picture"
                     type="file"
                     accept="image/jpeg,image/png,image/webp,image/gif"
                     onChange={handleImageUpload}
@@ -186,9 +177,14 @@ export default function Profile() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="text-sm text-gray-300 mb-2 block">Full Name</label>
+                <label htmlFor="profile-full-name" className="text-sm text-gray-300 mb-2 block">Full Name</label>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <Input
+                    id="profile-full-name"
+                    autoComplete="name"
+                    minLength={2}
+                    maxLength={100}
+                    disabled={saving || user.role === 'tester' || user.is_excluded}
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="Enter your name"
@@ -213,11 +209,14 @@ export default function Profile() {
               </div>
 
               <div>
-                <label className="text-sm text-gray-300 mb-2 block">Public display name</label>
+                <label htmlFor="profile-display-name" className="text-sm text-gray-300 mb-2 block">Public display name</label>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10 flex-1 min-h-[44px]">
                     <AtSign className="w-4 h-4 text-gray-300" />
                     <Input
+                      id="profile-display-name"
+                      autoComplete="nickname"
+                      maxLength={40}
                       value={username}
                       disabled={!!user.display_name || user.is_excluded}
                       onChange={(e) => setUsername(e.target.value)}
@@ -263,24 +262,24 @@ export default function Profile() {
                     onClick={() => window.location.href = '/KYCVerification'}
                     className="bg-pink-500 hover:bg-pink-600"
                   >
-                    {user.kyc_status === 'approved' ? 'View KYC Status' : 'Submit My KYC'}
+                    View verification status
                   </Button>
                 </div>
               </div>
 
               <div>
-                <label className="text-sm text-gray-300 mb-2 block">Sweepstakes & Claims</label>
+                <label className="text-sm text-gray-300 mb-2 block">Your practice sessions</label>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <a href="/AMOE" className="rounded-lg bg-white/5 border border-white/10 p-4 flex items-center justify-between text-white hover:bg-white/10 transition-colors">
+                  <a href="/TesterChips" className="rounded-lg bg-white/5 border border-white/10 p-4 flex items-center justify-between text-white hover:bg-white/10 transition-colors">
                     <div className="flex items-center gap-2">
-                      <Ticket className="w-4 h-4 text-pink-400" />
-                      <span>Free AMOE Entry</span>
+                      <Coins className="w-4 h-4 text-pink-400" />
+                      <span>Tester chips</span>
                     </div>
                   </a>
-                  <a href="/PrizeClaims" className="rounded-lg bg-white/5 border border-white/10 p-4 flex items-center justify-between text-white hover:bg-white/10 transition-colors">
+                  <a href="/PastPlayedHands" className="rounded-lg bg-white/5 border border-white/10 p-4 flex items-center justify-between text-white hover:bg-white/10 transition-colors">
                     <div className="flex items-center gap-2">
-                      <Gift className="w-4 h-4 text-pink-400" />
-                      <span>Prize Claims</span>
+                      <BookOpen className="w-4 h-4 text-pink-400" />
+                      <span>Review poker hands</span>
                     </div>
                   </a>
                 </div>

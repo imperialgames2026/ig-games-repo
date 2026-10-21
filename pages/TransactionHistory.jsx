@@ -38,8 +38,8 @@ export default function TransactionHistory() {
       </div>
       <div role="status" className="mb-6 rounded-xl border border-amber-400/30 bg-amber-950/20 p-4 text-sm text-amber-100">
         <AlertTriangle className="inline h-4 w-4 mr-2" aria-hidden="true"/>
-        Your internal test-currency activity. Test currencies have no cash value.
-        Payment preparation requests appear on the Deposits &amp; withdrawals page.
+        Historical account-ledger records are separate from your poker practice stack.
+        Tester chips have no cash value. Review completed poker hands in the Study section.
       </div>
       <div className="rounded-2xl border border-white/10 bg-[#1A1528] p-5">
         <div className="flex flex-wrap items-end gap-4 mb-5">

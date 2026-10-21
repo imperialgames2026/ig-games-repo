@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "review_kind": "read-only published practice release",
+  "started_at": "2026-10-21T04:20:32.010Z",
+  "completed_at": "2026-10-21T04:20:33.681Z",
+  "selected_site": "https://imperialgaming.llc",
+  "expected_sha": "6be0f674c103e789dbfa3fc08e1ed97fd4650940",
+  "attachment_sha": "1a58d9064775297b297bacbc6de6a5beae21cf05",
+  "verifier_source_sha": "6be0f674c103e789dbfa3fc08e1ed97fd4650940",
+  "transport": "Node 24 --use-env-proxy with inherited proxy and CA verification",
+  "verification": {
+    "status": "passed",
+    "commit": "6be0f674c103e789dbfa3fc08e1ed97fd4650940",
+    "site": "https://imperialgaming.llc",
+    "release_mode": "practice",
+    "migrations": 101,
+    "routes": 6,
+    "application_asset": "/assets/index-CqfT6O_H.js"
+  },
+  "metadata": {
+    "commit": "6be0f674c103e789dbfa3fc08e1ed97fd4650940",
+    "built_at": "2026-10-21T03:34:02.952Z",
+    "release_mode": "practice",
+    "backend_url": "https://qonqemhljgxlwpghkxhn.supabase.co",
+    "legacy_operations_enabled": false,
+    "reviewed_migration_count": 101,
+    "held_game_count": 23
+  },
+  "application_asset": {
+    "path": "/assets/index-CqfT6O_H.js",
+    "bytes": 1851762,
+    "sha256": "f6f270818debe3056843e469b9d1f0a57395a03cff89940855ac7604d0b880de",
+    "selected_backend_present": true,
+    "base44_sdk_absent": true
+  },
+  "routes_verified": [
+    "/",
+    "/Games",
+    "/login",
+    "/ResetPassword",
+    "/AMOE",
+    "/PrizeClaims"
+  ],
+  "browser_smoke": {
+    "status": "passed",
+    "started_at": "2026-10-21T04:21:35.987Z",
+    "completed_at": "2026-10-21T04:21:49.141Z",
+    "checks": 12,
+    "desktop_checks": 8,
+    "mobile_checks": 4,
+    "page_errors": [],
+    "horizontal_overflow": false,
+    "protected_routes_redirect_to_login": [
+      "/AMOE",
+      "/PrizeClaims",
+      "/Payments",
+      "/PlayPoker"
+    ],
+    "missing_recovery_token": "fails_closed",
+    "blocked_nonreadonly_or_external_requests": 24
+  },
+  "limits": [
+    "Anonymous rendering and sign-in gates only; no signup, login, account creation or hosted game action.",
+    "Provider-disabled UI/source evidence is not verification of deployed handler bodies or provider behavior.",
+    "Auth configuration, migration history, deployed functions and recovery capability require separate authenticated management inspection."
+  ],
+  "evidence_origin": "Produced by delegated read-only verifier and transferred as safe structured evidence; original detailed observations retained in the conversation."
+}

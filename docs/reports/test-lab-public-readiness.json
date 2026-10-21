@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "project_ref": "jvyzpxjqmymafjapprpp",
+  "supabase_url": "https://jvyzpxjqmymafjapprpp.supabase.co",
+  "observed_at": "2026-10-21T03:52:09.666Z",
+  "read_only": true,
+  "status": "backend_setup_required",
+  "auth": {
+    "status": 200,
+    "available": true,
+    "signup_enabled": true,
+    "email_enabled": true,
+    "email_autoconfirm": false
+  },
+  "tables": [
+    {
+      "name": "profiles",
+      "status": 401,
+      "code": "42501",
+      "state": "anonymous_read_restricted"
+    },
+    {
+      "name": "user_roles",
+      "status": 401,
+      "code": "42501",
+      "state": "anonymous_read_restricted"
+    },
+    {
+      "name": "ig_practice_game_catalog",
+      "status": 404,
+      "code": "PGRST205",
+      "state": "missing_or_unexposed"
+    },
+    {
+      "name": "ig_announcements",
+      "status": 404,
+      "code": "PGRST205",
+      "state": "missing_or_unexposed"
+    },
+    {
+      "name": "poker_tables_v1",
+      "status": 401,
+      "code": "42501",
+      "state": "anonymous_read_restricted"
+    },
+    {
+      "name": "poker_seats_v1",
+      "status": 401,
+      "code": "42501",
+      "state": "anonymous_read_restricted"
+    },
+    {
+      "name": "poker_events_v1",
+      "status": 401,
+      "code": "42501",
+      "state": "anonymous_read_restricted"
+    }
+  ],
+  "functions": [
+    {
+      "name": "provably-fair-demo",
+      "status": 404,
+      "code": "NOT_FOUND",
+      "state": "not_deployed",
+      "missing_cors_headers": [
+        "content-type",
+        "x-supabase-api-version"
+      ]
+    },
+    {
+      "name": "provably-fair-v2",
+      "status": 404,
+      "code": "NOT_FOUND",
+      "state": "not_deployed",
+      "missing_cors_headers": [
+        "content-type",
+        "x-supabase-api-version"
+      ]
+    },
+    {
+      "name": "poker-table-v1",
+      "status": 404,
+      "code": "NOT_FOUND",
+      "state": "not_deployed",
+      "missing_cors_headers": [
+        "content-type",
+        "x-supabase-api-version"
+      ]
+    },
+    {
+      "name": "admin-poker-events",
+      "status": 404,
+      "code": "NOT_FOUND",
+      "state": "not_deployed",
+      "missing_cors_headers": [
+        "content-type",
+        "x-supabase-api-version"
+      ]
+    },
+    {
+      "name": "poker-events-v1",
+      "status": 404,
+      "code": "NOT_FOUND",
+      "state": "not_deployed",
+      "missing_cors_headers": [
+        "content-type",
+        "x-supabase-api-version"
+      ]
+    },
+    {
+      "name": "legacy-leaderboard-v1",
+      "status": 404,
+      "code": "NOT_FOUND",
+      "state": "not_deployed",
+      "missing_cors_headers": [
+        "content-type",
+        "x-supabase-api-version"
+      ]
+    },
+    {
+      "name": "ig-support-v1",
+      "status": 404,
+      "code": "NOT_FOUND",
+      "state": "not_deployed",
+      "missing_cors_headers": [
+        "content-type",
+        "x-supabase-api-version"
+      ]
+    },
+    {
+      "name": "ig-self-exclusion-v1",
+      "status": 404,
+      "code": "NOT_FOUND",
+      "state": "not_deployed",
+      "missing_cors_headers": [
+        "content-type",
+        "x-supabase-api-version"
+      ]
+    },
+    {
+      "name": "ig-multiplayer-practice",
+      "status": 404,
+      "code": "NOT_FOUND",
+      "state": "not_deployed",
+      "missing_cors_headers": [
+        "content-type",
+        "x-supabase-api-version"
+      ]
+    },
+    {
+      "name": "ig-shared-event-practice",
+      "status": 404,
+      "code": "NOT_FOUND",
+      "state": "not_deployed",
+      "missing_cors_headers": [
+        "content-type",
+        "x-supabase-api-version"
+      ]
+    },
+    {
+      "name": "ig-blackjack-practice",
+      "status": 404,
+      "code": "NOT_FOUND",
+      "state": "not_deployed",
+      "missing_cors_headers": [
+        "content-type",
+        "x-supabase-api-version"
+      ]
+    },
+    {
+      "name": "ig-poker-tournament-admin",
+      "status": 404,
+      "code": "NOT_FOUND",
+      "state": "not_deployed",
+      "missing_cors_headers": [
+        "content-type",
+        "x-supabase-api-version"
+      ]
+    },
+    {
+      "name": "ig-poker-tournament-prizes",
+      "status": 404,
+      "code": "NOT_FOUND",
+      "state": "not_deployed",
+      "missing_cors_headers": [
+        "content-type",
+        "x-supabase-api-version"
+      ]
+    },
+    {
+      "name": "ig-admin-command-center",
+      "status": 404,
+      "code": "NOT_FOUND",
+      "state": "not_deployed",
+      "missing_cors_headers": [
+        "content-type",
+        "x-supabase-api-version"
+      ]
+    },
+    {
+      "name": "ig-player-analytics-v1",
+      "status": 404,
+      "code": "NOT_FOUND",
+      "state": "not_deployed",
+      "missing_cors_headers": [
+        "content-type",
+        "x-supabase-api-version"
+      ]
+    },
+    {
+      "name": "ig-admin-users-preview-v1",
+      "status": 404,
+      "code": "NOT_FOUND",
+      "state": "not_deployed",
+      "missing_cors_headers": [
+        "content-type",
+        "x-supabase-api-version"
+      ]
+    },
+    {
+      "name": "ig-poker-bot-lab",
+      "status": 404,
+      "code": "NOT_FOUND",
+      "state": "not_deployed",
+      "missing_cors_headers": [
+        "content-type",
+        "x-supabase-api-version"
+      ]
+    },
+    {
+      "name": "ig-crash-v2",
+      "status": 404,
+      "code": "NOT_FOUND",
+      "state": "not_deployed",
+      "missing_cors_headers": [
+        "content-type",
+        "x-supabase-api-version"
+      ]
+    },
+    {
+      "name": "ig-originals-practice",
+      "status": 404,
+      "code": "NOT_FOUND",
+      "state": "not_deployed",
+      "missing_cors_headers": [
+        "content-type",
+        "x-supabase-api-version"
+      ]
+    },
+    {
+      "name": "ig-mines-practice",
+      "status": 404,
+      "code": "NOT_FOUND",
+      "state": "not_deployed",
+      "missing_cors_headers": [
+        "content-type",
+        "x-supabase-api-version"
+      ]
+    },
+    {
+      "name": "ig-final-practice",
+      "status": 404,
+      "code": "NOT_FOUND",
+      "state": "not_deployed",
+      "missing_cors_headers": [
+        "content-type",
+        "x-supabase-api-version"
+      ]
+    }
+  ],
+  "issues": [
+    "table:ig_practice_game_catalog:missing_or_unexposed",
+    "table:ig_announcements:missing_or_unexposed",
+    "function:provably-fair-demo:not_deployed",
+    "function:provably-fair-v2:not_deployed",
+    "function:poker-table-v1:not_deployed",
+    "function:admin-poker-events:not_deployed",
+    "function:poker-events-v1:not_deployed",
+    "function:legacy-leaderboard-v1:not_deployed",
+    "function:ig-support-v1:not_deployed",
+    "function:ig-self-exclusion-v1:not_deployed",
+    "function:ig-multiplayer-practice:not_deployed",
+    "function:ig-shared-event-practice:not_deployed",
+    "function:ig-blackjack-practice:not_deployed",
+    "function:ig-poker-tournament-admin:not_deployed",
+    "function:ig-poker-tournament-prizes:not_deployed",
+    "function:ig-admin-command-center:not_deployed",
+    "function:ig-player-analytics-v1:not_deployed",
+    "function:ig-admin-users-preview-v1:not_deployed",
+    "function:ig-poker-bot-lab:not_deployed",
+    "function:ig-crash-v2:not_deployed",
+    "function:ig-originals-practice:not_deployed",
+    "function:ig-mines-practice:not_deployed",
+    "function:ig-final-practice:not_deployed"
+  ],
+  "limitations": [
+    "Zero-row anonymous requests establish API exposure only, not complete schema or migration history.",
+    "OPTIONS checks establish function availability/CORS only, not authenticated gameplay or authorization.",
+    "No account, bot, schema, configuration or deployment is created or changed."
+  ]
+}

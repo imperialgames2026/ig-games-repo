@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "reviewed_on": "2026-10-21",
+  "timezone": "America/New_York",
+  "recorded_at": "2026-10-21T10:47:54.283639+00:00",
+  "scope": "Completed working-draft tester-chip website frontend; no deployment/publication",
+  "backend_target_changed": false,
+  "hosted_mutations_performed": false,
+  "publication_performed": false,
+  "build": {
+    "command": "npm run build:lab",
+    "status": "pass",
+    "directory": "dist-lab",
+    "entry": "/assets/index-X-yoO4d6.js",
+    "bytes": 784303,
+    "sha256": "5ebc4a22f83078fcd78ae81ae1e3d7ee54e186b9be2a5acc8fb1d44bfcd9bbce",
+    "configured_project": "jvyzpxjqmymafjapprpp"
+  },
+  "checks": {
+    "offline": {
+      "passed": 187,
+      "failed": 0,
+      "skipped": 0
+    },
+    "built_desktop_mobile": {
+      "passed": 100,
+      "failed": 0,
+      "skipped": 0,
+      "retries": 0
+    },
+    "browser_contracts": {
+      "passed": 17,
+      "failed": 0
+    },
+    "real_local_authenticated": {
+      "distinct_verified": 32,
+      "existing_initial_passed": 29,
+      "existing_targeted_recheck_passed": 1,
+      "extra_signup_signout_recovery_passed": 2,
+      "single_clean_32_case_run": false
+    },
+    "lint": "pass",
+    "whitespace": "pass",
+    "consolidation": "pass",
+    "typecheck": {
+      "status": "inherited_failures",
+      "diagnostics": 1777,
+      "checks_suppressed": false
+    }
+  },
+  "frontend_changes": [
+    "Branded Home and unified20-game approved discovery",
+    "Search/category filtering and persistent query URLs",
+    "Public Holdem/Omaha lobby and safe invite parsing",
+    "Account/signup/recovery and password-confirmation UX",
+    "Profile loading/upload accessibility",
+    "Support retry/race/idempotency/success states",
+    "Mobile navigation, route titles/focus/scroll, reduced motion, dark theme, loading and404 states",
+    "Tester guide and informational finance aliases"
+  ],
+  "visual_checks": [
+    {
+      "device": "desktop",
+      "route": "/",
+      "title": "Imperial Games | Tester-Chip Preview",
+      "heading": "Join the table. Play together.",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "device": "desktop",
+      "route": "/Games",
+      "title": "Game library | Imperial Games",
+      "heading": "Game Library",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "device": "desktop",
+      "route": "/PokerLobby",
+      "title": "Poker lobby | Imperial Games",
+      "heading": "Multiplayer Poker",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "device": "desktop",
+      "route": "/TesterChips",
+      "title": "How tester chips work | Imperial Games",
+      "heading": "Your seat. Your tester chips.",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "device": "desktop",
+      "route": "/login",
+      "title": "Sign in | Imperial Games",
+      "heading": "Welcome back",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "device": "desktop",
+      "route": "/not-a-real-page",
+      "title": "Page not found | Imperial Games",
+      "heading": "Page not found",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "device": "mobile",
+      "route": "/",
+      "title": "Imperial Games | Tester-Chip Preview",
+      "heading": "Join the table. Play together.",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "device": "mobile",
+      "route": "/Games",
+      "title": "Game library | Imperial Games",
+      "heading": "Game Library",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "device": "mobile",
+      "route": "/PokerLobby",
+      "title": "Poker lobby | Imperial Games",
+      "heading": "Multiplayer Poker",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "device": "mobile",
+      "route": "/TesterChips",
+      "title": "How tester chips work | Imperial Games",
+      "heading": "Your seat. Your tester chips.",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "device": "mobile",
+      "route": "/login",
+      "title": "Sign in | Imperial Games",
+      "heading": "Welcome back",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "device": "mobile",
+      "route": "/not-a-real-page",
+      "title": "Page not found | Imperial Games",
+      "heading": "Page not found",
+      "overflow": false,
+      "errors": []
+    }
+  ],
+  "real_services_report": "website-real-services-20261021.json",
+  "logs": {
+    "public_browser": "/tmp/ig-website-public-final.log",
+    "offline": "/tmp/ig-website-offline.log",
+    "contracts": "/tmp/ig-website-contract.log",
+    "build": "/tmp/ig-website-build.log",
+    "typecheck": "/tmp/ig-website-typecheck.log"
+  },
+  "limitations": [
+    "Hosted email/domain/schema/function readiness is separate and was not changed by this website pass.",
+    "Poker retains documented host/manual hand controls; bot provisioning and full tournament lifecycle are not claimed complete.",
+    "Typing debt remains visible; no type checks or authorization guards were disabled.",
+    "Local services/processes must be restarted after environment restoration."
+  ]
+}

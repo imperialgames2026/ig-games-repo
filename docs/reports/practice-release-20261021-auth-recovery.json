@@ -1,0 +1,110 @@
+{
+  "observed_at": "2026-10-21T04:20:21.392567+00:00",
+  "project_ref": "qonqemhljgxlwpghkxhn",
+  "scope": "read_only_selected_production_practice_metadata",
+  "endpoints": {
+    "auth": {
+      "status": 401,
+      "at": "2026-10-21T04:19:23.883432+00:00"
+    },
+    "backups": {
+      "status": 401,
+      "at": "2026-10-21T04:19:23.854184+00:00"
+    },
+    "postgrest": {
+      "status": 401,
+      "at": "2026-10-21T04:19:23.885966+00:00"
+    },
+    "storage": {
+      "status": 401,
+      "at": "2026-10-21T04:19:23.885641+00:00"
+    },
+    "project": {
+      "status": 401,
+      "at": "2026-10-21T04:19:23.886693+00:00"
+    }
+  },
+  "limitations": [
+    "No backup was created, downloaded or restored. Metadata alone cannot prove restore behavior.",
+    "No live signup/email flow, customer table read, hosted mutation or deployment was performed.",
+    "The configured access-token variable is present. HTTP401 was observed through both urllib and Node using inherited proxy routing; no response body or token was exposed.",
+    "Runtime secret binding readiness and HTTP enforcement are reported unknown;401 does not distinguish unusable credentials from binding/auth propagation or authorization issues.",
+    "The sandbox initially blocked proxy connections; approved read-only network execution reached the API and returned401."
+  ],
+  "runtime_observations": {
+    "credential_name": "SUPABASE_ACCESS_TOKEN",
+    "variable_present": true,
+    "binding_destination": "api.supabase.com",
+    "binding_state": "unknown",
+    "observations_current": true,
+    "http_policy_mode": "unrestricted",
+    "http_policy_state": "unknown"
+  },
+  "independent_transport_check": {
+    "transport": "node --use-env-proxy",
+    "observed_at": "2026-10-21T04:19:52.920Z",
+    "results": [
+      {
+        "endpoint": "/config/auth",
+        "http_status": 401
+      },
+      {
+        "endpoint": "/database/backups",
+        "http_status": 401
+      },
+      {
+        "endpoint": "/postgrest",
+        "http_status": 401
+      },
+      {
+        "endpoint": "/config/storage",
+        "http_status": 401
+      }
+    ]
+  },
+  "assessment": {
+    "auth_configuration": "unverified_http_401",
+    "backup_availability": "unverified_http_401",
+    "backup_plan": "unverified_http_401",
+    "pitr_configuration": "unverified_http_401",
+    "recovery_window": "unverified_http_401",
+    "api_exposure": "unverified_http_401",
+    "storage_configuration": "unverified_http_401",
+    "restore_behavior": "not_tested"
+  },
+  "remaining_read_only_steps": [
+    {
+      "endpoint": "GET /v1/projects/qonqemhljgxlwpghkxhn/config/auth",
+      "purpose": "Verify canonical site origin, redirect destinations and security flags",
+      "blocked_by": "HTTP401 management authentication"
+    },
+    {
+      "endpoint": "GET /v1/projects/qonqemhljgxlwpghkxhn/database/backups",
+      "purpose": "Inspect backup availability, PITR flags and reported recovery dates only",
+      "blocked_by": "HTTP401 management authentication"
+    },
+    {
+      "endpoint": "GET /v1/projects/qonqemhljgxlwpghkxhn/postgrest",
+      "purpose": "Verify exposed schemas, search path and row limit metadata",
+      "blocked_by": "HTTP401 management authentication"
+    },
+    {
+      "endpoint": "GET /v1/projects/qonqemhljgxlwpghkxhn/config/storage",
+      "purpose": "Verify service-level Storage configuration metadata",
+      "blocked_by": "HTTP401 management authentication"
+    }
+  ],
+  "safe_runner": "/tmp/ig-release-auth-recovery.py",
+  "no_actions_performed": [
+    "No hosted configuration/schema/function/credential changes",
+    "No player/customer-table row reads",
+    "No signup/email/account probes",
+    "No backup creation/download/restore",
+    "No deployment/publish"
+  ],
+  "runtime_diagnostics": {
+    "history_status": "not_found",
+    "record_count": 0,
+    "legacy_snapshot_available": false
+  }
+}

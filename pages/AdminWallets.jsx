@@ -14,18 +14,18 @@ export default function AdminWallets(){
    </div>
    <div><div className="mb-4 flex flex-wrap items-center justify-between gap-3"><h2 className="font-serif text-xl font-bold text-white">Withdrawal requests</h2><span className="text-xs text-[#9598ac]">Latest 40 • Read only</span></div>
     <DataTable headings={['Request','Player ID','Requested amount','Method','State','Created']} rows={withdrawals} render={w=>[
-     <span className="font-mono text-xs text-[#a7adbd]" title={w.id}>{w.id?.slice(0,8)}…</span>,
-     <span className="font-mono text-xs text-[#a7adbd]" title={w.user_id}>{w.user_id?.slice(0,8)}…</span>,
-     <span className="font-semibold text-white">{String(w.amount??'—')} <span className="font-normal text-xs text-[#a0a1b1]">units (unverified)</span></span>,w.payment_method||'—',
-     <Status value={w.audit_flag?'flagged':w.status}/>,dt(w.created_at)
+     <span key="request" className="font-mono text-xs text-[#a7adbd]" title={w.id}>{w.id?.slice(0,8)}…</span>,
+     <span key="player" className="font-mono text-xs text-[#a7adbd]" title={w.user_id}>{w.user_id?.slice(0,8)}…</span>,
+     <span key="amount" className="font-semibold text-white">{String(w.amount??'—')} <span className="font-normal text-xs text-[#a0a1b1]">units (unverified)</span></span>,w.payment_method||'—',
+     <Status key="state" value={w.audit_flag?'flagged':w.status}/>,dt(w.created_at)
     ]}/>
    </div>
    <div><div className="mb-4 flex flex-wrap items-center justify-between gap-3"><h2 className="font-serif text-xl font-bold text-white">Deposit observations</h2><span className="text-xs text-[#9598ac]">Latest 40 • Not settled balances</span></div>
     <DataTable headings={['Observed','Player','Network / asset','Confirmations','Credit state']} rows={deposits} render={d=>[
      dt(d.created_at),
-     <span className="font-mono text-xs text-[#a7adbd]" title={d.user_id}>{d.user_id?.slice(0,8)}…</span>,
-     <div className="font-semibold text-white">{d.network_id} <span className="text-[#adb0c0]">/ {d.asset_code}</span></div>,
-     fmt(d.confirmations),<Status value={d.credit_status}/>
+     <span key="player" className="font-mono text-xs text-[#a7adbd]" title={d.user_id}>{d.user_id?.slice(0,8)}…</span>,
+     <div key="asset" className="font-semibold text-white">{d.network_id} <span className="text-[#adb0c0]">/ {d.asset_code}</span></div>,
+     fmt(d.confirmations),<Status key="credit" value={d.credit_status}/>
     ]}/>
    </div>
    <div className="rounded-2xl border border-amber-300/20 bg-amber-300/5 px-5 py-5 text-sm leading-7 text-[#d0c0aa]">The $2,500 Superadmin approval threshold and independent screening remain policy designs, not enabled automatic payments. Displayed amounts are unverified accounting units, not USD valuations. <Link to="/AdminTreasury" className="font-bold text-amber-200 underline">View custody readiness</Link>.</div>

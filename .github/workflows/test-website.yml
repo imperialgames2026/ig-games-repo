@@ -1,0 +1,50 @@
+name: Tester website checks
+
+on:
+  push:
+    branches: [test]
+  pull_request:
+    branches: [test]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  website:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # A deliberately local browser-contract configuration, never hosted access.
+      # Hosting uses build:lab and the separately supplied real public lab key.
+      VITE_SUPABASE_URL: http://127.0.0.1:54321
+      VITE_SUPABASE_PUBLISHABLE_KEY: browser-test-public-key
+      VITE_ENABLE_LEGACY_EDGE_FUNCTIONS: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Verify consolidation and offline regressions
+        run: |
+          npm run audit:consolidation
+          npm test
+      - name: Lint active source
+        run: npm run lint
+      - name: Compile the isolated browser fixture
+        run: npm run build -- --mode test
+      - name: Install test browser
+        run: npx playwright install --with-deps chromium
+      - name: Desktop and mobile website checks
+        run: npm run test:e2e -- --retries=0
+      - name: Profile and game browser contracts
+        run: npx playwright test --config playwright.migration.config.mjs
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: tester-website-failure-results
+          path: test-results/
+          if-no-files-found: ignore

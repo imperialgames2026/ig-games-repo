@@ -1,0 +1,1024 @@
+{
+  "schema_version": 1,
+  "project_ref": "qonqemhljgxlwpghkxhn",
+  "source_sha": "6be0f674c103e789dbfa3fc08e1ed97fd4650940",
+  "observed_at": "2026-10-21T04:23:21.123Z",
+  "mode": "read_only",
+  "status": "blocked",
+  "source": {
+    "source_sha": "6be0f674c103e789dbfa3fc08e1ed97fd4650940",
+    "manifest_sha256": "861967a8f186f6ae89c9b5a45dd641ee5a3a2819a12781c0a0f7541e1acf85c8",
+    "source_inventory_sha256": "4243c308853d0c4f4a4e9c5a2addb2c82064db362f1b3fca8e5cb181361444ae",
+    "migrations": 101,
+    "functions": 30,
+    "local_checksums": "pass"
+  },
+  "authorization_probe": {
+    "endpoint": "GET /functions",
+    "project_ref": "qonqemhljgxlwpghkxhn",
+    "http_status": 401,
+    "observed_at": "2026-10-21T04:19:54.791Z",
+    "transport": "Node --use-env-proxy, inherited domain-bound token, redirects:error, TLS verified",
+    "raw_body_retained": false
+  },
+  "management_followup_reads": "not_attempted_after_known_401",
+  "migration_parity": "unverified",
+  "function_parity": "unverified",
+  "pending_operations": "not_planned_without_current_hosted_parity",
+  "migrations": [
+    {
+      "file": "20261017080406_staging_01_20260905_initial_schema.sql",
+      "version": "20261017080406",
+      "source_sha256": "91bf2f6877c3d913e408d50e01ffa76e4c58ed41c72683f9a8ef3cd2d7e18d60",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017080408_staging_02_20260906000100_hardened_compatibili.sql",
+      "version": "20261017080408",
+      "source_sha256": "0c33371d2cf4b17e7ff5d7b93c81c66a1fe7b09eb2f86c86407b1710701bcdf8",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017080416_staging_03_security_hardening.sql",
+      "version": "20261017080416",
+      "source_sha256": "8c306c89c41dc28119cd3d0fbef3986d98795183f8153d8f351ec7917709d835",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017080420_staging_04_20261017000100_secure_wallet_operat.sql",
+      "version": "20261017080420",
+      "source_sha256": "c1e5ff41c4e7751dda7001e73e6f5a2d27a65d20682b12a6f19d4c517f42ebfb",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017080421_staging_05_profile_column_permissions.sql",
+      "version": "20261017080421",
+      "source_sha256": "6d80ac29707a636fb32e16fe992bb5cefd0c20c7f3b03eff997d7b0a50ce11f1",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017080423_staging_06_phase2_admin_audit_foundation.sql",
+      "version": "20261017080423",
+      "source_sha256": "d65962d695e967cfc2b8b88116e52481808db3e60c03d7e1b40379389127fb4a",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017080425_staging_07_phase2_atomic_admin_mutation.sql",
+      "version": "20261017080425",
+      "source_sha256": "53d8e26c8bc2ed19e21557248b57d9482ff5a230516fca9efbb80a2b5927b96a",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017080427_staging_08_phase2_admin_server_gateway.sql",
+      "version": "20261017080427",
+      "source_sha256": "217673081ea25b439f33988dd9770650f9ad883c89e00322f575e0be22ccb5cd",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017080430_staging_09_phase2_revoke_client_wallet_writes.sql",
+      "version": "20261017080430",
+      "source_sha256": "7b7a165bbe8801aa24256229aada43b5f118a5cfa1714f25f25b3c6ebe8c4982",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017110525_imperial_roles_access_control.sql",
+      "version": "20261017110525",
+      "source_sha256": "517560d01d6731f344e1697ce19312bb9fa76c09628c5a5f79544e6ae9fbe848",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017110539_restrict_privileged_function_execution.sql",
+      "version": "20261017110539",
+      "source_sha256": "179bff87f4bdecae26e6615b11fb2a2cf6664e7bbfe184d8dcbd8fcb8c5b21a9",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017110855_fair_demo_rounds_server_only.sql",
+      "version": "20261017110855",
+      "source_sha256": "2b4076cec93f9feb3daf488a5d3c8b04b92639c3751545b0493fa4790818e7af",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017110858_fair_demo_commit_reveal_state.sql",
+      "version": "20261017110858",
+      "source_sha256": "033c39b6b6aa2b802855e0f811a17450f6a37377fab6fee78dc286b450635bf2",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017111411_fair_seed_precommit_v2.sql",
+      "version": "20261017111411",
+      "source_sha256": "57584f067d36dfcbcfae7b82e4eee05d0bca838b679aa0dfb0221855161f7b61",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017114805_create_private_crash_round_queue.sql",
+      "version": "20261017114805",
+      "source_sha256": "13525e527fab25b00cced730ed8a3b33978b24417174c7dd9377db8f435f1b63",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017120139_poker_transactional_freeplay_v1.sql",
+      "version": "20261017120139",
+      "source_sha256": "6e497025ad5a761ae909491cb99801a2cc911f840fbcbcf502df738c46c3d86e",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017120212_poker_create_join_start_v1.sql",
+      "version": "20261017120212",
+      "source_sha256": "ea101545936348a442c9d634c131dcc60576b8553613588c771434adb38a0910",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017120245_poker_advance_settle_v1.sql",
+      "version": "20261017120245",
+      "source_sha256": "a258cfe9277b8e4c88267b8e84bd2a117427ee2fa1ed0e5bb47abc1c4c491412",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017120300_poker_pin_initial_dealt_seat_count.sql",
+      "version": "20261017120300",
+      "source_sha256": "370d8befb68aa4583c22eac07f71d0695ecf0313a6ef41ffbebf09be0803a9d1",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017120317_poker_private_fairness_seed.sql",
+      "version": "20261017120317",
+      "source_sha256": "cf69f1e268a4781e98d2a5439827287b845a543ae494d5fa6fd8678519292713",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017120555_poker_superadmin_tournament_drafts_v1.sql",
+      "version": "20261017120555",
+      "source_sha256": "68196971ded10a76cd17b1c59f6f1359ebb974aa2f290c2e186c9942443ee703",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017124852_poker_event_registration_seating_v1.sql",
+      "version": "20261017124852",
+      "source_sha256": "60cd30deb3e68f8623014e80e68f58921f56f29dc7468c4991f99f0f4d3584d1",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017124927_poker_fix_stable_event_seating.sql",
+      "version": "20261017124927",
+      "source_sha256": "0c24e548dff13a5a3cc722ec3772a0ac91c4950d6da72a755eedccd9f5bd44c7",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017125108_poker_atomic_committed_repeatable_hand_start.sql",
+      "version": "20261017125108",
+      "source_sha256": "689342c6f27c0162f8551e5cb8d0e00ba0e6462692ec96a8d8d8a207a6b4cc7a",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017125708_poker_fix_button_and_postflop_turn_order.sql",
+      "version": "20261017125708",
+      "source_sha256": "bf4dfd139195dbd7846f518229d60f7bd43b002c8bd2856d381bca80c439fc9e",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017125804_poker_server_clock_blind_levels_v1.sql",
+      "version": "20261017125804",
+      "source_sha256": "57a369565e0a2a9829ba9af616144a76ed4b32ab67c13182049e1cee41137c79",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017125901_poker_tournament_elimination_and_balancing_v1.sql",
+      "version": "20261017125901",
+      "source_sha256": "4a376fb77110af532e5e7d5d2b81dc060017a41b12b0192018ec710088cea7ef",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017130236_poker_disable_obsolete_hand_start.sql",
+      "version": "20261017130236",
+      "source_sha256": "ca2fe04eea079fe896eee646c01f4b1c2b9dba5b3ff92c9b9037d3cc8b97e718",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017133438_poker_turn_timebank_staging_v4.sql",
+      "version": "20261017133438",
+      "source_sha256": "dec7ae59f80aa5ed81daa31b351de4582ef9d652b0f80bfa695996a2629aa2a2",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017134057_poker_turn_timeout_watchdog.sql",
+      "version": "20261017134057",
+      "source_sha256": "b4375425d35ade9b8d9173229a6061a59781fee84fd54fdcd6cac3d3b0f281ff",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017165808_ign_one_time_names_and_kyc_status.sql",
+      "version": "20261017165808",
+      "source_sha256": "e558f834b9c6d09b1d94f2906df39ac83e5fc782800df02eac01d626704e4799",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017165851_grant_one_time_display_name.sql",
+      "version": "20261017165851",
+      "source_sha256": "4322c786cd930a3fb1292699899ad6c9491c95773be4016ada971f1c93395b32",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017201859_lock_timestamp_function_search_paths.sql",
+      "version": "20261017201859",
+      "source_sha256": "1ec374d1ddd9a8c06c03449ebb0a830219f046c85960b1e484986f0267261c57",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017212231_legacy_weekly_practice_leaderboard.sql",
+      "version": "20261017212231",
+      "source_sha256": "0beca77b058c9822672621840713ba31d5a23a5e73687a07915e43d5dab55fd6",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017212950_crypto_deposit_network_catalog_disabled.sql",
+      "version": "20261017212950",
+      "source_sha256": "8c08d863c633ae4ad95446b7c9a66436f97846e6e57fe136ed156f3e566f2ee0",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017215108_user_crypto_deposit_destinations_pending_only.sql",
+      "version": "20261017215108",
+      "source_sha256": "5d6ad5df7a575752ddffa46458a3c0345b8ddf5d1375fd9f3ffd0d0642db2404",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017215111_staging_crypto_withdrawal_policy_2500.sql",
+      "version": "20261017215111",
+      "source_sha256": "1b33d0b08794a75fd1bfffaeb2055b77d55c088b3369322759aec9943d8e42e6",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017215133_provision_pending_crypto_routes_on_profile_create.sql",
+      "version": "20261017215133",
+      "source_sha256": "8a88b76cfc2ac789d2eb4785674a8ac1b49e6e383e433543317b0575f689ea2d",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017215424_staging_ellipal_hot_cold_treasury_accounts.sql",
+      "version": "20261017215424",
+      "source_sha256": "f9a007708b4ebae70fc6c67c790258d3e53c678359512bb43c9261f7cbb63555",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017215535_configure_hot_wallet_provider_candidate.sql",
+      "version": "20261017215535",
+      "source_sha256": "6fe5c1ea45243a82bc50b61369070d876a35787c7108bba5417480f044f7cd0e",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017215834_staging_deferred_payment_rails_stripe_paypal_cash_app.sql",
+      "version": "20261017215834",
+      "source_sha256": "0b6bde0b1968f26895b0ebf990b05b8aa53ce4adc806e05302068ff5e343501f",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017221213_create_atomic_ig_support_tickets.sql",
+      "version": "20261017221213",
+      "source_sha256": "002824b4b607de80811fd0d0b7f9860f79fc70f8c5e7a976d3b37b9499db3ff8",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017222417_lock_down_legacy_app_records_client_mutations.sql",
+      "version": "20261017222417",
+      "source_sha256": "d48b9fe0f0b74fc357dfb03ec6f6e78eeddc90c8bd382db2deeb0eb090bf79a7",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017225140_approved_practice_games_readonly_catalog.sql",
+      "version": "20261017225140",
+      "source_sha256": "5eb6012c0b8c8b49b85381cba3c82fdb8527a60495f8fadcb8559f9fe95f5434",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017225803_player_self_exclusion_one_way_server_only.sql",
+      "version": "20261017225803",
+      "source_sha256": "54f10da0b19b194663dd1cace785f467a77703e91108a30b8f7566c1c6e917f9",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017232433_multiplayer_practice_tables.sql",
+      "version": "20261017232433",
+      "source_sha256": "59712f2ef47c0d5be028cca9a87f6f9b56d02bd5513f6c3c2d49b2f120a44064",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017233048_fix_multiplayer_practice_role_variable.sql",
+      "version": "20261017233048",
+      "source_sha256": "b02c7a569a050e8cb7cee2d2a406ec5e2736ac02eab6b0a69e326908ae2d23b6",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017235658_multiplayer_betting_windows_and_seats.sql",
+      "version": "20261017235658",
+      "source_sha256": "49685419a64fb02c9ef543d801ae847acef19a2b43218d14631cd7bae0e22951",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261017235945_multiplayer_idle_seat_reclamation.sql",
+      "version": "20261017235945",
+      "source_sha256": "dffe1df583288039a6c31bc0f5d178902f26417c876be05b5190bc93c29ce83c",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018001302_crash_trenball_baccarat_practice.sql",
+      "version": "20261018001302",
+      "source_sha256": "bf63c38b3e86e7c43e64133787bd45e29d7ea8f19832a001fc20c6b625d2db84",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018001426_extended_practice_rng.sql",
+      "version": "20261018001426",
+      "source_sha256": "985c1cce1d66d789bcb8c45b66bdce1fc17e6ddbe01e2cff13ff437babe25afe",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018002322_multiplayer_blackjack_practice.sql",
+      "version": "20261018002322",
+      "source_sha256": "775765ab8a9bb06732a5b8a883b8e561a24bfb4e12990c040c68e7bf5065ee10",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018002747_omaha_four_card_poker.sql",
+      "version": "20261018002747",
+      "source_sha256": "1d6472472954e671f87ea6f925144181db3da772ddd771d76d6fde86061bae12",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018002944_poker_deck_offset_fix.sql",
+      "version": "20261018002944",
+      "source_sha256": "7f605a593e47e4ff9d2c1b09dbd97123eb3fbb71c2ddedb067e7d1c8f29164b4",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018003419_blackjack_idempotency_payload_guard.sql",
+      "version": "20261018003419",
+      "source_sha256": "74415870a92a2ba04a18f36e203c08063ae7bd849c8f606c797867babfe11bc1",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018004052_blackjack_turn_timeouts.sql",
+      "version": "20261018004052",
+      "source_sha256": "38bec36a14ddf8be81cd0a1518d8032d3bd19c133746c89b9cf3b69d6516e6df",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018020156_nlhe_eight_seats.sql",
+      "version": "20261018020156",
+      "source_sha256": "b87d692d4d6f7078e5b2f983e095a489165bb138e48ead62e7161a48b047a9d8",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018052928_poker_tournament_staging_presets.sql",
+      "version": "20261018052928",
+      "source_sha256": "7ff556ba5dcf2e7877f320585a5459d03b6383ae1b9657c5834ed339d6c21e6c",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018061313_mtt_seat_table_limits.sql",
+      "version": "20261018061313",
+      "source_sha256": "80dc3a878137fd0799e2a5f233ca5c4973c0ac2e2182016a306a1d9ba3030ad3",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018061338_poker_preset_create_draft_event.sql",
+      "version": "20261018061338",
+      "source_sha256": "a7b33bad389741223afba2672d76caf80dbb1f33b9fd57e873da0ffbeb49069f",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018082634_poker_tournament_prizes_100_places.sql",
+      "version": "20261018082634",
+      "source_sha256": "c3e5b459c0d52bb6705c967d3fca375af58117a9e4dc0cabdd469b6576fbd19d",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018083136_poker_event_prize_plan_snapshot.sql",
+      "version": "20261018083136",
+      "source_sha256": "f4c6f0aa536c6d14c10bb87827aee0e6d18c0515c85febda1c935d0cac6f7b68",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018084941_fireblocks_sandbox_foundation.sql",
+      "version": "20261018084941",
+      "source_sha256": "4da2ed4986c2ccc2033a874f97f4fbb035d964d139bbe8e75dea020a39ec9478",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018114021_craps_practice_chip_refill.sql",
+      "version": "20261018114021",
+      "source_sha256": "6faf9519c310a3d4140ee70550d18167fd69fa455930223acbcbab780facaed7",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018114323_craps_shooter_queue.sql",
+      "version": "20261018114323",
+      "source_sha256": "c75f7e70098a4c26d68a15a26c3fcd2023409eabcd47959fad36fc9b734537b5",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018114728_craps_fifo_claim.sql",
+      "version": "20261018114728",
+      "source_sha256": "23d5d6425fe14a826c1780cba0e99453042a99c6947f4cfc9cc1796cb06abf4a",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018140131_player_wallet_display_preference.sql",
+      "version": "20261018140131",
+      "source_sha256": "099f755f59bf65800df9309416eec01578efcb0fcadb525c6b84c3f2366bb338",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018141031_wallet_currency_ign_branding.sql",
+      "version": "20261018141031",
+      "source_sha256": "9e0e6d4496f79aa460fb072d31644157fad58236b01fa88b2d12dc1a315fcc9d",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018141915_support_supervisor_queue.sql",
+      "version": "20261018141915",
+      "source_sha256": "278f347d7afb03b115ea2ef7c6e32cb5b5485a01ab78cb5d46ad81dcef2fceb5",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018142156_ign_staging_ledger_v1.sql",
+      "version": "20261018142156",
+      "source_sha256": "c456c202d7ef8a1500fa98cf45225fb70a43468c9882b2ce800daed118238e83",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018142739_support_auto_triage_watch.sql",
+      "version": "20261018142739",
+      "source_sha256": "af9b8fc5b07f1971642cbedbb30bc3d52094b9f05fcd73873ad2ec7c856d574c",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018142951_support_superadmin_decisions.sql",
+      "version": "20261018142951",
+      "source_sha256": "ba8e5af655855a27f3951acb04f90a3aa51e997ea1af4e2920ee9dd32bc038ee",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018143555_support_safer_responsible_gaming_detection.sql",
+      "version": "20261018143555",
+      "source_sha256": "94dd05c71860d74fcae88c4885c0c1f695d25a26ade7107f2887c228a26162b2",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018143612_ign_target_edge_and_dual_reward_policy_v1.sql",
+      "version": "20261018143612",
+      "source_sha256": "a3fe9f02fadc670a98fb3c6235f82246d42a63c277af7c3681f7fe8b965221b6",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018145909_ig_poker_ante_and_final_pot_fee_policy_v1.sql",
+      "version": "20261018145909",
+      "source_sha256": "a603d86a2c607a3fe7591498335d76f25e3c7f540583f79f004cf58446efd9da",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018174923_ig_hand_review_credit_catalog_v1.sql",
+      "version": "20261018174923",
+      "source_sha256": "86c41cb26b500e3cfe92eafb982868854610dc7b019468d42fafec2e0968e51b",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018175037_past_played_hands_ai_coaching_only_v1.sql",
+      "version": "20261018175037",
+      "source_sha256": "ddc8e7d93341471c14bbecfe733b7cfdb9c4ef6600acf5093d043191d8feffc8",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018175340_imperial_3bet_membership_catalog_draft_v1.sql",
+      "version": "20261018175340",
+      "source_sha256": "f8f7734d9bf92418dd103dbe1914afb88f72aac8a3fa5621b989d2206599b37c",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018175815_poker_verified_player_analytics_and_skill_v1.sql",
+      "version": "20261018175815",
+      "source_sha256": "3b74bcc6486ab721239950e96b8069cdf18f74f09f4760767a4e08c381275609",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018234308_crash_trenball_server_timed_practice_v2.sql",
+      "version": "20261018234308",
+      "source_sha256": "050d8fe76dfdbe1c52adf767457f90fa822efca7185cf5b764b2ccbf4aa67278",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018234437_crash_v2_fix_secure_random_schema.sql",
+      "version": "20261018234437",
+      "source_sha256": "d814547d1e4b5a42a9d25f29182b0d4477262e0d2263f96d5b355ed607f981d5",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261018235239_crash_v2_prevent_early_auto_cashout_beyond_committed_result.sql",
+      "version": "20261018235239",
+      "source_sha256": "66577157d326bd8531014fa492dc5f4137b59e96e690b61b2e19253d538a109b",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261019044402_poker_staging_bot_accounts.sql",
+      "version": "20261019044402",
+      "source_sha256": "2726b559b560e9326bdc757e347056de422883ee73b7398deec97f10b1a1ae0a",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261019195106_canonical_signup_and_ign_replay_guards.sql",
+      "version": "20261019195106",
+      "source_sha256": "1516d2248432395e61fa65f4355e07eb5803347445f5f73502df71f63614d328",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261019200452_canonical_wallet_admin_authorization.sql",
+      "version": "20261019200452",
+      "source_sha256": "81ac5ef25f1116ab30e69f5578ad9ae27ef1e5a3efab3683c31536393fc1c078",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261019200745_profile_settings_and_avatar_storage.sql",
+      "version": "20261019200745",
+      "source_sha256": "6bb973a8ff322f8fbe43458d79ffffa040297f3192ab7555bf00f1f95c71eb60",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261019201632_verified_originals_practice_rounds.sql",
+      "version": "20261019201632",
+      "source_sha256": "071eb0c886cf9a65d59b56c82623ea0ad5f29874cc39e0737e14242c143808fc",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261020162817_server_owned_mines_practice.sql",
+      "version": "20261020162817",
+      "source_sha256": "28800ade049e99573f66511ebb9b648de3c5a36c2067e9794000ae4aa670d472",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261020204117_payment_preparation_requests.sql",
+      "version": "20261020204117",
+      "source_sha256": "fde55de4d048d9f69d7de2529956c53bea7a3e12432d2d5234a657b8468e4032",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261020215129_verified_practice_catalog_and_record_isolation.sql",
+      "version": "20261020215129",
+      "source_sha256": "0d9eccd00825a0539bf0dd9fe970cb915e0fbd02294b23f54ae4a0efa256c99f",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261020220837_final_approved_practice_games.sql",
+      "version": "20261020220837",
+      "source_sha256": "848e257eb33674090514822dbf3db302b4d6e44b93ffcd2c82d65ccbf51128e1",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261020221122_final_approved_game_catalog.sql",
+      "version": "20261020221122",
+      "source_sha256": "efd6434ee2cddaa73a29d1c1652956f97cc7b1e7c7307867b5301a955406be93",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261020223222_private_ign_action_boundary.sql",
+      "version": "20261020223222",
+      "source_sha256": "081805e3e7df78be6f59d2d7461f75d0342967c9018a89832a7a49b881e1bf77",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261020224547_explicit_backend_only_rls_boundaries.sql",
+      "version": "20261020224547",
+      "source_sha256": "798e02f6f4a760b8de6f027b8db131fe7db0e404a5e1b28dfc2791b6dbfa93d4",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261020231614_dedicated_announcement_content.sql",
+      "version": "20261020231614",
+      "source_sha256": "b3a14b9c047473b7d0e03372e0776b460ddfaed73333e3a9e8699f4a6e7101c2",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261020231753_announcement_public_field_grants.sql",
+      "version": "20261020231753",
+      "source_sha256": "032e75bcd1c2ae4801825f24b0ff2f2e0bea09e214cdd1605cc82c81798f4f02",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261021012551_owner_scoped_sweepstakes_request_intake.sql",
+      "version": "20261021012551",
+      "source_sha256": "53fe73b4cf06166228fdf8f504caf898e791b3d66ff342c48043bd3125aa1770",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261021012941_announcement_content_hardening.sql",
+      "version": "20261021012941",
+      "source_sha256": "8dd311e4f91aa338da5f3e3b64599ab9a298f315dbe7fff89d58deff72e0917e",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261021020409_dedicated_vip_catalog.sql",
+      "version": "20261021020409",
+      "source_sha256": "737f530451f2671bc9fd0c95ed02eace82be49d0757001eaeb898cdf2e444498",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261021030929_vip_level_spins_and_wheel_settings.sql",
+      "version": "20261021030929",
+      "source_sha256": "a9a1030f39d5233f6aa6694dc61e3f1f2fc37e17b458e455904bad7c372225dc",
+      "status": "hosted_unverified"
+    },
+    {
+      "file": "20261021032722_vip_wheel_atomic_redemption.sql",
+      "version": "20261021032722",
+      "source_sha256": "e86ba19f93adb0c83a2b5e7b29dd312c21ed3f601239a506dbcb1a5e661c0948",
+      "status": "hosted_unverified"
+    }
+  ],
+  "functions": [
+    {
+      "name": "admin-mutations",
+      "manifest_deployed_version": 3,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "aec1f640858104ebd1c47e3d8bb76ead20cd6be201c0c90d4819f7b6fe9f4a6c"
+        }
+      ]
+    },
+    {
+      "name": "secure-wallet",
+      "manifest_deployed_version": 3,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "cd6daf54ba5a3a2d5e43d38f0d69090826dcc88f3da83e561155b238509261e4"
+        }
+      ]
+    },
+    {
+      "name": "provably-fair-demo",
+      "manifest_deployed_version": 1,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "47f5aed35275fe2a76fd273158ec3fbe8f0d4f43ce997c1c8086f47b9f1953fc"
+        }
+      ]
+    },
+    {
+      "name": "provably-fair-v2",
+      "manifest_deployed_version": 6,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "b6ba77034f0c20e6f000c657f562c2a917be922a9de55d10b619cffac94197c8"
+        }
+      ]
+    },
+    {
+      "name": "admin-crash-rounds",
+      "manifest_deployed_version": 1,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "14c521eb0d4fd92364a7ebd1ae377dcf99feb77af116a66729333ab097280f1f"
+        }
+      ]
+    },
+    {
+      "name": "poker-table-v1",
+      "manifest_deployed_version": 12,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "e4fde9cfb9e95dedb21cbd4b74b8b8bf013a8ca257af807670024315f29d21a6"
+        }
+      ]
+    },
+    {
+      "name": "admin-poker-events",
+      "manifest_deployed_version": 2,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "4f8c8ba38a3bb605315122e2a4dce907f8f5d6607875618de6912ac3adf0d032"
+        }
+      ]
+    },
+    {
+      "name": "poker-events-v1",
+      "manifest_deployed_version": 5,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "2682ab4fecbd1eaecb49663210bb12340fe16654d7a7d239389ed313169b9afe"
+        }
+      ]
+    },
+    {
+      "name": "legacy-leaderboard-v1",
+      "manifest_deployed_version": 2,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "5940b4c88e7d9dabded8087aa4d923c368068149eb043c91f4f4bc62dc5755e4"
+        }
+      ]
+    },
+    {
+      "name": "crypto-deposit-preview-v1",
+      "manifest_deployed_version": 2,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "4a777f7f068ea6f0de2c5af1b9fadf75251ffa889b263cfb68ec262f618d5f85"
+        }
+      ]
+    },
+    {
+      "name": "ig-support-v1",
+      "manifest_deployed_version": 3,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "030840549c130280b5a3c12027b1b5b653a524b75c9aa74237713e2f773dd1da"
+        }
+      ]
+    },
+    {
+      "name": "ig-self-exclusion-v1",
+      "manifest_deployed_version": 1,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "640031d7a117382e0b8b4e4e9982a2081aeed5af75ec5e07567ddeb2500abfc1"
+        }
+      ]
+    },
+    {
+      "name": "ig-multiplayer-practice",
+      "manifest_deployed_version": 4,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "235788a1b653cfa65b7952ab88c1d12664e52bbd60437eb5413d69eced9d6d90"
+        }
+      ]
+    },
+    {
+      "name": "ig-shared-event-practice",
+      "manifest_deployed_version": 2,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "6b35aaeb63bbb23c6146d29fe9b2ec4ee4bf6f9213fb5524e15a5a52a25c6bb6"
+        }
+      ]
+    },
+    {
+      "name": "ig-blackjack-practice",
+      "manifest_deployed_version": 3,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "73e9c00f57f25b377e266d16299efbcacd3ede6bd06903afce1f5abc888a679d"
+        }
+      ]
+    },
+    {
+      "name": "ig-poker-tournament-admin",
+      "manifest_deployed_version": 3,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "78627834da0493d2c1b011c26e9f60e509631d94c0f1da627ff7be23bbf772ff"
+        }
+      ]
+    },
+    {
+      "name": "ig-poker-tournament-prizes",
+      "manifest_deployed_version": 1,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "1b641df67972e892776f82cdf804c0df986992da8ffab1f801397b84f0f3172f"
+        }
+      ]
+    },
+    {
+      "name": "ig-fireblocks-sandbox-admin",
+      "manifest_deployed_version": 1,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "31a8b0a4b70bb6d968b14ad3f63f3bd6cc55ca295056ecac532e29b10c0a21cf"
+        }
+      ]
+    },
+    {
+      "name": "ig-fireblocks-sandbox-webhook",
+      "manifest_deployed_version": 1,
+      "expected_verify_jwt": false,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "67f7b7a2081f791dbbff5563a9fcdbdedd1822c00ed8efa52d9c1e1265052d98"
+        }
+      ]
+    },
+    {
+      "name": "ig-admin-command-center",
+      "manifest_deployed_version": 1,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "2c4142d95bbb2d420e8aa89e568f629f3f4347a34dd68ffbc4ef1e953819b5aa"
+        }
+      ]
+    },
+    {
+      "name": "ign-staking-v1",
+      "manifest_deployed_version": 3,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "6bbd6e6a2312e6b864727093877adfac4a1938f11152921edadfe34cec7a2aae"
+        }
+      ]
+    },
+    {
+      "name": "ig-support-supervisor",
+      "manifest_deployed_version": 4,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "4a0267d64a100aee467160c9c7c4338cb8561fd40b21a7d1386fddb45f706ae9"
+        },
+        {
+          "file": "triage.js",
+          "source_sha256": "35d0e53e11c5a00ffde4bb34bf31e0e17b55b8a7863dc1d7f3bc208a491bc65b"
+        }
+      ]
+    },
+    {
+      "name": "ig-crash-v2",
+      "manifest_deployed_version": 2,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "cad2557c8ab2535a3f63addc5deb59855148fc7a0c04eb124b5d685583342a83"
+        }
+      ]
+    },
+    {
+      "name": "ig-player-analytics-v1",
+      "manifest_deployed_version": 1,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "f43016edac68ce37b851f1826616ac890c9b0fd7aff751f73707d10e8a06afe3"
+        }
+      ]
+    },
+    {
+      "name": "ig-admin-users-preview-v1",
+      "manifest_deployed_version": 1,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "e7744b036e5094e3d88d2b04a722042a64c0eba7f20a6383b627fb0f6f6cc19a"
+        }
+      ]
+    },
+    {
+      "name": "ig-poker-bot-lab",
+      "manifest_deployed_version": 2,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "9da93daf2b06192c0461192172f966c444478bf2c53c40b2241ce5bf1524f2a5"
+        }
+      ]
+    },
+    {
+      "name": "ig-originals-practice",
+      "manifest_deployed_version": 1,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "787ee06b3b229d43901d27996e98d0e8c57426269cf731dc88cb88131de1d159"
+        }
+      ]
+    },
+    {
+      "name": "ig-mines-practice",
+      "manifest_deployed_version": 1,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "af2691403b235c0e4768946d20500d378b8274fbb1f13782cf621bb5e919688c"
+        }
+      ]
+    },
+    {
+      "name": "ig-payment-requests",
+      "manifest_deployed_version": 1,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "54286ed60e759106bb1ebac6495cce7e15707b45257713883f9583761a1e429d"
+        }
+      ]
+    },
+    {
+      "name": "ig-final-practice",
+      "manifest_deployed_version": 1,
+      "expected_verify_jwt": true,
+      "status": "hosted_unverified",
+      "files": [
+        {
+          "file": "index.ts",
+          "source_sha256": "17d3d1a16be829bf76010d06562556e891b4b252b8fedcd68ef7caa87b009dce"
+        }
+      ]
+    }
+  ],
+  "issues": [
+    {
+      "component": "function_list",
+      "code": "management_http_error",
+      "http_status": 401
+    },
+    {
+      "component": "full_backend_parity",
+      "code": "current_hosted_access_unavailable"
+    }
+  ],
+  "verification_tool_sha256": "fc08350da9506e085413d5f82a67eef7e47788360e8c856c10948dbc08c44246",
+  "offline_fixture_tests": {
+    "passed": 13,
+    "failed": 0,
+    "network_contacted": false
+  },
+  "tool_path": "scripts/check-practice-release-backend.mjs",
+  "limitations": [
+    "Hosted parity was not executed after the known401 authorization probe. Every hosted comparison remains unverified.",
+    "SourceSHA is tied to the separately frozen git archive and candidate report, not inferred from a dirty checkout."
+  ]
+}

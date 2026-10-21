@@ -10,15 +10,24 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import ProtectedRoute from '@/lib/ProtectedRoute';
 import CommandCenterLayout from '@/components/admin/CommandCenterLayout';
-import PlayerWalletBar from '@/components/casino/PlayerWalletBar';
+import PracticeChipBar from '@/components/casino/PracticeChipBar';
 import GameUnavailable from '@/components/games/GameUnavailable';
 import Login from './pages/Login';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import TesterChips from './pages/TesterChips';
+import SiteLoading from './components/SiteLoading';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const publicPages = new Set([
   'Home', 'Games', 'CookiesPolicy', 'Licensing', 'PrivacyPolicy',
-  'ResponsiblePlay', 'TermsOfService', 'FairnessManifesto', 'ResetPassword',
+  'ResponsiblePlay', 'TermsOfService', 'FairnessManifesto', 'ResetPassword', 'TesterChips', 'PokerLobby',
+]);
+// Preserve the historical modules for later work, but this release has one
+// tester-chip experience and no financial-request or token-staking screens.
+const financialPages = new Set([
+  'Payments', 'Withdraw', 'CryptoWallet', 'DepositNetworks', 'IGNToken',
+  'ImperialMembership', 'Bonuses', 'AMOE', 'Store', 'Staking', 'VIP',
+  'Progression', 'Referrals', 'PrizeClaims', 'ThankYou', 'IGTTransfer',
 ]);
 // Only these game pages have reviewed zero-wager server handlers.
 // A successful Vite build never authorizes direct legacy wallet settlement.
@@ -49,9 +58,7 @@ function AuthenticatedApp() {
 
   if (isLoadingAuth) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center" role="status" aria-label="Checking sign-in">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-slate-800" />
-      </div>
+      <SiteLoading label="Checking sign-in" fullScreen />
     );
   }
 
@@ -68,34 +75,27 @@ function AuthenticatedApp() {
         path="/"
         element={withAccess(mainPageKey, <LayoutWrapper currentPageName={mainPageKey}><MainPage /></LayoutWrapper>)}
       />
-      {Object.entries(Pages).map(([path, Page]) => (
+      {[...financialPages].map(path => <Route key={path} path={`/${path}`}
+        element={<LayoutWrapper currentPageName="TesterChips"><TesterChips /></LayoutWrapper>} />)}
+      {Object.entries(Pages).filter(([path]) => !financialPages.has(path)).map(([path, Page]) => (
         <Route
           key={path}
           path={`/${path}`}
           element={withAccess(path, <LayoutWrapper currentPageName={path}><Page /></LayoutWrapper>)}
         />
       ))}
-      <Route path="*" element={<PageNotFound />} />
+      <Route path="*" element={<LayoutWrapper currentPageName="NotFound"><PageNotFound /></LayoutWrapper>} />
     </Routes>
   );
 }
 
 function App() {
-  React.useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const applyTheme = (isDark) => document.documentElement.classList.toggle('dark', isDark);
-    applyTheme(mediaQuery.matches);
-    const handleChange = (event) => applyTheme(event.matches);
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
-
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <NavigationTracker />
-          <PlayerWalletBar />
+          <PracticeChipBar />
           <AuthenticatedApp />
         </Router>
         <Toaster />

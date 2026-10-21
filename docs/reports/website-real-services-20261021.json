@@ -1,0 +1,70 @@
+{
+  "observed_at": "2026-10-21T10:44:06.991968+00:00",
+  "scope": "Updated website against disposable local real services only",
+  "hosted_requests_performed": false,
+  "hosted_mutations_performed": false,
+  "local_stack": {
+    "ready": true,
+    "generated_migrations_replayed": 98,
+    "authenticated_handlers": 21,
+    "services": [
+      "Postgres/pg_cron",
+      "GoTrue Auth",
+      "Storage",
+      "PostgREST",
+      "Kong",
+      "Edge Runtime"
+    ],
+    "cron_disabled": true,
+    "realtime_disabled": true,
+    "api_url": "http://127.0.0.1:54321"
+  },
+  "local_frontend": {
+    "directory": "/tmp/ig-website-local-dist",
+    "build": "passed",
+    "configuration": "Explicit local URL and anonymous key; inherited hosted variables overridden",
+    "root_dist_overwritten": false
+  },
+  "existing_authenticated_suite": {
+    "selected": 30,
+    "initial_pass": 29,
+    "initial_failure": "Stale onboarding copy assertion after guide wording improved",
+    "application_failure_found": false,
+    "corrected_test": "tests/e2e-auth/practice-app.spec.mjs",
+    "targeted_recheck_passed": 1,
+    "combined_verified_cases": 30,
+    "single_clean_full_run": false,
+    "hardcoded_4173_recovery_case_excluded": true,
+    "log": "/tmp/ig-website-real-auth.log",
+    "targeted_recheck_log": "/tmp/ig-website-real-auth-onboarding-recheck.log"
+  },
+  "additional_real_account_checks": {
+    "passed": 2,
+    "failed": 0,
+    "cases": [
+      "Browser signup with confirmation field, canonical player role and account-menu sign-out",
+      "Actual local recovery link, mismatch validation, password update and authentication using the replacement password"
+    ],
+    "log": "/tmp/ig-website-real-account.log",
+    "temporary_test": "/tmp/ig-website-real-account.spec.mjs"
+  },
+  "total_distinct_authenticated_checks_verified": 32,
+  "coverage": [
+    "Profile persistence and one-time display name",
+    "Private support creation and cross-account denial",
+    "Private Holdem/Omaha cards",
+    "Free timebank, completed hand, next hand and reconnect",
+    "Wrong-variant invitation denial",
+    "Shared multiplayer practice chips",
+    "Originals/Mines/final-game commitments and proof verification",
+    "Announcements administration, pagination, expiry and clock isolation",
+    "Funding aliases stay informational and financial wallets remain zero",
+    "Real signup, sign-out and recovery"
+  ],
+  "limitations": [
+    "This is a compact isolated real-services environment, not proof of hosted Auth/email/domain/cron configuration.",
+    "The original hardcoded4173 recovery test was replaced by an equivalent real recovery check on allowed5173 because root uses4173 for public browser validation.",
+    "No bots were provisioned or run.",
+    "Local disposable services remain running; temporary test preview servers have exited."
+  ]
+}

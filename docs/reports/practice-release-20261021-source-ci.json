@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-21T04:20:44Z",
+  "repository": "imperialgames2026/ig-games-repo",
+  "source_commit": "6be0f674c103e789dbfa3fc08e1ed97fd4650940",
+  "source_tree": "6a750ced18df4cfb0d2f407e2ef54af9439abc2e",
+  "source_archive_sha256": "8041226af517e1b0f0012334adb1c1c2699bf3894ea0c53ce7312d757ed23971",
+  "pull_requests": [
+    {
+      "number": 32,
+      "merged_at": "2026-10-21T03:17:33Z",
+      "merge_commit": "1a58d9064775297b297bacbc6de6a5beae21cf05"
+    },
+    {
+      "number": 33,
+      "merged_at": "2026-10-21T03:33:35Z",
+      "merge_commit": "6be0f674c103e789dbfa3fc08e1ed97fd4650940",
+      "head_commit": "1997bbc7437e90f3f7744f50292655adfc2d2d1b",
+      "head_tree": "6a750ced18df4cfb0d2f407e2ef54af9439abc2e",
+      "head_and_merge_source_trees_identical": true
+    }
+  ],
+  "main_checks": {
+    "Cloudflare_Pages": "success",
+    "build": "success",
+    "browser_ui": "success",
+    "local_backend": "success",
+    "payment_browser": "success",
+    "browsers": "success",
+    "Vercel_combined_status": "success"
+  },
+  "runs": [
+    {
+      "id": 39539244834,
+      "url": "https://github.com/imperialgames2026/ig-games-repo/actions/runs/39539244834",
+      "source_commit": "6be0f674c103e789dbfa3fc08e1ed97fd4650940",
+      "name": "Verify app build",
+      "conclusion": "success",
+      "jobs": {
+        "build": "success",
+        "browser-ui": "success",
+        "local-backend": "success",
+        "payment-browser": "success"
+      },
+      "verified_steps": [
+        "Replay recorded SQL and verify actual role policies",
+        "Real local Auth, Storage, REST, handlers and browser sign-in"
+      ]
+    },
+    {
+      "id": 39539244804,
+      "url": "https://github.com/imperialgames2026/ig-games-repo/actions/runs/39539244804",
+      "source_commit": "6be0f674c103e789dbfa3fc08e1ed97fd4650940",
+      "name": "desktop/mobile browser smoke",
+      "conclusion": "success"
+    },
+    {
+      "id": 39538849889,
+      "url": "https://github.com/imperialgames2026/ig-games-repo/actions/runs/39538849889",
+      "source_commit": "1997bbc7437e90f3f7744f50292655adfc2d2d1b",
+      "name": "Practice release integration validation",
+      "conclusion": "success",
+      "source_tree_identical_to_main": true,
+      "verified_steps": [
+        "npm test",
+        "checksum backend package",
+        "isolated migration replay",
+        "transactional database tests",
+        "authenticated Edge Functions",
+        "test-mode build",
+        "public browser tests",
+        "authenticated browser tests"
+      ]
+    },
+    {
+      "id": 39538849776,
+      "url": "https://github.com/imperialgames2026/ig-games-repo/actions/runs/39538849776",
+      "source_commit": "1997bbc7437e90f3f7744f50292655adfc2d2d1b",
+      "conclusion": "success",
+      "prepare": "success",
+      "deploy": "skipped",
+      "event": "pull_request"
+    },
+    {
+      "id": 39537398283,
+      "url": "https://github.com/imperialgames2026/ig-games-repo/actions/runs/39537398283",
+      "source_commit": "aeee2caef52394e80858ff583303fabad3f4679e",
+      "name": "PR32 practice integration validation",
+      "conclusion": "success"
+    }
+  ],
+  "artifact_digests_source": "GitHub API metadata; artifact archives were not downloaded or independently rehashed",
+  "artifacts": [
+    {
+      "run_id": 39539244834,
+      "id": 12318339917,
+      "name": "game-migration-inventory",
+      "sha256": "72f7780f396190d4e97619aaca736205f0d721c82d3f2c3722930868b5ff1bd2"
+    },
+    {
+      "run_id": 39539244804,
+      "id": 12318826219,
+      "name": "eight-game-browser-report",
+      "sha256": "63544d0db76e2f93734dbeb1892d7763ff04412953c4c28d61b5e99ac5c9a75b"
+    },
+    {
+      "run_id": 39538849776,
+      "id": 12317529369,
+      "name": "imperial-reviewed-staging-backend",
+      "sha256": "38598c1e0e59320df89a48f7f6de0e619fac6933e1a4b293e42cd3a7c7246e5f"
+    },
+    {
+      "run_id": 39538849886,
+      "id": 12318339406,
+      "name": "browser-report",
+      "sha256": "106e701816d0379244d3bf8248a8e672dbac9e15f0b3889f3cd40f4bf747c679"
+    }
+  ],
+  "fresh_local_checks": {
+    "source_commit": "6be0f674c103e789dbfa3fc08e1ed97fd4650940",
+    "offline_tests": {
+      "passed": 147,
+      "failed": 0,
+      "skipped": 0
+    },
+    "backend_package": {
+      "migrations": 101,
+      "functions": 30,
+      "checksums": "pass"
+    },
+    "production_build": "pass",
+    "production_configuration": "explicit frozen-source q public defaults; inherited j lab settings overridden",
+    "built_at": "2026-10-21T04:23:46.079Z",
+    "javascript": {
+      "path": "/assets/index-CqfT6O_H.js",
+      "bytes": 1851762,
+      "sha256": "f6f270818debe3056843e469b9d1f0a57395a03cff89940855ac7604d0b880de",
+      "matches_published_bytes": true
+    },
+    "css": {
+      "path": "/assets/index-DRLs0nTS.css",
+      "bytes": 277770,
+      "sha256": "d4d57ff0dc2705970759015e8d77f6960a42ab8dc781596da37b9495f161ba76"
+    },
+    "index_html": {
+      "bytes": 3696,
+      "sha256": "f2c1a97b92824dd33d31949d9bf43b8ff032b53303aa8b567ef7db0a28f13b91"
+    },
+    "release_json_sha256": "2786b93478720d851f8e655ea7dcf6b693e04ada86077c2db50db982ce3bad25",
+    "release_json_hash_limitation": "Local build timestamp differs from live release; release.json hashes are not expected to match."
+  },
+  "read_only": true,
+  "remote_mutations_performed": false
+}

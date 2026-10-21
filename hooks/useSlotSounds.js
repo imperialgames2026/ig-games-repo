@@ -37,7 +37,9 @@ export default function useSlotSounds() {
         osc.stop(ctx.currentTime + 0.04);
         tick++;
       }, 60);
-    } catch (e) {}
+    } catch (e) {
+      // Optional sound stays silent when browser audio is unavailable.
+    }
   }, []);
 
   const stopSpin = useCallback(() => {
@@ -69,7 +71,9 @@ export default function useSlotSounds() {
       gain.connect(ctx.destination);
       src.start(t);
       src.stop(t + 0.08);
-    } catch (e) {}
+    } catch (e) {
+      // Optional sound stays silent when browser audio is unavailable.
+    }
   }, []);
 
   // Small win jingle — ascending arpeggio
@@ -90,7 +94,9 @@ export default function useSlotSounds() {
         osc.start(ctx.currentTime + i * 0.08);
         osc.stop(ctx.currentTime + i * 0.08 + 0.2);
       });
-    } catch (e) {}
+    } catch (e) {
+      // Optional sound stays silent when browser audio is unavailable.
+    }
   }, []);
 
   // Big win fanfare — triumphant chords + coin cascade
@@ -135,7 +141,9 @@ export default function useSlotSounds() {
         osc.start(t);
         osc.stop(t + 0.1);
       }
-    } catch (e) {}
+    } catch (e) {
+      // Optional sound stays silent when browser audio is unavailable.
+    }
   }, []);
 
   // Bonus/free games triggered — dramatic ascending sweep
@@ -153,7 +161,9 @@ export default function useSlotSounds() {
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.9);
       osc.start(ctx.currentTime);
       osc.stop(ctx.currentTime + 1);
-    } catch (e) {}
+    } catch (e) {
+      // Optional sound stays silent when browser audio is unavailable.
+    }
   }, []);
 
   // Click / button press
@@ -171,7 +181,9 @@ export default function useSlotSounds() {
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
       osc.start(ctx.currentTime);
       osc.stop(ctx.currentTime + 0.07);
-    } catch (e) {}
+    } catch (e) {
+      // Optional sound stays silent when browser audio is unavailable.
+    }
   }, []);
 
   return { playSpinStart, stopSpin, playReelStop, playWin, playBigWin, playBonus, playClick };

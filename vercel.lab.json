@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "framework": "vite",
+  "buildCommand": "npm run build:lab",
+  "outputDirectory": "dist-lab",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}

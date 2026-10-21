@@ -9,10 +9,14 @@ const app=source('App.jsx');
 const layout=source('Layout.jsx');
 const bar=source('components/casino/PlayerWalletBar.jsx');
 
-test('wallet toolbar is mounted once above all routes, including gameplay and command center',()=>{
- assert.match(app,/import PlayerWalletBar/);
- assert.match(app,/<PlayerWalletBar \/>/);
- assert.ok(app.indexOf('<PlayerWalletBar />')<app.indexOf('<AuthenticatedApp />'));
+test('tester site shows a practice-chip toolbar and preserves historical balances separately',()=>{
+ assert.match(app,/import PracticeChipBar/);
+ assert.match(app,/<PracticeChipBar \/>/);
+ assert.ok(app.indexOf('<PracticeChipBar />')<app.indexOf('<AuthenticatedApp />'));
+ assert.doesNotMatch(app,/<PlayerWalletBar \/>/);
+ const practiceBar=source('components/casino/PracticeChipBar.jsx');
+ assert.match(practiceBar,/Tester-chip preview/);
+ assert.doesNotMatch(practiceBar,/\.from\(|\.rpc\(|functions\.invoke\(/);
  assert.doesNotMatch(layout,/<WalletDisplay wallet=/);
  assert.match(layout,/isPlayPage/);
 });

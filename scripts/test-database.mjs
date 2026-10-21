@@ -1,16 +1,24 @@
 import {spawnSync,execFileSync} from 'node:child_process';
 import {readFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
+import {LAB_PROJECT_REF} from '../config/test-lab.js';
+const lab=process.argv[2]==='--test-lab';
+if(process.argv.length>(lab?3:2))throw Error('Usage: node scripts/test-database.mjs [--test-lab]');
+const dockerEnv={...process.env};
+if(lab)for(const key of ['DOCKER_HOST','DOCKER_CONTEXT','DOCKER_TLS','DOCKER_TLS_VERIFY','DOCKER_CERT_PATH'])delete dockerEnv[key];
+const dockerFlags=lab?['--host=unix:///var/run/docker.sock']:[];
 const root=fileURLToPath(new URL('../',import.meta.url));
 const container='supabase_db_qonqemhljgxlwpghkxhn';
-const details=JSON.parse(execFileSync('docker',['inspect',container],{encoding:'utf8'}))[0];
+const details=JSON.parse(execFileSync('docker',[...dockerFlags,'inspect',container],{env:dockerEnv,encoding:'utf8'}))[0];
 // Refuse any remote database or an arbitrary container supplied by environment.
-if(details.Name!=='/'+container||!details.State.Running)throw Error('Start the isolated local Supabase project before running database tests');
-const fixtures=readFileSync(root+'scripts/database/fixtures.sql','utf8');
+if(details.Name!=='/'+container||!details.State.Running||(lab&&details.Config.Labels?.['com.imperialgames.local-test-site']!=='1'))throw Error('Start the isolated local Supabase project before running database tests');
+const transform=source=>lab?source.replaceAll('qonqemhljgxlwpghkxhn',LAB_PROJECT_REF):source;
+const fixtures=transform(readFileSync(root+'scripts/database/fixtures.sql','utf8'));
 const files=['secure_wallet_negative.sql','admin_mutations_transactional.sql','poker_event_smoke.sql','poker_timebank_smoke.sql','poker_prize_ladder_100_spots_rollback.sql','shared_crash_trenball_transactional.sql','canonical_signup_ign_replay_rollback.sql','practice_application_readiness.sql','canonical_wallet_admin_rollback.sql','profile_settings_rollback.sql','originals_practice_rollback.sql','mines_practice_rollback.sql','catalog_and_records_rollback.sql','final_practice_rollback.sql','ign_invoker_boundary_rollback.sql','backend_only_rls_rollback.sql','announcements_rollback.sql'];
+if(lab)files.push('poker_tester_table_lifecycle_rollback.sql');
 for(const file of files){
- const source=readFileSync(root+'supabase/tests/'+file,'utf8').replace(/^\s*BEGIN;\s*$/gim,'').replace(/^\s*ROLLBACK;\s*$/gim,'');
- const result=spawnSync('docker',['exec','-i',container,'psql','-U','postgres','-d','postgres','-v','ON_ERROR_STOP=1'],{input:'BEGIN;\n'+fixtures+'\n'+source+'\nROLLBACK;\n',encoding:'utf8',timeout:60000});
+ const source=transform(readFileSync(root+'supabase/tests/'+file,'utf8')).replace(/^\s*BEGIN;\s*$/gim,'').replace(/^\s*ROLLBACK;\s*$/gim,'');
+ const result=spawnSync('docker',[...dockerFlags,'exec','-i',container,'psql','-U','postgres','-d','postgres','-v','ON_ERROR_STOP=1'],{env:dockerEnv,input:'BEGIN;\n'+fixtures+'\n'+source+'\nROLLBACK;\n',encoding:'utf8',timeout:60000});
  if(result.status!==0){console.error(result.stderr);throw Error('Database test failed: '+file);}
  console.log('PASS '+file);
 }

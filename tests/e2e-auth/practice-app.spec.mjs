@@ -28,9 +28,16 @@ test('registered player has a canonical role and can save a one-time display nam
  await expect(page.getByRole('heading',{name:/profile/i}).first()).toBeVisible();
  const {data,error}=await admin.from('user_roles').select('role').eq('user_id',fixtures[0].id).single();
  expect(error).toBeNull();expect(data.role).toBe('player');
- await page.getByPlaceholder('Choose a username').fill('Local player');
+ // Public names are globally unique; keep repeated runs independent.
+ const displayName='Local '+fixtures[0].id.replaceAll('-','').slice(0,16);
+ await page.getByPlaceholder('Choose a username').fill(displayName);
  await page.getByRole('button',{name:'Save',exact:true}).last().click();
  await expect(page.getByText('Display name saved!',{exact:true})).toBeVisible();
+ await page.reload({waitUntil:'domcontentloaded'});
+ await expect(page.getByPlaceholder('Choose a username')).toHaveValue(displayName);
+ await expect(page.getByPlaceholder('Choose a username')).toBeDisabled();
+ const saved=await admin.from('profiles').select('display_name').eq('id',fixtures[0].id).single();
+ expect(saved.error).toBeNull();expect(saved.data.display_name).toBe(displayName);
 });
 test('player can open a private support case and another account cannot read it',async({page})=>{
  await signin(page);await page.goto('/Support', {waitUntil:'domcontentloaded'});
@@ -53,35 +60,25 @@ test('dice commit and reveal is verified in the browser',async({page})=>{
  const {data}=await admin.from('fair_seed_commitments').select('status').eq('user_id',fixtures[0].id);
  expect(data.some(row=>row.status==='revealed')).toBe(true);
 });
-test('payment preparation records, lists and cancels without moving wallet funds',async({page})=>{
- await signin(page);await page.goto('/Payments', {waitUntil:'domcontentloaded'});
- await page.getByLabel('Amount',{exact:true}).fill('0.01');
- await page.getByRole('button',{name:'Save preparation request'}).click();
- await expect(page.getByRole('status')).toContainText('No funds have moved');
- await expect(page.getByText('Awaiting provider connection',{exact:false})).toBeVisible();
- await page.getByRole('button',{name:'Cancel request'}).click();
- await expect(page.getByText('Cancelled',{exact:false})).toBeVisible();
- const {data,error}=await admin.from('wallets').select('cent_balance,igd_balance,igt_balance').eq('user_id',fixtures[0].id).single();
- expect(error).toBeNull();expect(Number(data.cent_balance)+Number(data.igd_balance)+Number(data.igt_balance)).toBe(0);
+test('legacy funding routes show tester chips without invoking payment preparation',async({page})=>{
+ const paymentRequests=[];
+ page.on('request',request=>{if(request.url().includes('/functions/v1/ig-payment-requests'))paymentRequests.push(request.url());});
+ await signin(page);
+ for(const route of ['/Payments','/Withdraw','/CryptoWallet','/DepositNetworks','/IGNToken']){
+  await page.goto(route,{waitUntil:'domcontentloaded'});
+  await expect(page.getByRole('heading',{name:'Your seat. Your tester chips.'})).toBeVisible();
+  await expect(page.getByRole('button',{name:'Save preparation request'})).toHaveCount(0);
+  await expect(page.getByLabel('Destination address',{exact:true})).toHaveCount(0);
+ }
+ expect(paymentRequests).toEqual([]);
+ const requests=await admin.from('payment_preparation_requests').select('id').eq('user_id',fixtures[0].id);
+ expect(requests.error).toBeNull();expect(requests.data).toEqual([]);
 });
-test('withdrawal preparation preserves the selected asset, network and destination without debiting funds',async({page})=>{
- await signin(page);await page.goto('/Withdraw',{waitUntil:'domcontentloaded'});
- await expect(page.getByLabel('Request type',{exact:true})).toHaveValue('withdrawal');
- await page.getByLabel('Asset',{exact:true}).selectOption('USDC');
- await page.getByLabel('Network',{exact:true}).selectOption('solana');
- await page.getByLabel('Amount',{exact:true}).fill('1.25');
- const destination='11111111111111111111111111111111';
- await page.getByLabel('Destination address',{exact:true}).fill(destination);
- await page.getByRole('button',{name:'Save preparation request'}).click();
- await expect(page.getByRole('status')).toContainText('No funds have moved');
- const {data,error}=await admin.from('payment_preparation_requests').select('kind,asset,network,amount,destination,status').eq('user_id',fixtures[0].id).eq('kind','withdrawal').single();
- expect(error).toBeNull();expect(data).toEqual({kind:'withdrawal',asset:'USDC',network:'solana',amount:1.25,destination,status:'awaiting_provider'});
- const other=createClient(url,config.ANON_KEY,{auth:{persistSession:false}});
- expect((await other.auth.signInWithPassword({email:fixtures[1].email,password})).error).toBeNull();
- const privateRows=await other.from('payment_preparation_requests').select('id').eq('user_id',fixtures[0].id);
- expect(privateRows.error).toBeNull();expect(privateRows.data).toEqual([]);
- await page.getByRole('button',{name:'Cancel request'}).click();
- await expect(page.locator('article').filter({hasText:'withdrawal'}).getByText('Cancelled',{exact:false})).toBeVisible();
+test('tester chip onboarding explains room-owned stacks and links to poker without funding a wallet',async({page})=>{
+ await signin(page);await page.goto('/TesterChips',{waitUntil:'domcontentloaded'});
+ await expect(page.getByText('When you create or join a poker practice room,',{exact:false})).toContainText('a new seat starts with 1,000 tester chips');
+ await expect(page.getByRole('link',{name:'Open poker lobby'})).toHaveAttribute('href','/PokerLobby');
+ await expect(page.getByText('There are no deposits, withdrawals, chip purchases or cash prizes.',{exact:false})).toBeVisible();
  const wallet=await admin.from('wallets').select('cent_balance,igd_balance,igt_balance').eq('user_id',fixtures[0].id).single();
  expect(wallet.error).toBeNull();expect(Number(wallet.data.cent_balance)+Number(wallet.data.igd_balance)+Number(wallet.data.igt_balance)).toBe(0);
 });

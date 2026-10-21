@@ -12,14 +12,11 @@ export default function GameUnavailable({ game }) {
       <div className="mx-auto max-w-xl rounded-2xl border border-amber-400/30 bg-[#21192b] p-8">
         <ShieldAlert className="h-12 w-12 text-amber-300" />
         <p className="mt-5 text-xs font-black uppercase tracking-widest text-amber-300">
-          {onHold ? 'Currently unavailable' : 'Staging-only · Backend migration pending'}
+          {onHold ? 'Currently unavailable' : 'Outside the practice collection'}
         </p>
-        <h1 className="mt-2 text-3xl font-black">{game.replace(/^Play/, '')} is not accepting wagers</h1>
+        <h1 className="mt-2 text-3xl font-black">{game.replace(/^Play/, '').replace(/([a-z])([A-Z])/g, '$1 $2')} is not available</h1>
         <p className="mt-4 leading-7 text-gray-300">
-          {onHold ? 'This game is on hold for the current release. Choose one of the available games below. No coins, cryptocurrency or practice chips have been charged.' : <>This game's original Base44 settlement operation has not passed the
-          Supabase authorization, fairness and transaction tests. The screen is
-          disabled to prevent misleading balances or unverified outcomes.
-          No coins, cryptocurrency or practice chips have been charged.</>}
+          This game isn’t part of the current tester-chip collection. Explore the game library to find a practice table or an Imperial Original. Your chips haven’t been used.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Link to="/Games" className="rounded-xl bg-amber-400 px-5 py-3 font-bold text-slate-950">Back to games</Link>

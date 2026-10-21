@@ -13,7 +13,9 @@ export default function LiveBetsPanel({ gameName = '', userEmail = '' }) {
       try {
         const recent = await base44.entities.Transaction.list('-created_date', 30);
         setBets(recent);
-      } catch (_) {}
+      } catch (_) {
+        // Unavailable history leaves the panel in its empty state.
+      }
     };
     load();
 

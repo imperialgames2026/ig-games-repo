@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { approvedPracticeGames } from '../lib/approvedPracticeGames.js';
 
 const file = p => readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const app=file('App.jsx'), lobby=file('pages/Games.jsx');
@@ -20,7 +21,8 @@ test('requested eight games have staging-only authorized multiplayer routes',()=
     assert.doesNotMatch(page, /base44|Transaction\.create|UserWallet\.update|WalletDisplay/);
   }
   for(const name of ['PlayPoker','PlayOmaha','PlayBlackjack','PlayBaccarat','PlayCraps','PlayRoulette','PlayCrash','PlayTrenball'])
-    assert.ok(lobby.includes("createPageUrl('"+name+"')"),name+' missing in lobby');
+    assert.ok(approvedPracticeGames.some(game=>game.route==='/'+name),name+' missing in the approved discovery collection');
+  assert.match(lobby, /PracticeGameCard/);
 });
 
 test('card rooms never call legacy wallet mutation or financial settlement',()=>{

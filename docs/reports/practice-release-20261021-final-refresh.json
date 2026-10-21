@@ -1,0 +1,40 @@
+{
+  "observed_at": "2026-10-21T04:27:40.087581+00:00",
+  "expected_source_commit": "6be0f674c103e789dbfa3fc08e1ed97fd4650940",
+  "remote_mutations_performed": false,
+  "github_main": {
+    "http_status": 200,
+    "sha": "6be0f674c103e789dbfa3fc08e1ed97fd4650940",
+    "unchanged": true
+  },
+  "public_release": {
+    "http_status": 403
+  },
+  "status": "public_verification_passed_with_transport_difference",
+  "native_verifier": {
+    "observed_at": "2026-10-21T04:29:02.370441+00:00",
+    "transport": "Unchanged source verifier with Node24 --use-env-proxy, inherited proxy and CA trust",
+    "exit_code": 0,
+    "commit": "6be0f674c103e789dbfa3fc08e1ed97fd4650940",
+    "site": "https://imperialgaming.llc",
+    "release_mode": "practice",
+    "migrations": 101,
+    "routes": 6,
+    "application_asset": "/assets/index-CqfT6O_H.js"
+  },
+  "transport_note": "The urllib final release.json request returned403; the unchanged native Node verifier subsequently passed all checks through the same inherited network path. No challenge was solved or access restriction bypassed; no site outage is inferred.",
+  "local_audit_regression": {
+    "passed": 183,
+    "failed": 0,
+    "skipped": 0,
+    "scope": "Preserved lab draft including13 new practice-release audit fixtures; distinct from the147 exact frozen-main tests."
+  },
+  "frozen_source_recheck": {
+    "files": 1132,
+    "changed_files": []
+  },
+  "candidate_recheck": {
+    "files": 133,
+    "checksum_errors": []
+  }
+}

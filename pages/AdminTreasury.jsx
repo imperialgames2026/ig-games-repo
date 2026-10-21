@@ -11,20 +11,20 @@ export default function AdminTreasury(){
   </div>
   <section><h2 className="mb-4 font-serif text-xl font-bold text-white">Provider integration readiness</h2>
    <DataTable headings={['Provider','Operational approval','Real funds enabled','Updated']} rows={data.providers||[]} render={p=>[
-    p.provider_name||p.provider_id,<Status value={p.operationally_approved?'approved':'not approved'}/>,
-    <Status value={p.real_funds_enabled?'active':'disabled'}/>,dt(p.updated_at)
+    p.provider_name||p.provider_id,<Status key="approval" value={p.operationally_approved?'approved':'not approved'}/>,
+    <Status key="funds" value={p.real_funds_enabled?'active':'disabled'}/>,dt(p.updated_at)
    ]}/>
   </section>
   <section><h2 className="mb-4 font-serif text-xl font-bold text-white">Sandbox vault records</h2>
    <DataTable headings={['Player','Fireblocks vault ID','State','Created']} rows={data.vaults||[]} render={v=>[
-    <span className="font-mono text-xs" title={v.user_id}>{v.user_id?.slice(0,8)}…</span>,
-    v.vault_id||'Not provisioned',<Status value={v.status}/>,dt(v.created_at)
+    <span key="player" className="font-mono text-xs" title={v.user_id}>{v.user_id?.slice(0,8)}…</span>,
+    v.vault_id||'Not provisioned',<Status key="state" value={v.status}/>,dt(v.created_at)
    ]}/>
   </section>
   <section><h2 className="mb-4 font-serif text-xl font-bold text-white">Quarantined sandbox webhooks</h2>
    <DataTable headings={['Notification','Type','State','Received']} rows={data.webhooks||[]} render={w=>[
-    <span className="font-mono text-xs" title={w.notification_id}>{w.notification_id?.slice(0,8)}…</span>,
-    w.event_type,<Status value={w.processing_status}/>,dt(w.received_at)
+    <span key="notification" className="font-mono text-xs" title={w.notification_id}>{w.notification_id?.slice(0,8)}…</span>,
+    w.event_type,<Status key="state" value={w.processing_status}/>,dt(w.received_at)
    ]}/>
   </section>
   <p className="text-xs leading-6 text-[#9b9eb0]">Reconciliation, AML screening, independently signed custody withdrawals and per-user deposit assignment must pass sandbox testing and licensing reviews before activation. <Link className="text-amber-200 underline" to="/AdminWallets">Inspect transaction observations</Link>.</p>

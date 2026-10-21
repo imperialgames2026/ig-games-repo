@@ -16,7 +16,7 @@ export default function FinalPracticeGame({game}){
  const read=id=>JSON.parse(localStorage.getItem(proofKey(id))||'null');
  async function call(body){
   const {data,error}=await supabase.functions.invoke('ig-final-practice',{body:{...body,game}});
-  if(error||!data||data.error||!Object.hasOwn(data,'state')){let message=data?.error||'Round unavailable. Retry the same request.';try{message=(await error?.context?.json())?.error||message;}catch{}throw Error(message);}return data.state;
+  if(error||!data||data.error||!Object.hasOwn(data,'state')){let message=data?.error||'Round unavailable. Retry the same request.';try{message=(await error?.context?.json())?.error||message;}catch{/* A non-JSON error retains the safe retry message. */}throw Error(message);}return data.state;
  }
  async function accept(state,expectedId){
   if(!state){setRound(null);return;}

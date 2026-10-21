@@ -76,7 +76,9 @@ export default function LiveBetFeed() {
           }
         }));
       }
-    } catch {}
+    } catch {
+      // Optional profile enrichment must not prevent permitted bet data rendering.
+    }
   };
 
   useEffect(() => {

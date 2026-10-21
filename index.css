@@ -84,5 +84,19 @@
 
   body {
     @apply bg-background text-foreground;
+    background: #0a0612;
+    color: #eff2f8;
+    min-width: 280px;
+  }
+
+  html { color-scheme: dark; scroll-padding-top: 6rem; }
+  ::selection { background: #a21caf; color: #fff; }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid #d9b35b;
+    outline-offset: 3px;
+  }
+  h1[tabindex="-1"]:focus { outline: none; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
   }
 }

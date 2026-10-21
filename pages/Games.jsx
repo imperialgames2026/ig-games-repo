@@ -1,262 +1,100 @@
 import React from 'react';
-import { useAuth } from '@/lib/AuthContext';
-import { readApprovedPracticeGames } from '@/lib/supabaseLegacyReads';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
-import PullToRefresh from '@/components/mobile/PullToRefresh';
-import { createPageUrl } from '@/utils';
-import ExclusionBanner from '@/components/casino/ExclusionBanner';
-import { motion } from 'framer-motion';
-import { Gamepad2, LayoutGrid, Table, Sparkles, Dice5, Crown, ArrowRight } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import GameCard from '@/components/casino/GameCard';
-import WeeklyTokenLeaderboard from '@/components/casino/WeeklyTokenLeaderboard';
-import { approvedPracticeGames } from '@/lib/approvedPracticeGames';
-
-const categoryIcons = {
-  all: LayoutGrid,
-  table: Table,
-  slots: Sparkles,
-  instant: Dice5,
-  cards: Gamepad2,
-  poker: Crown,
-  blackjack: Crown,
-};
+import { Link, useSearchParams } from 'react-router-dom';
+import { ArrowRight, Coins, Crown, Gamepad2, RefreshCw, Search, ShieldCheck, X } from 'lucide-react';
+import { PracticeCollectionMessage, PracticeGameCard, practiceGroup, practiceGroups, usePracticeCollection } from '@/components/casino/PracticeGameDiscovery';
 
 export default function Games() {
-  const { user } = useAuth();
-  const queryClient = useQueryClient();
-  const { data: games = [], isLoading, error } = useQuery({
-    queryKey: ['games', user?.id],
-    queryFn: () => readApprovedPracticeGames({ is_active: true }),
-    enabled: !!user?.id && !user.is_excluded,
-  });
-
-  if (user?.is_excluded) return <ExclusionBanner />;
-
-  const categories = ['all', 'table', 'slots', 'instant', 'cards', 'poker', 'blackjack'];
-
-  const sortGames = (gamesList) => {
-    const categoryOrder = { 'instant': 1, 'table': 2, 'cards': 3, 'slots': 4 };
-    return [...gamesList].sort((a, b) => {
-      const orderA = categoryOrder[a.category] || 999;
-      const orderB = categoryOrder[b.category] || 999;
-      return orderA - orderB;
-    });
+  const collection = usePracticeCollection();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const search = (searchParams.get('q') || '').slice(0, 80);
+  const requestedCategory = searchParams.get('category') || 'all';
+  const category = practiceGroups.some(group => group.id === requestedCategory) ? requestedCategory : 'all';
+  const normalizedSearch = search.trim().toLocaleLowerCase();
+  const filteredGames = collection.games.filter(game =>
+    (category === 'all' || practiceGroup(game) === category) &&
+    (!normalizedSearch || `${game.name} ${game.description}`.toLocaleLowerCase().includes(normalizedSearch)));
+  const canBrowse = !collection.loading && !collection.error && !collection.excluded;
+  const updateSearch = value => {
+    const next = new URLSearchParams(searchParams);
+    if (value) next.set('q', value); else next.delete('q');
+    setSearchParams(next, { replace: true });
+  };
+  const updateCategory = value => {
+    const next = new URLSearchParams(searchParams);
+    if (value === 'all') next.delete('category'); else next.set('category', value);
+    setSearchParams(next);
   };
 
-  const uniqueGames = Array.from(
-    new Map(games.map((game) => [game.slug || game.id, game])).values()
-  );
-
-  const filterGames = (category) => {
-    if (category === 'all') return sortGames(uniqueGames);
-    return uniqueGames.filter(g => g.category === category);
-  };
-
-  return (
-    <PullToRefresh onRefresh={() => {
-      queryClient.invalidateQueries({ queryKey: ['games'] });
-      queryClient.invalidateQueries({ queryKey: ['weekly-token-leaderboard'] });
-    }}>
-      <div className="min-h-screen bg-[#0A0612]">
-      {/* Header */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-green-900/30 via-transparent to-blue-900/20" />
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-green-600/20 rounded-full blur-3xl" />
-        
-        <div className="relative max-w-7xl mx-auto px-4 py-16">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center"
-          >
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-green-400 to-emerald-500 shadow-lg shadow-green-500/30 mb-6">
-              <Gamepad2 className="w-10 h-10 text-white" />
-            </div>
-            <h1 className="text-4xl font-black text-white mb-4">Game Library</h1>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              Explore our collection of exciting casino games. Play responsibly and have fun!
-            </p>
-          </motion.div>
+  return <main className="min-h-screen bg-[#0B0812] text-white">
+    <header className="relative overflow-hidden border-b border-white/[0.07] bg-gradient-to-br from-[#29142E] via-[#181021] to-[#0B0812]">
+      <div aria-hidden="true" className="absolute -right-14 -top-20 h-80 w-80 rounded-full bg-purple-700/10 blur-3xl" />
+      <div className="relative mx-auto flex max-w-7xl items-center gap-6 px-4 py-10 sm:px-6 lg:py-12">
+        <div className="min-w-0 flex-1">
+          <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-amber-200">Imperial Games · The practice collection</p>
+          <h1 className="text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">Game Library</h1>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-300 sm:text-base">A favorite table. A different kind of challenge. Find your next game and play with fictional tester chips.</p>
+          <div className="mt-5 flex flex-wrap gap-x-5 gap-y-3 text-xs text-slate-400">
+            <span className="inline-flex items-center gap-2"><ShieldCheck aria-hidden="true" className="h-4 w-4 text-amber-200/75" /> Practice only</span>
+            <span className="inline-flex items-center gap-2"><Coins aria-hidden="true" className="h-4 w-4 text-pink-300/75" /> No purchases or cash prizes</span>
+          </div>
         </div>
+        <img src="/imperial-gaming.png" alt="" width="1024" height="1024" className="hidden h-36 w-36 shrink-0 rounded-2xl border border-amber-200/15 object-cover opacity-90 lg:block" />
       </div>
+    </header>
 
-      {/* Games */}
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <section aria-label="Available multiplayer practice tables" className="mb-10 rounded-2xl border border-amber-400/20 bg-[#181525] p-5 sm:p-7">
-          <div className="mb-5">
-            <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-300">Staging · Multiplayer practice</p>
-            <h2 className="mt-2 text-2xl font-black text-white">Join a live casino-style table</h2>
-            <p className="mt-2 text-sm text-gray-300">Play beside other signed-in users using imaginary practice chips only. No cryptocurrency, paid wagers, transfers, redemptions or cash prizes.</p>
+    <div className="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:py-10">
+      <section aria-labelledby="poker-entry" className="flex flex-col items-start justify-between gap-5 rounded-2xl border border-amber-200/20 bg-gradient-to-r from-[#302031] to-[#1B1424] p-5 sm:flex-row sm:items-center sm:p-6">
+        <div className="flex items-start gap-4"><span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-amber-200/20 bg-amber-200/5"><Crown aria-hidden="true" className="h-5 w-5 text-amber-200" /></span>
+          <div><h2 id="poker-entry" className="text-lg font-bold">Bring your group to the poker table</h2><p className="mt-1 max-w-xl text-sm leading-relaxed text-slate-400">Create a private Hold’em or Omaha room, or join your group with a room key.</p></div>
+        </div>
+        <Link to="/PokerLobby" className="inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-amber-200 px-5 py-3 text-sm font-bold text-[#211326] transition hover:bg-amber-100 sm:w-auto">Open poker lobby <ArrowRight aria-hidden="true" className="h-4 w-4" /></Link>
+      </section>
+
+      <section aria-label="Game collection">
+        <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
+          <div><h2 className="text-2xl font-black tracking-tight">Find your next practice game</h2><p className="mt-2 text-sm text-slate-400">Browse the collection by name or choose your style of play.</p></div>
+          {collection.signedIn && !collection.excluded && <button type="button" onClick={() => collection.refresh()} disabled={collection.refreshing}
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 px-4 text-xs font-semibold text-slate-300 hover:bg-white/5 disabled:opacity-60"><RefreshCw aria-hidden="true" className={`h-3.5 w-3.5 ${collection.refreshing ? 'animate-spin' : ''}`} /> Refresh library</button>}
+        </div>
+
+        <div className="mb-5 space-y-4">
+          <div className="relative max-w-xl">
+            <Search aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+            <label htmlFor="practice-game-search" className="sr-only">Search practice games</label>
+            <input id="practice-game-search" type="search" value={search} maxLength={80} onChange={event => updateSearch(event.target.value)} placeholder="Search games…"
+              className="min-h-12 w-full rounded-xl border border-white/10 bg-[#15101F] py-3 pl-11 pr-12 text-sm text-white placeholder:text-slate-400 focus:border-pink-300/60 focus:outline-none focus:ring-2 focus:ring-pink-300/15" />
+            {search && <button type="button" onClick={() => updateSearch('')} aria-label="Clear game search" className="absolute right-1 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 hover:bg-white/5 hover:text-white"><X aria-hidden="true" className="h-4 w-4" /></button>}
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Link to={createPageUrl('PlayCraps')}
-              className="rounded-xl border border-emerald-400/30 bg-gradient-to-br from-emerald-950 to-[#123429] p-5 text-white transition hover:border-amber-300">
-              <div className="text-4xl">🎲</div>
-              <h3 className="mt-2 text-xl font-black">Multiplayer Craps</h3>
-              <p className="mt-2 text-sm text-gray-300">Take the shooter's turn or join the action with Pass Line, Field, Any Seven and Place Number practice bets.</p>
-              <p className="mt-4 text-sm font-bold text-amber-200">Enter craps table →</p>
-            </Link>
-            <Link to={createPageUrl('PlayRoulette')}
-              className="rounded-xl border border-red-400/30 bg-gradient-to-br from-red-950 to-[#2c1a1a] p-5 text-white transition hover:border-amber-300">
-              <div className="text-4xl">🎡</div>
-              <h3 className="mt-2 text-xl font-black">Multiplayer Roulette</h3>
-              <p className="mt-2 text-sm text-gray-300">Join a shared single-zero table, cover your numbers or outside selections, and watch a communal spin.</p>
-              <p className="mt-4 text-sm font-bold text-amber-200">Enter roulette table →</p>
-            </Link>
-            <Link to={createPageUrl('PlayBaccarat')}
-              className="rounded-xl border border-blue-400/30 bg-gradient-to-br from-blue-950 to-[#152d3b] p-5 text-white hover:border-amber-300">
-              <div className="text-4xl">🃏</div>
-              <h3 className="mt-2 text-xl font-black">Multiplayer Baccarat</h3>
-              <p className="mt-2 text-sm text-gray-300">One communal 8-deck hand. Place Player, Banker or Tie practice chips before the deal.</p>
-              <p className="mt-4 text-sm font-bold text-amber-200">Enter Baccarat table →</p>
-            </Link>
-            <Link to={createPageUrl('PlayCrash')}
-              className="rounded-xl border border-pink-400/30 bg-gradient-to-br from-purple-950 to-[#2d1b3d] p-5 text-white hover:border-amber-300">
-              <div className="text-4xl">📈</div>
-              <h3 className="mt-2 text-xl font-black">Multiplayer Crash</h3>
-              <p className="mt-2 text-sm text-gray-300">Watch a shared multiplier and bet on a preset server-side automatic cashout threshold.</p>
-              <p className="mt-4 text-sm font-bold text-amber-200">Enter Crash table →</p>
-            </Link>
-            <Link to={createPageUrl('PlayTrenball')}
-              className="rounded-xl border border-amber-400/30 bg-gradient-to-br from-amber-950 to-[#39300f] p-5 text-white hover:border-amber-300">
-              <div className="text-4xl">🌙</div>
-              <h3 className="mt-2 text-xl font-black">Multiplayer Trenball</h3>
-              <p className="mt-2 text-sm text-gray-300">Red, Green or Moon predictions on the same live Crash round.</p>
-              <p className="mt-4 text-sm font-bold text-amber-200">Enter Trenball table →</p>
-            </Link>
-            <Link to={createPageUrl('PlayBlackjack')}
-              className="rounded-xl border border-amber-400/30 bg-gradient-to-br from-emerald-950 to-[#35271b] p-5 text-white hover:border-amber-300">
-              <div className="text-4xl">♠️</div>
-              <h3 className="mt-2 text-xl font-black">Multiplayer Blackjack</h3>
-              <p className="mt-2 text-sm text-gray-300">Seven shared seats, a server-controlled six-deck dealer, Hit / Stand, and Perfect Pairs practice side bets.</p>
-              <p className="mt-4 text-sm font-bold text-amber-200">Enter Blackjack table →</p>
-            </Link>
-            <Link to={createPageUrl('PlayPoker')}
-              className="rounded-xl border border-amber-400/30 bg-gradient-to-br from-slate-900 to-[#272145] p-5 text-white hover:border-amber-300">
-              <div className="text-4xl">♣️</div>
-              <h3 className="mt-2 text-xl font-black">Texas Hold’em Poker</h3>
-              <p className="mt-2 text-sm text-gray-300">Create a six-seat table with blinds, two private hole cards, shared streets and player-driven practice betting.</p>
-              <p className="mt-4 text-sm font-bold text-amber-200">Create Hold’em table →</p>
-            </Link>
-            <Link to={createPageUrl('PlayOmaha')}
-              className="rounded-xl border border-amber-400/30 bg-gradient-to-br from-blue-950 to-[#293421] p-5 text-white hover:border-amber-300">
-              <div className="text-4xl">♦️</div>
-              <h3 className="mt-2 text-xl font-black">Omaha Poker</h3>
-              <p className="mt-2 text-sm text-gray-300">Four hole cards per player. Server-controlled showdowns must use exactly two private cards and three community cards.</p>
-              <p className="mt-4 text-sm font-bold text-amber-200">Create Omaha table →</p>
-            </Link>
+          <div aria-label="Filter game category" role="group" className="flex flex-wrap gap-2">
+            {practiceGroups.map(group => <button key={group.id} type="button" aria-pressed={category === group.id} onClick={() => updateCategory(group.id)}
+              className={`inline-flex min-h-11 items-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-semibold transition ${category === group.id ? 'border-pink-300/35 bg-pink-400/15 text-pink-100' : 'border-white/[0.08] bg-white/[0.02] text-slate-400 hover:border-white/20 hover:text-slate-200'}`}>
+              {group.label}{canBrowse && <span aria-hidden="true" className="text-[10px] opacity-60">{group.id === 'all' ? collection.games.length : collection.games.filter(game => practiceGroup(game) === group.id).length}</span>}
+            </button>)}
           </div>
-        </section>
-        <section aria-label="Verified Originals practice games" className="mb-10 rounded-2xl border border-violet-400/20 bg-[#181525] p-5 sm:p-7">
-          <h2 className="text-2xl font-black text-white">Verified Originals</h2>
-          <p className="mt-2 text-sm text-gray-300">Free practice rounds with server commitments and proofs you can verify on your device. No money, tokens or prizes.</p>
-          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {approvedPracticeGames.filter(game => ['provably-fair-v2','ig-originals-practice','ig-mines-practice','ig-final-practice'].includes(game.backend) || game.slug==='rocket').map(game =>
-              <Link key={game.slug} to={game.route} className="rounded-xl border border-violet-400/25 bg-violet-950/30 p-5 text-white hover:border-amber-300">
-                <span aria-hidden="true" className="text-3xl">{game.icon}</span><h3 className="mt-2 text-xl font-bold">{game.name}</h3>
-                <p className="mt-2 text-sm text-gray-300">{game.description}</p><p className="mt-4 text-sm font-bold text-amber-200">Play free practice →</p>
-              </Link>)}
-          </div>
-        </section>
-        <WeeklyTokenLeaderboard />
+        </div>
 
-        {error && <p role="alert" className="mb-5 rounded-xl border border-red-400/30 p-4 text-red-200">Your approved game catalog could not load. Refresh to try again.</p>}
-        <Tabs defaultValue="all" className="space-y-8">
-          <TabsList className="bg-white/5 border border-white/10 p-1 rounded-xl flex-wrap h-auto gap-1">
-            {[
-              { value: 'all', label: 'All', Icon: LayoutGrid },
-              { value: 'table', label: 'Table', Icon: Table },
-              { value: 'slots', label: 'Slots', Icon: Sparkles },
-              { value: 'instant', label: 'Instant', Icon: Dice5 },
-              { value: 'cards', label: 'Cards', Icon: Gamepad2 },
-              { value: 'poker', label: 'Poker', Icon: Crown },
-              { value: 'blackjack', label: 'Blackjack', Icon: Crown },
-            ].map(({ value, label, Icon }) => (
-              <TabsTrigger
-                key={value}
-                value={value}
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg px-4"
-              >
-                <Icon className="w-4 h-4 mr-2" />
-                {label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+        {!collection.signedIn && <div className="mb-6 flex flex-col gap-3 rounded-xl border border-white/[0.07] bg-white/[0.02] p-4 text-sm sm:flex-row sm:items-center sm:justify-between">
+          <p className="leading-relaxed text-slate-400">Browse first. <span className="text-slate-200">Sign in when you’re ready.</span> Your available games are checked after sign-in.</p>
+          <Link to="/login" className="inline-flex min-h-10 shrink-0 items-center gap-2 font-semibold text-pink-200 hover:text-pink-100">Sign in to play <ArrowRight aria-hidden="true" className="h-4 w-4" /></Link>
+        </div>}
 
-          {['all', 'table', 'slots', 'instant', 'cards'].map((category) => (
-            <TabsContent key={category} value={category}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filterGames(category).map((game, i) => (
-                  <motion.div
-                    key={game.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.05 }}
-                  >
-                    <GameCard game={game} />
-                  </motion.div>
-                ))}
-              </div>
-              
-              {filterGames(category).length === 0 && (
-                <div className="text-center py-20">
-                  <Gamepad2 className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-gray-400">No games in this category</h3>
-                  <p className="text-gray-500">Check back soon for new additions!</p>
-                </div>
-              )}
-            </TabsContent>
-          ))}
+        <PracticeCollectionMessage collection={collection} />
+        {canBrowse && collection.games.length > 0 && <>
+          <p role="status" aria-live="polite" className="mb-4 text-xs text-slate-400">{filteredGames.length} {filteredGames.length === 1 ? 'game' : 'games'}{search.trim() ? ` matching “${search.trim()}”` : ''}{category !== 'all' ? ` · ${practiceGroups.find(group => group.id === category).label}` : ''}</p>
+          {filteredGames.length ? <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+            {filteredGames.map(game => <PracticeGameCard key={game.slug} game={game} signedIn={collection.signedIn} />)}
+          </div> : <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.02] px-5 py-14 text-center">
+            <Gamepad2 aria-hidden="true" className="mx-auto mb-4 h-9 w-9 text-slate-600" /><h3 className="text-lg font-bold text-white">No matching games</h3>
+            <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-slate-400">Try another game name or clear your filters to browse the full collection.</p>
+            <button type="button" onClick={() => setSearchParams({})} className="mt-5 min-h-11 rounded-xl border border-pink-300/25 bg-pink-300/5 px-5 text-sm font-semibold text-pink-200 hover:bg-pink-300/10">Clear filters</button>
+          </div>}
+        </>}
 
-          {/* Poker Tab */}
-          <TabsContent value="poker">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-16">
-              <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-gradient-to-br from-pink-500 to-pink-700 shadow-lg shadow-pink-500/40 mb-6">
-                <Crown className="w-12 h-12 text-white" />
-              </div>
-              <h2 className="text-3xl font-black text-white mb-3">Imperial Poker</h2>
-              <p className="text-gray-400 text-lg mb-8 max-w-xl mx-auto">
-                Join live Sit & Go tables or compete in scheduled tournaments. Real action, real stakes.
-              </p>
-              <Link to={createPageUrl('PokerLobby')}>
-                <Button className="bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white font-bold text-lg px-10 py-4 h-auto rounded-xl shadow-lg shadow-pink-500/30">
-                  Enter Poker Lobby <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-              </Link>
-            </motion.div>
-          </TabsContent>
-
-          {/* Blackjack Tab */}
-          <TabsContent value="blackjack">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-16">
-              <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-gradient-to-br from-pink-500 to-pink-700 shadow-lg shadow-pink-500/40 mb-6">
-                <Crown className="w-12 h-12 text-white" />
-              </div>
-              <h2 className="text-3xl font-black text-white mb-3">Imperial Blackjack</h2>
-              <p className="text-gray-400 text-lg mb-8 max-w-xl mx-auto">
-                Play solo or take a seat at a live multiplayer blackjack table with other players.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link to={createPageUrl('PlayBlackjack')}>
-                  <Button variant="outline" className="border-pink-500/50 text-pink-400 hover:bg-pink-500/10 font-bold text-lg px-10 py-4 h-auto rounded-xl">
-                    Solo Blackjack
-                  </Button>
-                </Link>
-                <Link to={createPageUrl('BlackjackLobby')}>
-                  <Button className="bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white font-bold text-lg px-10 py-4 h-auto rounded-xl shadow-lg shadow-pink-500/30">
-                    Multiplayer Lobby <ArrowRight className="ml-2 w-5 h-5" />
-                  </Button>
-                </Link>
-              </div>
-            </motion.div>
-          </TabsContent>
-        </Tabs>
-
-      </div>
-      </div>
-    </PullToRefresh>
-  );
+      </section>
+      <aside className="flex flex-col gap-3 border-t border-white/[0.08] pt-6 text-xs leading-relaxed text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+        <p>Only reviewed practice game routes are included. Other games remain unavailable in this preview.</p>
+        <Link to="/TesterChips" className="inline-flex min-h-11 shrink-0 items-center gap-2 font-semibold text-amber-200/80 hover:text-amber-200">How tester chips work <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" /></Link>
+      </aside>
+    </div>
+  </main>;
 }

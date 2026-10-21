@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "target_project_ref": "jvyzpxjqmymafjapprpp",
+  "migrations": [
+    {
+      "file": "20261021013000_poker_tester_table_lifecycle.sql",
+      "sha256": "8724925067664affd03bb8b44f416d7a94957030128145f06e4f462de371255a"
+    }
+  ],
+  "functions": [
+    {
+      "name": "poker-table-v1",
+      "files": [
+        "index.ts"
+      ],
+      "sha256": {
+        "index.ts": "55ecb6df2c5697b1855ea30cdaff2e3607815427cf3fafd44cde82e20ae6b1eb"
+      }
+    },
+    {
+      "name": "ig-poker-bot-lab",
+      "files": [
+        "index.ts"
+      ],
+      "sha256": {
+        "index.ts": "a51f27d99509530f5d496149052f8d49d9e89a41e200900f2c35d35b0969162e"
+      }
+    },
+    {
+      "name": "poker-events-v1",
+      "files": [
+        "index.ts"
+      ],
+      "sha256": {
+        "index.ts": "f8006e1a690c94bf7aa8f91709bcf9cc0fe7817bce345309807109c7ed49c8ff"
+      }
+    }
+  ]
+}

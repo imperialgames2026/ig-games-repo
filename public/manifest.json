@@ -1,7 +1,7 @@
 {
-  "name": "Imperial Gaming",
-  "short_name": "Imperial Gaming",
-  "description": "Multiplayer practice games with fictional chips.",
+  "name": "Imperial Games Tester Preview",
+  "short_name": "Imperial Games",
+  "description": "Poker and multiplayer practice games with fictional tester chips.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

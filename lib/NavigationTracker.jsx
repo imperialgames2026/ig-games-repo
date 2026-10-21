@@ -1,36 +1,63 @@
-import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
+import { useLocation, useNavigationType } from 'react-router-dom';
 import { pagesConfig } from '@/pages.config';
 
+const titles = {
+  Home: 'Home', Games: 'Game library', PokerLobby: 'Poker lobby', Profile: 'Profile settings',
+  TesterChips: 'How tester chips work', login: 'Sign in', ResetPassword: 'Reset your password',
+  Support: 'Support center', ProfileStats: 'Player analytics', PastPlayedHands: 'Hand archive',
+};
+
+// Route announcements, focus and scroll restoration only. No activity is sent.
 export default function NavigationTracker() {
-    const location = useLocation();
-    const { Pages, mainPage } = pagesConfig;
-    const mainPageKey = mainPage ?? Object.keys(Pages)[0];
+  const location = useLocation();
+  const navigationType = useNavigationType();
+  const previousPath = useRef(null);
+  const positions = useRef(new Map());
 
-    // Log user activity when navigating to a page
-    useEffect(() => {
-        // Extract page name from pathname
-        const pathname = location.pathname;
-        let pageName;
+  useEffect(() => {
+    const before = window.history.scrollRestoration;
+    window.history.scrollRestoration = 'manual';
+    return () => { window.history.scrollRestoration = before; };
+  }, []);
 
-        if (pathname === '/' || pathname === '') {
-            pageName = mainPageKey;
-        } else {
-            // Remove leading slash and get the first segment
-            const pathSegment = pathname.replace(/^\//, '').split('/')[0];
-
-            // Try case-insensitive lookup in Pages config
-            const pageKeys = Object.keys(Pages);
-            const matchedKey = pageKeys.find(
-                key => key.toLowerCase() === pathSegment.toLowerCase()
-            );
-
-            pageName = matchedKey || null;
+  useEffect(() => {
+    const page = location.pathname.split('/')[1] || 'Home';
+    const known = page.toLowerCase() === 'login' || Object.keys(pagesConfig.Pages).some(key => key.toLowerCase() === page.toLowerCase());
+    const title = titles[page] || (known ? page.replace(/([a-z0-9])([A-Z])/g, '$1 $2') : 'Page not found');
+    document.title = page === 'Home' ? 'Imperial Games | Tester-Chip Preview' : title + ' | Imperial Games';
+    const changed = previousPath.current !== null && previousPath.current !== location.pathname;
+    previousPath.current = location.pathname;
+    const target = navigationType === 'POP' ? positions.current.get(location.key) || 0 : 0;
+    let observer, timeout;
+    if (changed) {
+      const restore = () => {
+        const heading = /** @type {HTMLElement | null} */ (document.querySelector('#page-content h1, main h1'));
+        if (!heading) return false;
+        if (navigationType !== 'POP') {
+          heading.setAttribute('tabindex', '-1');
+          heading.focus({ preventScroll: true });
         }
-
-        // Base44 appLogs was removed during the Supabase migration.
-        // Navigation tracking is disabled until a consent-aware Supabase analytics service exists.
-    }, [location, Pages, mainPageKey]);
-
-    return null;
+        window.scrollTo({ top: target, left: 0, behavior: 'instant' });
+        return document.documentElement.scrollHeight >= target + window.innerHeight || target === 0;
+      };
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      if (!restore()) {
+        observer = new MutationObserver(() => { if (restore()) observer.disconnect(); });
+        observer.observe(document.getElementById('root'), { childList: true, subtree: true });
+        timeout = window.setTimeout(() => observer.disconnect(), 2000);
+      }
+    }
+    const savePosition = () => {
+      positions.current.set(location.key, window.scrollY);
+      if (positions.current.size > 80) positions.current.delete(positions.current.keys().next().value);
+    };
+    window.addEventListener('scroll', savePosition, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', savePosition);
+      observer?.disconnect();
+      window.clearTimeout(timeout);
+    };
+  }, [location.key, location.pathname, navigationType]);
+  return null;
 }

@@ -94,7 +94,7 @@ export default function Licensing() {
             <h1 className="text-4xl font-black text-white">Licensing &amp; Registration</h1>
           </div>
           <p className="text-gray-400 text-base max-w-2xl mx-auto">
-            Imperial Gaming LLC is a fully registered and compliant limited liability company in the Commonwealth of Virginia. All official documentation is available below for public transparency.
+            Business registration documents are provided below for reference. This preview uses fictional tester chips with no cash value. Business and tax registrations do not establish authorization for real-money gaming.
           </p>
         </motion.div>
 
