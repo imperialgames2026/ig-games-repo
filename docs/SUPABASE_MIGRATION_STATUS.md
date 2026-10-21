@@ -2,7 +2,7 @@
 
 Updated 2026-10-20. The migration is **not complete**.
 
-Staging `qonqemhljgxlwpghkxhn` has 96 recorded migrations and 30 reviewed deployed
+Staging `qonqemhljgxlwpghkxhn` has 98 recorded migrations and 30 reviewed deployed
 functions. Source checksums, recorded SQL history and JWT settings are reconciled
 in `supabase/backend-manifest.json` and `supabase/backend-readback-20261020.json`.
 Use `scripts/prepare-reviewed-backend.mjs` to assemble the reviewed backend;
@@ -17,7 +17,7 @@ approved catalog expose these practice games; other game routes remain gated.
 
 GitHub verification includes locked dependency builds, isolated recorded SQL
 replay, real local Auth/REST/Storage and session/browser checks, game/account
-browser tests, and 17 transactional SQL suites. Hosted staging rollback tests and
+browser tests, and 18 transactional SQL suites. Hosted staging rollback tests and
 public endpoint preflight/auth-denial checks supplement these isolated checks.
 No production cutover or real-money readiness is established by this coverage.
 
@@ -37,6 +37,17 @@ Announcement content now uses a dedicated Supabase table with canonical staff
 authorization, optimistic edit revisions, inactive drafts, public publication/expiry
 filters and archive controls. The active site layout renders the published banner;
 normal clients cannot read author identities or write announcements.
+
+AMOE and Prize Claims now use dedicated owner-scoped request tables, with
+server KYC/role/exclusion enforcement and immutable client intake. Staff audit
+reads use canonical authorization. Requests confer no eligible entries, prize
+entitlement or payment; trusted review and provider fulfillment remain separate.
+Exact decimal amounts are retained as validated strings, with no binary rounding.
+
+Published builds now emit `/release.json` with their source commit and public
+practice configuration. `npm run verify:published -- https://imperialgaming.llc <full-sha>`
+checks exact commit, backend target, held-game scope, six SPA routes and the main
+application asset. A successful host build alone does not establish these checks.
 
 Remaining work:
 

@@ -1,5 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import React, { useEffect, useState, useRef } from 'react';
+import { currentIdentity } from '@/lib/supabaseIdentity';
+import { supabase } from '@/lib/supabaseClient';
+import { createSweepstakesRequests } from '@/lib/sweepstakesRequests';
+const requests=createSweepstakesRequests(supabase);
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -19,6 +22,8 @@ const statusStyles = {
 };
 
 export default function PrizeClaims() {
+  const pending=useRef(null);
+  const [success,setSuccess]=useState('');
   const [user, setUser] = useState(null);
   const [amount, setAmount] = useState('');
   const [prizeCategory, setPrizeCategory] = useState('crypto');
@@ -29,18 +34,19 @@ export default function PrizeClaims() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => base44.auth.redirectToLogin(window.location.href));
+    currentIdentity().then(setUser).catch(e=>setError(e.message));
   }, []);
 
-  const { data: claims = [] } = useQuery({
-    queryKey: ['prize-claims', user?.email],
-    queryFn: () => base44.entities.PrizeClaim.filter({ user_email: user?.email }, '-created_date', 50),
+  const { data: claims = [], error: historyError, isLoading: historyLoading } = useQuery({
+    queryKey: ['prize-claims', user?.id],
+    queryFn: () => requests.list('claim'),
     enabled: !!user?.email
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
 
     if (!user) return;
     if (user.kyc_status !== 'approved') {
@@ -58,21 +64,15 @@ export default function PrizeClaims() {
 
     setSubmitting(true);
     try {
-      await base44.entities.PrizeClaim.create({
-        user_email: user.email,
-        claim_type: 'sweepstakes_prize',
-        prize_category: prizeCategory,
-        amount: Number(amount),
-        currency: prizeCategory === 'crypto' ? 'CRYPTO' : 'USD',
-        wallet_address: walletAddress,
-        network,
-        status: 'submitted',
-        submitted_at: new Date().toISOString()
-      });
+      const input={amount,prize_category:prizeCategory,network,wallet_address:walletAddress};
+      if(!pending.current||JSON.stringify(pending.current.input)!==JSON.stringify(input))pending.current={id:crypto.randomUUID(),input};
+      const row=await requests.submit('claim',input,pending.current.id);
+      pending.current=null;
+      setSuccess('Claim '+row.id+' submitted for review. No funds have been reserved or sent.');
       setAmount('');
       setWalletAddress('');
       setNetwork('');
-      queryClient.invalidateQueries({ queryKey: ['prize-claims', user?.email] });
+      queryClient.invalidateQueries({ queryKey: ['prize-claims', user?.id] });
     } catch (err) {
       setError(err.message || 'Unable to submit prize claim.');
     } finally {
@@ -92,7 +92,7 @@ export default function PrizeClaims() {
           <Card className="bg-[#1A1528] border-white/10">
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2"><Gift className="w-5 h-5 text-pink-400" /> Submit Claim</CardTitle>
-              <CardDescription className="text-gray-400">Crypto and cash-equivalent claims are recorded here.</CardDescription>
+              <CardDescription className="text-gray-400">Requests are reviewed for entitlement and delivery details. Submission does not approve a prize or send funds.</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -104,13 +104,13 @@ export default function PrizeClaims() {
                 )}
 
                 <div>
-                  <label className="text-sm text-gray-300 mb-2 block">Amount</label>
-                  <Input type="number" min="1" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} className="bg-white/5 border-white/10 text-white" />
+                  <label htmlFor="claim-amount" className="text-sm text-gray-300 mb-2 block">Amount</label>
+                  <Input id="claim-amount" disabled={submitting} type="text" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} className="bg-white/5 border-white/10 text-white" />
                 </div>
 
                 <div>
                   <label className="text-sm text-gray-300 mb-2 block">Prize Type</label>
-                  <Select value={prizeCategory} onValueChange={setPrizeCategory}>
+                  <Select disabled={submitting} value={prizeCategory} onValueChange={setPrizeCategory}>
                     <SelectTrigger className="bg-white/5 border-white/10 text-white"><SelectValue /></SelectTrigger>
                     <SelectContent className="bg-[#1A1528] border-white/10">
                       <SelectItem value="crypto">Crypto</SelectItem>
@@ -122,19 +122,20 @@ export default function PrizeClaims() {
                 {prizeCategory === 'crypto' && (
                   <>
                     <div>
-                      <label className="text-sm text-gray-300 mb-2 block">Network</label>
-                      <Input value={network} onChange={(e) => setNetwork(e.target.value)} placeholder="BTC, ETH, SOL, TRON..." className="bg-white/5 border-white/10 text-white" />
+                      <label htmlFor="claim-network" className="text-sm text-gray-300 mb-2 block">Network</label>
+                      <Input id="claim-network" disabled={submitting} value={network} onChange={(e) => setNetwork(e.target.value)} placeholder="BTC, ETH, SOL, TRON..." className="bg-white/5 border-white/10 text-white" />
                     </div>
                     <div>
-                      <label className="text-sm text-gray-300 mb-2 block">Wallet Address</label>
-                      <Input value={walletAddress} onChange={(e) => setWalletAddress(e.target.value)} placeholder="Paste wallet address" className="bg-white/5 border-white/10 text-white" />
+                      <label htmlFor="claim-address" className="text-sm text-gray-300 mb-2 block">Wallet Address</label>
+                      <Input id="claim-address" disabled={submitting} value={walletAddress} onChange={(e) => setWalletAddress(e.target.value)} placeholder="Paste wallet address" className="bg-white/5 border-white/10 text-white" />
                     </div>
                   </>
                 )}
 
-                {error && <div className="rounded-xl bg-red-500/10 border border-red-500/20 p-4 text-red-300">{error}</div>}
+                {error && <div role="alert" className="rounded-xl bg-red-500/10 border border-red-500/20 p-4 text-red-300">{error}</div>}
 
-                <Button type="submit" disabled={submitting} className="bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700">
+                {success && <p role="status" className="text-green-300">{success}</p>}
+                <Button type="submit" disabled={submitting || !user || user.kyc_status!=='approved' || user.role==='tester' || user.is_excluded} className="bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700">
                   {submitting ? 'Submitting...' : 'Submit Prize Claim'}
                 </Button>
               </form>
@@ -146,13 +147,16 @@ export default function PrizeClaims() {
               <CardTitle className="text-white flex items-center gap-2"><Wallet className="w-5 h-5 text-pink-400" /> Claim History</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {claims.length === 0 ? (
+              {historyError && <p role="alert">{historyError.message}</p>}
+              {historyLoading && <p className="text-gray-400">Loading claims…</p>}
+              {!historyError && !historyLoading && claims.length === 0 ? (
                 <p className="text-gray-400">No claims yet.</p>
               ) : claims.map((claim) => (
                 <div key={claim.id} className="rounded-xl bg-white/5 border border-white/10 p-4 flex items-center justify-between gap-4">
                   <div>
+                    <p className="text-xs text-gray-400 break-all">Reference: {claim.id}</p>
                     <p className="text-white font-semibold">{claim.prize_category === 'crypto' ? 'Crypto Prize' : 'Cash Equivalent'} · {claim.amount}</p>
-                    <p className="text-xs text-gray-400">{format(new Date(claim.created_date), 'MMM d, yyyy h:mm a')}</p>
+                    <p className="text-xs text-gray-400">{format(new Date(claim.created_at), 'MMM d, yyyy h:mm a')}</p>
                     {claim.wallet_address && <p className="text-xs text-gray-500 break-all mt-1">{claim.wallet_address}</p>}
                   </div>
                   <Badge className={statusStyles[claim.status] || 'bg-white/10 text-white'}>{claim.status.replace('_', ' ')}</Badge>
