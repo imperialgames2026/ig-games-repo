@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { createServer } from 'node:net';
 import { promisify } from 'node:util';
+import { setTimeout as pause } from 'node:timers/promises';
 
 const exec = promisify(execFile);
 export const TEST_PACKAGE = 'com.imperialgaming.practice.dev';
@@ -28,6 +29,19 @@ export function firewallCommands(binary) {
     `${binary} -w -C OUTPUT -m owner --uid-owner 10000-199999 -j ${CHAIN}`,
     `${binary} -w -C ${CHAIN} -j REJECT`,
   ];
+}
+
+export async function waitForControlProbe(probe, { sleep = pause, attempts = 20 } = {}) {
+  assert.ok(Number.isInteger(attempts) && attempts > 0 && attempts <= 30);
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      assert.match(await probe(), /isolation-control/);
+      return attempt;
+    } catch (error) {
+      if (attempt === attempts || error.killed || !/Network is unreachable|No route to host|Connection refused|timed out/i.test(error.message)) throw error;
+      await sleep(1000);
+    }
+  }
 }
 
 export async function isolateEmulator(packageId = TEST_PACKAGE) {
@@ -59,24 +73,37 @@ export async function isolateEmulator(packageId = TEST_PACKAGE) {
   // Prove that a reachable runner-local socket is denied to the app UID.
   // This probe never targets the internet or a hosted backend.
   let connections = 0;
-  const probe = createServer(socket => { connections++; socket.end('isolation-control\n'); });
+  const sockets = new Set();
+  const probe = createServer(socket => {
+    connections++; sockets.add(socket);
+    socket.once('close', () => sockets.delete(socket));
+    socket.end('isolation-control\n', () => socket.destroy());
+  });
+  let controlAttempts;
   await new Promise((resolve, reject) => { probe.once('error', reject); probe.listen(0, '127.0.0.1', resolve); });
   try {
     const port = String(probe.address().port);
-    assert.match(await command('shell', 'toybox', 'nc', '-w', '3', '10.0.2.2', port), /isolation-control/);
+    // Android 36 can report boot complete before its virtual Wi-Fi route exists.
+    // Wait for readiness; do not bypass or disable the isolation check.
+    await command('shell', 'svc', 'wifi', 'enable');
+    controlAttempts = await waitForControlProbe(() => command('shell', 'toybox', 'nc', '-w', '3', '10.0.2.2', port));
     assert.equal(connections, 1, 'Root control probe did not reach the runner.');
     let output = '';
     try { output = await command('shell', 'run-as', packageId, 'toybox', 'nc', '-w', '3', '10.0.2.2', port); }
     catch (error) { if (error.killed) throw error; }
     assert.doesNotMatch(output, /isolation-control/);
     assert.equal(connections, 1, 'App escaped the emulator network fence.');
-  } finally { await new Promise(resolve => probe.close(resolve)); }
+  } finally {
+    for (const socket of sockets) socket.destroy();
+    await new Promise(resolve => probe.close(resolve));
+  }
 
   return {
     enforced_before_app_launch: true, serial, app_uid: appUid,
     blocked_uid_range: '10000-199999', loopback_only: true,
     ipv4_rules: await command('shell', 'iptables', '-w', '-S', CHAIN),
     ipv6_rules: await command('shell', 'ip6tables', '-w', '-S', CHAIN),
-    runner_socket_control_passed: true, app_uid_egress_probe_blocked: true,
+    runner_socket_control_passed: true, control_probe_attempts: controlAttempts,
+    app_uid_egress_probe_blocked: true,
   };
 }

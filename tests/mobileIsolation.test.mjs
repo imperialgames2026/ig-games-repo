@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { validateIsolationTarget, firewallCommands, TEST_PACKAGE, CHAIN } from '../scripts/android-isolation.mjs';
+import { validateIsolationTarget, firewallCommands, waitForControlProbe, TEST_PACKAGE, CHAIN } from '../scripts/android-isolation.mjs';
 
 const valid = { ci: 'true', serial: 'emulator-5554', emulator: '1', rootUid: '0', appUid: 10142, packageId: TEST_PACKAGE };
 test('only disposable CI emulator targets are permitted', () => assert.doesNotThrow(() => validateIsolationTarget(valid)));
@@ -25,4 +25,29 @@ test('network fence precedes first native launch and report never implies public
   assert.match(source, /hosted_auth_acceptance: false, publication_approved: false/);
   assert.match(source, /report\.passed = true/);
   assert.match(source, /finally \{[\s\S]*result\.json/);
+});
+
+test('control probe waits for a booted emulator network route without bypassing proof', async () => {
+  let calls = 0;
+  let waits = 0;
+  const result = await waitForControlProbe(async () => {
+    if (++calls < 3) throw new Error('nc: connect: Network is unreachable');
+    return 'isolation-control';
+  }, { sleep: async () => { waits++; } });
+  assert.equal(result, 3);
+  assert.equal(calls, 3);
+  assert.equal(waits, 2);
+});
+test('control probe still fails when the route never becomes reachable', async () => {
+  await assert.rejects(waitForControlProbe(async () => { throw new Error('Network is unreachable'); }, {
+    attempts: 2, sleep: async () => {},
+  }), /Network is unreachable/);
+});
+test('control probe fails immediately for non-network errors or invalid response', async () => {
+  let calls = 0;
+  await assert.rejects(waitForControlProbe(async () => { calls++; throw new Error('permission denied'); }, {
+    sleep: async () => {},
+  }), /permission denied/);
+  assert.equal(calls, 1);
+  await assert.rejects(waitForControlProbe(async () => 'wrong response', { sleep: async () => {} }));
 });
