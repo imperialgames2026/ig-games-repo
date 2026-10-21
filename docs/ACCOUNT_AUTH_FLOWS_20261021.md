@@ -23,7 +23,7 @@ The account UI lacked a confirmation-email resend journey and password confirmat
 | ESLint on changed application files | Passed |
 | Vite production build | Passed; existing browser-data freshness warnings |
 | New browser test file syntax and `git diff --check` | Passed |
-| Eight new controlled-API browser scenarios | Written; execution pending |
+| Eight new controlled-API browser scenarios | First supported-runner pass: seven passed; one fixture omitted the Auth API version response header. Header corrected; verification pending. |
 | Existing real local Auth recovery/sign-in integration | Execution pending on this branch |
 | Hosted email delivery and real confirmation/recovery links | Pending SendGrid setup |
 

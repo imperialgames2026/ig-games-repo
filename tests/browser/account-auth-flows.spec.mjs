@@ -23,7 +23,8 @@ async function setup(page,{signedIn=false,unconfirmed=false}={}) {
   await page.route(api+'/**',async route=>{
     const request=route.request(),url=new URL(request.url()),path=url.pathname,method=request.method();
     const body=request.postDataJSON();
-    const reply=(data,status=200)=>route.fulfill({status,contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'*','Access-Control-Allow-Methods':'GET,POST,PUT,PATCH,DELETE,OPTIONS'},body:status===204?undefined:JSON.stringify(data)});
+    // Modern Auth error codes require the API version header, exposed over CORS.
+    const reply=(data,status=200)=>route.fulfill({status,contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'*','Access-Control-Allow-Methods':'GET,POST,PUT,PATCH,DELETE,OPTIONS','Access-Control-Expose-Headers':'X-Supabase-Api-Version','X-Supabase-Api-Version':'2024-01-01'},body:status===204?undefined:JSON.stringify(data)});
     if(method==='OPTIONS')return reply(null,204);
     state.calls.push({path,method,body,search:url.search});
     if(path==='/auth/v1/token') {
