@@ -1,0 +1,62 @@
+name: Android practice debug APK (isolated)
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'capacitor.config.json'
+      - 'scripts/verify-mobile-bundle.mjs'
+      - '.github/workflows/android-practice.yml'
+      - 'docs/MOBILE_ANDROID_IMPLEMENTATION.md'
+permissions:
+  contents: read
+jobs:
+  debug-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      VITE_SUPABASE_URL: https://qonqemhljgxlwpghkxhn.supabase.co
+      VITE_SUPABASE_ANON_KEY: ${{ secrets.MOBILE_PRACTICE_SUPABASE_ANON_KEY }}
+      VITE_ENABLE_LEGACY_EDGE_FUNCTIONS: 'false'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install web dependencies
+        run: npm ci
+      - name: Generate reviewed practice assets
+        run: npm run build
+      - name: Reject non-practice or mismatched assets
+        run: node scripts/verify-mobile-bundle.mjs
+      - name: Install temporary Capacitor 8 toolchain (no repo lockfile changes)
+        run: npm install --no-save --package-lock=false @capacitor/core@8.5.3 @capacitor/android@8.5.3 @capacitor/cli@8.5.3
+      - name: Generate Android debug native project
+        run: |
+          npx cap add android
+          npx cap sync android
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK
+        run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+      - name: Build unsigned-for-release debug APK
+        working-directory: android
+        run: bash ./gradlew assembleDebug --no-daemon
+      - name: Generate artifact metadata
+        shell: bash
+        run: |
+          sha256sum android/app/build/outputs/apk/debug/app-debug.apk > android-debug.sha256
+          cp dist/release.json android-release.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: imperial-games-practice-debug-${{ github.sha }}
+          path: |
+            android/app/build/outputs/apk/debug/app-debug.apk
+            android-debug.sha256
+            android-release.json
+          retention-days: 7
