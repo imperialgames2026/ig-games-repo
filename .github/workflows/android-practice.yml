@@ -40,7 +40,7 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Test login syntax and native Auth guard without hosted calls
-        run: node --test tests/mobileBuildRegression.test.mjs tests/mobileClientConfig.test.mjs tests/mobileIsolation.test.mjs
+        run: node --test tests/mobileBuildRegression.test.mjs tests/mobileClientConfig.test.mjs tests/mobileIsolation.test.mjs tests/mobileSourceState.test.mjs tests/mobileDependencyInventory.test.mjs
       - name: Run existing application and backend unit/security regressions
         run: npm test
       - name: Compile web assets (not a hosted authentication test)
@@ -172,4 +172,26 @@ jobs:
         with:
           name: native-smoke-${{ matrix.device }}-${{ needs.debug-apk.outputs.source_sha }}
           path: android-evidence/
+          retention-days: 14
+  dependency-inventory:
+    # Collection only. It must never be presented as a passed security gate.
+    # A separate job keeps untracked reports out of the source-provenance check.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Collect exact-lock audit evidence without changing dependencies
+        run: node scripts/mobile-dependency-inventory.mjs "$RUNNER_TEMP/mobile-dependency-audit"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mobile-dependency-inventory-${{ github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/mobile-dependency-audit/
+          if-no-files-found: error
           retention-days: 14
