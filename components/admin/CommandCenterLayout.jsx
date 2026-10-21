@@ -21,6 +21,7 @@ const groups=[
  ]},
  {title:'PLATFORM',items:[
   {title:'VIP levels',to:'/AdminVIP',icon:Trophy,description:'Published XP schedule'},
+  {title:'Reward wheels',to:'/AdminRewardWheels',icon:Trophy,description:'Rewards, amounts and odds'},
   {title:'Treasury status',to:'/AdminTreasury',icon:Landmark,description:'Sandbox custody health'},
   {title:'IGT operations',to:'/AdminIGTSupply',icon:Layers3,superadmin:true,description:'Token controls'},
   {title:'Account security',to:'/OwnerKeyring',icon:LockKeyhole,superadmin:true,description:'Superadmin security'},
