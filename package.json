@@ -14,9 +14,16 @@
     "test:e2e": "playwright test",
     "test:auth": "playwright test --config playwright.auth.config.mjs",
     "test:database": "node scripts/test-database.mjs",
-    "verify:published": "node scripts/verify-published-release.mjs"
+    "verify:published": "node scripts/verify-published-release.mjs",
+    "android:assets": "node scripts/build-mobile-assets.mjs",
+    "android:sync": "npm run android:assets && cap sync android",
+    "android:debug": "npm run android:sync && cd android && ./gradlew assembleDebug",
+    "android:release:unsigned": "npm run android:sync && cd android && ./gradlew assembleRelease bundleRelease"
   },
   "dependencies": {
+    "@capacitor/android": "8.5.3",
+    "@capacitor/app": "8.1.2",
+    "@capacitor/core": "8.5.3",
     "@hello-pangea/dnd": "^17.0.0",
     "@hookform/resolvers": "^4.1.2",
     "@radix-ui/react-accordion": "^1.2.3",
@@ -83,6 +90,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@capacitor/cli": "8.5.3",
     "@eslint/js": "^9.19.0",
     "@playwright/test": "1.57.0",
     "@types/node": "^22.13.5",
