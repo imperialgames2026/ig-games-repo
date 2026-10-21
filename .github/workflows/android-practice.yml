@@ -1,4 +1,6 @@
 name: Android practice debug APK (isolated)
+# Playwright 1.57 and this native toolchain are validated on Ubuntu 24.04.
+# Do not let the floating ubuntu-latest label silently migrate the test OS.
 on:
   workflow_dispatch:
   pull_request:
@@ -22,7 +24,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   web-regression:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
       VITE_SUPABASE_URL: https://qonqemhljgxlwpghkxhn.supabase.co
@@ -46,7 +48,7 @@ jobs:
   debug-apk:
     needs: web-regression
     if: github.repository == 'imperialgames2026/ig-games-repo' && ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'feature/android-capacitor-practice-shell') || (github.event_name == 'workflow_dispatch' && github.ref_name == 'feature/android-capacitor-practice-shell'))
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 40
     outputs:
       source_sha: ${{ steps.source.outputs.sha }}
@@ -114,7 +116,7 @@ jobs:
           retention-days: 14
   emulator-smoke:
     needs: debug-apk
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     strategy:
       fail-fast: false
