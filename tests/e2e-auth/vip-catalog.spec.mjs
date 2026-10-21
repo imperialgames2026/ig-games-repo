@@ -23,6 +23,8 @@ test('player VIP uses wallet XP, all 34 published levels, and a real maximum ran
   expect((await service.from('wallets').update({experience_points:10000000000}).eq('user_id',player.id)).error).toBeNull();
   await page.reload();await expect(page.getByRole('heading',{name:'✧ Eternal X',exact:true})).toBeVisible();await expect(page.getByText('You reached the top VIP rank.')).toBeVisible();
   await page.goto('/Profile');await expect(page.getByRole('heading',{name:'✧ Eternal X',exact:true})).toBeVisible();
+  await page.goto('/PlayerProfile');await expect(page.getByText('VIP 34',{exact:true})).toBeVisible();
+  await page.goto('/Bonuses');await expect(page.getByText('Current VIP level: 34')).toBeVisible();await expect(page.getByText('5,600/8,000 ID',{exact:true})).toHaveCount(0);
   await page.goto('/AdminVIP');await expect(page.getByRole('heading',{name:'VIP Level Settings',exact:true})).toHaveCount(0);
  }finally{await service.auth.admin.deleteUser(player.id);}
 });

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, Gift, Crown, Sparkles, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import {useVipStatus} from '@/hooks/useVipCatalog';
 
 const QUEST_DEFS = [
   { key: 'wager-75000-id', title: 'Wager 75,000 ID', objective_type: 'wager_amount_id', objective_target: 75000, icon: '💰', rewardLabel: '75 ID' },
@@ -14,6 +15,8 @@ const QUEST_DEFS = [
 ];
 
 export default function WeeklyQuests({ user, wallet, onRewardClaimed }) {
+  const {progress}=useVipStatus(wallet);
+  const vipLevel=progress?.current.level;
   const queryClient = useQueryClient();
   const [celebrateId, setCelebrateId] = useState(null);
 
@@ -32,7 +35,7 @@ export default function WeeklyQuests({ user, wallet, onRewardClaimed }) {
   const visibleQuests = useMemo(() => QUEST_DEFS.map((def) => {
     const quest = quests.find((item) => item.title === def.title && item.objective_type === def.objective_type && item.objective_target === def.objective_target);
     const userQuest = quest ? userQuests.find((item) => item.quest_id === quest.id) : null;
-    const dynamicReward = def.objective_type === 'vip_level_up' ? `${(wallet?.vip_level || 1) * 3} ID` : def.rewardLabel;
+    const dynamicReward = def.objective_type === 'vip_level_up' && vipLevel ? `${vipLevel * 3} ID` : def.rewardLabel;
     return {
       ...def,
       id: quest?.id,
@@ -42,7 +45,7 @@ export default function WeeklyQuests({ user, wallet, onRewardClaimed }) {
       userQuestId: userQuest?.id,
       rewardLabel: dynamicReward,
     };
-  }), [quests, userQuests, wallet?.vip_level]);
+  }), [quests, userQuests, vipLevel]);
 
   const claimMutation = useMutation({
     mutationFn: async (quest) => base44.functions.invoke('claimDailyQuestReward', { userQuestId: quest.userQuestId }),
@@ -120,7 +123,7 @@ export default function WeeklyQuests({ user, wallet, onRewardClaimed }) {
                 )}
                 {quest.key === 'vip-level-up' && !quest.is_completed && (
                   <div className="mt-2 flex items-center gap-1 text-xs text-purple-400 font-semibold">
-                    <Crown className="w-3 h-3" /> Current VIP level: {wallet?.vip_level || 1}
+                    <Crown className="w-3 h-3" /> Current VIP level: {vipLevel??'unavailable'}
                   </div>
                 )}
               </div>

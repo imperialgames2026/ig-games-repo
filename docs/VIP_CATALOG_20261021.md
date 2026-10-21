@@ -21,6 +21,9 @@ under the same catalog revision. Loading/errors do not display a maximum rank.
 Wallet XP is owner-scoped and read-only. The stale `wallets.vip_level` field is not
 used to calculate the displayed VIP rank. `/AdminVIP` and the retained legacy VIP
 tab use the same dedicated editor; admin roles may read, only superadmins publish.
+The player-profile badge and bonus-screen VIP labels use the same derived rank.
+Absent locked-bonus balances no longer show the old 5,600/8,000 sample amounts.
+This display correction does not enable the legacy quest or wheel claim handlers.
 
 Recorded hosted migration: `20261021020409_dedicated_vip_catalog.sql`. Exact
 recorded statement bytes are stored in deployed-migrations and checksummed in the

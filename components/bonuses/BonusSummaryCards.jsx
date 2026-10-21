@@ -19,8 +19,8 @@ function SummaryCard({ icon: Icon, title, value, helper, accent }) {
 }
 
 export default function BonusSummaryCards({ wallet }) {
-  const lockedCurrent = wallet?.locked_bonus_funds_current || 5600;
-  const lockedTotal = wallet?.locked_bonus_funds_total || 8000;
+  const lockedCurrent = wallet?.locked_bonus_funds_current ?? 0;
+  const lockedTotal = wallet?.locked_bonus_funds_total ?? 0;
   const monthlyBonus = wallet?.monthly_bonus_amount || 0;
   const weeklyBonus = wallet?.weekly_bonus_amount || 0;
   const dailyBonus = wallet?.daily_bonus_amount || 0;
