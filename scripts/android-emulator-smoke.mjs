@@ -12,6 +12,8 @@ const report = {
 let device;
 let page;
 const pageErrors = [];
+const pageErrorDetails = [];
+let phase = 'prelaunch_isolation';
 try {
   assert.match(process.env.SOURCE_SHA || '', /^[a-f0-9]{40}$/);
   // The OS firewall is enforced and probed BEFORE the app can start.
@@ -28,7 +30,10 @@ try {
     const view = await device.webView({ pkg: TEST_PACKAGE });
     page = await view.page();
     page.setDefaultTimeout(45000);
-    page.on('pageerror', error => pageErrors.push(error.message));
+    page.on('pageerror', error => {
+      pageErrors.push(error.message);
+      pageErrorDetails.push({ phase, message: error.message, stack: error.stack });
+    });
     // Defense in depth: no external request is forwarded. Only local APK assets
     // continue; one deliberately rejected sign-in uses a deterministic fixture.
     await page.context().route('**/*', async route => {
@@ -44,6 +49,7 @@ try {
     });
   }
 
+  phase = 'cold_launch';
   await device.shell(`am start -n ${TEST_PACKAGE}/.MainActivity`);
   await attach();
   await page.getByRole('heading', { name: /Join the table/ }).waitFor();
@@ -61,6 +67,7 @@ try {
   assert.equal(metadata.publish_approved, false);
   report.results.push('installed APK reports the exact build source and practice-only scope');
 
+  phase = 'home_to_login';
   await page.getByRole('link', { name: 'sign in to open your game library', exact: true }).click();
   await page.getByRole('heading', { name: 'Welcome back' }).waitFor();
   report.results.push('home sign-in link opens bundled React login');
@@ -68,6 +75,7 @@ try {
 
   const mutations = () => report.external_requests.filter(r => !['GET', 'HEAD', 'OPTIONS'].includes(r.method)).length;
   const baseline = mutations();
+  phase = 'blocked_recovery';
   await page.getByRole('button', { name: 'Forgot password?' }).click();
   await page.getByLabel('Email', { exact: true }).fill('isolated-smoke@example.invalid');
   await page.getByRole('button', { name: 'Send reset link' }).click();
@@ -75,6 +83,7 @@ try {
   assert.equal(mutations(), baseline);
   report.results.push('unapproved native recovery blocked before any Auth request');
 
+  phase = 'blocked_signup';
   await page.goto('https://localhost/login');
   await page.getByRole('button', { name: 'Create one', exact: true }).click();
   await page.getByLabel('Full name', { exact: true }).fill('Isolated Test');
@@ -85,6 +94,7 @@ try {
   assert.equal(mutations(), baseline);
   report.results.push('unapproved native signup blocked before any Auth request');
 
+  phase = 'invalid_signin';
   await page.goto('https://localhost/login');
   await page.getByLabel('Email', { exact: true }).fill('isolated-smoke@example.invalid');
   await page.getByLabel('Password', { exact: true }).fill('isolated-test-password');
@@ -96,16 +106,33 @@ try {
   report.results.push('rejected sign-in fixture shows an error and releases the busy state without a hosted call');
 
   for (const path of ['/Profile', '/PlayDice', '/Admin', '/OwnerKeyring']) {
+    phase = 'protected_route:' + path;
     await page.goto('https://localhost' + path);
     await page.waitForURL('https://localhost/login');
     await page.getByRole('heading', { name: 'Welcome back' }).waitFor();
   }
   report.results.push('signed-out profile, practice-game, admin and owner routes redirect to login');
 
-  await device.shell('input keyevent KEYCODE_HOME');
-  await device.shell(`am start -n ${TEST_PACKAGE}/.MainActivity`);
-  await page.getByRole('heading', { name: 'Welcome back' }).waitFor();
-  report.results.push('background/resume returns to bundled login');
+  phase = 'background_resume';
+  // An already-rendered heading cannot prove Android has completed onResume.
+  // Wait for real bridge pause/resume events before unloading this document.
+  await page.evaluate(() => {
+    window.__igNativeLifecycle = { pauses: 0, resumes: 0 };
+    document.addEventListener('pause', () => { window.__igNativeLifecycle.pauses++; });
+    document.addEventListener('resume', () => { window.__igNativeLifecycle.resumes++; });
+  });
+  report.lifecycle_cycles = [];
+  for (let cycle = 1; cycle <= 3; cycle++) {
+    await device.shell('input keyevent KEYCODE_HOME');
+    await device.shell(`am start -n ${TEST_PACKAGE}/.MainActivity`);
+    await page.waitForFunction(count =>
+      window.__igNativeLifecycle.pauses >= count && window.__igNativeLifecycle.resumes >= count,
+    cycle);
+    await page.getByRole('heading', { name: 'Welcome back' }).waitFor();
+    report.lifecycle_cycles.push(await page.evaluate(() => ({ ...window.__igNativeLifecycle })));
+  }
+  report.results.push('three background/resume cycles deliver real native pause/resume events and restore login');
+  phase = 'offline_reload';
   await page.context().setOffline(true);
   await page.reload();
   await page.getByRole('heading', { name: 'Welcome back' }).waitFor();
@@ -120,6 +147,7 @@ try {
   throw error;
 } finally {
   report.page_errors = pageErrors;
+  report.page_error_details = pageErrorDetails;
   writeFileSync('android-evidence/result.json', JSON.stringify(report, null, 2));
   if (device) {
     await device.shell(`am force-stop ${TEST_PACKAGE}`).catch(() => {});

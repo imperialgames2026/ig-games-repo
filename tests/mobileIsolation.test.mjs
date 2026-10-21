@@ -51,3 +51,13 @@ test('control probe fails immediately for non-network errors or invalid response
   assert.equal(calls, 1);
   await assert.rejects(waitForControlProbe(async () => 'wrong response', { sleep: async () => {} }));
 });
+
+test('native lifecycle test awaits real pause and resume before reloading the WebView', () => {
+  const source = readFileSync(new URL('../scripts/android-emulator-smoke.mjs', import.meta.url), 'utf8');
+  assert.match(source, /document\.addEventListener\('pause'/);
+  assert.match(source, /document\.addEventListener\('resume'/);
+  assert.match(source, /cycle <= 3/);
+  assert.ok(source.indexOf('window.__igNativeLifecycle.resumes >= count') < source.indexOf('setOffline(true)'));
+  assert.match(source, /assert\.deepEqual\(pageErrors, \[\]/);
+  assert.match(source, /page_error_details = pageErrorDetails/);
+});
