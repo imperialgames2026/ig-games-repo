@@ -46,8 +46,6 @@ jobs:
     if: github.repository == 'imperialgames2026/ig-games-repo' && ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'feature/android-capacitor-practice-shell') || (github.event_name == 'workflow_dispatch' && github.ref_name == 'feature/android-capacitor-practice-shell'))
     runs-on: ubuntu-latest
     timeout-minutes: 40
-    permissions:
-      contents: write
     outputs:
       source_sha: ${{ steps.source.outputs.sha }}
     env:
@@ -62,39 +60,17 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-      - name: Install web dependencies
+      - name: Install locked dependencies
         run: npm ci
       - name: Require public practice client configuration
         shell: bash
         run: |
           node scripts/mobile-client-config.mjs
-      - name: Generate pinned native source when absent
-        run: node scripts/bootstrap-android.mjs
-      - name: Commit generated native source only to isolated feature branch
-        env:
-          GH_TOKEN: ${{ github.token }}
-          SOURCE_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          git add -- package.json package-lock.json android
-          if ! git diff --cached --quiet; then
-            if git diff --cached --name-only | grep -Ei '\.(apk|aab|apks|jks|keystore)$|(^|/)local\.properties$|/assets/public/'; then
-              echo 'Refusing compiled artifacts, local properties or signing files in source commit.' >&2
-              exit 1
-            fi
-            auth_header="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
-            echo "::add-mask::$auth_header"
-            remote_head=$(git -c "http.https://github.com/.extraheader=$auth_header" ls-remote origin refs/heads/feature/android-capacitor-practice-shell | cut -f1)
-            test "$remote_head" = "$SOURCE_HEAD" || { echo 'Branch advanced; refusing to overwrite concurrent changes.' >&2; exit 1; }
-            git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'build(android): commit pinned Capacitor dependencies and native source'
-            git -c "http.https://github.com/.extraheader=$auth_header" push origin HEAD:refs/heads/feature/android-capacitor-practice-shell
-          fi
+      - name: Require committed native source
+        run: test -f android/app/build.gradle && test -f android/gradle/wrapper/gradle-wrapper.jar
       - name: Record exact build source
         id: source
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-      - name: Verify the generated lockfile with a clean install
-        run: npm ci
       - name: Build reviewed bundled assets with exact source metadata
         run: node scripts/build-mobile-assets.mjs
       - name: Sync committed Android shell
@@ -104,6 +80,9 @@ jobs:
           distribution: temurin
           java-version: '21'
       - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools'
+          log-accepted-android-sdk-licenses: false
       - name: Install Android SDK
         run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
       - name: Build debug APK and unsigned release candidates
