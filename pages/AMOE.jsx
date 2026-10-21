@@ -1,11 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import React, { useEffect, useState, useRef } from 'react';
+import { currentIdentity } from '@/lib/supabaseIdentity';
+import { supabase } from '@/lib/supabaseClient';
+import { createSweepstakesRequests } from '@/lib/sweepstakesRequests';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+const requests=createSweepstakesRequests(supabase);
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { AlertCircle, CheckCircle2, Mail, Ticket, ShieldCheck } from 'lucide-react';
 
 export default function AMOE() {
+  const pending=useRef(null);
+  const queryClient=useQueryClient();
   const [user, setUser] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState('');
@@ -13,8 +19,10 @@ export default function AMOE() {
   const [entryCount, setEntryCount] = useState(1);
 
   useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => {});
+    currentIdentity().then(setUser).catch(e => setError(e.message));
   }, []);
+
+  const history=useQuery({queryKey:['entry-requests',user?.id],enabled:!!user?.id,queryFn:()=>requests.list('entry')});
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,21 +30,18 @@ export default function AMOE() {
     setSuccess('');
 
     if (!user) {
-      base44.auth.redirectToLogin(window.location.href);
+      window.location.assign('/login');
       return;
     }
 
     setSubmitting(true);
     try {
-      await base44.entities.SweepstakesEntry.create({
-        user_email: user.email,
-        entry_source: 'amoe',
-        source_reference: `AMOE-${Date.now()}`,
-        entry_count: Number(entryCount) || 1,
-        status: 'eligible',
-        notes: 'AMOE entry created by user from AMOE page'
-      });
-      setSuccess('Your free entry request was submitted and recorded.');
+      const input={entry_count:Number(entryCount)};
+      if(!pending.current||JSON.stringify(pending.current.input)!==JSON.stringify(input))pending.current={id:crypto.randomUUID(),input};
+      const row=await requests.submit('entry',input,pending.current.id);
+      pending.current=null;
+      queryClient.invalidateQueries({queryKey:['entry-requests',user.id]});
+      setSuccess('Request '+row.id+' recorded as pending. Eligibility is reviewed under the official rules.');
     } catch (err) {
       setError(err.message || 'Could not submit your AMOE entry.');
     } finally {
@@ -65,7 +70,7 @@ export default function AMOE() {
               </div>
               <div className="rounded-xl bg-white/5 border border-white/10 p-4">
                 <p className="font-semibold text-white mb-1">2. Submit free entry</p>
-                <p>Send your AMOE request below. Each request is written to the audit log for transparency.</p>
+                <p>Send your AMOE request below and keep its reference number. A submitted request is pending review; it does not award entries automatically.</p>
               </div>
               <div className="rounded-xl bg-white/5 border border-white/10 p-4">
                 <p className="font-semibold text-white mb-1">3. Keep KYC ready</p>
@@ -85,8 +90,8 @@ export default function AMOE() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="text-sm text-gray-300 mb-2 block">Entries requested</label>
-                <Input type="number" min="1" max="10" value={entryCount} onChange={(e) => setEntryCount(e.target.value)} className="bg-white/5 border-white/10 text-white" />
+                <label htmlFor="entry-count" className="text-sm text-gray-300 mb-2 block">Entries requested</label>
+                <Input id="entry-count" disabled={submitting} type="number" min="1" max="10" value={entryCount} onChange={(e) => setEntryCount(e.target.value)} className="bg-white/5 border-white/10 text-white" />
               </div>
 
               {!user && (
@@ -97,18 +102,18 @@ export default function AMOE() {
 
               {success && (
                 <div className="rounded-xl bg-green-500/10 border border-green-500/20 p-4 text-green-300 flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4" /> {success}
+                  <CheckCircle2 className="w-4 h-4" /> <span role="status">{success}</span>
                 </div>
               )}
 
               {error && (
                 <div className="rounded-xl bg-red-500/10 border border-red-500/20 p-4 text-red-300 flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4" /> {error}
+                  <AlertCircle className="w-4 h-4" /> <span role="alert">{error}</span>
                 </div>
               )}
 
               <div className="flex flex-col sm:flex-row gap-3">
-                <Button type="submit" disabled={submitting} className="bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700">
+                <Button type="submit" disabled={submitting || user?.role==='tester' || user?.is_excluded} className="bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700">
                   {submitting ? 'Submitting...' : 'Submit Free Entry'}
                 </Button>
                 <a href="/KYCVerification">
@@ -120,6 +125,12 @@ export default function AMOE() {
             </form>
           </CardContent>
         </Card>
+        {user && <Card className="bg-[#1A1528] border-white/10"><CardHeader><CardTitle className="text-white">Your Entry Requests</CardTitle></CardHeader><CardContent className="space-y-3 text-gray-300">
+          {history.isLoading && <p>Loading requests…</p>}
+          {history.error && <p role="alert">{history.error.message}</p>}
+          {!history.isLoading && !history.error && !history.data?.length && <p>No requests yet.</p>}
+          {history.data?.map(row=><article key={row.id} className="rounded-xl bg-white/5 p-4"><p>{row.entry_count} entries requested · {row.status}</p><p className="text-xs break-all">Reference: {row.id}</p><p className="text-xs">{new Date(row.created_at).toLocaleString()}</p></article>)}
+        </CardContent></Card>}
       </div>
     </div>
   );

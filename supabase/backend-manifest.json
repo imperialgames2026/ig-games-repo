@@ -719,6 +719,10 @@
     {
       "file": "20261020231753_announcement_public_field_grants.sql",
       "sha256": "032e75bcd1c2ae4801825f24b0ff2f2e0bea09e214cdd1605cc82c81798f4f02"
+    },
+    {
+      "file": "20261021012551_owner_scoped_sweepstakes_request_intake.sql",
+      "sha256": "53fe73b4cf06166228fdf8f504caf898e791b3d66ff342c48043bd3125aa1770"
     }
   ]
 }
