@@ -5,15 +5,22 @@ on:
     paths:
       - 'pages/Login.jsx'
       - 'tests/mobileBuildRegression.test.mjs'
+      - 'tests/mobileClientConfig.test.mjs'
       - 'package.json'
       - 'package-lock.json'
       - 'vite.config.js'
       - 'capacitor.config.json'
-      - 'scripts/verify-mobile-bundle.mjs'
+      - 'android/**'
+      - 'scripts/*mobile*.mjs'
+      - 'scripts/bootstrap-android.mjs'
+      - 'scripts/android-emulator-smoke.mjs'
       - '.github/workflows/android-practice.yml'
       - 'docs/MOBILE_ANDROID_IMPLEMENTATION.md'
 permissions:
   contents: read
+concurrency:
+  group: android-practice-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: false
 jobs:
   web-regression:
     runs-on: ubuntu-latest
@@ -31,20 +38,25 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Test login syntax and native Auth guard without hosted calls
-        run: node --test tests/mobileBuildRegression.test.mjs
+        run: node --test tests/mobileBuildRegression.test.mjs tests/mobileClientConfig.test.mjs
       - name: Compile web assets (not a hosted authentication test)
         run: npm run build
   debug-apk:
     needs: web-regression
+    if: github.repository == 'imperialgames2026/ig-games-repo' && ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'feature/android-capacitor-practice-shell') || (github.event_name == 'workflow_dispatch' && github.ref_name == 'feature/android-capacitor-practice-shell'))
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    permissions:
+      contents: write
+    outputs:
+      source_sha: ${{ steps.source.outputs.sha }}
     env:
       VITE_SUPABASE_URL: https://qonqemhljgxlwpghkxhn.supabase.co
-      VITE_SUPABASE_ANON_KEY: ${{ secrets.MOBILE_PRACTICE_SUPABASE_ANON_KEY }}
       VITE_ENABLE_LEGACY_EDGE_FUNCTIONS: 'false'
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
@@ -55,20 +67,38 @@ jobs:
       - name: Require public practice client configuration
         shell: bash
         run: |
-          if [ -z "$VITE_SUPABASE_ANON_KEY" ]; then
-            echo 'MOBILE_PRACTICE_SUPABASE_ANON_KEY is missing; refusing to build an unusable placeholder-client APK.' >&2
-            exit 1
-          fi
-      - name: Generate reviewed practice assets
-        run: npm run build
-      - name: Reject non-practice or mismatched assets
-        run: node scripts/verify-mobile-bundle.mjs
-      - name: Install temporary Capacitor 8 toolchain (no repo lockfile changes)
-        run: npm install --no-save --package-lock=false @capacitor/core@8.5.3 @capacitor/android@8.5.3 @capacitor/cli@8.5.3
-      - name: Generate Android debug native project
+          node scripts/mobile-client-config.mjs
+      - name: Generate pinned native source when absent
+        run: node scripts/bootstrap-android.mjs
+      - name: Commit generated native source only to isolated feature branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        shell: bash
         run: |
-          npx cap add android
-          npx cap sync android
+          set -euo pipefail
+          git add -- package.json package-lock.json android
+          if ! git diff --cached --quiet; then
+            if git diff --cached --name-only | grep -Ei '\.(apk|aab|apks|jks|keystore)$|(^|/)local\.properties$|/assets/public/'; then
+              echo 'Refusing compiled artifacts, local properties or signing files in source commit.' >&2
+              exit 1
+            fi
+            auth_header="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+            echo "::add-mask::$auth_header"
+            remote_head=$(git -c "http.https://github.com/.extraheader=$auth_header" ls-remote origin refs/heads/feature/android-capacitor-practice-shell | cut -f1)
+            test "$remote_head" = "$SOURCE_HEAD" || { echo 'Branch advanced; refusing to overwrite concurrent changes.' >&2; exit 1; }
+            git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'build(android): commit pinned Capacitor dependencies and native source'
+            git -c "http.https://github.com/.extraheader=$auth_header" push origin HEAD:refs/heads/feature/android-capacitor-practice-shell
+          fi
+      - name: Record exact build source
+        id: source
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Verify the generated lockfile with a clean install
+        run: npm ci
+      - name: Build reviewed bundled assets with exact source metadata
+        run: node scripts/build-mobile-assets.mjs
+      - name: Sync committed Android shell
+        run: npx --no-install cap sync android
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -76,19 +106,80 @@ jobs:
       - uses: android-actions/setup-android@v3
       - name: Install Android SDK
         run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
-      - name: Build unsigned-for-release debug APK
+      - name: Build debug APK and unsigned release candidates
         working-directory: android
-        run: bash ./gradlew assembleDebug --no-daemon
-      - name: Generate artifact metadata
+        run: bash ./gradlew assembleDebug assembleRelease bundleRelease --no-daemon
+      - name: Collect artifacts without production signing
         shell: bash
         run: |
-          sha256sum android/app/build/outputs/apk/debug/app-debug.apk > android-debug.sha256
-          cp dist/release.json android-release.json
+          mkdir -p mobile-artifacts
+          cp android/app/build/outputs/apk/debug/app-debug.apk mobile-artifacts/imperial-games-practice-debug.apk
+          cp android/app/build/outputs/apk/release/app-release-unsigned.apk mobile-artifacts/imperial-games-practice-release-unsigned.apk
+          cp android/app/build/outputs/bundle/release/app-release.aab mobile-artifacts/imperial-games-practice-release-unsigned.aab
+          cp dist/release.json dist/mobile-release.json mobile-artifacts/
+          (cd mobile-artifacts && sha256sum *.apk *.aab *.json > SHA256SUMS)
+          printf '%s\n' 'Debug APK: emulator/testing only. Release APK/AAB: unsigned, NOT approved for distribution. See mobile-release.json for outstanding gates.' > mobile-artifacts/README.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: imperial-games-practice-debug-${{ github.sha }}
-          path: |
-            android/app/build/outputs/apk/debug/app-debug.apk
-            android-debug.sha256
-            android-release.json
-          retention-days: 7
+          name: imperial-games-android-${{ steps.source.outputs.sha }}
+          path: mobile-artifacts/
+          retention-days: 14
+  emulator-smoke:
+    needs: debug-apk
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - device: small-phone
+            api: 35
+            profile: pixel_2
+          - device: large-phone
+            api: 36
+            profile: pixel_7_pro
+          - device: tablet
+            api: 35
+            profile: pixel_c
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.debug-apk.outputs.source_sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/download-artifact@v4
+        with:
+          name: imperial-games-android-${{ needs.debug-apk.outputs.source_sha }}
+          path: mobile-artifacts
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Install and exercise the actual native WebView
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          SOURCE_SHA: ${{ needs.debug-apk.outputs.source_sha }}
+        with:
+          api-level: ${{ matrix.api }}
+          target: google_apis
+          arch: x86_64
+          profile: ${{ matrix.profile }}
+          disable-animations: true
+          script: |
+            adb install -r mobile-artifacts/imperial-games-practice-debug.apk
+            node scripts/android-emulator-smoke.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-smoke-${{ matrix.device }}-${{ needs.debug-apk.outputs.source_sha }}
+          path: android-evidence/
+          retention-days: 14
