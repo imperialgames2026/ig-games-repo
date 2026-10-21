@@ -33,6 +33,8 @@ Local browser verification was not completed: automatic approval review blocked 
 
 ## Remaining launch acceptance
 
+The first PR run exposed a separate CI environment failure: [browser job 119343846797](https://github.com/imperialgames2026/ig-games-repo/actions/runs/39635249779/job/119343846797) resolved `ubuntu-latest` to Ubuntu 26.04 and failed during Chromium installation with `Playwright does not support chromium on ubuntu26.04-x64`. No browser scenario executed in that job. All five browser-running jobs are now pinned to Ubuntu 24.04, supported by the locked Playwright 1.57.0 dependency. No test step is skipped or relaxed. This establishes the cause of this CI failure, not the cause of an earlier Codex environment problem.
+
 Run the new browser scenarios and the existing real local Auth suite on the exact candidate SHA, then review their results before merge. Resume SendGrid only when Nate is ready; verify the sender and actual delivery and test fresh, expired and reused links end to end. Agree the mobile callback contract with the app workstream; this change configures no new native redirect.
 
 This change contains no SQL migration, Edge Function deployment, hosted Auth setting, customer-data import or payment/provider operation. The selected backend remains `qonqemhljgxlwpghkxhn`; the older project and held games remain untouched. Three reward-wheel pools remain paused pending their approved prizes and funding rules.
