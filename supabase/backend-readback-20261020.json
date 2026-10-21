@@ -3,8 +3,8 @@
   "retrieved_at": "2026-10-21",
   "source": "Read-only Supabase recorded-history digests and get_edge_function readbacks after staging deployment",
   "migration_comparison": {
-    "migrations": 98,
-    "exact_bytes": 15,
+    "migrations": 99,
+    "exact_bytes": 16,
     "two_terminal_newlines_only": 83
   },
   "function_comparison": "Exact bytes except three historical terminal-whitespace differences; deployment package retains checksums of committed bytes",
@@ -833,6 +833,12 @@
       "name": "final_approved_game_catalog",
       "sha256": "efd6434ee2cddaa73a29d1c1652956f97cc7b1e7c7307867b5301a955406be93",
       "reviewed_sha256": "efd6434ee2cddaa73a29d1c1652956f97cc7b1e7c7307867b5301a955406be93"
+    },
+    {
+      "version": "20261021020409",
+      "name": "dedicated_vip_catalog",
+      "sha256": "737f530451f2671bc9fd0c95ed02eace82be49d0757001eaeb898cdf2e444498",
+      "reviewed_sha256": "737f530451f2671bc9fd0c95ed02eace82be49d0757001eaeb898cdf2e444498"
     }
   ],
   "ign_security_boundary": {
@@ -894,5 +900,15 @@
     "recorded_bytes": 2601,
     "source_matches_recorded": true,
     "source_pr": 29
+  },
+  "vip_catalog": {
+    "version": "20261021020409",
+    "recorded_md5": "9419b415284e0e22b51192737a2137ca",
+    "recorded_bytes": 6310,
+    "source_matches_recorded": true,
+    "hosted_transactional_test": "passed; all fixtures rolled back",
+    "security_advisor_findings": 0,
+    "seed_levels": 34,
+    "client_xp_mutations": false
   }
 }

@@ -2,18 +2,18 @@ import React, { useEffect, useRef } from 'react';
 import { Crown, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { calculateVIPLevel } from './VIPHelper';
+import {useVipStatus} from '@/hooks/useVipCatalog';
+import {shouldCelebrateVip} from '@/lib/vipCatalog';
 
 export default function VIPLevelUpToast({ wallet }) {
   const previousLevelRef = useRef(null);
+  const {catalog,progress}=useVipStatus(wallet);
 
   useEffect(() => {
-    if (!wallet) return;
-
-    const currentLevel = calculateVIPLevel(wallet.experience_points || 0);
-    const previousLevel = previousLevelRef.current;
-
-    if (previousLevel && currentLevel.level > previousLevel.level) {
+    if (!progress) {previousLevelRef.current=null;return;}
+    const currentLevel=progress.current;
+    const next={userId:wallet.user_id,revision:catalog.data.revision,xp:progress.xp,level:currentLevel.level};
+    if (shouldCelebrateVip(previousLevelRef.current,next)) {
       toast.custom(() => (
         <motion.div
           initial={{ opacity: 0, y: 16, scale: 0.96 }}
@@ -37,8 +37,8 @@ export default function VIPLevelUpToast({ wallet }) {
       ), { duration: 6000 });
     }
 
-    previousLevelRef.current = currentLevel;
-  }, [wallet]);
+    previousLevelRef.current = next;
+  }, [wallet?.user_id,wallet?.experience_points,catalog.data?.revision,!!progress]);
 
   return null;
 }

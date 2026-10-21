@@ -4,14 +4,13 @@ import { Crown, Info, Sparkles } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
-import { calculateVIPLevel, getNextLevel, getProgressToNextLevel } from './VIPHelper';
+import {useVipStatus} from '@/hooks/useVipCatalog';
 
 export default function VIPProgressCard({ wallet }) {
-  const currentXP = wallet?.experience_points || 0;
-  const vipLevel = calculateVIPLevel(currentXP);
-  const nextLevel = getNextLevel(currentXP);
-  const progressPercent = getProgressToNextLevel(currentXP);
-  const xpRemaining = nextLevel ? Math.max(0, nextLevel.xp_required - currentXP) : 0;
+  const {catalog,progress}=useVipStatus(wallet);
+  if(catalog.error)return <div role="alert" className="rounded-xl border border-red-300/30 p-5 text-slate-200">VIP schedule unavailable. <button className="underline" onClick={()=>void catalog.refetch()}>Retry VIP schedule</button></div>;
+  if(!progress)return <p className="rounded-xl border border-white/10 p-5 text-slate-300">{catalog.isPending||!wallet?'Loading VIP progress…':'VIP progress unavailable.'}</p>;
+  const {xp:currentXP,current:vipLevel,next:nextLevel,percent:progressPercent,remaining:xpRemaining}=progress;
 
   return (
     <div className="rounded-2xl bg-gradient-to-br from-[#1A1528] to-[#0F0A1E] border border-white/10 p-6">

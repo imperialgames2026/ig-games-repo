@@ -1,24 +1,23 @@
 import React from 'react';
-import { ChevronDown, Crown } from 'lucide-react';
+import { Crown } from 'lucide-react';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { VIP_LEVELS } from './VIPHelper';
-
-const tierRanges = [
-  { tier: 'Beginner', levels: 'Beginner', min: 1, max: 1, icon: '△', subtitle: 'Starting point for every player.' },
-  { tier: 'Bronze', levels: 'Bronze I - Bronze IV', min: 2, max: 5, icon: '◇', subtitle: 'All bonuses unlocked and boosted.' },
-  { tier: 'Silver', levels: 'Silver I - Silver IV', min: 6, max: 9, icon: '⬡', subtitle: 'Enhanced Level Up, Weekly & Monthly Bonus.' },
-  { tier: 'Gold', levels: 'Gold I - Gold IV', min: 10, max: 13, icon: '⬢', subtitle: 'Superior Level Up, Weekly & Monthly Bonus.' },
-  { tier: 'Platinum', levels: 'Platinum I - Platinum IV', min: 14, max: 17, icon: '▣', subtitle: 'Premium Level Up, Weekly & Monthly Bonus.' },
-  { tier: 'Diamond', levels: 'Diamond I - Diamond VII', min: 18, max: 24, icon: '◈', subtitle: 'Elite Level Up, Weekly & Monthly Bonus.' },
-  { tier: 'Eternal', levels: 'Eternal I - Eternal X', min: 25, max: 34, icon: '✧', subtitle: 'Maximum Level Up, Weekly & Monthly Bonus.' },
-];
+import {useVipCatalog} from '@/hooks/useVipCatalog';
+import {VIP_STYLES} from '@/lib/vipCatalog';
 
 export default function VIPTierExplainer() {
+  const catalog=useVipCatalog();
+  if(catalog.error)return <p role="alert" className="text-slate-300">VIP tiers unavailable. <button className="underline" onClick={()=>void catalog.refetch()}>Retry VIP tiers</button></p>;
+  if(!catalog.data)return <p className="text-slate-300">Loading VIP tiers…</p>;
+  const levels=catalog.data.levels;
+  const tierRanges=[...new Set(levels.map(row=>row.tier))].map(tier=>{
+    const rows=levels.filter(row=>row.tier===tier);
+    return {tier,icon:VIP_STYLES[tier].icon,levels:rows.length===1?rows[0].name:rows[0].name+' – '+rows.at(-1).name};
+  });
   return (
     <div className="rounded-2xl bg-gradient-to-br from-[#1A1528] to-[#0F0A1E] border border-white/10 p-6">
       <div className="flex items-center gap-3 mb-4">
@@ -33,7 +32,7 @@ export default function VIPTierExplainer() {
 
       <Accordion type="single" collapsible className="space-y-3">
         {tierRanges.map((tier) => {
-          const tierLevels = VIP_LEVELS.filter((level) => level.level >= tier.min && level.level <= tier.max);
+          const tierLevels = levels.filter((level) => level.tier === tier.tier);
           return (
             <AccordionItem key={tier.tier} value={tier.tier} className="border border-white/10 rounded-xl bg-white/5 px-4">
               <AccordionTrigger className="hover:no-underline py-4">
@@ -46,7 +45,6 @@ export default function VIPTierExplainer() {
                 </div>
               </AccordionTrigger>
               <AccordionContent className="pb-4">
-                <div className="mb-3 text-sm text-gray-300">{tier.subtitle}</div>
                 <div className="grid gap-2">
                   {tierLevels.map((level) => (
                     <div key={level.level} className="flex items-center justify-between rounded-lg bg-black/20 border border-white/5 px-3 py-2">

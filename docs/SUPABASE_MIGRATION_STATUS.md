@@ -2,7 +2,7 @@
 
 Updated 2026-10-20. The migration is **not complete**.
 
-Staging `qonqemhljgxlwpghkxhn` has 98 recorded migrations and 30 reviewed deployed
+Staging `qonqemhljgxlwpghkxhn` has 99 recorded migrations and 30 reviewed deployed
 functions. Source checksums, recorded SQL history and JWT settings are reconciled
 in `supabase/backend-manifest.json` and `supabase/backend-readback-20261020.json`.
 Use `scripts/prepare-reviewed-backend.mjs` to assemble the reviewed backend;
@@ -17,7 +17,7 @@ approved catalog expose these practice games; other game routes remain gated.
 
 GitHub verification includes locked dependency builds, isolated recorded SQL
 replay, real local Auth/REST/Storage and session/browser checks, game/account
-browser tests, and 18 transactional SQL suites. Hosted staging rollback tests and
+browser tests, and 19 transactional SQL suites. Hosted staging rollback tests and
 public endpoint preflight/auth-denial checks supplement these isolated checks.
 No production cutover or real-money readiness is established by this coverage.
 
@@ -48,6 +48,14 @@ Published builds now emit `/release.json` with their source commit and public
 practice configuration. `npm run verify:published -- https://imperialgaming.llc <full-sha>`
 checks exact commit, backend target, held-game scope, six SPA routes and the main
 application asset. A successful host build alone does not establish these checks.
+
+VIP levels now use a dedicated public catalog seeded from the existing 34-level
+specification (Beginner 0 XP through Eternal X 10,000,000,000 XP). Player status
+comes from owner-scoped wallet XP, not the stale wallet level field or empty
+legacy records. Superadmins can publish validated, atomic threshold edits with
+revision conflict handling and a private audit history. Normal admins are read-only.
+The legacy VIP operator entry point uses the same new screen. No XP, bonuses or
+balances are granted by changing the catalog. See `VIP_CATALOG_20261021.md`.
 
 Remaining work:
 
