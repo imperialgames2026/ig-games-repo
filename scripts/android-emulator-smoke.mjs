@@ -123,13 +123,22 @@ try {
   });
   report.lifecycle_cycles = [];
   for (let cycle = 1; cycle <= 3; cycle++) {
-    await device.shell('input keyevent KEYCODE_HOME');
-    await device.shell(`am start -n ${TEST_PACKAGE}/.MainActivity`);
-    await page.waitForFunction(count =>
-      window.__igNativeLifecycle.pauses >= count && window.__igNativeLifecycle.resumes >= count,
-    cycle);
+    const before = await page.evaluate(() => ({ ...window.__igNativeLifecycle }));
+    // HOME key injection is asynchronous: a rapid am start can race the launcher
+    // and leave the app in the background. Wait for each transition separately.
+    await device.shell('am start -W -a android.intent.action.MAIN -c android.intent.category.HOME');
+    await page.waitForFunction(previous => window.__igNativeLifecycle.pauses > previous.pauses,
+      before, { polling: 100 });
+    const background = await page.evaluate(() => ({ ...window.__igNativeLifecycle }));
+    await device.shell(`am start -W -n ${TEST_PACKAGE}/.MainActivity`);
+    await page.waitForFunction(previous =>
+      window.__igNativeLifecycle.resumes > previous.resumes && document.visibilityState === 'visible',
+      background, { polling: 100 });
     await page.getByRole('heading', { name: 'Welcome back' }).waitFor();
-    report.lifecycle_cycles.push(await page.evaluate(() => ({ ...window.__igNativeLifecycle })));
+    const after = await page.evaluate(() => ({ ...window.__igNativeLifecycle }));
+    assert.ok(background.pauses > before.pauses, 'Every cycle must actually pause.');
+    assert.ok(after.resumes > background.resumes, 'Every cycle must actually resume after that pause.');
+    report.lifecycle_cycles.push({ cycle, before, background, after });
   }
   report.results.push('three background/resume cycles deliver real native pause/resume events and restore login');
   phase = 'offline_reload';
@@ -142,7 +151,8 @@ try {
   assert.deepEqual(pageErrors, [], 'Native WebView emitted uncaught JavaScript exceptions.');
   report.passed = true;
 } catch (error) {
-  report.failure = { name: error.name, message: error.message };
+  report.failure = { name: error.name, message: error.message, phase };
+  if (page) report.failure_lifecycle = await page.evaluate(() => window.__igNativeLifecycle || null).catch(() => null);
   if (page) await page.screenshot({ path: 'android-evidence/failure.png', fullPage: true }).catch(() => {});
   throw error;
 } finally {

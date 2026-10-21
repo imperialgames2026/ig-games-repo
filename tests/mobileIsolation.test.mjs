@@ -57,7 +57,11 @@ test('native lifecycle test awaits real pause and resume before reloading the We
   assert.match(source, /document\.addEventListener\('pause'/);
   assert.match(source, /document\.addEventListener\('resume'/);
   assert.match(source, /cycle <= 3/);
-  assert.ok(source.indexOf('window.__igNativeLifecycle.resumes >= count') < source.indexOf('setOffline(true)'));
+  assert.ok(source.indexOf('window.__igNativeLifecycle.resumes > previous.resumes') < source.indexOf('setOffline(true)'));
+  assert.match(source, /am start -W -a android.intent.action.MAIN -c android.intent.category.HOME/);
+  assert.ok(source.indexOf('window.__igNativeLifecycle.pauses > previous.pauses') < source.indexOf('am start -W -n'));
+  assert.match(source, /document.visibilityState === 'visible'/);
+  assert.match(source, /polling: 100/);
   assert.match(source, /assert\.deepEqual\(pageErrors, \[\]/);
   assert.match(source, /page_error_details = pageErrorDetails/);
 });
