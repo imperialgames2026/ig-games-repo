@@ -735,6 +735,10 @@
     {
       "file": "20261021030929_vip_level_spins_and_wheel_settings.sql",
       "sha256": "a9a1030f39d5233f6aa6694dc61e3f1f2fc37e17b458e455904bad7c372225dc"
+    },
+    {
+      "file": "20261021032722_vip_wheel_atomic_redemption.sql",
+      "sha256": "e86ba19f93adb0c83a2b5e7b29dd312c21ed3f601239a506dbcb1a5e661c0948"
     }
   ]
 }

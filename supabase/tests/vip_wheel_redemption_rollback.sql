@@ -1,0 +1,115 @@
+begin;
+create function pg_temp.wheel_test_fail() returns trigger language plpgsql as $$ begin if current_setting('ig.wheel_test_fail',true)='yes' then raise exception 'Simulated ledger failure' using errcode='P0002';end if;return new;end $$;
+create trigger wheel_test_failure before insert on public.transactions for each row execute function pg_temp.wheel_test_fail();
+do $test$
+declare owner_id uuid:=gen_random_uuid();player_id uuid:=gen_random_uuid();other_id uuid:=gen_random_uuid();tester_id uuid:=gen_random_uuid();admin_id uuid:=gen_random_uuid();actor uuid;
+ settings_revision bigint;release_revision bigint;published jsonb;first_spin jsonb;again jsonb;second_spin jsonb;
+ prize_segments jsonb:='[{"slot":1,"reward":"Repeatable prize","amount":"1.12345678","unit":"IGT","weight":1,"notes":""},{"slot":2,"reward":"Disabled prize","amount":"5","unit":"BTC","weight":0,"notes":""}]';
+ original_xp bigint;original_igd numeric;original_ign numeric;before_money numeric;audits integer;n integer;
+begin
+ foreach actor in array array[owner_id,player_id,other_id,tester_id,admin_id] loop
+  insert into auth.users(id,email) values(actor,'wheel-draw-'||actor||'@example.invalid');
+  insert into auth.sessions(id,user_id,created_at,updated_at) values(actor,actor,now(),now());
+ end loop;
+ update public.user_roles set role='superadmin' where user_id=owner_id;
+ update public.user_roles set role='tester' where user_id=tester_id;
+ update public.user_roles set role='admin' where user_id=admin_id;
+ update public.wallets set experience_points=3000 where user_id=player_id;
+ select experience_points,igd_balance,cent_balance,igt_balance into original_xp,original_igd,original_ign,before_money from public.wallets where user_id=player_id;
+ select revision into release_revision from public.ig_vip_wheel_releases where stage=1;
+ select revision into settings_revision from public.ig_vip_wheel_settings where stage=1;
+ -- Canonical roles, not spoofed metadata, decide publication and consumption.
+ foreach actor in array array[player_id,tester_id,admin_id] loop
+  perform set_config('request.jwt.claim.sub',actor::text,true);
+  perform set_config('request.jwt.claims',jsonb_build_object('sub',actor,'role','authenticated','session_id',actor,'is_anonymous',false,'user_metadata',jsonb_build_object('role','superadmin'))::text,true);
+  set local role authenticated;
+  begin perform public.publish_vip_wheel(1,settings_revision,release_revision,true);raise exception 'Unauthorized publish succeeded';exception when insufficient_privilege then null;end;
+  reset role;
+ end loop;
+ perform set_config('request.jwt.claim.sub',owner_id::text,true);
+ perform set_config('request.jwt.claims',jsonb_build_object('sub',owner_id,'role','authenticated','session_id',owner_id,'is_anonymous',false)::text,true);
+ set local role authenticated;
+ begin perform public.publish_vip_wheel(1,settings_revision,release_revision,true);raise exception 'Ambiguous draft activated';exception when invalid_parameter_value then null;end;
+ reset role;
+ update public.ig_vip_wheel_settings s set segments=prize_segments where stage=1;
+ select revision into settings_revision from public.ig_vip_wheel_settings where stage=1;
+ select count(*) into audits from internal.vip_wheel_release_history;
+ set local role authenticated;
+ published:=public.publish_vip_wheel(1,settings_revision,release_revision,true);
+ again:=public.publish_vip_wheel(1,settings_revision,release_revision,true);
+ if again<>published then raise exception 'Publication retry changed release';end if;
+ begin perform public.publish_vip_wheel(1,settings_revision,release_revision,false);raise exception 'Invalid pause accepted';exception when invalid_parameter_value then null;end;
+ reset role;
+ if (select count(*) from internal.vip_wheel_release_history)<>audits+1 then raise exception 'Publication audit not atomic';end if;
+ release_revision:=(published->>'revision')::bigint;
+ perform set_config('request.jwt.claim.sub',player_id::text,true);
+ perform set_config('request.jwt.claims',jsonb_build_object('sub',player_id,'role','authenticated','session_id',player_id,'is_anonymous',false)::text,true);
+ set local role authenticated;
+ begin perform public.spin_vip_wheel(34,release_revision);raise exception 'Unearned spin consumed';exception when invalid_parameter_value then null;end;
+ begin perform public.spin_vip_wheel(1,release_revision-1);raise exception 'Stale odds accepted';exception when serialization_failure then null;end;
+ first_spin:=public.spin_vip_wheel(1,release_revision);
+ again:=public.spin_vip_wheel(1,release_revision);
+ if first_spin<>again then raise exception 'Same spin paid twice';end if;
+ second_spin:=public.spin_vip_wheel(2,release_revision);
+ if first_spin->>'id'=second_spin->>'id' or first_spin->'reward'<>second_spin->'reward' then raise exception 'Second spin could not collect the same prize again';end if;
+ if (select count(*) from public.ig_vip_wheel_receipts)<>2 then raise exception 'Receipt isolation/count mismatch';end if;
+ begin delete from public.ig_vip_wheel_receipts where user_id=player_id;raise exception 'Client deleted receipt';exception when insufficient_privilege then null;end;
+ begin update public.ig_vip_wheel_releases set active=false where stage=1;raise exception 'Player changed publication';exception when insufficient_privilege then null;end;
+ begin perform changed_by from internal.vip_wheel_release_history;raise exception 'Client read private publication audit';exception when insufficient_privilege then null;end;
+ reset role;
+ if (select igt_balance from public.wallets where user_id=player_id)<>before_money+2.24691356 then raise exception 'Repeat win not credited exactly twice';end if;
+ if (select count(*) from public.transactions where user_id=player_id and notes->>'source'='vip_reward_wheel')<>2 then raise exception 'Ledger duplicate or missing';end if;
+ if (select experience_points from public.wallets where user_id=player_id)<>original_xp or (select igd_balance from public.wallets where user_id=player_id)<>original_igd or (select cent_balance from public.wallets where user_id=player_id)<>original_ign then raise exception 'Wrong currency or XP changed';end if;
+ -- Ledger failure rolls back the balance and leaves the earned spin available.
+ perform set_config('ig.wheel_test_fail','yes',true);
+ set local role authenticated;
+ begin perform public.spin_vip_wheel(3,release_revision);raise exception 'Ledger failure ignored';exception when no_data_found then null;end;
+ reset role;
+ perform set_config('ig.wheel_test_fail','no',true);
+ if exists(select 1 from public.ig_vip_wheel_receipts where user_id=player_id and level=3) or (select igt_balance from public.wallets where user_id=player_id)<>before_money+2.24691356 then raise exception 'Failed settlement consumed spin or money';end if;
+ -- Draft changes do not alter published prizes; publication makes an immutable snapshot.
+ update public.ig_vip_wheel_settings s set segments=jsonb_set(prize_segments,'{0,amount}','"8"') where stage=1;
+ perform set_config('request.jwt.claim.sub',owner_id::text,true);
+ perform set_config('request.jwt.claims',jsonb_build_object('sub',owner_id,'role','authenticated','session_id',owner_id,'is_anonymous',false)::text,true);
+ set local role authenticated;
+ published:=public.publish_vip_wheel(1,null,release_revision,false);
+ reset role;
+ perform set_config('request.jwt.claim.sub',player_id::text,true);
+ perform set_config('request.jwt.claims',jsonb_build_object('sub',player_id,'role','authenticated','session_id',player_id,'is_anonymous',false)::text,true);
+ set local role authenticated;
+ if public.spin_vip_wheel(1,release_revision)<>first_spin then raise exception 'Retry changed after pause/config edit';end if;
+ begin perform public.spin_vip_wheel(3,(published->>'revision')::bigint);raise exception 'Paused wheel consumed spin';exception when invalid_parameter_value then null;end;
+ reset role;
+ -- Disabled, tester, anonymous, revoked and expired sessions cannot mutate rewards.
+ foreach actor in array array[tester_id,other_id] loop
+  perform set_config('request.jwt.claim.sub',actor::text,true);
+  perform set_config('request.jwt.claims',jsonb_build_object('sub',actor,'role','authenticated','session_id',actor,'is_anonymous',false)::text,true);
+  if actor=other_id then
+   perform set_config('request.jwt.claims',jsonb_build_object('role','service_role')::text,true);
+   update public.profiles set is_excluded=true where id=actor;
+   perform set_config('request.jwt.claims',jsonb_build_object('sub',actor,'role','authenticated','session_id',actor,'is_anonymous',false)::text,true);
+  end if;
+  set local role authenticated;
+  begin perform public.spin_vip_wheel(1,release_revision);raise exception 'Ineligible account spun';exception when insufficient_privilege then null;end;
+  if exists(select 1 from public.ig_vip_wheel_receipts) then raise exception 'Other owner receipts leaked';end if;
+  reset role;
+ end loop;
+ perform set_config('request.jwt.claim.sub',player_id::text,true);
+ perform set_config('request.jwt.claims',jsonb_build_object('sub',player_id,'role','authenticated','session_id',gen_random_uuid(),'is_anonymous',false)::text,true);
+ set local role authenticated;
+ begin perform public.spin_vip_wheel(1,release_revision);raise exception 'Revoked session accepted';exception when insufficient_privilege then null;end;
+ reset role;
+ perform set_config('request.jwt.claims',jsonb_build_object('sub',player_id,'role','authenticated','session_id',player_id,'is_anonymous',true)::text,true);
+ set local role authenticated;
+ begin perform public.spin_vip_wheel(1,release_revision);raise exception 'Anonymous session accepted';exception when insufficient_privilege then null;end;
+ reset role;
+ update auth.sessions set not_after=now()-interval '1 minute' where id=player_id;
+ perform set_config('request.jwt.claims',jsonb_build_object('sub',player_id,'role','authenticated','session_id',player_id,'is_anonymous',false)::text,true);
+ set local role authenticated;
+ begin perform public.spin_vip_wheel(1,release_revision);raise exception 'Expired session accepted';exception when insufficient_privilege then null;end;
+ reset role;
+ if exists(select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname in ('spin_vip_wheel','publish_vip_wheel') and p.prosecdef) then raise exception 'Exposed privileged function';end if;
+ if has_function_privilege('anon','public.spin_vip_wheel(integer,bigint)','execute') or has_function_privilege('authenticated','internal.vip_wheel_actor(boolean)','execute') then raise exception 'Excess helper privileges';end if;
+end $test$;
+select 'PASS: same prize paid on two different spins; same-spin retry returns one receipt; atomic wallet/ledger/receipt; paused/stale/unearned guards; owner isolation; session and canonical-role checks; private audit' as result;
+rollback;
