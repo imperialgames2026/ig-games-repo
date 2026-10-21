@@ -3,8 +3,8 @@
   "retrieved_at": "2026-10-21",
   "source": "Read-only Supabase recorded-history digests and get_edge_function readbacks after staging deployment",
   "migration_comparison": {
-    "migrations": 97,
-    "exact_bytes": 14,
+    "migrations": 98,
+    "exact_bytes": 15,
     "two_terminal_newlines_only": 83
   },
   "function_comparison": "Exact bytes except three historical terminal-whitespace differences; deployment package retains checksums of committed bytes",
@@ -886,5 +886,13 @@
     ],
     "client_updates_deletes": false,
     "financial_wallet_changed": false
+  },
+  "announcement_content_hardening": {
+    "original_pending_source_version": "20261021001029",
+    "recorded_deployed_version": "20261021012941",
+    "recorded_md5": "4520402e78dc84ee039ada5181f30f24",
+    "recorded_bytes": 2601,
+    "source_matches_recorded": true,
+    "source_pr": 29
   }
 }

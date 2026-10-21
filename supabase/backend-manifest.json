@@ -723,6 +723,10 @@
     {
       "file": "20261021012551_owner_scoped_sweepstakes_request_intake.sql",
       "sha256": "53fe73b4cf06166228fdf8f504caf898e791b3d66ff342c48043bd3125aa1770"
+    },
+    {
+      "file": "20261021012941_announcement_content_hardening.sql",
+      "sha256": "8dd311e4f91aa338da5f3e3b64599ab9a298f315dbe7fff89d58deff72e0917e"
     }
   ]
 }

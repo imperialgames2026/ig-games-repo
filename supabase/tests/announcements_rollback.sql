@@ -2,7 +2,7 @@ begin;
 do $test$
 declare
  staff uuid:=gen_random_uuid(); player uuid:=gen_random_uuid(); tester uuid:=gen_random_uuid(); actor uuid;
- published uuid:=gen_random_uuid(); draft uuid:=gen_random_uuid(); expired uuid:=gen_random_uuid(); n integer;
+ published uuid:=gen_random_uuid(); draft uuid:=gen_random_uuid(); expired uuid:=gen_random_uuid(); n integer; bad text; legacy uuid:=gen_random_uuid(); unicode_id uuid:=gen_random_uuid();
 begin
  insert into auth.users(id,email) values(staff,'announce-admin-'||staff||'@example.invalid'),
  (player,'announce-player-'||player||'@example.invalid'),(tester,'announce-tester-'||tester||'@example.invalid');
@@ -10,7 +10,26 @@ begin
  update public.user_roles set role='tester' where user_id=tester;
  perform set_config('request.jwt.claim.sub',staff::text,true);
  perform set_config('request.jwt.claims',jsonb_build_object('sub',staff,'role','authenticated','is_anonymous',false)::text,true);
+ -- Simulate an existing pre-hardening row, only inside this rollback fixture.
+ alter table public.ig_announcements disable trigger announcement_content_validation;
+ insert into public.ig_announcements(id,title,message,type,link_url,is_active,created_by)
+ values(legacy,'Legacy fixture','Body','special','https://user:pass@example.com',true,staff);
+ alter table public.ig_announcements enable trigger announcement_content_validation;
  set local role authenticated;
+ update public.ig_announcements set is_active=false where id=legacy;
+ if (select is_active from public.ig_announcements where id=legacy) then raise exception 'Legacy URL prevented archive'; end if;
+ insert into public.ig_announcements(id,title,message,type) values(unicode_id,repeat('🎲',160),repeat('🎲',3000),'special');
+ if (select is_active from public.ig_announcements where id=unicode_id) then raise exception 'Omitted activation published a draft'; end if;
+ foreach bad in array array['https://user:pass@example.com','https://?x','https://#x','https://a..com','https://-a.com','https://a.com:65536','https://a.com:','https://a.com:abc','https://a.com/'||chr(160),'https://127.0.0.1','https://[::1]'] loop
+  begin
+   insert into public.ig_announcements(title,message,type,link_url) values('URL fixture','Body','special',bad);
+   raise exception 'Invalid URL accepted: %',bad;
+  exception when check_violation then null; end;
+ end loop;
+ begin
+  update public.ig_announcements set is_active=true where id=legacy;
+  raise exception 'Legacy invalid URL republished';
+ exception when check_violation then null; end;
  insert into public.ig_announcements(id,title,message,type,is_active,expires_at) values
  (published,'Published fixture','Published body','special',true,null),
  (draft,'Draft fixture','Draft body','challenge',false,null),

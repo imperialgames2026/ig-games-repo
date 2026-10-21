@@ -26,7 +26,7 @@ precision across Postgres, REST and JavaScript. No float-based conversion occurs
 
 The recorded migration `20261021012551_owner_scoped_sweepstakes_request_intake.sql`
 is included byte-for-byte (5332 bytes; recorded MD5
-`f82795dcb29b82e460855f126e287f4b`) in the 97-migration reviewed package.
+`f82795dcb29b82e460855f126e287f4b`) in the 98-migration reviewed package.
 The hosted transactional role-matrix test passed and rolled back all fixtures;
 the subsequent security advisor returned no findings. The isolated CI runner now
 includes 18 SQL suites and a real browser submission/history/admin-audit test.
@@ -48,3 +48,14 @@ the verifier does not bypass it. App/API checks with real Auth are run separatel
 in disposable CI. Full migration still requires legacy VIP/rewards/referrals, IGT
 staking and provider-backed financial execution/configuration. The 23 explicitly
 held games remain excluded; no scope has been silently removed or activated.
+
+## Consolidated announcement hardening
+
+PR29 was reviewed and merged with all checks passing. Its originally pending
+source `20261021001029_announcement_content_hardening.sql` was applied through the
+connected Supabase service, which recorded version `20261021012941`. The reviewed
+package now uses that actual recorded version with identical SQL bytes (2601 bytes;
+MD5 `4520402e78dc84ee039ada5181f30f24`). The pending package entry is replaced,
+not replayed under a second version. The root source remains historical reference.
+Public announcement expiry uses server time; admin archives are paginated; new
+rows default inactive; URL authority validation and Unicode limits are reconciled.

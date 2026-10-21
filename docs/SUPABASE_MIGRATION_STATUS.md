@@ -2,7 +2,7 @@
 
 Updated 2026-10-20. The migration is **not complete**.
 
-Staging `qonqemhljgxlwpghkxhn` has 97 recorded migrations and 30 reviewed deployed
+Staging `qonqemhljgxlwpghkxhn` has 98 recorded migrations and 30 reviewed deployed
 functions. Source checksums, recorded SQL history and JWT settings are reconciled
 in `supabase/backend-manifest.json` and `supabase/backend-readback-20261020.json`.
 Use `scripts/prepare-reviewed-backend.mjs` to assemble the reviewed backend;
