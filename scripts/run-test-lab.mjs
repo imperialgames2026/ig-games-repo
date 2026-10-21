@@ -2,13 +2,14 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { loadEnv } from 'vite';
 import { LAB_SUPABASE_URL, validateLabConfiguration } from '../config/test-lab.js';
+import { resolveTestLabHostingEnvironment } from '../config/test-lab-hosting.js';
 
 const action = process.argv[2];
 if (!['build', 'dev'].includes(action) || process.argv.length !== 3) {
   throw new Error('Usage: node scripts/run-test-lab.mjs [build|dev]');
 }
 const root = fileURLToPath(new URL('../', import.meta.url));
-const environment = loadEnv('lab', root, 'VITE_');
+const environment = resolveTestLabHostingEnvironment(loadEnv('lab', root, 'VITE_'));
 // The non-secret URL is fixed here; a key must be supplied for this project.
 environment.VITE_SUPABASE_URL ??= LAB_SUPABASE_URL;
 validateLabConfiguration(environment);

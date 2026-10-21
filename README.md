@@ -59,9 +59,10 @@ remain distinct. [Lab backend packaging](docs/TEST_LAB_BACKEND_CANDIDATE.md)
 documents checksums, pending poker fixes and excluded financial handlers.
 
 On the `test` branch, `vercel.json` also selects `build:lab` and `dist-lab`.
-Hosting must supply this lab's public settings in its Preview environment;
-missing or incorrect settings stop the build instead of falling back to the
-production backend. See [test-branch delivery](docs/TEST_BRANCH_DELIVERY.md).
+Hosted `test` builds pin the lab's public browser settings from
+`config/test-lab-public.json`, even when the hosting dashboard inherits older
+production settings. No account or service-role credentials are included.
+See [test-branch delivery](docs/TEST_BRANCH_DELIVERY.md).
 
 Check the existing hosted setup with read-only commands:
 

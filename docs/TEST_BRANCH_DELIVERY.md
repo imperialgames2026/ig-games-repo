@@ -20,19 +20,16 @@ production branch's later VIP work is not silently merged into this lab draft.
 
 `vercel.json` on this branch selects `npm run build:lab` and output `dist-lab`.
 The build validates project `jvyzpxjqmymafjapprpp` (**IG network lab tests**).
-Supply these settings through the hosting project's **Preview** environment:
+`config/test-lab-public.json` intentionally contains that lab's public URL and
+publishable browser key. These settings are delivered to browsers; no account,
+secret or service-role credentials are included. Hosted `test` builds pin these
+values rather than inheriting the hosting dashboard's production backend.
+Invalid pinned settings intentionally block the build.
 
-- `VITE_SUPABASE_URL`: `https://jvyzpxjqmymafjapprpp.supabase.co`
-- `VITE_SUPABASE_PUBLISHABLE_KEY`: that lab's public browser key.
-
-The cloud coding environment's saved settings are not automatically hosting
-settings. No keys or runtime connections were copied into this branch.
-The public key must not be replaced with an account or service-role token.
-An absent or wrong setting intentionally blocks the preview build.
-
-Vite also validates these settings whenever Cloudflare or Vercel identifies the
-branch as `test`. This covers a hosting dashboard that calls the generic build
-command instead of the repository's lab command. Existing Cloudflare Access
+Vite selects these settings whenever Cloudflare or Vercel identifies the branch
+as `test`. This covers a hosting dashboard that calls the generic build command
+instead of the repository's lab command. Other branches and deliberate local
+browser fixtures retain their own configuration. Existing Cloudflare Access
 protection is preserved; a successful preview may require the owner's sign-in.
 
 A GitHub branch URL is a source link. A working hosted preview URL is only
@@ -46,7 +43,8 @@ The reviewed frontend passed 187 offline checks, 100 desktop/mobile checks,
 checks were also verified against disposable local services; see
 [website completion](WEBSITE_FRONTEND_COMPLETION_20261021.md) for their exact scope.
 Three additional hosting-isolation regressions bring the test branch's offline
-suite to **190 passing checks**. A Cloudflare-style explicit lab build and lint
+suite to **190 passing checks**. Cloudflare/Vercel-style builds pin the selected
+lab even with inherited production settings. These builds and lint
 also pass locally. The initial GitHub test-branch workflow succeeded; subsequent
 commit checks are visible under the branch's Actions runs.
 
