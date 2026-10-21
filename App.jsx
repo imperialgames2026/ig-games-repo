@@ -24,7 +24,7 @@ const publicPages = new Set([
 // A successful Vite build never authorizes direct legacy wallet settlement.
 const verifiedPracticeGames = new Set(['PlayDice', 'PlayCraps', 'PlayRoulette', 'PlayCrash', 'PlayTrenball', 'PlayBaccarat', 'PlayPoker', 'PlayOmaha', 'PlayBlackjack', 'PlayMultiplayerBlackjack', 'PlayCoinFlip', 'PlayHashDice', 'PlayLimbo', 'PlayPlinko', 'PlayWheel', 'PlayMines', 'PlayDarts', 'PlayDiceZone', 'PlayHiLo', 'PlayRocket', 'PlayTowers']);
 const adminPages = new Set([
-  'Admin', 'AdminAnnouncements', 'AdminKYC', 'AdminSupport', 'AdminUsers',
+  'Admin', 'AdminVIP', 'AdminAnnouncements', 'AdminKYC', 'AdminSupport', 'AdminUsers',
   'AdminWallets', 'AdminSweepstakesAudit', 'AdminIGTSupply', 'OwnerKeyring', 'SuperadminPokerTournaments', 'PokerBotLab', 'AdminTreasury', 'AdminLegacyTools',
 ]);
 

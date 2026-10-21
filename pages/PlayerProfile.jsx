@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
+import {useVipStatus} from '@/hooks/useVipCatalog';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -78,8 +79,8 @@ const MEDALS = [
     color: 'from-orange-400 to-red-600',
     glow: '#f97316',
     description: 'Reached VIP Level 10 or higher. A true Imperial loyalist!',
-    check: (wallet) => (wallet?.vip_level || 1) >= 10,
-    progress: (wallet) => Math.min((wallet?.vip_level || 1) / 10, 1),
+    check: (wallet) => (wallet?.vip_level ?? 0) >= 10,
+    progress: (wallet) => Math.min((wallet?.vip_level ?? 0) / 10, 1),
     goal: 'VIP Level 10',
   },
   {
@@ -255,7 +256,8 @@ export default function PlayerProfile() {
     enabled: !!user?.email,
   });
 
-  const wallet = wallets[0];
+  const {progress:vip}=useVipStatus(wallets[0]);
+  const wallet=wallets[0]?{...wallets[0],vip_level:vip?.current.level??null}:null;
 
   // All-time high multiplier from GameRounds
   const athMultiplier = useMemo(() => {
@@ -317,7 +319,7 @@ export default function PlayerProfile() {
             <div className="text-xs text-gray-500 mt-1">Account #{user.account_number || 'Pending'}</div>
             <div className="flex flex-wrap gap-2 mt-2">
               <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-full border border-yellow-500/30">
-                VIP {wallet?.vip_level ?? 1}
+                VIP {vip?.current.level??'unavailable'}
               </span>
               {joinedDaysAgo !== null && (
                 <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs font-bold rounded-full border border-blue-500/30 flex items-center gap-1">

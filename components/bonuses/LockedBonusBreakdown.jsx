@@ -2,8 +2,8 @@ import React from 'react';
 import { LockKeyhole, TrendingUp } from 'lucide-react';
 
 export default function LockedBonusBreakdown({ wallet }) {
-  const current = wallet?.locked_bonus_funds_current || 5600;
-  const total = wallet?.locked_bonus_funds_total || 8000;
+  const current = wallet?.locked_bonus_funds_current ?? 0;
+  const total = wallet?.locked_bonus_funds_total ?? 0;
   const released = Math.max(total - current, 0);
   const percent = total > 0 ? Math.min(100, (released / total) * 100) : 0;
 

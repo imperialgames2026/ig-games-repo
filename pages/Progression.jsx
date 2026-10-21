@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
-import { calculateVIPLevel, getNextLevel, getProgressToNextLevel } from '@/components/casino/VIPHelper';
+import VIPProgressCard from '@/components/casino/VIPProgressCard';
 
 export default function Progression() {
   const queryClient = useQueryClient();
@@ -86,9 +86,6 @@ export default function Progression() {
 
   const wallet = wallets[0];
   const currentXP = wallet?.experience_points || 0;
-  const vipLevel = calculateVIPLevel(currentXP);
-  const nextLevel = getNextLevel(currentXP);
-  const progressPercent = getProgressToNextLevel(currentXP);
 
   const handleClaimQuest = async (quest, userQuest) => {
     if (!userQuest.is_completed || userQuest.is_claimed) return;
@@ -190,35 +187,7 @@ export default function Progression() {
             </p>
           </motion.div>
 
-          {/* Level Progress */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="mt-8 max-w-3xl mx-auto p-6 rounded-2xl bg-gradient-to-br from-[#1A1528] to-[#0F0A1E] border border-white/10"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <span className="text-3xl">{vipLevel.icon}</span>
-                <div>
-                  <h3 className="text-xl font-bold text-white">{vipLevel.name}</h3>
-                  <p className="text-sm text-gray-400">VIP Level {vipLevel.level}</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-gray-400">Experience</p>
-                <p className="text-2xl font-bold text-white">{currentXP.toLocaleString()} XP</p>
-              </div>
-            </div>
-            <Progress value={progressPercent} className="h-3 mb-2" />
-            {nextLevel ? (
-              <p className="text-sm text-gray-400 text-center">
-                {(nextLevel.xp_required - currentXP).toLocaleString()} XP to {nextLevel.name}
-              </p>
-            ) : (
-              <p className="text-sm text-pink-400 text-center font-bold">MAX LEVEL! 👑</p>
-            )}
-          </motion.div>
+          <div className="mt-8 max-w-3xl mx-auto"><VIPProgressCard wallet={wallet}/></div>
         </div>
       </div>
 

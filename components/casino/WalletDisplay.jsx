@@ -10,16 +10,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { motion, AnimatePresence } from 'framer-motion';
-import { calculateVIPLevel, getNextLevel, getProgressToNextLevel } from './VIPHelper';
+import VIPProgressCard from './VIPProgressCard';
 import RedeemVoucher from './RedeemVoucher';
 import WalletGiftDialog from './WalletGiftDialog';
 
 export default function WalletDisplay({ wallet, compact = false, currency, onCurrencyChange, user, onBet, rewardPulse = false }) {
-        const currentXP = wallet?.experience_points || 0;
-        const vipLevel = calculateVIPLevel(currentXP);
-        const nextLevel = getNextLevel(currentXP);
-        const progressPercent = getProgressToNextLevel(currentXP);
-
         const currencyOptions = [
           { key: 'IC', label: 'IGN', balance: wallet?.tokens || 0, accent: 'text-pink-400' },
           { key: 'ID', label: 'IGD', balance: wallet?.cat_dollars || 0, accent: 'text-green-400' },
@@ -94,37 +89,8 @@ export default function WalletDisplay({ wallet, compact = false, currency, onCur
     <div className="rounded-2xl bg-gradient-to-br from-[#1A1528] to-[#0F0A1E] border border-white/10 p-6">
       <motion.div animate={rewardPulse ? { scale: [1, 1.03, 1] } : { scale: 1 }} transition={{ duration: 0.6 }} className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-bold text-white">Your Wallet</h3>
-        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-pink-500/20 to-pink-600/20 border border-pink-500/30">
-          <span className="text-lg">{vipLevel.icon}</span>
-          <span className="text-sm font-medium text-pink-400">{vipLevel.name} VIP</span>
-        </div>
       </motion.div>
-
-      {/* VIP Progress Bar */}
-      <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <Star className="w-4 h-4 text-purple-400" />
-            <span className="text-sm text-gray-300">VIP Progress</span>
-          </div>
-          <span className="text-xs text-gray-400">{currentXP.toLocaleString()} XP</span>
-        </div>
-        <div className="w-full h-2 bg-black/30 rounded-full overflow-hidden mb-2">
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${progressPercent}%` }}
-            transition={{ duration: 1, ease: "easeOut" }}
-            className={`h-full bg-gradient-to-r ${vipLevel.color}`}
-          />
-        </div>
-        {nextLevel ? (
-          <div className="text-xs text-gray-400 text-center">
-            {(nextLevel.xp_required - currentXP).toLocaleString()} XP to {nextLevel.name}
-          </div>
-        ) : (
-          <div className="text-xs text-pink-400 text-center font-bold">MAX LEVEL REACHED! ✧</div>
-        )}
-      </div>
+      <div className="mb-6"><VIPProgressCard wallet={wallet}/></div>
 
       {/* Imperial Coins */}
       <motion.button

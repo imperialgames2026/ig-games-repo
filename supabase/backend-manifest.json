@@ -727,6 +727,10 @@
     {
       "file": "20261021012941_announcement_content_hardening.sql",
       "sha256": "8dd311e4f91aa338da5f3e3b64599ab9a298f315dbe7fff89d58deff72e0917e"
+    },
+    {
+      "file": "20261021020409_dedicated_vip_catalog.sql",
+      "sha256": "737f530451f2671bc9fd0c95ed02eace82be49d0757001eaeb898cdf2e444498"
     }
   ]
 }

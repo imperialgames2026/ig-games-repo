@@ -1,0 +1,206 @@
+[
+  {
+    "level": 1,
+    "name": "Beginner",
+    "xp_required": 0,
+    "tier": "Beginner"
+  },
+  {
+    "level": 2,
+    "name": "Bronze I",
+    "xp_required": 1000,
+    "tier": "Bronze"
+  },
+  {
+    "level": 3,
+    "name": "Bronze II",
+    "xp_required": 3000,
+    "tier": "Bronze"
+  },
+  {
+    "level": 4,
+    "name": "Bronze III",
+    "xp_required": 7000,
+    "tier": "Bronze"
+  },
+  {
+    "level": 5,
+    "name": "Bronze IV",
+    "xp_required": 15000,
+    "tier": "Bronze"
+  },
+  {
+    "level": 6,
+    "name": "Silver I",
+    "xp_required": 30000,
+    "tier": "Silver"
+  },
+  {
+    "level": 7,
+    "name": "Silver II",
+    "xp_required": 60000,
+    "tier": "Silver"
+  },
+  {
+    "level": 8,
+    "name": "Silver III",
+    "xp_required": 120000,
+    "tier": "Silver"
+  },
+  {
+    "level": 9,
+    "name": "Silver IV",
+    "xp_required": 240000,
+    "tier": "Silver"
+  },
+  {
+    "level": 10,
+    "name": "Gold I",
+    "xp_required": 500000,
+    "tier": "Gold"
+  },
+  {
+    "level": 11,
+    "name": "Gold II",
+    "xp_required": 1000000,
+    "tier": "Gold"
+  },
+  {
+    "level": 12,
+    "name": "Gold III",
+    "xp_required": 2000000,
+    "tier": "Gold"
+  },
+  {
+    "level": 13,
+    "name": "Gold IV",
+    "xp_required": 3500000,
+    "tier": "Gold"
+  },
+  {
+    "level": 14,
+    "name": "Platinum I",
+    "xp_required": 6000000,
+    "tier": "Platinum"
+  },
+  {
+    "level": 15,
+    "name": "Platinum II",
+    "xp_required": 8500000,
+    "tier": "Platinum"
+  },
+  {
+    "level": 16,
+    "name": "Platinum III",
+    "xp_required": 11000000,
+    "tier": "Platinum"
+  },
+  {
+    "level": 17,
+    "name": "Platinum IV",
+    "xp_required": 15000000,
+    "tier": "Platinum"
+  },
+  {
+    "level": 18,
+    "name": "Diamond I",
+    "xp_required": 25000000,
+    "tier": "Diamond"
+  },
+  {
+    "level": 19,
+    "name": "Diamond II",
+    "xp_required": 40000000,
+    "tier": "Diamond"
+  },
+  {
+    "level": 20,
+    "name": "Diamond III",
+    "xp_required": 65000000,
+    "tier": "Diamond"
+  },
+  {
+    "level": 21,
+    "name": "Diamond IV",
+    "xp_required": 110000000,
+    "tier": "Diamond"
+  },
+  {
+    "level": 22,
+    "name": "Diamond V",
+    "xp_required": 200000000,
+    "tier": "Diamond"
+  },
+  {
+    "level": 23,
+    "name": "Diamond VI",
+    "xp_required": 400000000,
+    "tier": "Diamond"
+  },
+  {
+    "level": 24,
+    "name": "Diamond VII",
+    "xp_required": 1000000000,
+    "tier": "Diamond"
+  },
+  {
+    "level": 25,
+    "name": "Eternal I",
+    "xp_required": 1500000000,
+    "tier": "Eternal"
+  },
+  {
+    "level": 26,
+    "name": "Eternal II",
+    "xp_required": 2200000000,
+    "tier": "Eternal"
+  },
+  {
+    "level": 27,
+    "name": "Eternal III",
+    "xp_required": 3200000000,
+    "tier": "Eternal"
+  },
+  {
+    "level": 28,
+    "name": "Eternal IV",
+    "xp_required": 4500000000,
+    "tier": "Eternal"
+  },
+  {
+    "level": 29,
+    "name": "Eternal V",
+    "xp_required": 6000000000,
+    "tier": "Eternal"
+  },
+  {
+    "level": 30,
+    "name": "Eternal VI",
+    "xp_required": 7200000000,
+    "tier": "Eternal"
+  },
+  {
+    "level": 31,
+    "name": "Eternal VII",
+    "xp_required": 8300000000,
+    "tier": "Eternal"
+  },
+  {
+    "level": 32,
+    "name": "Eternal VIII",
+    "xp_required": 9000000000,
+    "tier": "Eternal"
+  },
+  {
+    "level": 33,
+    "name": "Eternal IX",
+    "xp_required": 9500000000,
+    "tier": "Eternal"
+  },
+  {
+    "level": 34,
+    "name": "Eternal X",
+    "xp_required": 10000000000,
+    "tier": "Eternal"
+  }
+]
