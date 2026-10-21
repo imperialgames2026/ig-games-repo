@@ -29,7 +29,7 @@ test('admin can page beyond 100 rows and archive astral text; public expiry igno
  expect((await admin.from('user_roles').update({role:'admin'}).eq('user_id',account.data.user.id)).error).toBeNull();
  const ids=Array.from({length:101},()=>crypto.randomUUID()),target=crypto.randomUUID(),title='🎲'.repeat(81);
  try{
-  const rows=ids.map((id,i)=>({id,title:'Pagination fixture '+i,message:'Local-only fixture',type:'special',is_active:false,priority:999}));
+  const rows=ids.map((id,i)=>({id,title:'Pagination fixture '+i,message:'Local-only fixture',type:'special',is_active:false,priority:999,created_at:'2001-01-01T00:00:00Z'}));
   rows.push({id:target,title,message:'Local-only clock fixture',type:'special',is_active:true,priority:-1000,created_at:'2000-01-01T00:00:00Z',expires_at:new Date(Date.now()+3600000).toISOString()});
   expect((await admin.from('ig_announcements').insert(rows)).error).toBeNull();
   const publicContext=await browser.newContext();
