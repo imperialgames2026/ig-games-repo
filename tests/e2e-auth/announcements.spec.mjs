@@ -32,7 +32,7 @@ test('admin can page beyond 100 rows and archive astral text; public expiry igno
   const rows=ids.map((id,i)=>({id,title:'Pagination fixture '+i,message:'Local-only fixture',type:'special',is_active:false,priority:999,created_at:'2001-01-01T00:00:00Z'}));
   rows.push({id:target,title,message:'Local-only clock fixture',type:'special',is_active:true,priority:-1000,created_at:'2000-01-01T00:00:00Z',expires_at:new Date(Date.now()+3600000).toISOString()});
   expect((await admin.from('ig_announcements').insert(rows)).error).toBeNull();
-  const publicContext=await browser.newContext();
+  const publicContext=await browser.newContext({baseURL:test.info().project.use.baseURL});
   try{
    await publicContext.addInitScript(()=>{const Original=Date;globalThis.Date=class extends Original{constructor(...args){super(...(args.length?args:[Original.now()+86400000]));}static now(){return Original.now()+86400000;}};});
    const publicPage=await publicContext.newPage();await publicPage.goto('/Games');
