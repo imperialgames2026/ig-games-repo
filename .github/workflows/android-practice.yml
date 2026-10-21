@@ -3,6 +3,11 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - 'pages/Login.jsx'
+      - 'tests/mobileBuildRegression.test.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.js'
       - 'capacitor.config.json'
       - 'scripts/verify-mobile-bundle.mjs'
       - '.github/workflows/android-practice.yml'
@@ -10,7 +15,27 @@ on:
 permissions:
   contents: read
 jobs:
+  web-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      VITE_SUPABASE_URL: https://qonqemhljgxlwpghkxhn.supabase.co
+      VITE_ENABLE_LEGACY_EDGE_FUNCTIONS: 'false'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Test login syntax and native Auth guard without hosted calls
+        run: node --test tests/mobileBuildRegression.test.mjs
+      - name: Compile web assets (not a hosted authentication test)
+        run: npm run build
   debug-apk:
+    needs: web-regression
     runs-on: ubuntu-latest
     timeout-minutes: 40
     env:
@@ -27,7 +52,14 @@ jobs:
           cache: npm
       - name: Install web dependencies
         run: npm ci
-      - name: Require public practice client configuration\n        shell: bash\n        run: |\n          if [ -z "$VITE_SUPABASE_ANON_KEY" ]; then\n            echo 'MOBILE_PRACTICE_SUPABASE_ANON_KEY is missing; refusing to build an unusable placeholder-client APK.' >&2\n            exit 1\n          fi\n      - name: Generate reviewed practice assets
+      - name: Require public practice client configuration
+        shell: bash
+        run: |
+          if [ -z "$VITE_SUPABASE_ANON_KEY" ]; then
+            echo 'MOBILE_PRACTICE_SUPABASE_ANON_KEY is missing; refusing to build an unusable placeholder-client APK.' >&2
+            exit 1
+          fi
+      - name: Generate reviewed practice assets
         run: npm run build
       - name: Reject non-practice or mismatched assets
         run: node scripts/verify-mobile-bundle.mjs

@@ -26,7 +26,12 @@ export default function Login() {
     setError('');
     setMessage('');
     try {
-      // Native email callbacks require verified Android App Links and separate approval.\n      // Until then, allow only password sign-in with existing practice accounts.\n      if (window.Capacitor?.isNativePlatform?.() && mode !== 'signin') {\n        throw new Error('Mobile email confirmation and password recovery are not enabled yet. Use an existing practice test account.');\n      }\n      if (mode === 'recovery') {
+      // Native email callbacks require verified Android App Links and separate approval.
+      // Until then, allow only password sign-in with existing practice accounts.
+      if (window.Capacitor?.isNativePlatform?.() && mode !== 'signin') {
+        throw new Error('Mobile email confirmation and password recovery are not enabled yet. Use an existing practice test account.');
+      }
+      if (mode === 'recovery') {
         const {error: resetError}=await supabase.auth.resetPasswordForEmail(email.trim(),{redirectTo:window.location.origin+'/ResetPassword'});
         if(resetError)throw resetError;
         setMessage('If an account exists for this address, a password reset link will arrive by email.');
