@@ -3,8 +3,8 @@
   "retrieved_at": "2026-10-21",
   "source": "Read-only Supabase recorded-history digests and get_edge_function readbacks after staging deployment",
   "migration_comparison": {
-    "migrations": 100,
-    "exact_bytes": 17,
+    "migrations": 101,
+    "exact_bytes": 18,
     "two_terminal_newlines_only": 83
   },
   "function_comparison": "Exact bytes except three historical terminal-whitespace differences; deployment package retains checksums of committed bytes",
@@ -845,6 +845,12 @@
       "name": "vip_level_spins_and_wheel_settings",
       "sha256": "a9a1030f39d5233f6aa6694dc61e3f1f2fc37e17b458e455904bad7c372225dc",
       "reviewed_sha256": "a9a1030f39d5233f6aa6694dc61e3f1f2fc37e17b458e455904bad7c372225dc"
+    },
+    {
+      "version": "20261021032722",
+      "name": "vip_wheel_atomic_redemption",
+      "sha256": "e86ba19f93adb0c83a2b5e7b29dd312c21ed3f601239a506dbcb1a5e661c0948",
+      "reviewed_sha256": "e86ba19f93adb0c83a2b5e7b29dd312c21ed3f601239a506dbcb1a5e661c0948"
     }
   ],
   "ign_security_boundary": {
@@ -941,5 +947,22 @@
     ],
     "draft_wheel_settings": true,
     "draws_redemptions_enabled": false
+  },
+  "vip_wheel_atomic_redemption": {
+    "version": "20261021032722",
+    "recorded_md5": "c96858ab9dd21ed8085035cad9663d56",
+    "recorded_bytes": 13609,
+    "source_matches_recorded": true,
+    "hosted_transactional_test": "passed; all fixtures rolled back",
+    "security_advisor_findings": 0,
+    "automatic_wallet_units": [
+      "IGN",
+      "IGD",
+      "IGT"
+    ],
+    "same_prize_on_separate_spins": true,
+    "public_functions": "security invoker; actor-bound private implementations",
+    "initial_published_wheels": 0,
+    "initial_receipts": 0
   }
 }

@@ -1,5 +1,8 @@
 # VIP level spins and admin wheel settings
 
+This documents the initial draft-only release. The subsequent publication and
+wallet-credit settlement implementation is in `VIP_WHEEL_REDEMPTION_20261021.md`.
+
 The owner specified one reward-wheel spin per reached VIP level and corrected the
 current maximum to **34**, not 24. Stages are:
 

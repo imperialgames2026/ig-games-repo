@@ -2,7 +2,7 @@
 
 Updated 2026-10-20. The migration is **not complete**.
 
-Staging `qonqemhljgxlwpghkxhn` has 100 recorded migrations and 30 reviewed deployed
+Staging `qonqemhljgxlwpghkxhn` has 101 recorded migrations and 30 reviewed deployed
 functions. Source checksums, recorded SQL history and JWT settings are reconciled
 in `supabase/backend-manifest.json` and `supabase/backend-readback-20261020.json`.
 Use `scripts/prepare-reviewed-backend.mjs` to assemble the reviewed backend;
@@ -17,7 +17,7 @@ approved catalog expose these practice games; other game routes remain gated.
 
 GitHub verification includes locked dependency builds, isolated recorded SQL
 replay, real local Auth/REST/Storage and session/browser checks, game/account
-browser tests, and 20 transactional SQL suites. Hosted staging rollback tests and
+browser tests, and 21 transactional SQL suites. Hosted staging rollback tests and
 public endpoint preflight/auth-denial checks supplement these isolated checks.
 No production cutover or real-money readiness is established by this coverage.
 
@@ -62,9 +62,14 @@ boundaries 1–11, 12–24 and 25–34. New and existing eligible Supabase accou
 level-1 enrollment; higher levels are granted only on trusted XP threshold
 crossings, once per level. Catalog edits do not issue spins. The admin dashboard's
 Reward Wheels editor controls every section's reward, exact amount, unit, notes
-and weight, with a private audit and stale-edit protection. Settings are drafts;
-no spin consumption, random prize draw or monetary settlement is enabled yet.
-See `VIP_REWARD_WHEELS_20261021.md`.
+and weight, with a private audit and stale-edit protection. Superadmins can now
+publish explicit IGN/IGD/IGT wallet prizes or pause a wheel. Each server-side draw
+atomically credits its wallet, writes a transaction and consumes exactly one earned
+spin through a unique receipt. Separate spins can win the same prize again;
+retries of one spin return the original receipt. Existing incomplete prize pools
+remain paused until configured and published. Free bets, game spins, XP
+multipliers and external cryptocurrency payouts still need fulfillment rules.
+See `VIP_REWARD_WHEELS_20261021.md` and `VIP_WHEEL_REDEMPTION_20261021.md`.
 
 Remaining work:
 
