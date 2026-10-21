@@ -2,11 +2,10 @@ import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { loadMobileEnvironment } from './mobile-client-config.mjs';
+import { requireCommittedMobileSource } from './mobile-source-state.mjs';
 
 const env = await loadMobileEnvironment();
-const source = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
-if (!/^[a-f0-9]{40}$/.test(source)) throw new Error('Exact source commit is required.');
-execFileSync('git', ['diff', '--exit-code', 'HEAD', '--', 'package.json', 'package-lock.json', 'android'], { stdio: 'inherit' });
+const source = requireCommittedMobileSource();
 // GitHub PR runs otherwise inject a synthetic merge SHA into Vite metadata.
 env.GITHUB_SHA = source;
 delete env.CF_PAGES_COMMIT_SHA;

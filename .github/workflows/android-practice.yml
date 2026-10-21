@@ -6,6 +6,7 @@ on:
       - 'pages/Login.jsx'
       - 'tests/mobileBuildRegression.test.mjs'
       - 'tests/mobileClientConfig.test.mjs'
+      - 'tests/mobileSourceState.test.mjs'
       - 'package.json'
       - 'package-lock.json'
       - 'vite.config.js'
@@ -38,7 +39,7 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Test login syntax and native Auth guard without hosted calls
-        run: node --test tests/mobileBuildRegression.test.mjs tests/mobileClientConfig.test.mjs
+        run: node --test tests/mobileBuildRegression.test.mjs tests/mobileClientConfig.test.mjs tests/mobileSourceState.test.mjs
       - name: Compile web assets (not a hosted authentication test)
         run: npm run build
   debug-apk:
