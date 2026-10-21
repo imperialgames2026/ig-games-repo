@@ -43,9 +43,9 @@ isolated replayed backend. CI results belong to the PR for this change.
 - Level-up, weekly and monthly bonuses have no approved per-level amounts or
   complete currency/eligibility/claim rules. Old inactive forms cannot determine
   those economics. The VIP page states that bonus claims are not launched.
-- The old reward wheels require levels 1 / 38 / 70, conflicting with the 34-level
-  schedule. Their unlocks need an owner decision before migration. This does not
-  activate any of the 23 games explicitly on the non-migration list.
+- The owner resolved wheel stages as levels 1–11 / 12–24 / 25–34, with one
+  saved spin per level reached. See `VIP_REWARD_WHEELS_20261021.md` for the
+  implementation and admin prize editor. The 23 held games stay on hold.
 - Referral, quest and IGT staking financial settlement and provider-backed live
   payments remain separate migration work. This release does not claim that the
   entire application migration or real-value launch is complete.

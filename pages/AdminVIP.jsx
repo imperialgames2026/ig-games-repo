@@ -1,4 +1,5 @@
 import React,{useState} from 'react';
+import {Link} from 'react-router-dom';
 import {useQueryClient} from '@tanstack/react-query';
 import {useAuth} from '@/lib/AuthContext';
 import {useVipCatalog,vipCatalog} from '@/hooks/useVipCatalog';
@@ -22,6 +23,7 @@ function VipEditor({user}){
  const rows=draft??catalog.data?.levels??[];
  return <section className="mx-auto max-w-5xl space-y-6 text-white">
   <header><h1 className="text-3xl font-bold">VIP Level Settings</h1><p className="mt-2 text-slate-400">The published XP thresholds are shared by every player VIP display.</p></header>
+  <Link to="/AdminRewardWheels" className="inline-block text-amber-200 underline">Edit reward wheel sections and amounts</Link>
   <p className="rounded-xl border border-amber-300/20 bg-amber-300/5 p-4 text-sm text-amber-100">Changing thresholds changes displayed ranks. It does not award XP or bonuses. Practice rounds do not earn wager-based XP. Bonus payouts await the approved reward rules.</p>
   {(error||catalog.error)&&<p role="alert" className="text-red-200">{error||'The VIP schedule could not be loaded.'}</p>}
   {notice&&<p role="status" className="text-emerald-200">{notice}</p>}

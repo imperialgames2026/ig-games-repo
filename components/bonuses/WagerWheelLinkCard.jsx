@@ -11,14 +11,14 @@ export default function WagerWheelLinkCard() {
         <div>
           <div className="flex items-center gap-2 mb-2">
             <Zap className="w-5 h-5 text-yellow-400" />
-            <h3 className="text-lg font-bold text-white">Wager Wheel Bonus</h3>
+            <h3 className="text-lg font-bold text-white">VIP Reward Wheel</h3>
           </div>
-          <p className="text-sm text-gray-400 mb-4">Earn wheel spins through wagering and jump into the spin bonus section from here.</p>
+          <p className="text-sm text-gray-400 mb-4">Earn one saved spin for each of the 34 VIP levels. Levels 1–11, 12–24 and 25–34 each have their own wheel stage.</p>
         </div>
       </div>
-      <Link to={createPageUrl('Bonuses')}>
+      <Link to={createPageUrl('VIP')+'#vip-reward-wheel'}>
         <Button className="bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700">
-          Open Wheel Bonus <ArrowRight className="w-4 h-4 ml-2" />
+          View VIP Spins <ArrowRight className="w-4 h-4 ml-2" />
         </Button>
       </Link>
     </div>

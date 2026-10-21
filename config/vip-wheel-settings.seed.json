@@ -1,0 +1,257 @@
+[
+  {
+    "stage": 1,
+    "segments": [
+      {
+        "slot": 1,
+        "reward": "Currency reward",
+        "amount": "0.5",
+        "unit": "ID",
+        "weight": 30,
+        "notes": ""
+      },
+      {
+        "slot": 2,
+        "reward": "Currency reward",
+        "amount": "100",
+        "unit": "ID",
+        "weight": 15,
+        "notes": ""
+      },
+      {
+        "slot": 3,
+        "reward": "XP multiplier",
+        "amount": "10",
+        "unit": "multiplier",
+        "weight": 25,
+        "notes": "Set eligible activity and duration before launch."
+      },
+      {
+        "slot": 4,
+        "reward": "Currency reward",
+        "amount": "20",
+        "unit": "ID",
+        "weight": 30,
+        "notes": ""
+      },
+      {
+        "slot": 5,
+        "reward": "Extra spins",
+        "amount": "1",
+        "unit": "spins",
+        "weight": 20,
+        "notes": "Set eligible game and spin stake before launch."
+      },
+      {
+        "slot": 6,
+        "reward": "Currency reward",
+        "amount": "10",
+        "unit": "ID",
+        "weight": 30,
+        "notes": ""
+      },
+      {
+        "slot": 7,
+        "reward": "Free bet",
+        "amount": "0",
+        "unit": "ID",
+        "weight": 20,
+        "notes": "Set the amount, eligible game and wager rules before launch."
+      },
+      {
+        "slot": 8,
+        "reward": "Currency reward",
+        "amount": "2",
+        "unit": "ID",
+        "weight": 30,
+        "notes": ""
+      },
+      {
+        "slot": 9,
+        "reward": "Currency reward",
+        "amount": "5",
+        "unit": "ID",
+        "weight": 25,
+        "notes": ""
+      },
+      {
+        "slot": 10,
+        "reward": "Bitcoin reward",
+        "amount": "1",
+        "unit": "BTC",
+        "weight": 0,
+        "notes": "Legacy jackpot is excluded with weight 0. No payout is scheduled."
+      }
+    ]
+  },
+  {
+    "stage": 2,
+    "segments": [
+      {
+        "slot": 1,
+        "reward": "Currency reward",
+        "amount": "10",
+        "unit": "ID",
+        "weight": 30,
+        "notes": ""
+      },
+      {
+        "slot": 2,
+        "reward": "Currency reward",
+        "amount": "500",
+        "unit": "ID",
+        "weight": 10,
+        "notes": ""
+      },
+      {
+        "slot": 3,
+        "reward": "XP multiplier",
+        "amount": "10",
+        "unit": "multiplier",
+        "weight": 25,
+        "notes": "Set eligible activity and duration before launch."
+      },
+      {
+        "slot": 4,
+        "reward": "Currency reward",
+        "amount": "100",
+        "unit": "ID",
+        "weight": 20,
+        "notes": ""
+      },
+      {
+        "slot": 5,
+        "reward": "Extra spins",
+        "amount": "30",
+        "unit": "spins",
+        "weight": 20,
+        "notes": "Set eligible game and spin stake before launch."
+      },
+      {
+        "slot": 6,
+        "reward": "Currency reward",
+        "amount": "50",
+        "unit": "ID",
+        "weight": 30,
+        "notes": ""
+      },
+      {
+        "slot": 7,
+        "reward": "Free bet",
+        "amount": "0",
+        "unit": "ID",
+        "weight": 20,
+        "notes": "Set the amount, eligible game and wager rules before launch."
+      },
+      {
+        "slot": 8,
+        "reward": "Currency reward",
+        "amount": "20",
+        "unit": "ID",
+        "weight": 30,
+        "notes": ""
+      },
+      {
+        "slot": 9,
+        "reward": "Currency reward",
+        "amount": "30",
+        "unit": "ID",
+        "weight": 25,
+        "notes": ""
+      },
+      {
+        "slot": 10,
+        "reward": "Bitcoin reward",
+        "amount": "3",
+        "unit": "BTC",
+        "weight": 0,
+        "notes": "Legacy jackpot is excluded with weight 0. No payout is scheduled."
+      }
+    ]
+  },
+  {
+    "stage": 3,
+    "segments": [
+      {
+        "slot": 1,
+        "reward": "Currency reward",
+        "amount": "20",
+        "unit": "ID",
+        "weight": 30,
+        "notes": ""
+      },
+      {
+        "slot": 2,
+        "reward": "Currency reward",
+        "amount": "999",
+        "unit": "ID",
+        "weight": 8,
+        "notes": ""
+      },
+      {
+        "slot": 3,
+        "reward": "XP multiplier",
+        "amount": "10",
+        "unit": "multiplier",
+        "weight": 25,
+        "notes": "Set eligible activity and duration before launch."
+      },
+      {
+        "slot": 4,
+        "reward": "Currency reward",
+        "amount": "200",
+        "unit": "ID",
+        "weight": 15,
+        "notes": ""
+      },
+      {
+        "slot": 5,
+        "reward": "Extra spins",
+        "amount": "50",
+        "unit": "spins",
+        "weight": 20,
+        "notes": "Set eligible game and spin stake before launch."
+      },
+      {
+        "slot": 6,
+        "reward": "Currency reward",
+        "amount": "150",
+        "unit": "ID",
+        "weight": 25,
+        "notes": ""
+      },
+      {
+        "slot": 7,
+        "reward": "Free bet",
+        "amount": "0",
+        "unit": "ID",
+        "weight": 20,
+        "notes": "Set the amount, eligible game and wager rules before launch."
+      },
+      {
+        "slot": 8,
+        "reward": "Currency reward",
+        "amount": "50",
+        "unit": "ID",
+        "weight": 30,
+        "notes": ""
+      },
+      {
+        "slot": 9,
+        "reward": "Currency reward",
+        "amount": "100",
+        "unit": "ID",
+        "weight": 25,
+        "notes": ""
+      },
+      {
+        "slot": 10,
+        "reward": "Bitcoin reward",
+        "amount": "5",
+        "unit": "BTC",
+        "weight": 0,
+        "notes": "Legacy jackpot is excluded with weight 0. No payout is scheduled."
+      }
+    ]
+  }
+]

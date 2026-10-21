@@ -5,10 +5,8 @@ import WagerProgressBar from '@/components/casino/WagerProgressBar';
 import LuckySpinWheel from '@/components/casino/LuckySpinWheel';
 import LockedBonusBreakdown from '@/components/bonuses/LockedBonusBreakdown';
 import WagerWheelLinkCard from '@/components/bonuses/WagerWheelLinkCard';
-import {useVipStatus} from '@/hooks/useVipCatalog';
 
 export default function BonusSectionsGrid({ user, wallet }) {
-  const {progress}=useVipStatus(wallet);
   return (
     <div className="space-y-6">
       <LockedBonusBreakdown wallet={wallet} />
@@ -18,7 +16,7 @@ export default function BonusSectionsGrid({ user, wallet }) {
         <DailyQuests user={user} wallet={wallet} />
         <WeeklyQuests user={user} wallet={wallet} />
       </div>
-      {progress&&<LuckySpinWheel wallet={wallet} userVIPLevel={progress.current.level} />}
+      <LuckySpinWheel/>
     </div>
   );
 }

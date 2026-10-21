@@ -731,6 +731,10 @@
     {
       "file": "20261021020409_dedicated_vip_catalog.sql",
       "sha256": "737f530451f2671bc9fd0c95ed02eace82be49d0757001eaeb898cdf2e444498"
+    },
+    {
+      "file": "20261021030929_vip_level_spins_and_wheel_settings.sql",
+      "sha256": "a9a1030f39d5233f6aa6694dc61e3f1f2fc37e17b458e455904bad7c372225dc"
     }
   ]
 }
