@@ -20,6 +20,7 @@ on:
       - 'android/**'
       - 'scripts/*mobile*.mjs'
       - 'scripts/bootstrap-android.mjs'
+      - 'scripts/test-unsigned-release.mjs'
       - 'scripts/android-*.mjs'
       - 'scripts/verify-mobile-apk.py'
       - 'tests/test_mobile_apk.py'
@@ -47,10 +48,16 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Verify unsigned policy with synthetic Gradle fixtures
+        run: npm run test:android:unsigned-policy
       - name: Test read-only APK contract verifier
         run: python3 -B -m unittest discover -s tests -p test_mobile_apk.py
       - name: Test login syntax and native Auth guard without hosted calls
-        run: node --test tests/mobileBuildRegression.test.mjs tests/mobileClientConfig.test.mjs tests/mobileIsolation.test.mjs tests/mobileSourceState.test.mjs tests/mobileDependencyInventory.test.mjs tests/mobileIdentity.test.mjs tests/mobileAndroidIdentity.test.mjs
+        run: node --test tests/mobileBuildRegression.test.mjs tests/mobileClientConfig.test.mjs tests/mobileIsolation.test.mjs tests/mobileSourceState.test.mjs tests/mobileDependencyInventory.test.mjs tests/mobileIdentity.test.mjs tests/mobileAndroidIdentity.test.mjs tests/mobileUnsignedRelease.test.mjs
       - name: Run existing application and backend unit/security regressions
         run: npm test
       - name: Compile web assets (not a hosted authentication test)
