@@ -25,6 +25,7 @@ jobs:
       - run: python3 -B -m unittest discover -s services/kyc-retention -p test_cleanup.py
       - run: docker pull postgres:17
       - run: node scripts/test-kyc-privacy-database.mjs
+      - run: node scripts/test-kyc-core-stack.mjs
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test --config playwright.privacy.config.mjs
       - run: npm run build

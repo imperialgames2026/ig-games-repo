@@ -117,3 +117,57 @@ filters apply only to that bounded legacy set and pagination stays disabled.
 Authorization failures never trigger the fallback. This supersedes the earlier
 coordinated-rollout gate. Both mixed-version client behavior and database
 lifecycle now have dedicated synthetic regressions.
+
+## Local runtime and durable cleanup follow-up (supersedes earlier gates)
+
+The current proposed package has 106 migrations. Migration
+`20261022212136_kyc_retention_reconciliation.sql` retains minimal deletion
+identifiers for indefinite hourly reconciliation. An actual Storage stream
+started with a valid local signed token completed successfully after token expiry,
+cancellation and purge: its object reappeared, proving the old finite fence was
+insufficient. The new due queue rechecks purged rows. Real Storage deletion on
+the next due sweep removed the late object; another sweep preserved absence,
+the first deletion timestamp and exactly one audit event. The test compresses
+only its generated local token lifetime to three seconds and advances fixture
+schedules; it does not claim a production timing SLA. Scheduling, monitoring and
+capacity/backlog acceptance remain operator gates.
+
+`node scripts/test-kyc-core-stack.mjs` reproduces this using digest-pinned Auth,
+Storage, PostgREST and Edge Runtime containers, disposable PostgreSQL and generated
+local credentials. It verifies ownership and role denial, invalid JWT rejection,
+private table/storage denial, actual PNG submission and manual-review profile
+state, 131-row tied-timestamp pagination, legacy queue responses, status filtering,
+malformed-image rejection and repeated late-upload cleanup. The harness cleans
+up its own containers/network/staging files and accepts no hosted target.
+
+The same runtime checks three successive synthetic PNG/JPEG/WebP decodes under
+256MB memory and 2-second hard CPU worker limits. The original 24MP JPEG exhausted
+memory. The accepted limit is now 4MP (still subject to the existing byte cap);
+24MP files reject before decode. Solid 4MP formats and a seeded noisy 4MP JPEG
+passed; the noisy JPEG three-decode run took about 1.26 seconds wall time locally.
+This is bounded synthetic corpus evidence, not exhaustive decoder fuzzing or
+hosted performance certification. Customers are instructed to resize larger
+images. Dependencies are bundled offline from the lockfile into the actual Edge
+runtime; no face models or biometric actions are loaded or exercised.
+
+A complete Supabase CLI stack failed to unpack its PostgreSQL image with
+`failed to register layer: no space left on device` in Docker storage. The default
+registry also returned 403. Native npm loading in Edge hit the environment proxy's
+UnknownIssuer; offline locked bundling avoided changing TLS/credentials/settings.
+The successful core harness uses real Auth/Storage schemas but minimal supporting
+profile/role/verification fixtures and only the three KYC migrations, with a local
+streaming gateway. Full 106-migration replay and the platform gateway remain
+unverified. Reproduce that gate on an adequately provisioned authorized isolated
+runner, replay the full packaged migration chain, and repeat the model-free
+runtime scenarios through its normal gateway before deployment approval.
+
+Scoped CI now includes the core-stack harness. Broad comparison/Android suites
+remain intentionally skipped. No hosted deployment, production publish, merge,
+credential change, real customer access or biometric execution occurred.
+
+Final concurrency check: main remained `6e8618c3859fa83445ab4f7cc049ff57f41de301`.
+PR49 advanced to `ed6ba6cfcd27bd2abf2a1e355284438238032a86`; its applicable
+post-issuance authorization and browser refresh changes are already represented
+here. Its deployment inventory/documentation and broader tests were not imported
+or used as evidence of this branch's deployment. PR51 remains independent; no
+other owner's branch was changed.

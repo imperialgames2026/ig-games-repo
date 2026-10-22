@@ -1,4 +1,4 @@
-import {imageInfo} from './validation.js';
+import {imageInfo,MAX_IMAGE_PIXELS} from './validation.js';
 const invalid=()=>{throw Error('Invalid or incomplete image file');};
 function crc(bytes){let n=0xffffffff;for(const value of bytes){n^=value;for(let i=0;i<8;i++)n=(n>>>1)^((n&1)?0xedb88320:0);}return (n^0xffffffff)>>>0;}
 export async function validateImageFile(bytes,decode,decodeJpeg){
@@ -39,8 +39,8 @@ export async function validateImageFile(bytes,decode,decodeJpeg){
  // ImageScript's JPEG decoder tolerates truncated entropy streams. Use the
  // strict JPEG codec instead; an appended EOI must not mask missing pixels.
  const image=info.mime==='image/jpeg'
-  ?decodeJpeg(b,{useTArray:true,tolerantDecoding:false,maxResolutionInMP:24,maxMemoryUsageInMB:160})
-  :await decode(b,{applyOrientation:false,maxPixels:24000000});
+  ?decodeJpeg(b,{useTArray:true,tolerantDecoding:false,maxResolutionInMP:MAX_IMAGE_PIXELS/1000000,maxMemoryUsageInMB:100})
+  :await decode(b,{applyOrientation:false,maxPixels:MAX_IMAGE_PIXELS});
  if(image.width!==info.width||image.height!==info.height||(image.bitmap??image.data)?.length!==info.width*info.height*4)invalid();
  return info;
 }

@@ -346,10 +346,10 @@
       ],
       "status": "pending_deployment",
       "sha256": {
-        "index.ts": "80b5f38d534cf7784da43e33d335edb9e07af4b8203a59a18a304977da5631d5",
-        "validation.js": "e830ed987d63509a331d54ac75201011638dbdc9df095c603a6b9e7552f52ad9",
+        "index.ts": "2519a57918166996105f2c8aed755878dfbcc89fcd95765cf372013ba884b818",
+        "validation.js": "f5e488154a7ec6102fbe3ba51f524aaa1229ddf3d031b16bbe20906bebb16105",
         "privacy.js": "965c14650e2c83dd09c515281b8ce8ea05f276477c447368304a59515548be41",
-        "image-file.js": "d2129172de2642cf184ea2e7591b90d297d9da61dfd4d23fa09205c8796e702c"
+        "image-file.js": "d1e888a264afbf78183c1e673cf31a2b868a942b99e3c67ea58f44d07672e7ed"
       }
     }
   ],
@@ -774,6 +774,11 @@
     {
       "file": "20261022210709_kyc_profile_lifecycle.sql",
       "sha256": "92a8ee01467e39ef465745007470f2f2ef4a563ee6aec35654ddb6e249b4b33c",
+      "status": "pending_deployment"
+    },
+    {
+      "file": "20261022212136_kyc_retention_reconciliation.sql",
+      "sha256": "9fd7313f02c7bc619d56389737d2f5be83cd8ffbc68f9de7bd5bb1c7b28a9697",
       "status": "pending_deployment"
     }
   ]

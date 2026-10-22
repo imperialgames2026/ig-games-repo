@@ -40,7 +40,7 @@ Deno.serve(async request=>{
   actor=user.id;
  }
  async function rpc(action:string,payload:any=input){
-  const {data,error}=await db.rpc('ig_kyc_action',{p_actor:actor,p_action:action,p_payload:payload});
+  const {data,error}=await db.rpc(['worker_expired','worker_purged'].includes(action)?'ig_kyc_retention_action':'ig_kyc_action',{p_actor:actor,p_action:action,p_payload:payload});
   if(error)throw Object.assign(Error('Request rejected'),{code:error.code});return data;
  }
  const path=(s:any,kind:string)=>`${s.user_id}/${s.id}/${kind}`;
@@ -53,7 +53,7 @@ Deno.serve(async request=>{
    for(const kind of s.document_type==='passport'?['id_front','selfie']:KINDS){
     const name=path(s,kind);const {data,error}=await db.storage.from(BUCKET).download(name);
     if(error||!data||data.size>8388608)return reply(422,{error:'Upload each required image, up to 8 MiB'});
-    const bytes=new Uint8Array(await data.arrayBuffer());let info;try{info=await validateImageFile(bytes,Image.decode.bind(Image),jpeg.decode);}catch{return reply(422,{error:'An image is invalid. Cancel this draft and upload valid images.'});}
+    const bytes=new Uint8Array(await data.arrayBuffer());let info;try{info=await validateImageFile(bytes,Image.decode.bind(Image),jpeg.decode);}catch{return reply(422,{error:'An image is invalid or exceeds 4 megapixels. Cancel this draft and upload valid resized images.'});}
     if(data.type!==info.mime)return reply(422,{error:'Image type does not match the file'});
     evidence[kind]={path:name,sha256:await sha(bytes),...info};
    }

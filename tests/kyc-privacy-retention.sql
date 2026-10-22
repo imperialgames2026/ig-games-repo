@@ -30,15 +30,21 @@ BEGIN
   PERFORM public.ig_kyc_action(actor,'upload',jsonb_build_object('id',sid));
   RAISE EXCEPTION 'Cancelled submission obtained grant';
  EXCEPTION WHEN insufficient_privilege THEN NULL; END;
- result := public.ig_kyc_action(NULL,'worker_expired',jsonb_build_object('token_hash',token));
+ result := public.ig_kyc_retention_action(NULL,'worker_expired',jsonb_build_object('token_hash',token));
  IF jsonb_array_length(result)<>0 THEN RAISE EXCEPTION 'Cleanup preceded token expiry'; END IF;
  -- Simulate time after the outstanding late-upload grant expires; no image bytes.
  UPDATE public.ig_kyc_submissions SET upload_valid_until=now()-interval '1 minute' WHERE id=sid;
- result := public.ig_kyc_action(NULL,'worker_expired',jsonb_build_object('token_hash',token));
+ result := public.ig_kyc_retention_action(NULL,'worker_expired',jsonb_build_object('token_hash',token));
  IF jsonb_array_length(result)<>1 THEN RAISE EXCEPTION 'Cancelled draft omitted'; END IF;
- PERFORM public.ig_kyc_action(NULL,'worker_purged',jsonb_build_object('token_hash',token,'id',sid));
- result := public.ig_kyc_action(NULL,'worker_expired',jsonb_build_object('token_hash',token));
+ PERFORM public.ig_kyc_retention_action(NULL,'worker_purged',jsonb_build_object('token_hash',token,'id',sid));
+ result := public.ig_kyc_retention_action(NULL,'worker_expired',jsonb_build_object('token_hash',token));
  IF jsonb_array_length(result)<>0 THEN RAISE EXCEPTION 'Repeat batch returned purged item'; END IF;
+ UPDATE public.ig_kyc_submissions SET evidence_recheck_at=now()-interval '1 second' WHERE id=sid;
+ result:=public.ig_kyc_retention_action(NULL,'worker_expired',jsonb_build_object('token_hash',token));
+ IF jsonb_array_length(result)<>1 THEN RAISE EXCEPTION 'Tombstone never revisited';END IF;
+ PERFORM public.ig_kyc_retention_action(NULL,'worker_purged',jsonb_build_object('token_hash',token,'id',sid));
+ IF (SELECT count(*) FROM public.ig_kyc_audit WHERE submission_id=sid AND action='evidence_deleted')<>1 THEN RAISE EXCEPTION 'Duplicate deletion audit';END IF;
+ IF has_function_privilege('authenticated','public.ig_kyc_retention_action(uuid,text,jsonb)','EXECUTE') THEN RAISE EXCEPTION 'Browser retention access';END IF;
  IF (SELECT full_name FROM public.ig_kyc_submissions WHERE id=sid)<>'Deleted' THEN RAISE EXCEPTION 'Details retained'; END IF;
  IF has_function_privilege('authenticated','public.ig_kyc_action(uuid,text,jsonb)','EXECUTE') OR has_function_privilege('anon','public.ig_kyc_action(uuid,text,jsonb)','EXECUTE') THEN RAISE EXCEPTION 'Browser RPC access'; END IF;
 END $$;

@@ -96,3 +96,8 @@ test('mixed queue versions preserve legacy arrays and fail closed on authorizati
  assert.deepEqual(await loadReviewQueue(modern,{}),{rows:[],next_cursor:null,limited:false});
  let deniedCalls=0;await assert.rejects(loadReviewQueue({async action(){deniedCalls++;throw Object.assign(Error('denied'),{status:403});}},{}));assert.equal(deniedCalls,1);
 });
+test('resource bound rejects oversized pixel counts before invoking a raster decoder',async()=>{
+ const image=new Image(2001,2000);image.fill(0x123456ff);const bytes=await image.encode();let invoked=false;
+ await assert.rejects(validateImageFile(bytes,async()=>{invoked=true;}),/4 megapixels/);assert.equal(invoked,false);
+ const allowed=new Image(2000,2000);allowed.fill(0x123456ff);assert.equal((await validateImageFile(await allowed.encode(),decode)).width,2000);
+});

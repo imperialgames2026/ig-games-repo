@@ -1,5 +1,6 @@
 import {validateQueue} from './privacy.js';
 export const MAX_IMAGE_BYTES=8*1024*1024;
+export const MAX_IMAGE_PIXELS=4000000;
 export const KINDS=['id_front','id_back','selfie'];
 export const UUID=/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
 export function object(value){return value!==null&&typeof value==='object'&&!Array.isArray(value);}
@@ -23,7 +24,7 @@ export function imageInfo(bytes){
    if([192,193,194,195,197,198,199,201,202,203,205,206,207].includes(marker)&&size>=7){height=v.getUint16(p+3);width=v.getUint16(p+5);break;}p+=size;
   }
  }
- if(!mime||!width||!height||Math.min(width,height)<120||Math.max(width,height)>6000||width*height>24000000)throw Error('Use a JPEG, PNG or WebP image between 120 and 6000 pixels, up to 24 megapixels');
+ if(!mime||!width||!height||Math.min(width,height)<120||Math.max(width,height)>6000||width*height>MAX_IMAGE_PIXELS)throw Error('Use a JPEG, PNG or WebP image between 120 and 6000 pixels, up to 4 megapixels');
  return {mime,width,height,size:b.length};
 }
 export function normalizeFaceResult(input){

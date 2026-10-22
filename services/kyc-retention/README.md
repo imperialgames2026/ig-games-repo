@@ -22,3 +22,16 @@ Run the isolated tests with:
 ```sh
 python3 -B -m unittest discover -s services/kyc-retention -p test_cleanup.py
 ```
+
+The proposed reconciliation migration keeps deletion tombstones indefinitely.
+Every successful sweep schedules another check one hour later, including rows
+already marked deleted. This removes uploads that finish after token expiry and
+a previous purge; the original deletion timestamp and audit event remain intact.
+A deletion timestamp records a completed sweep, not proof that an in-flight
+upload can never reappear. Physical cleanup still requires a running client.
+
+Deploy the proposed lifecycle and reconciliation migrations before the updated
+Edge function, under separate release authorization. Operators must establish
+scheduling, failure alerts and backlog/throughput monitoring: ten records per
+cycle is bounded capacity, not a guaranteed one-hour deletion SLA. Tombstones
+retain submission identifiers so predictable object keys remain reconcilable.
