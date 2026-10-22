@@ -48,7 +48,7 @@ try{
   server=spawn('supabase',['functions','serve','--workdir',stage,'--env-file',stage+'/local.env'],{env,stdio:['ignore',logfd,logfd]});
   let ready=false;
   for(let i=0;i<120;i++){
-   try{const r=await fetch(c.API_URL+'/functions/v1/ig-kyc-v1',{method:'POST',headers:{apikey:c.ANON_KEY,authorization:'Bearer '+c.ANON_KEY,'content-type':'application/json'},body:JSON.stringify({action:'mine'}),signal:AbortSignal.timeout(2000)});const data=await r.json();if(r.status===401&&data.error==='Invalid session'){ready=true;break;}}catch{}
+   try{const r=await fetch(c.API_URL+'/functions/v1/ig-kyc-v1',{method:'POST',headers:{apikey:c.ANON_KEY,authorization:'Bearer '+c.ANON_KEY,'content-type':'application/json'},body:JSON.stringify({action:'mine'}),signal:AbortSignal.timeout(2000)});const data=await r.json();if(r.status===401&&data.error==='Registered account required'){ready=true;break;}}catch{}
    if(server.exitCode!==null)break;
    await setTimeout(500);
   }
