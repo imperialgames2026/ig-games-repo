@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "com.imperialgaming.practice.dev"
+    namespace = "llc.imperialgaming.games"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.imperialgaming.practice.dev"
+        applicationId "llc.imperialgaming.games"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
