@@ -1,6 +1,8 @@
 # Imperial Games — Supabase migration status
 
-Updated 2026-10-20. The migration is **not complete**.
+Updated 2026-10-22. The full business-feature migration is **not complete**.
+The 101-migration practice backend has a defined isolated acceptance matrix in
+`MIGRATION_ACCEPTANCE_20261022.md`; final candidate evidence is tracked in PR 38.
 
 Staging `qonqemhljgxlwpghkxhn` has 101 recorded migrations and 30 reviewed deployed
 functions. Source checksums, recorded SQL history and JWT settings are reconciled

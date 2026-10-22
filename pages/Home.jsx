@@ -11,10 +11,10 @@ import { approvedPracticeGames } from '@/lib/approvedPracticeGames';
 import GameCard from '@/components/casino/GameCard';
 import WeeklyTokenLeaderboard from '@/components/casino/WeeklyTokenLeaderboard';
 
-const featuredSlugs = ['poker', 'blackjack', 'roulette', 'craps', 'baccarat', 'crash'];
+const featuredSlugs = ['poker', 'omaha', 'blackjack', 'roulette', 'craps', 'baccarat'];
 
 const quickLinks = [
-  { label: 'Game Library', to: '/Games', icon: Gamepad2, description: 'Browse every approved Imperial Games table and original.' },
+  { label: 'Game Library', to: '/Games', icon: Gamepad2, description: 'Find your next table in the Imperial Games library.' },
   { label: 'Poker', to: '/PokerLobby', icon: Crown, description: 'Open the poker lobby and find your next table.' },
   { label: 'Profile', to: '/Profile', icon: UserRound, description: 'Manage your player profile, preferences and account tools.' },
   { label: 'Support', to: '/Support', icon: Headphones, description: 'Open private support tickets and account help.' },
@@ -29,7 +29,7 @@ function FeaturedGame({ game }) {
       <div className="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-pink-500/10 blur-2xl transition group-hover:bg-pink-500/20" />
       <div className="relative">
         <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-2xl">
-          {game.icon || (game.slug === 'poker' ? '♠️' : game.slug === 'blackjack' ? '🂡' : '🎰')}
+          {game.icon || ({ poker: '♠️', omaha: '♦️', blackjack: '🂡', roulette: '🎡', craps: '🎲', baccarat: '🃏' }[game.slug])}
         </div>
         <h3 className="text-lg font-black text-white">{game.name}</h3>
         <p className="mt-2 min-h-10 text-sm leading-5 text-slate-400">{game.description}</p>
@@ -72,7 +72,7 @@ export default function Home() {
             </h1>
 
             <p className="mx-auto mt-6 max-w-2xl text-lg leading-7 text-slate-300 lg:mx-0">
-              Poker, blackjack, baccarat, craps, roulette and fast originals in one Imperial Games account,
+              Hold’em, Omaha, blackjack, baccarat, craps and roulette in one Imperial Games account,
               built for desktop and mobile.
             </p>
 
@@ -87,7 +87,7 @@ export default function Home() {
 
             <div className="mt-7 inline-flex max-w-2xl items-start gap-3 rounded-xl border border-amber-300/20 bg-black/25 p-4 text-left text-sm leading-6 text-slate-300">
               <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-amber-300" />
-              Private APK and current website builds remain practice-only: no cash redemption, deposits or real-value wagering are enabled.
+              Practice chips have no cash value. Deposits, cash redemption and real-value wagering are unavailable.
             </div>
           </div>
 
@@ -113,7 +113,7 @@ export default function Home() {
             <div>
               <p className="text-xs font-black uppercase tracking-[.2em] text-pink-300">Imperial tables</p>
               <h2 id="featured-games" className="mt-2 text-3xl font-black">Featured Games</h2>
-              <p className="mt-2 max-w-2xl text-sm text-slate-400">Fast access to the core Imperial Games experience. Sign-in and server permissions still control actual table access.</p>
+              <p className="mt-2 max-w-2xl text-sm text-slate-400">Find your table, sign in and join the action.</p>
             </div>
             <Link to="/Games" className="inline-flex items-center gap-2 font-bold text-pink-300 hover:text-pink-200">View full lobby <ArrowRight className="h-4 w-4" /></Link>
           </div>
@@ -159,21 +159,21 @@ export default function Home() {
             <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-[#171323] to-[#0d0a14] p-6">
               <Wallet className="h-8 w-8 text-amber-300" />
               <h2 className="mt-4 text-xl font-black">Wallet at a Glance</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-400">Your authenticated wallet toolbar stays available throughout the app, with currency preference and balances protected by the current Supabase account rules.</p>
+              <p className="mt-2 text-sm leading-6 text-slate-400">View your account balances and choose your preferred display currency.</p>
               <Link to="/CryptoWallet" className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-amber-300">Wallet status <ArrowRight className="h-4 w-4" /></Link>
             </div>
             <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-[#171323] to-[#0d0a14] p-6">
               <Smartphone className="h-8 w-8 text-pink-300" />
               <h2 className="mt-4 text-xl font-black">Built for Mobile</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-400">Responsive navigation, safe-area spacing, lifecycle handling and bundled assets keep the Android experience under version control instead of wrapping the live website.</p>
+              <p className="mt-2 text-sm leading-6 text-slate-400">Your games, player profile and account tools, together in a layout made for your phone.</p>
             </div>
           </div>
         </section>
 
         <section className="grid gap-4 rounded-3xl border border-white/10 bg-white/[.035] p-6 sm:grid-cols-3 sm:p-8">
-          <div><LockKeyhole className="h-6 w-6 text-emerald-300" /><h3 className="mt-3 font-black">Protected Sessions</h3><p className="mt-2 text-sm text-slate-400">Native account restrictions and approved authentication paths remain intact.</p></div>
-          <div><Dices className="h-6 w-6 text-pink-300" /><h3 className="mt-3 font-black">Verified Outcomes</h3><p className="mt-2 text-sm text-slate-400">Reviewed practice handlers and fairness records stay separate from the visual redesign.</p></div>
-          <div><ShieldCheck className="h-6 w-6 text-amber-300" /><h3 className="mt-3 font-black">Controlled Release</h3><p className="mt-2 text-sm text-slate-400">The Android package, signing identity and release evidence remain owner-controlled.</p></div>
+          <div><LockKeyhole className="h-6 w-6 text-emerald-300" /><h3 className="mt-3 font-black">Protected Sessions</h3><p className="mt-2 text-sm text-slate-400">Sign in to access your private player profile and account tools.</p></div>
+          <div><Dices className="h-6 w-6 text-pink-300" /><h3 className="mt-3 font-black">Verified Outcomes</h3><p className="mt-2 text-sm text-slate-400">Review completed rounds and the fairness records available for each game.</p></div>
+          <div><ShieldCheck className="h-6 w-6 text-amber-300" /><h3 className="mt-3 font-black">Account Support</h3><p className="mt-2 text-sm text-slate-400">Get help with your account through private support tickets.</p></div>
         </section>
       </div>
     </main>

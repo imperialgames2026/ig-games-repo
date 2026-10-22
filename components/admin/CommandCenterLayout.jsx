@@ -25,7 +25,7 @@ const groups=[
   {title:'Treasury status',to:'/AdminTreasury',icon:Landmark,description:'Sandbox custody health'},
   {title:'IGT operations',to:'/AdminIGTSupply',icon:Layers3,superadmin:true,description:'Token controls'},
   {title:'Account security',to:'/OwnerKeyring',icon:LockKeyhole,superadmin:true,description:'Superadmin security'},
-  {title:'Legacy operator tools',to:'/AdminLegacyTools',icon:Settings2,description:'Previous modules / migration reference'},
+  {title:'Operator tool directory',to:'/AdminLegacyTools',icon:Settings2,description:'Current modules and unavailable legacy tools'},
  ]}
 ];
 
