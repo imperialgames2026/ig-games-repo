@@ -40,8 +40,10 @@ export default function PlayerWalletBar(){
   setWallet(null);setHasWallet(false);setLoaded(false);setCurrency('IGN');setError('');setOpen(false);
   if(!user?.id||!isAuthenticated)return;
   void load({preferences:true});
+  const rewardCredited=event=>{if(event.detail?.userId===user.id)void load({preferences:false});};
+  window.addEventListener('ig:wallet-reward-credited',rewardCredited);
   const timer=window.setInterval(()=>{void load({preferences:false});},45000);
-  return ()=>window.clearInterval(timer);
+  return ()=>{window.clearInterval(timer);window.removeEventListener('ig:wallet-reward-credited',rewardCredited);};
  },[user?.id,isAuthenticated,load]);
  const changeCurrency=async next=>{
   if(!user?.id||saving)return;

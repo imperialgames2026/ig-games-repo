@@ -87,6 +87,7 @@ try {
   assert.equal(metadata.app_id, TEST_PACKAGE);
   assert.equal(metadata.release_scope, 'practice');
   assert.equal(metadata.publish_approved, false);
+  assert.equal(metadata.native_wallet_credit_redemption_enabled, false);
   report.results.push('installed APK reports the exact build source and practice-only scope');
 
   checkpoint('home_to_login');
@@ -111,10 +112,20 @@ try {
   await page.getByLabel('Full name', { exact: true }).fill('Isolated Test');
   await page.getByLabel('Email', { exact: true }).fill('isolated-smoke@example.invalid');
   await page.getByLabel('Password', { exact: true }).fill('isolated-test-password');
+  await page.getByLabel('Confirm password', { exact: true }).fill('isolated-test-password');
   await page.getByRole('button', { name: 'Create account', exact: true }).click();
   await page.getByRole('alert').filter({ hasText: 'Mobile email confirmation and password recovery are not enabled' }).waitFor();
   assert.equal(mutations(), baseline);
   report.results.push('unapproved native signup blocked before any Auth request');
+
+  checkpoint('blocked_confirmation');
+  await page.goto('https://localhost/login');
+  await page.getByRole('button', { name: 'Resend confirmation email', exact: true }).click();
+  await page.getByLabel('Email', { exact: true }).fill('isolated-smoke@example.invalid');
+  await page.getByRole('button', { name: 'Resend confirmation email', exact: true }).click();
+  await page.getByRole('alert').filter({ hasText: 'Mobile email confirmation and password recovery are not enabled' }).waitFor();
+  assert.equal(mutations(), baseline);
+  report.native_confirmation_resend_blocked = true;
 
   checkpoint('invalid_signin');
   await page.goto('https://localhost/login');
@@ -171,6 +182,7 @@ try {
   await page.screenshot({ path: 'android-evidence/offline-login.png', fullPage: true });
   assert.equal(report.simulated_invalid_signins, 1, 'No sign-in was queued for replay.');
   assert.deepEqual(pageErrors, [], 'Native WebView emitted uncaught JavaScript exceptions.');
+  assert.equal(report.native_confirmation_resend_blocked, true, 'The new confirmation-resend guard must pass.');
   assert.equal(report.results.length, 9, 'Every original native scenario must pass.');
   report.passed = true;
 } catch (error) {

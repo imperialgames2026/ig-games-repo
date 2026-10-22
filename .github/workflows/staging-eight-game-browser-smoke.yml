@@ -22,6 +22,7 @@ permissions:
 
 jobs:
   browsers:
+    # Keep the runner compatible with the locked Playwright version.
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:

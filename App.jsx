@@ -5,7 +5,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClientInstance } from '@/lib/query-client';
 import NavigationTracker from '@/lib/NavigationTracker';
 import { pagesConfig } from './pages.config';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import ProtectedRoute from '@/lib/ProtectedRoute';
@@ -45,7 +45,8 @@ const LayoutWrapper = ({children,currentPageName}) => adminPages.has(currentPage
   : Layout ? <Layout currentPageName={currentPageName}>{children}</Layout> : <>{children}</>;
 
 function AuthenticatedApp() {
-  const { isLoadingAuth, authError, navigateToLogin } = useAuth();
+  const { isLoadingAuth, authError, authLinkError, navigateToLogin } = useAuth();
+  const location = useLocation();
 
   if (isLoadingAuth) {
     return (
@@ -56,6 +57,9 @@ function AuthenticatedApp() {
   }
 
   if (authError?.type === 'user_not_registered') return <UserNotRegisteredError />;
+  if (authLinkError && !['/login', '/resetpassword'].includes(location.pathname.toLowerCase())) {
+    return <Navigate to="/login?mode=confirmation" replace />;
+  }
   if (authError?.type === 'auth_required') {
     navigateToLogin();
     return null;
