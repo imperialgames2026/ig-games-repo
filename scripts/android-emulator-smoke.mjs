@@ -1,27 +1,48 @@
-import { _android as android } from 'playwright';
+import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { isolateEmulator, TEST_PACKAGE } from './android-isolation.mjs';
+import { createNativeWebViewDevice, withDeadline } from './android-webview-transport.mjs';
 
 mkdirSync('android-evidence', { recursive: true });
 const report = {
   passed: false, source_commit: process.env.SOURCE_SHA, results: [],
   hosted_auth_acceptance: false, publication_approved: false,
-  external_requests: [], simulated_invalid_signins: 0,
+  external_requests: [], simulated_invalid_signins: 0, checkpoints: [],
 };
 let device;
 let page;
 const pageErrors = [];
 const pageErrorDetails = [];
 let phase = 'prelaunch_isolation';
+function checkpoint(next) {
+  phase = next;
+  report.checkpoints.push({ phase, at: new Date().toISOString() });
+  writeFileSync('android-evidence/progress.json', JSON.stringify({
+    source_commit: report.source_commit, passed: false, phase, checkpoints: report.checkpoints,
+  }, null, 2));
+  console.log('[native-smoke]', phase);
+}
+function abortEvidence(reason) {
+  report.passed = false;
+  report.failure = { name: 'NativeTestDeadline', message: reason, phase };
+  report.page_errors = pageErrors;
+  report.page_error_details = pageErrorDetails;
+  writeFileSync('android-evidence/result.json', JSON.stringify(report, null, 2));
+  console.error('[native-smoke]', reason, 'at', phase);
+  process.exit(1);
+}
+// A transport hang must produce a failed, phase-specific report, not consume
+// the entire runner timeout or leave only an isolation proof in the artifact.
+const watchdog = setTimeout(() => abortEvidence('Native smoke exceeded eight minutes.'), 8 * 60 * 1000);
+process.once('SIGTERM', () => abortEvidence('Native smoke terminated by runner.'));
 try {
   assert.match(process.env.SOURCE_SHA || '', /^[a-f0-9]{40}$/);
+  checkpoint('prelaunch_isolation');
   // The OS firewall is enforced and probed BEFORE the app can start.
   report.isolation = await isolateEmulator();
   writeFileSync('android-evidence/isolation.json', JSON.stringify(report.isolation, null, 2));
-  const devices = await android.devices();
-  assert.equal(devices.length, 1, 'Exactly one isolated emulator is required.');
-  device = devices[0];
+  device = await createNativeWebViewDevice({ chromium, isolation: report.isolation, checkpoint });
   assert.equal(device.serial(), report.isolation.serial);
   report.model = device.model();
   device.setDefaultTimeout(60000);
@@ -49,9 +70,10 @@ try {
     });
   }
 
-  phase = 'cold_launch';
+  checkpoint('cold_launch');
   await device.shell(`am start -n ${TEST_PACKAGE}/.MainActivity`);
   await attach();
+  checkpoint('bundled_home');
   await page.getByRole('heading', { name: /Join the table/ }).waitFor();
   assert.equal(await page.evaluate(() => window.Capacitor?.isNativePlatform?.()), true);
   report.results.push('cold launch renders bundled practice home in a real Capacitor WebView');
@@ -67,7 +89,7 @@ try {
   assert.equal(metadata.publish_approved, false);
   report.results.push('installed APK reports the exact build source and practice-only scope');
 
-  phase = 'home_to_login';
+  checkpoint('home_to_login');
   await page.getByRole('link', { name: 'sign in to open your game library', exact: true }).click();
   await page.getByRole('heading', { name: 'Welcome back' }).waitFor();
   report.results.push('home sign-in link opens bundled React login');
@@ -75,7 +97,7 @@ try {
 
   const mutations = () => report.external_requests.filter(r => !['GET', 'HEAD', 'OPTIONS'].includes(r.method)).length;
   const baseline = mutations();
-  phase = 'blocked_recovery';
+  checkpoint('blocked_recovery');
   await page.getByRole('button', { name: 'Forgot password?' }).click();
   await page.getByLabel('Email', { exact: true }).fill('isolated-smoke@example.invalid');
   await page.getByRole('button', { name: 'Send reset link' }).click();
@@ -83,7 +105,7 @@ try {
   assert.equal(mutations(), baseline);
   report.results.push('unapproved native recovery blocked before any Auth request');
 
-  phase = 'blocked_signup';
+  checkpoint('blocked_signup');
   await page.goto('https://localhost/login');
   await page.getByRole('button', { name: 'Create one', exact: true }).click();
   await page.getByLabel('Full name', { exact: true }).fill('Isolated Test');
@@ -94,7 +116,7 @@ try {
   assert.equal(mutations(), baseline);
   report.results.push('unapproved native signup blocked before any Auth request');
 
-  phase = 'invalid_signin';
+  checkpoint('invalid_signin');
   await page.goto('https://localhost/login');
   await page.getByLabel('Email', { exact: true }).fill('isolated-smoke@example.invalid');
   await page.getByLabel('Password', { exact: true }).fill('isolated-test-password');
@@ -106,14 +128,14 @@ try {
   report.results.push('rejected sign-in fixture shows an error and releases the busy state without a hosted call');
 
   for (const path of ['/Profile', '/PlayDice', '/Admin', '/OwnerKeyring']) {
-    phase = 'protected_route:' + path;
+    checkpoint('protected_route:' + path);
     await page.goto('https://localhost' + path);
     await page.waitForURL('https://localhost/login');
     await page.getByRole('heading', { name: 'Welcome back' }).waitFor();
   }
   report.results.push('signed-out profile, practice-game, admin and owner routes redirect to login');
 
-  phase = 'background_resume';
+  checkpoint('background_resume');
   // An already-rendered heading cannot prove Android has completed onResume.
   // Wait for real bridge pause/resume events before unloading this document.
   await page.evaluate(() => {
@@ -141,7 +163,7 @@ try {
     report.lifecycle_cycles.push({ cycle, before, background, after });
   }
   report.results.push('three background/resume cycles deliver real native pause/resume events and restore login');
-  phase = 'offline_reload';
+  checkpoint('offline_reload');
   await page.context().setOffline(true);
   await page.reload();
   await page.getByRole('heading', { name: 'Welcome back' }).waitFor();
@@ -149,18 +171,28 @@ try {
   await page.screenshot({ path: 'android-evidence/offline-login.png', fullPage: true });
   assert.equal(report.simulated_invalid_signins, 1, 'No sign-in was queued for replay.');
   assert.deepEqual(pageErrors, [], 'Native WebView emitted uncaught JavaScript exceptions.');
+  assert.equal(report.results.length, 9, 'Every original native scenario must pass.');
   report.passed = true;
 } catch (error) {
   report.failure = { name: error.name, message: error.message, phase };
-  if (page) report.failure_lifecycle = await page.evaluate(() => window.__igNativeLifecycle || null).catch(() => null);
-  if (page) await page.screenshot({ path: 'android-evidence/failure.png', fullPage: true }).catch(() => {});
-  throw error;
+  if (page) report.failure_lifecycle = await withDeadline(() => page.evaluate(() => window.__igNativeLifecycle || null), 3000, 'Read failure lifecycle').catch(() => null);
+  if (page) await withDeadline(() => page.screenshot({ path: 'android-evidence/failure.png', fullPage: true, timeout: 3000 }), 4000, 'Capture failure screen').catch(() => {});
+  console.error('[native-smoke] failed:', error.message);
 } finally {
+  if (device) {
+    try {
+      await device.shell(`am force-stop ${TEST_PACKAGE}`);
+      await device.close();
+    } catch (error) {
+      report.passed = false;
+      report.cleanup_error = error.message;
+    }
+  }
   report.page_errors = pageErrors;
   report.page_error_details = pageErrorDetails;
   writeFileSync('android-evidence/result.json', JSON.stringify(report, null, 2));
-  if (device) {
-    await device.shell(`am force-stop ${TEST_PACKAGE}`).catch(() => {});
-    await device.close();
-  }
+  clearTimeout(watchdog);
+  // The runner owns the disposable emulator. Do not let stale automation
+  // handles hide a completed failure until the 30-minute job timeout.
+  process.exit(report.passed ? 0 : 1);
 }
