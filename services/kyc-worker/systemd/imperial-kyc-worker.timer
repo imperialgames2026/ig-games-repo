@@ -1,0 +1,10 @@
+[Unit]
+Description=Run private KYC comparison and retention every minute
+
+[Timer]
+OnBootSec=2min
+OnUnitInactiveSec=1min
+Unit=imperial-kyc-worker.service
+
+[Install]
+WantedBy=timers.target
