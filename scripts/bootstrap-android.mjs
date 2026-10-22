@@ -29,4 +29,4 @@ if (!manifest.includes('android:windowSoftInputMode=')) manifest = manifest.repl
 writeFileSync(manifestPath, manifest);
 const gradlePath = 'android/app/build.gradle';
 writeFileSync(gradlePath, readFileSync(gradlePath, 'utf8').replace('versionName "1.0"', 'versionName "0.1.0-practice"'));
-console.log('Native source generated. Release identity remains provisional; no production signing configured.');
+console.log('Native source generated. Permanent application identity configured; no production signing configured.');

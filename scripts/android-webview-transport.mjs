@@ -23,7 +23,7 @@ export async function withDeadline(operation, milliseconds, label) {
 
 export function requireIsolatedTransport(isolation, ci, packageId) {
   assert.equal(ci, 'true', 'Native transport runs only in disposable CI.');
-  assert.equal(packageId, PACKAGE, 'Only the provisional practice APK is permitted.');
+  assert.equal(packageId, PACKAGE, 'Only the configured Imperial Games practice APK is permitted.');
   assert.match(isolation?.serial || '', /^emulator-\d+$/, 'Refusing a physical device.');
   assert.equal(isolation.enforced_before_app_launch, true, 'Require pre-launch isolation.');
   assert.equal(isolation.runner_socket_control_passed, true, 'Require a reachable control probe.');
