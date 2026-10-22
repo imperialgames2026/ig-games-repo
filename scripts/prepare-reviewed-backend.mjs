@@ -35,6 +35,6 @@ for(const fn of manifest.functions){
   mkdirSync(dirname(dest),{recursive:true});copyFileSync(src,dest);
  }
 }
-if(process.argv.includes('--local-dev')) config+='\n[auth]\nsite_url = \"http://127.0.0.1:4173\"\nadditional_redirect_urls = [\"http://127.0.0.1:4173/ResetPassword\"]\n';
+if(process.argv.includes('--local-dev')) config+='\n[auth]\nsite_url = \"http://127.0.0.1:4173\"\nadditional_redirect_urls = [\"http://127.0.0.1:4173/ResetPassword\"]\n\n[auth.email]\nenable_confirmations = true\n';
 writeFileSync(join(out,'supabase/config.toml'),config);
 console.log(JSON.stringify({output:out,project:manifest.project_ref,migrations:versions.size,functions:manifest.functions.length}));

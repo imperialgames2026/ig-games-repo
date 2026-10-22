@@ -24,7 +24,10 @@ test('player VIP uses wallet XP, all 34 published levels, and a real maximum ran
   await page.reload();await expect(page.getByRole('heading',{name:'✧ Eternal X',exact:true})).toBeVisible();await expect(page.getByText('You reached the top VIP rank.')).toBeVisible();
   await page.goto('/Profile');await expect(page.getByRole('heading',{name:'✧ Eternal X',exact:true})).toBeVisible();
   await page.goto('/PlayerProfile');await expect(page.getByText('VIP 34',{exact:true})).toBeVisible();
-  await page.goto('/Bonuses');await expect(page.getByText('Current VIP level: 34')).toBeVisible();await expect(page.getByText('5,600/8,000 ID',{exact:true})).toHaveCount(0);
+  await page.goto('/Bonuses');
+  await expect(page.getByRole('region',{name:'VIP Reward Wheel',exact:true}).getByRole('status')).toHaveText('34 saved spins');
+  await expect(page.getByRole('region',{name:'Weekly Quests',exact:true})).toContainText('not active');
+  await expect(page.getByText('5,600/8,000 ID',{exact:true})).toHaveCount(0);
   await page.goto('/AdminVIP');await expect(page.getByRole('heading',{name:'VIP Level Settings',exact:true})).toHaveCount(0);
  }finally{await service.auth.admin.deleteUser(player.id);}
 });
