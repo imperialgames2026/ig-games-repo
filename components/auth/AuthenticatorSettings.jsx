@@ -87,7 +87,8 @@ export default function AuthenticatorSettings() {
         </>}
         {removeId && <>
           <p className="text-sm text-amber-200">{factors.length === 1 ? 'Removing your last authenticator turns off two-step verification. Enter a current code to confirm.' : 'Enter a current code from any of your verified authenticators to confirm removal.'}</p>
-          <label className="block text-sm">Verify with<select value={verifyId} disabled={busy} onChange={e => { setVerifyId(e.target.value); setCode(''); }} className={inputClass}>{factors.map((factor, index) => <option key={factor.id} value={factor.id}>{factor.friendly_name || `Authenticator ${index + 1}`}</option>)}</select></label>
+          <label htmlFor="remove-authenticator-factor" className="block text-sm">Verify with</label>
+          <select id="remove-authenticator-factor" value={verifyId} disabled={busy} onChange={e => { setVerifyId(e.target.value); setCode(''); }} className={inputClass}>{factors.map((factor, index) => <option key={factor.id} value={factor.id}>{factor.friendly_name || `Authenticator ${index + 1}`}</option>)}</select>
         </>}
         <label className="block text-sm">Authenticator code<input autoComplete="one-time-code" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} required disabled={busy} value={code} onChange={e => setCode(e.target.value.replace(/\D/g, ''))} className={inputClass} /></label>
         <div className="flex flex-wrap gap-3"><button disabled={busy || code.length !== 6} className="rounded bg-pink-600 px-4 py-3 font-medium disabled:opacity-50">{busy ? 'Verifying…' : removeId ? 'Confirm removal' : 'Enable authenticator'}</button><button type="button" disabled={busy} onClick={cancel} className="rounded border border-white/20 px-4 py-3">Cancel</button></div>
