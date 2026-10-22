@@ -1,10 +1,17 @@
 apply plugin: 'com.android.application'
 
+// Explicit unsigned mode must bypass even reading owner-local signing properties.
+def unsignedReleaseOption = providers.gradleProperty('imperialUnsignedRelease').orNull
+if (unsignedReleaseOption != null && unsignedReleaseOption != 'true') {
+    throw new GradleException('imperialUnsignedRelease accepts only true; omit it for the existing owner-local release path')
+}
+def unsignedReleaseRequested = unsignedReleaseOption == 'true'
+
 def signingPropertiesFile = rootProject.file('key.properties')
 def signingProperties = new Properties()
 def releaseSigningReady = false
 
-if (signingPropertiesFile.exists()) {
+if (!unsignedReleaseRequested && signingPropertiesFile.exists()) {
     signingProperties.load(new FileInputStream(signingPropertiesFile))
     def requiredSigningKeys = ['storeFile', 'storePassword', 'keyAlias', 'keyPassword']
     def missingSigningKeys = requiredSigningKeys.findAll { key -> !signingProperties.getProperty(key)?.trim() }

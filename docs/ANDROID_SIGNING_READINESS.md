@@ -1,7 +1,7 @@
 # Android identity and signing readiness
 
 Permanent package: `llc.imperialgaming.games`. Display name: **Imperial Games**.
-Version remains `0.1.0-practice` (code 1). APK-first testing and reward redemption
+Current source version is `0.3.0-private` (code 3). APK-first testing and reward redemption
 disabled remain the approved scope. Historical APK reports retain their original IDs.
 This package installs separately from the old `.dev` application and does not
 update or automatically migrate its local data. Do not uninstall it as a workaround.
@@ -33,8 +33,27 @@ No hosted Auth settings, permissions, backend configuration or redemption behavi
 Nathan confirmed `llc.imperialgaming.games`, superseding the earlier
 `com.imperialgaming.app` decision, and authorized a local signed candidate using
 his existing key/configuration. This new package installs separately from both
-previous identifiers; no automatic data migration occurs. Version remains
-0.1.0-practice, code 1. No public distribution or production readiness approval.
+previous identifiers; no automatic data migration occurs. The earlier authorized candidate was
+0.1.0-practice, code 1; that is a historical record, not the current version. No public distribution or production readiness approval.
 Signing tooling may consume the existing protected local configuration temporarily;
 no credentials belong in this repository. Record the actual signed artifact and
 certificate evidence separately from source-only signing/publication gate metadata.
+
+## Explicit unsigned preparation
+
+`npm run android:release:unsigned` passes `-PimperialUnsignedRelease=true` to
+Gradle. In that mode the build skips reading `android/key.properties` entirely
+and cannot configure this project's release signing from that file, even when it
+exists. Do not move, rename, delete or alter owner signing files to build unsigned.
+Use a clean isolated checkout without external signing init scripts or other
+configuration injections. Verify the resulting artifact is unsigned before handoff.
+
+The ordinary Gradle release path is intentionally unchanged: when an existing
+valid owner-local properties file is present it selects release signing. It is
+therefore not an unsigned-only operation and needs signing authorization. This
+change supplies no signing or publication approval and creates no key.
+
+For every candidate, record its actual manifest version, source commit, APK digest
+and (if separately authorized and signed) public certificate fingerprint. Current
+source version 3 does not prove a version-3 artifact is installed or accepted.
+Retain version-1 and version-2 records with their original source/checksums.

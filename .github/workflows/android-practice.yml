@@ -20,6 +20,7 @@ on:
       - 'android/**'
       - 'scripts/*mobile*.mjs'
       - 'scripts/bootstrap-android.mjs'
+      - 'scripts/test-unsigned-release.mjs'
       - 'scripts/android-*.mjs'
       - 'scripts/verify-mobile-apk.py'
       - 'tests/test_mobile_apk.py'
@@ -47,6 +48,12 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Verify unsigned policy with synthetic Gradle fixtures
+        run: npm run test:android:unsigned-policy
       - name: Test read-only APK contract verifier
         run: python3 -B -m unittest discover -s tests -p test_mobile_apk.py
       - name: Test login syntax and native Auth guard without hosted calls
@@ -103,7 +110,7 @@ jobs:
         run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
       - name: Build and validate debug APK and unsigned release candidates
         working-directory: android
-        run: bash ./gradlew assembleDebug assembleRelease bundleRelease testDebugUnitTest lintDebug --no-daemon
+        run: bash ./gradlew -PimperialUnsignedRelease=true assembleDebug assembleRelease bundleRelease testDebugUnitTest lintDebug --no-daemon
       - name: Collect artifacts without production signing
         shell: bash
         run: |
