@@ -24,6 +24,7 @@ async function login(page,email,password){
  await page.goto('/login');await page.getByLabel('Email',{exact:true}).fill(email);
  await page.getByLabel('Password',{exact:true}).fill(password);
  await page.getByRole('button',{name:'Sign in',exact:true}).click();
+ await expect(page).toHaveURL(url=>url.pathname!=='/login');
 }
 test('real TOTP enrollment, wrong-code denial, database/Edge/RPC enforcement, backup factor and removal',async({page})=>{
  test.setTimeout(150000);
@@ -51,6 +52,11 @@ test('real TOTP enrollment, wrong-code denial, database/Edge/RPC enforcement, ba
   expect(profiles.error).toBeNull();expect(profiles.data).toEqual([]);
   const denied=await low.functions.invoke('ig-support-v1',{body:{action:'mine'}});
   expect(denied.error?.context?.status).toBe(403);
+  const accessToken=(await low.auth.getSession()).data.session.access_token;
+  const parts=accessToken.split('.');
+  parts[1]=Buffer.from(JSON.stringify({...JSON.parse(Buffer.from(parts[1],'base64url').toString()),aal:'aal2'})).toString('base64url');
+  const forged=await low.functions.invoke('ig-support-v1',{body:{action:'mine'},headers:{Authorization:`Bearer ${parts.join('.')}`}});
+  expect([401,403]).toContain(forged.error?.context?.status);
   expect((await low.rpc('ign_action',{p_action:'demo_grant',p_operation_id:randomUUID()})).error?.code).toBe('42501');
   expect((await low.auth.mfa.unenroll({factorId:primary})).error).toBeTruthy();
   const bad=await low.auth.mfa.challengeAndVerify({factorId:primary,code:expired});expect(bad.error).toBeTruthy();
