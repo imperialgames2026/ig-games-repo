@@ -343,9 +343,10 @@
         "validation.js"
       ],
       "sha256": {
-        "index.ts": "908d66a0a2fd296b1f6afe314fda3c57096782b294a16dcfa38f7cac738f0593",
+        "index.ts": "c6bcb885f544f795154c268947621fb4d9d4c46c0070e91a6d3d405b3699cb7f",
         "validation.js": "121f6461333f6eadcc38b7ea77766142ac4941e0b4148674ab10650750085f5f"
-      }
+      },
+      "status": "pending_deployment"
     }
   ],
   "migrations": [

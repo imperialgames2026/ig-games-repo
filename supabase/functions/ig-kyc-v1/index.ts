@@ -44,7 +44,11 @@ Deno.serve(async request=>{
   if(input.action==='upload'){
    const s=await rpc('upload');if(input.kind==='id_back'&&s.document_type==='passport')return reply(400,{error:'Passport needs its photo page only'});
    const {data,error}=await db.storage.from(BUCKET).createSignedUploadUrl(path(s,input.kind),{upsert:false});
-   if(error)throw Error('Storage unavailable');return reply(200,{path:data.path,token:data.token});
+   if(error)throw Error('Storage unavailable');
+   // Recheck after issuance: cancellation/demotion must not receive a new token,
+   // and cleanup must outlive the actual issue time, including slow Storage calls.
+   await rpc('upload');
+   return reply(200,{path:data.path,token:data.token});
   }
   if(input.action==='submit'){
    const s=await rpc('upload');const evidence:Record<string,unknown>={};
