@@ -1,4 +1,4 @@
-import { chromium } from 'playwright';
+import { _android as android } from 'playwright';
 import assert from 'node:assert/strict';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { isolateEmulator, TEST_PACKAGE } from './android-isolation.mjs';
@@ -42,7 +42,7 @@ try {
   // The OS firewall is enforced and probed BEFORE the app can start.
   report.isolation = await isolateEmulator();
   writeFileSync('android-evidence/isolation.json', JSON.stringify(report.isolation, null, 2));
-  device = await createNativeWebViewDevice({ chromium, isolation: report.isolation, checkpoint });
+  device = await createNativeWebViewDevice({ android, isolation: report.isolation, checkpoint });
   assert.equal(device.serial(), report.isolation.serial);
   report.model = device.model();
   device.setDefaultTimeout(60000);

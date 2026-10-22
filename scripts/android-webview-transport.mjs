@@ -44,19 +44,13 @@ export function findAppWebViewSocket(pidOutput, unixSockets) {
   return [...candidates][0];
 }
 
-export function parseForwardPort(output) {
-  const text = String(output).trim();
-  assert.match(text, /^\d{1,5}$/, 'ADB did not return a loopback forwarding port.');
-  const port = Number(text);
-  assert.ok(port > 0 && port <= 65535, 'Invalid ADB forwarding port.');
-  return port;
-}
-
 // Use the installed APK's real debug WebView, not a desktop browser or hosted site.
-// Avoid the experimental Android backend's implicit, unbounded WebView scan.
+// Enumerate only after the APK's socket is ready, with explicit deadlines.
+// Use Playwright's Android adapter: desktop CDP defaults issue unsupported
+// Browser.setDownloadBehavior commands on Android WebView (Playwright 1.57).
 // No ADB reverse, public bind, firewall change, or Android-driver installation.
 export async function createNativeWebViewDevice({
-  chromium, isolation, ci = process.env.CI, packageId = PACKAGE,
+  android, isolation, ci = process.env.CI, packageId = PACKAGE,
   execute = exec, sleep = pause, checkpoint = () => {},
 }) {
   requireIsolatedTransport(isolation, ci, packageId);
@@ -69,8 +63,7 @@ export async function createNativeWebViewDevice({
   };
   checkpoint('native_transport_model');
   const model = await adb('shell', 'getprop', 'ro.product.model');
-  let browser;
-  let port;
+  let nativeDevice;
   let timeout = 45000;
   return {
     model: () => model,
@@ -82,7 +75,7 @@ export async function createNativeWebViewDevice({
     shell: command => adb('shell', command),
     async webView({ pkg }) {
       assert.equal(pkg, packageId);
-      assert.equal(browser, undefined, 'Only one native WebView connection is permitted.');
+      assert.equal(nativeDevice, undefined, 'Only one native WebView connection is permitted.');
       checkpoint('native_webview_socket');
       let socket;
       let lastError;
@@ -103,25 +96,25 @@ export async function createNativeWebViewDevice({
         }
       } while (Date.now() < stopAt);
       if (!socket) throw new Error(`Native WebView socket not ready: ${lastError?.message || 'not found'}`);
-      checkpoint('native_webview_forward');
-      port = parseForwardPort(await adb('forward', 'tcp:0', `localabstract:${socket}`));
-      checkpoint('native_webview_cdp');
-      // The /devtools/browser endpoint is also used by Playwright's Android adapter.
-      browser = await chromium.connectOverCDP(`ws://127.0.0.1:${port}/devtools/browser`, { timeout });
-      const contexts = browser.contexts();
-      assert.equal(contexts.length, 1, 'Expected only the installed APK WebView context.');
-      const context = contexts[0];
-      const pages = context.pages();
-      assert.ok(pages.length <= 1, 'Unexpected extra native WebView targets.');
-      const page = pages[0] || await context.waitForEvent('page', { timeout });
+      checkpoint('native_device_enumeration');
+      const devices = await withDeadline(() => android.devices({ omitDriverInstall: true }), timeout,
+        'Enumerate isolated Android device');
+      assert.equal(devices.length, 1, 'Expected only the disposable test emulator.');
+      assert.equal(devices[0].serial(), serial, 'Playwright selected a different device.');
+      nativeDevice = devices[0];
+      nativeDevice.setDefaultTimeout(timeout);
+      checkpoint('native_webview_selection');
+      const view = await withDeadline(() => nativeDevice.webView({ socketName: socket }, { timeout }),
+        timeout, 'Select installed APK WebView');
+      assert.equal(view.pkg(), packageId, 'WebView package does not match the APK.');
+      assert.equal(`webview_devtools_remote_${view.pid()}`, socket, 'WebView PID changed during attachment.');
+      checkpoint('native_webview_page');
+      const page = await withDeadline(() => view.page(), timeout, 'Attach native WebView page');
+      assert.ok(page, 'Native adapter returned no WebView page.');
       return { page: async () => page };
     },
     async close() {
-      try {
-        if (browser) await withDeadline(() => browser.close(), 10000, 'Close native CDP connection');
-      } finally {
-        if (port) await adb('forward', '--remove', `tcp:${port}`);
-      }
+      if (nativeDevice) await withDeadline(() => nativeDevice.close(), 10000, 'Close native Android adapter');
     },
   };
 }

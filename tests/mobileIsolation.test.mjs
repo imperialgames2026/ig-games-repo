@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { validateIsolationTarget, firewallCommands, waitForControlProbe, TEST_PACKAGE, CHAIN } from '../scripts/android-isolation.mjs';
-import { requireIsolatedTransport, findAppWebViewSocket, parseForwardPort, createNativeWebViewDevice, withDeadline } from '../scripts/android-webview-transport.mjs';
+import { requireIsolatedTransport, findAppWebViewSocket, createNativeWebViewDevice, withDeadline } from '../scripts/android-webview-transport.mjs';
 
 const valid = { ci: 'true', serial: 'emulator-5554', emulator: '1', rootUid: '0', appUid: 10142, packageId: TEST_PACKAGE };
 test('only disposable CI emulator targets are permitted', () => assert.doesNotThrow(() => validateIsolationTarget(valid)));
@@ -92,10 +92,6 @@ test('WebView socket selection matches the exact app PID, not a prefix or anothe
   assert.throws(() => findAppWebViewSocket('123 1234', listing));
   assert.throws(() => findAppWebViewSocket('123', '000 @webview_devtools_remote_123_suffix'));
 });
-test('forward port accepts numeric loopback ports only', () => {
-  assert.equal(parseForwardPort('43210\n'), 43210);
-  for (const invalid of ['0', '65536', '-1', 'http://remote:123', '22;bad', '22\n23', '']) assert.throws(() => parseForwardPort(invalid));
-});
 test('operation deadline returns successful values and propagates original errors', async () => {
   assert.equal(await withDeadline(() => 42, 100, 'fixture'), 42);
   const original = new Error('original failure');
@@ -107,13 +103,21 @@ test('operation deadline rejects a hung transport instead of waiting for the run
 });
 
 function transportFixture(overrides = {}) {
-  const commands = [];
-  const endpoints = [];
-  const phases = [];
+  const commands = [], adapterCalls = [], phases = [];
   const page = { kind: 'actual-webview-fixture' };
   let closed = false;
-  const browser = {
-    contexts: () => [{ pages: () => [page] }],
+  const view = {
+    pkg: () => overrides.pkg || TEST_PACKAGE,
+    pid: () => overrides.pid || 123,
+    page: async () => { adapterCalls.push('page'); if (overrides.page) return overrides.page(); return page; },
+  };
+  const nativeDevice = {
+    serial: () => overrides.serial || proof.serial,
+    setDefaultTimeout: value => adapterCalls.push(['timeout', value]),
+    webView: async (selector, options) => {
+      adapterCalls.push(['view', selector, options]);
+      return view;
+    },
     close: async () => { closed = true; },
   };
   const execute = async (binary, args, options) => {
@@ -130,53 +134,56 @@ function transportFixture(overrides = {}) {
     if (key === 'shell getprop ro.product.model') return { stdout: 'Pixel 7 Pro' };
     if (key === `shell pidof ${TEST_PACKAGE}`) return { stdout: '123' };
     if (key === 'shell cat /proc/net/unix') return { stdout: '000 @webview_devtools_remote_999\n000 @webview_devtools_remote_123' };
-    if (key === 'forward tcp:0 localabstract:webview_devtools_remote_123') return { stdout: '43210\n' };
     return { stdout: '' };
   };
   const options = {
     ci: 'true', isolation: proof, execute, sleep: async () => {}, checkpoint: phase => phases.push(phase),
-    chromium: { connectOverCDP: async (url, options) => {
-      endpoints.push({ url, options });
-      if (overrides.connect) return overrides.connect();
-      return browser;
+    android: { devices: async options => {
+      adapterCalls.push(['devices', options]);
+      if (overrides.devices) return overrides.devices();
+      return [nativeDevice];
     } },
   };
-  return { options, commands, endpoints, phases, page, closed: () => closed };
+  return { options, commands, adapterCalls, phases, page, closed: () => closed };
 }
-test('native attach uses the installed app socket and bounded loopback CDP; cleanup removes only its forward', async () => {
+test('native attach waits for exact APK socket then uses Android adapter with driver installation omitted', async () => {
   const f = transportFixture();
   const device = await createNativeWebViewDevice(f.options);
   assert.equal(device.model(), 'Pixel 7 Pro');
   assert.equal(device.serial(), proof.serial);
+  assert.deepEqual(f.adapterCalls, [], 'No premature device enumeration before the APK is launched.');
   device.setDefaultTimeout(60000);
   const view = await device.webView({ pkg: TEST_PACKAGE });
   assert.equal(await view.page(), f.page);
-  assert.deepEqual(f.endpoints, [{ url: 'ws://127.0.0.1:43210/devtools/browser', options: { timeout: 60000 } }]);
+  assert.deepEqual(f.adapterCalls, [
+    ['devices', { omitDriverInstall: true }], ['timeout', 60000],
+    ['view', { socketName: 'webview_devtools_remote_123' }, { timeout: 60000 }], 'page',
+  ]);
   await device.shell('am start -W -a android.intent.action.MAIN -c android.intent.category.HOME');
   await device.close();
   assert.equal(f.closed(), true);
-  assert.deepEqual(f.commands.at(-1), ['-s', proof.serial, 'forward', '--remove', 'tcp:43210']);
-  assert.ok(f.commands.every(args => !args.includes('reverse') && !args.includes('--remove-all')));
-  assert.deepEqual(f.phases, ['native_transport_model', 'native_webview_socket', 'native_webview_forward', 'native_webview_cdp']);
+  assert.ok(f.commands.every(args => !args.includes('reverse') && !args.includes('forward')));
+  assert.deepEqual(f.phases, ['native_transport_model', 'native_webview_socket', 'native_device_enumeration', 'native_webview_selection', 'native_webview_page']);
 });
 test('missing isolation proof prevents even the first ADB operation', async () => {
   const f = transportFixture();
   await assert.rejects(createNativeWebViewDevice({ ...f.options, isolation: { ...proof, app_uid_egress_probe_blocked: false } }));
   assert.equal(f.commands.length, 0);
+  assert.equal(f.adapterCalls.length, 0);
 });
 test('another app cannot be attached and no unbounded timeout can be selected', async () => {
   const f = transportFixture();
   const device = await createNativeWebViewDevice(f.options);
   await assert.rejects(device.webView({ pkg: 'foreign.app' }));
   for (const value of [0, -1, 60001, NaN]) assert.throws(() => device.setDefaultTimeout(value));
-  assert.equal(f.endpoints.length, 0);
+  assert.equal(f.adapterCalls.length, 0);
 });
-test('failed CDP attachment still removes the allocated forwarding port during cleanup', async () => {
-  const f = transportFixture({ connect: () => { throw new Error('CDP fixture failure'); } });
+test('failed native page attachment still closes the selected adapter', async () => {
+  const f = transportFixture({ page: () => { throw new Error('Native fixture failure'); } });
   const device = await createNativeWebViewDevice(f.options);
-  await assert.rejects(device.webView({ pkg: TEST_PACKAGE }), /CDP fixture failure/);
+  await assert.rejects(device.webView({ pkg: TEST_PACKAGE }), /Native fixture failure/);
   await device.close();
-  assert.deepEqual(f.commands.at(-1), ['-s', proof.serial, 'forward', '--remove', 'tcp:43210']);
+  assert.equal(f.closed(), true);
 });
 test('ADB timeout is not hidden by readiness retries', async () => {
   const f = transportFixture({ execute: key => {
@@ -184,7 +191,22 @@ test('ADB timeout is not hidden by readiness retries', async () => {
   } });
   const device = await createNativeWebViewDevice(f.options);
   await assert.rejects(device.webView({ pkg: TEST_PACKAGE }), /ADB timed out/);
-  assert.equal(f.endpoints.length, 0);
+  assert.equal(f.adapterCalls.length, 0);
+});
+test('native selection rejects wrong serial, package or PID before connecting the page', async () => {
+  for (const overrides of [{ serial: 'foreign-device' }, { pkg: 'foreign.app' }, { pid: 999 }]) {
+    const f = transportFixture(overrides);
+    const device = await createNativeWebViewDevice(f.options);
+    await assert.rejects(device.webView({ pkg: TEST_PACKAGE }));
+    assert.ok(!f.adapterCalls.includes('page'));
+    await device.close();
+  }
+});
+test('native device enumeration timeout produces a bounded failure', async () => {
+  const f = transportFixture({ devices: () => new Promise(() => {}) });
+  const device = await createNativeWebViewDevice(f.options);
+  device.setDefaultTimeout(10);
+  await assert.rejects(device.webView({ pkg: TEST_PACKAGE }), /Enumerate isolated Android device timed out/);
 });
 test('native runner records phase deadlines and retains all nine original scenarios', () => {
   const source = readFileSync(new URL('../scripts/android-emulator-smoke.mjs', import.meta.url), 'utf8');
@@ -193,6 +215,10 @@ test('native runner records phase deadlines and retains all nine original scenar
   assert.match(source, /progress\.json/);
   assert.match(source, /assert\.equal\(report\.results\.length, 9/);
   assert.match(source, /process\.exit\(report\.passed \? 0 : 1\)/);
-  assert.doesNotMatch(source, /await android\.devices\(/);
+  assert.doesNotMatch(source, /connectOverCDP|chromium\.launch/);
+  const transport = readFileSync(new URL('../scripts/android-webview-transport.mjs', import.meta.url), 'utf8');
+  assert.match(transport, /withDeadline\(\(\) => android\.devices/);
+  assert.ok(transport.indexOf('findAppWebViewSocket(') < transport.indexOf('android.devices('));
+  assert.match(transport, /omitDriverInstall: true/);
   assert.ok(source.indexOf('await isolateEmulator()') < source.indexOf('await createNativeWebViewDevice('));
 });
