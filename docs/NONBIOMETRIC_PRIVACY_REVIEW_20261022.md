@@ -204,3 +204,15 @@ and Supabase CLI 2.121.0. `--check` validates packaging offline without Docker.
 Local preflight, syntax/lint and workflow YAML checks passed. Runtime acceptance
 is determined by the exact-head CI result linked in PR51, not this preflight.
 The earlier fixture-only evidence and local capacity report remain historical.
+
+Hosted-runner follow-up: all 106 migration versions replayed successfully after
+shortening the disposable project ID to avoid CLI hostname truncation. Normal
+Kong also passed authenticated intake, denial checks, 131-row pagination/filtering,
+malformed-file rejection and persisted submitted cancellation. Its buffered
+upload path rejected the compressed expired token (no object reappeared), unlike
+the unbuffered core reproduction. The full-platform test requires expiry-specific
+rejection, then uses the original still-valid synthetic grant after advancing
+only the fixture database fence to exercise actual post-purge object deletion.
+That second case is not represented as an accepted post-expiry stream. The core
+job retains the genuine post-expiry streaming regression. Both paths must pass
+repeated reconciliation and preserve the first deletion audit/timestamp.

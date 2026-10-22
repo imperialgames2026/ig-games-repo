@@ -89,7 +89,25 @@ req.end(png.subarray(32));const finished=await response;
 const lateObject=await service.storage.from('ig-kyc-evidence').download(grant.data.path);
 const batch=await worker('worker_expired');assert.equal(batch.status,200);
 console.log(JSON.stringify({late_stream_status:finished.status,reappeared_after_purge:!lateObject.error,still_queued:batch.data.result.some(x=>x.id===lateId),test_time_compression:'3-second token; completion after expiry and purge'}));
-assert.equal(finished.status,200);assert.equal(!lateObject.error,true,'streaming reproduction must recreate the object');
+if(fullSchema&&finished.status!==200){
+ // Normal Kong buffers the body: Storage sees the shortened token after expiry.
+ // Require that specific rejection, not an arbitrary failing upload.
+ assert.equal(finished.status,400);
+ const rejected=JSON.parse(finished.body.toString('utf8'));
+ assert.match(rejected.message||'',/expired/i,'gateway must reject the expired token');
+ assert(lateObject.error,'expired buffered upload must leave no object');
+ console.log('PASS normal Kong rejects the buffered expired upload without recreating evidence');
+ // Exercise real post-purge deletion through the normal gateway as well. The
+ // original grant is still valid; only the fixture DB fence was advanced above.
+ // This is explicitly not a post-expiry streaming reproduction (the core stack
+ // separately proves that path). No gateway buffering/security setting changes.
+ const replay=await lateUser.client.storage.from('ig-kyc-evidence').uploadToSignedUrl(grant.data.path,grant.data.token,png,{contentType:'image/png',upsert:false});
+ assert.equal(replay.error,null,'original synthetic grant completes after fixture purge');
+ assert.equal((await service.storage.from('ig-kyc-evidence').download(grant.data.path)).error,null);
+ console.log('PASS original valid grant recreates synthetic object after cancellation and advanced fixture purge');
+}else{
+ assert.equal(finished.status,200);assert.equal(!lateObject.error,true,'streaming reproduction must recreate the object');
+}
 const firstDeleted=sql(`select evidence_deleted_at from public.ig_kyc_submissions where id='${lateId}';`);
 for(let cycle=0;cycle<2;cycle++){
  // Advance only the synthetic recheck schedule; never the system clock.
@@ -100,4 +118,4 @@ for(let cycle=0;cycle<2;cycle++){
  assert.equal(sql(`select evidence_deleted_at from public.ig_kyc_submissions where id='${lateId}';`),firstDeleted);
  assert.equal(sql(`select count(*) from public.ig_kyc_audit where submission_id='${lateId}' and action='evidence_deleted';`),'1');
 }
-console.log('PASS durable tombstone reconciliation removes the actual late-stream object; repeated sweeps preserve deletion timestamp and single audit event');
+console.log('PASS durable tombstone reconciliation removes the actual post-purge object; repeated sweeps preserve deletion timestamp and single audit event');
