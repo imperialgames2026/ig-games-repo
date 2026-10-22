@@ -20,6 +20,7 @@ Deno.serve(async request=>{
  const url=Deno.env.get('SUPABASE_URL'),key=Deno.env.get('SUPABASE_ANON_KEY'),secret=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
  if((url!=='https://qonqemhljgxlwpghkxhn.supabase.co'&&!(url==='http://kong:8000'&&Deno.env.get('IG_LOCAL_PRACTICE')==='true'))||!key||!secret)return reply(503,{error:'Identity service unavailable'});
  let input;try{input=await body(request);}catch{return reply(400,{error:'Invalid or incomplete identity request'});}
+ const publicStorageUrl=(signed:string)=>url==='http://kong:8000'?signed.replace('http://kong:8000/','http://127.0.0.1:54321/'):signed;
  const db=createClient(url,secret,{auth:{persistSession:false,autoRefreshToken:false}});
  let actor=null;const worker=input.action.startsWith('worker_');
  if(worker){
@@ -58,13 +59,13 @@ Deno.serve(async request=>{
   }
   if(input.action==='evidence'){
    const e=await rpc('evidence');const {data,error}=await db.storage.from(BUCKET).createSignedUrl(e.path,60);
-   if(error)throw Error('Storage unavailable');return reply(200,{url:data.signedUrl,expires_in:60,sha256:e.sha256});
+   if(error)throw Error('Storage unavailable');return reply(200,{url:publicStorageUrl(data.signedUrl),expires_in:60,sha256:e.sha256});
   }
   if(input.action==='worker_claim'){
    const job=await rpc('worker_claim');if(!job)return reply(200,{job:null});
    const images:Record<string,unknown>={};
    for(const kind of ['id_front','selfie']){
-    const e=job.evidence[kind];const {data,error}=await db.storage.from(BUCKET).createSignedUrl(e.path,120);if(error)throw Error('Storage unavailable');images[kind]={url:data.signedUrl,sha256:e.sha256};
+    const e=job.evidence[kind];const {data,error}=await db.storage.from(BUCKET).createSignedUrl(e.path,120);if(error)throw Error('Storage unavailable');images[kind]={url:publicStorageUrl(data.signedUrl),sha256:e.sha256};
    }
    return reply(200,{job:{id:job.id,lease:job.lease,images}});
   }
@@ -78,6 +79,7 @@ Deno.serve(async request=>{
   const result=await rpc(input.action);
   if(input.action==='detail'){
    // Storage paths and lease credentials never appear in the browser response.
+   if(new Date(result.expires_at).getTime()<=Date.now()){result.full_name='Expired identity details';result.birth_date=null;result.face_result=null;result.evidence={};}
    result.evidence=Object.fromEntries(Object.entries(result.evidence||{}).map(([k,v]:[string,any])=>[k,{sha256:v.sha256,mime:v.mime,size:v.size,width:v.width,height:v.height}]));
   }
   if(input.action==='worker_expired')return reply(200,{result:result.map((x:any)=>({id:x.id}))});

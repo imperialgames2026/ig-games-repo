@@ -14,6 +14,7 @@ create table public.ig_kyc_submissions (
  reviewer_id uuid references auth.users(id), review_reason text, customer_message text,
  submitted_at timestamptz, reviewed_at timestamptz, evidence_deleted_at timestamptz,
  expires_at timestamptz not null default now()+interval '30 days',
+ upload_valid_until timestamptz,
  created_at timestamptz not null default now(), updated_at timestamptz not null default now()
 );
 create unique index ig_kyc_one_open on public.ig_kyc_submissions(user_id) where status in ('draft','submitted','escalated');
@@ -71,9 +72,9 @@ begin
    return jsonb_build_object('saved',true);
   elsif p_action='worker_expired' then
    return coalesce((select jsonb_agg(jsonb_build_object('id',id,'evidence',evidence)) from
-    (select id,evidence from public.ig_kyc_submissions where evidence_deleted_at is null and expires_at<=now() order by expires_at limit 10) x),'[]');
+    (select id,evidence from public.ig_kyc_submissions where evidence_deleted_at is null and expires_at<=now() and (upload_valid_until is null or upload_valid_until<=now()) order by expires_at limit 10) x),'[]');
   elsif p_action='worker_purged' then
-   select * into s from public.ig_kyc_submissions where id=(p_payload->>'id')::uuid and expires_at<=now() for update;
+   select * into s from public.ig_kyc_submissions where id=(p_payload->>'id')::uuid and expires_at<=now() and (upload_valid_until is null or upload_valid_until<=now()) for update;
    if not found then raise exception 'Not expired' using errcode='22023';end if;
    update public.ig_kyc_submissions set evidence='{}',face_result=null,full_name='Deleted',birth_date='1900-01-01',
     review_reason=null,customer_message=null,evidence_deleted_at=now(),face_lease=null,face_lease_until=null,
@@ -119,6 +120,9 @@ begin
  elsif p_action='upload' then
   if s.user_id<>p_actor or s.status<>'draft' or s.expires_at<=now() then raise exception 'Upload denied' using errcode='42501';end if;
   if s.created_at<now()-interval '24 hours' then raise exception 'Draft expired' using errcode='22023';end if;
+  -- Signed upload URLs last two hours. Delay physical deletion until every
+  -- issued upload token has expired, so cancelled drafts cannot be recreated.
+  update public.ig_kyc_submissions set upload_valid_until=greatest(coalesce(upload_valid_until,now()),now()+interval '121 minutes') where id=s.id;
   return jsonb_build_object('id',s.id,'user_id',s.user_id,'document_type',s.document_type);
  elsif p_action='submit' then
   if s.user_id<>p_actor or s.status<>'draft' or s.expires_at<=now() then raise exception 'Submit denied' using errcode='42501';end if;

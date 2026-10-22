@@ -8,7 +8,7 @@ Admin `/AdminKYC`: separate private review queue alongside existing read-only co
 
 New bucket `ig-kyc-evidence` is private and has no client policies. All three new tables deny direct anonymous/authenticated access. The public RPC is SECURITY INVOKER, executable only by the service role. The Edge function validates the exact user JWT, rejects anonymous sign-ins, requires AAL2 when a verified factor exists, reads current canonical role/exclusion state and accepts only enumerated fields/actions. Worker credentials grant comparison and expiration cleanup only; no service key goes to Mini-Imp or browsers.
 
-Retention defaults to 30 days from submission creation. Expired evidence is immediately unavailable to reviewers and queued for deletion. The worker deletes Storage objects through the Storage API and then scrubs identity name/date of birth and comparison results; minimal decision/audit metadata remains. If the worker is offline, physical deletion waits; monitor its heartbeat. This is an operational default, not a legal retention determination.
+Retention defaults to 30 days from submission creation. Expired evidence is immediately unavailable to reviewers and queued for deletion. The worker deletes Storage objects through the Storage API and then scrubs identity name/date of birth and comparison results; minimal decision/audit metadata remains. Cleanup also waits for the last two-hour signed upload token to expire, preventing recreation after cancellation. If the worker is offline, physical deletion waits; monitor its heartbeat. This is an operational default, not a legal retention determination.
 
 ## Boundary of this implementation
 

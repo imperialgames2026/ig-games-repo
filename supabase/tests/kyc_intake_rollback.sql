@@ -22,7 +22,7 @@ begin
  perform public.ig_kyc_action(staff,'review',jsonb_build_object('id',sid,'revision',1,'outcome','approved','reason','Synthetic independent verification','checks','{"document_authenticity":true,"selfie_match":true,"age_review":true,"liveness_review":true}'::jsonb));
  if (select kyc_status from public.profiles where id=player)<>'approved' then raise exception 'Profile status not updated';end if;
  if (select to_jsonb(w) from public.wallets w where user_id=player) is distinct from prior then raise exception 'KYC changed wallet';end if;
- update public.ig_kyc_submissions set expires_at=now()-interval '1 second' where id=sid;
+ update public.ig_kyc_submissions set expires_at=now()-interval '1 second',upload_valid_until=now()-interval '1 second' where id=sid;
  begin perform public.ig_kyc_action(staff,'evidence',jsonb_build_object('id',sid,'kind','id_front'));raise exception 'Expired evidence read';exception when insufficient_privilege then null;end;
  perform public.ig_kyc_action(null,'worker_purged',jsonb_build_object('token_hash',token,'id',sid));
  if exists(select 1 from public.ig_kyc_submissions where id=sid and (full_name<>'Deleted' or evidence<>'{}' or face_result is not null)) then raise exception 'PII not scrubbed';end if;

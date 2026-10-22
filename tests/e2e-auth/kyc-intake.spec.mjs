@@ -33,20 +33,20 @@ test('private KYC upload, independent reviewer, advisory queue, audit and retent
  const workerToken=randomBytes(32).toString('hex');expect((await service.from('ig_kyc_workers').insert({token_hash:createHash('sha256').update(workerToken).digest('hex'),name:'local-synthetic-worker',expires_at:new Date(Date.now()+3600000).toISOString()})).error).toBeNull();
  async function worker(action,payload={},token=workerToken){const r=await fetch(c.API_URL+'/functions/v1/ig-kyc-v1',{method:'POST',headers:{apikey:c.ANON_KEY,Authorization:'Bearer '+c.ANON_KEY,'x-kyc-worker-token':token,'content-type':'application/json'},body:JSON.stringify({action,...payload})});return {status:r.status,data:await r.json()};}
  expect((await worker('worker_claim',{},'0'.repeat(64))).status).toBe(403);
- const claim=await worker('worker_claim');expect(claim.status).toBe(200);expect(claim.data.job.id).toBe(id);
+ const claim=await worker('worker_claim');expect(claim.status).toBe(200);expect(claim.data.job.id).toBe(id);const imageResponse=await fetch(claim.data.job.images.id_front.url);expect(imageResponse.status).toBe(200);expect(createHash('sha256').update(Buffer.from(await imageResponse.arrayBuffer())).digest('hex')).toBe(claim.data.job.images.id_front.sha256);
  expect((await worker('worker_claim')).data.job).toBeNull();
  const finish={id,lease:claim.data.job.lease,result:{status:'manual_review_required'}};expect((await worker('worker_finish',finish)).status).toBe(200);expect((await worker('worker_finish',finish)).status).toBe(409);
  const d=await call(admin,'detail',{id});expect(d.data.result.face_result.status).toBe('manual_review_required');expect(d.data.result.evidence.id_front.path).toBeUndefined();
  const approved={id,revision:d.data.result.revision,outcome:'approved',reason:'Synthetic independent verification fixture',customer_message:'Synthetic approval',checks:{}};
  expect((await call(admin,'review',approved)).status).toBe(422);
  await page.context().clearCookies();await page.evaluate(()=>localStorage.clear());await login(page,admin);await page.goto('/AdminKYC');await page.getByRole('button',{name:new RegExp(user.id.slice(0,8))}).click();await expect(page.getByRole('heading',{name:'Synthetic Identity'})).toBeVisible();
- await page.getByRole('button',{name:'Open id front for 60 seconds'}).click();await expect(page.getByAltText('Submitted identity document')).toBeVisible();
+ await page.getByRole('button',{name:'Open id front for 60 seconds'}).click();await expect(page.getByAltText('Submitted identity document')).toBeVisible();await expect.poll(()=>page.getByAltText('Submitted identity document').evaluate(image=>image.naturalWidth)).toBe(240);
  for(const text of ['Document authenticity independently checked','Document portrait and selfie manually matched','Date of birth and applicable age requirement checked','Independent liveness evidence reviewed'])await page.getByLabel(text,{exact:true}).check();
  await page.getByLabel('Decision',{exact:true}).selectOption('approved');await page.getByLabel('Internal review reason').fill('Synthetic independent verification fixture');await page.getByLabel('Message to the customer').fill('Synthetic approval');await page.getByRole('button',{name:'Save audited decision'}).click();await expect(page.getByRole('heading',{name:'Human review decision'})).toHaveCount(0);
  expect((await service.from('profiles').select('kyc_status').eq('id',user.id).single()).data.kyc_status).toBe('approved');
  expect((await service.from('wallets').select('*').eq('user_id',user.id).single()).data).toEqual(wallet.data);
  expect((await call(admin,'review',{...approved,checks:{document_authenticity:true,selfie_match:true,age_review:true,liveness_review:true}})).status).toBe(422);
- expect((await service.from('ig_kyc_submissions').update({expires_at:new Date(Date.now()-1000).toISOString()}).eq('id',id)).error).toBeNull();
+ expect((await service.from('ig_kyc_submissions').update({expires_at:new Date(Date.now()-1000).toISOString(),upload_valid_until:new Date(Date.now()-1000).toISOString()}).eq('id',id)).error).toBeNull();
  expect((await call(admin,'evidence',{id,kind:'id_front'})).status).toBe(403);expect((await worker('worker_purged',{id})).status).toBe(200);
  const erased=await service.from('ig_kyc_submissions').select('full_name,evidence,face_result,evidence_deleted_at').eq('id',id).single();expect(erased.data.full_name).toBe('Deleted');expect(erased.data.evidence).toEqual({});expect(erased.data.face_result).toBeNull();expect(erased.data.evidence_deleted_at).toBeTruthy();
  expect((await service.storage.from('ig-kyc-evidence').download(`${user.id}/${id}/id_front`)).error).toBeTruthy();
