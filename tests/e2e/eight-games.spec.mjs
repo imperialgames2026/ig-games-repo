@@ -73,4 +73,12 @@ test('a signed-out Imperial Games homepage offers games and sign-in without a le
  await expect(page.getByRole('link',{name:/Browse Games/i})).toBeVisible();
  await expect(page.getByRole('link',{name:'Sign in to view the practice leaderboard'})).toBeVisible();
  await expect(page.getByText('Practice leaderboard is unavailable right now.')).toHaveCount(0);
+ const viewport=await page.evaluate(()=>document.documentElement.clientWidth);
+ const pageWidth=await page.evaluate(()=>document.documentElement.scrollWidth);
+ expect(pageWidth).toBeLessThanOrEqual(viewport);
+ const startX=await page.evaluate(()=>window.scrollX);
+ await page.evaluate(()=>window.scrollTo(250,window.scrollY));
+ const endX=await page.evaluate(()=>window.scrollX);
+ expect(startX).toBe(0);
+ expect(endX).toBe(0);
 });
