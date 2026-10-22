@@ -1,5 +1,8 @@
 import {createClient} from 'npm:@supabase/supabase-js@2.118.0';
-import {validateInput,imageInfo,KINDS} from './validation.js';
+import {validateInput,KINDS} from './validation.js';
+import {Image} from 'npm:imagescript@3.3.0';
+import {validateImageFile} from './image-file.js';
+import {issueUpload,reviewQueue,purgeExpired} from './privacy.js';
 const BUCKET='ig-kyc-evidence';
 const headers={'content-type':'application/json','cache-control':'no-store','access-control-allow-origin':'*','access-control-allow-methods':'POST, OPTIONS','access-control-allow-headers':'authorization,apikey,content-type,x-client-info,x-supabase-api-version'};
 const reply=(status:number,data:unknown)=>new Response(JSON.stringify(data),{status,headers});
@@ -42,16 +45,14 @@ Deno.serve(async request=>{
  const path=(s:any,kind:string)=>`${s.user_id}/${s.id}/${kind}`;
  try{
   if(input.action==='upload'){
-   const s=await rpc('upload');if(input.kind==='id_back'&&s.document_type==='passport')return reply(400,{error:'Passport needs its photo page only'});
-   const {data,error}=await db.storage.from(BUCKET).createSignedUploadUrl(path(s,input.kind),{upsert:false});
-   if(error)throw Error('Storage unavailable');return reply(200,{path:data.path,token:data.token});
+   return reply(200,await issueUpload(rpc,db.storage.from(BUCKET),input.kind));
   }
   if(input.action==='submit'){
    const s=await rpc('upload');const evidence:Record<string,unknown>={};
    for(const kind of s.document_type==='passport'?['id_front','selfie']:KINDS){
     const name=path(s,kind);const {data,error}=await db.storage.from(BUCKET).download(name);
     if(error||!data||data.size>8388608)return reply(422,{error:'Upload each required image, up to 8 MiB'});
-    const bytes=new Uint8Array(await data.arrayBuffer());let info;try{info=imageInfo(bytes);}catch{return reply(422,{error:'An image is invalid. Cancel this draft and upload valid images.'});}
+    const bytes=new Uint8Array(await data.arrayBuffer());let info;try{info=await validateImageFile(bytes,Image.decode.bind(Image));}catch{return reply(422,{error:'An image is invalid. Cancel this draft and upload valid images.'});}
     if(data.type!==info.mime)return reply(422,{error:'Image type does not match the file'});
     evidence[kind]={path:name,sha256:await sha(bytes),...info};
    }
@@ -70,12 +71,9 @@ Deno.serve(async request=>{
    return reply(200,{job:{id:job.id,lease:job.lease,images}});
   }
   if(input.action==='worker_purged'){
-   const expired=await rpc('worker_expired');const job=expired.find((x:any)=>x.id===input.id);if(!job)return reply(409,{error:'Evidence is not due for deletion'});
-   // Include predictable unfinalized upload keys too; no orphaned cancelled drafts.
-   const {data:s,error:readError}=await db.from('ig_kyc_submissions').select('user_id,id').eq('id',job.id).single();if(readError)throw Error('Unavailable');
-   const {error}=await db.storage.from(BUCKET).remove(KINDS.map(k=>path(s,k)));if(error)throw Error('Deletion incomplete');
-   return reply(200,{result:await rpc('worker_purged')});
+   return reply(200,{result:await purgeExpired(rpc,db,BUCKET,input.id)});
   }
+  if(input.action==='queue')return reply(200,{result:await reviewQueue(rpc,db,input)});
   const result=await rpc(input.action);
   if(input.action==='detail'){
    // Storage paths and lease credentials never appear in the browser response.

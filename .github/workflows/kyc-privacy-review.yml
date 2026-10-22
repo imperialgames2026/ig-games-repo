@@ -1,0 +1,30 @@
+name: Non-biometric privacy review
+# The checkpoint uses [skip ci] to prevent broad PR suites exercising comparison
+# code. create is separate from push/pull_request and verifies this exact branch.
+on:
+  create:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  privacy:
+    if: github.ref == 'refs/heads/review/nonbiometric-privacy-20261022'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: node --test tests/kycPrivacy.test.mjs tests/backendPackaging.test.mjs
+      - run: python3 -B -m unittest discover -s services/kyc-retention -p test_cleanup.py
+      - run: docker pull postgres:17
+      - run: node scripts/test-kyc-privacy-database.mjs
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test --config playwright.privacy.config.mjs
+      - run: npm run build

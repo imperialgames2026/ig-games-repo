@@ -6,10 +6,10 @@ import {createKyc,KYC_CONSENT_VERSION} from '@/lib/kyc';
 import {ShieldCheck,LockKeyhole} from 'lucide-react';
 const api=createKyc(supabase),input='mt-2 w-full rounded-xl border border-white/20 bg-[#151422] px-4 py-3 text-white';
 export default function KycSubmission(){
- const {user}=useAuth();const [rows,setRows]=useState([]),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState('');
+ const {user,checkAppState}=useAuth();const [rows,setRows]=useState([]),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState('');
  const [form,setForm]=useState({full_name:'',birth_date:'',country:'',document_type:'passport',consent:false,face_consent:false});
  const [files,setFiles]=useState({}),[uploaded,setUploaded]=useState({});
- const load=useCallback(async()=>{setLoading(true);try{setRows(await api.action('mine'));setError('');}catch(e){setError(e.message);}finally{setLoading(false);}},[]);
+ const load=useCallback(async()=>{setLoading(true);try{setRows(await api.action('mine'));await checkAppState({background:true});setError('');}catch(e){setError(e.message);}finally{setLoading(false);}},[checkAppState]);
  useEffect(()=>{void load();},[load]);
  const active=rows.find(r=>['draft','submitted','escalated'].includes(r.status));
  const kinds=(active?.document_type||form.document_type)==='passport'?['id_front','selfie']:['id_front','id_back','selfie'];
