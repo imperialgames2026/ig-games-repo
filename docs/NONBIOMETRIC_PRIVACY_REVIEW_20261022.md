@@ -171,3 +171,12 @@ post-issuance authorization and browser refresh changes are already represented
 here. Its deployment inventory/documentation and broader tests were not imported
 or used as evidence of this branch's deployment. PR51 remains independent; no
 other owner's branch was changed.
+
+Main advanced during final CI to `4676b5656a3f5038957449843f8651e9c15aab0d`
+(PR49 merged). The review branch incorporates that main checkpoint; conflicts
+preserve the tested shared upload helper (which includes both authorization
+checks) and proposed function hashes/status. Main's existing deployed-version
+inventory remains recorded, while this branch's changed function is explicitly
+pending deployment. No biometric implementation bytes changed in this merge;
+main's broader test file is retained but excluded from scoped execution.
+The earlier concurrency snapshot is historical, not the final base.

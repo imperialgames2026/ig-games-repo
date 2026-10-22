@@ -336,7 +336,7 @@
     },
     {
       "name": "ig-kyc-v1",
-      "deployed_version": null,
+      "deployed_version": 2,
       "verify_jwt": true,
       "files": [
         "index.ts",
@@ -344,13 +344,13 @@
         "privacy.js",
         "image-file.js"
       ],
-      "status": "pending_deployment",
       "sha256": {
         "index.ts": "2519a57918166996105f2c8aed755878dfbcc89fcd95765cf372013ba884b818",
         "validation.js": "f5e488154a7ec6102fbe3ba51f524aaa1229ddf3d031b16bbe20906bebb16105",
         "privacy.js": "965c14650e2c83dd09c515281b8ce8ea05f276477c447368304a59515548be41",
         "image-file.js": "d1e888a264afbf78183c1e673cf31a2b868a942b99e3c67ea58f44d07672e7ed"
-      }
+      },
+      "status": "pending_deployment"
     }
   ],
   "migrations": [
@@ -760,8 +760,7 @@
     },
     {
       "file": "20261022153018_secure_kyc_intake_review.sql",
-      "sha256": "c0c73ee4a4092b0929f6b1049ebd61e96220a3a48403f1b8a9b1d0a2ebd45b38",
-      "status": "pending_deployment"
+      "sha256": "c0c73ee4a4092b0929f6b1049ebd61e96220a3a48403f1b8a9b1d0a2ebd45b38"
     },
     {
       "file": "20261022154537_imperial_wallet_staging_dual_allocation_slots.sql",
