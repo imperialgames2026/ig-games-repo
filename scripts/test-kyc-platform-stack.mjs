@@ -12,7 +12,9 @@ import {build} from 'esbuild';
 // database argument accepted. --check validates packaging without starting Docker.
 assert(process.argv.length===2||(process.argv.length===3&&process.argv[2]==='--check'));
 const check=process.argv[2]==='--check',root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
-const stage=mkdtempSync('/tmp/ig-kyc-platform-'),project='ig-kyc-platform-'+randomUUID();
+const stage=mkdtempSync('/tmp/ig-kyc-platform-'),project='ig-kyc-platform-'+randomUUID().replaceAll('-','').slice(0,12);
+// CLI truncates longer project IDs; keep generated service hostnames intact.
+assert(project.length<=32);
 const require=createRequire(import.meta.url),db='supabase_db_'+project;
 const env={...process.env,SUPABASE_TELEMETRY_DISABLED:'1',DO_NOT_TRACK:'1',SUPABASE_INTERNAL_IMAGE_REGISTRY:'docker.io'};
 // Do not inherit credentials for hosted management into the local CLI process.
