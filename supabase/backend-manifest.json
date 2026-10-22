@@ -771,7 +771,7 @@
     },
     {
       "file": "20261022081752_customer_authenticator_mfa.sql",
-      "sha256": "4438bc9b88c3c2e456f2fc1764651c46a41a953d4236694d4241d7fb6528d6ee",
+      "sha256": "868c975acd9e12eb7f537bcc6f0af7b34df983131efc7ac27ed06261213169ee",
       "status": "pending_deployment"
     }
   ]

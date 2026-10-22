@@ -53,7 +53,7 @@ begin
    select pg_get_functiondef(target) into definition;
    if definition !~* '\mLANGUAGE plpgsql\M' then raise exception 'Unexpected MFA entry point language: %',target; end if;
    guarded := regexp_replace(definition, '\mbegin\M',
-     E'begin\n if not internal.mfa_satisfied() then raise exception ''Two-step verification required'' using errcode=''42501''; end if;', 'i');
+     E'begin\n if auth.uid() is not null and not internal.mfa_satisfied() then raise exception ''Two-step verification required'' using errcode=''42501''; end if;', 'i');
    if guarded = definition then raise exception 'MFA entry point was not guarded: %',target; end if;
    execute guarded;
  end loop;
