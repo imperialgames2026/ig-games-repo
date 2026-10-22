@@ -51,7 +51,10 @@ Local evidence (synthetic data only):
 CI isolation: checkpoint commit contains `[skip ci]` because existing broad PR
 workflows execute comparison tests and Android-related checks outside this task.
 A separate read-only `Non-biometric privacy review` workflow runs on creation of
-this exact review branch and checks out its exact source SHA. It runs the scoped
+this review branch or its dedicated `verify/nonbiometric-privacy-20261022-*`
+verification ref and checks out its exact source SHA. A verification ref points
+to the same commit as the draft PR; it permits a fresh scoped run after a
+checkpoint without triggering the excluded broad PR suites. It runs the scoped
 checks above and builds the website. Existing workflows and eligibility guards
 are unchanged. Skipped broad checks must not be described as full certification.
 Remote results and exact source SHA are recorded in the draft PR/task handoff.
@@ -78,3 +81,9 @@ References: [Supabase signed upload lifetime](https://supabase.com/docs/referenc
 [GitHub create event](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#create).
 The Supabase changelog markdown could not be fetched in this environment (403);
 the documented two-hour signed upload contract was verified directly.
+
+The first remote run (39853130979 at 5aa8336) passed all Node/Python tests but
+exposed a disposable-Postgres initialization race before SQL execution. The
+follow-up waits for TCP inside the network-isolated container, rather than the
+temporary initialization Unix socket. Browser/build steps in that first run
+were skipped, not passed.
