@@ -758,6 +758,14 @@
       "file": "20261022153018_secure_kyc_intake_review.sql",
       "sha256": "c0c73ee4a4092b0929f6b1049ebd61e96220a3a48403f1b8a9b1d0a2ebd45b38",
       "status": "pending_deployment"
+    },
+    {
+      "file": "20261022154537_imperial_wallet_staging_dual_allocation_slots.sql",
+      "sha256": "61144ea00d21e8b43e7ac5dda5ae789cb900809ba4e1bcd946aa56189c6064d0"
+    },
+    {
+      "file": "20261022154824_lower_staging_treasury_approval_threshold_to_1000.sql",
+      "sha256": "a39bb4958adb8fc7ec9278daf1388174552c7321280193660edd05f19457891e"
     }
   ]
 }
