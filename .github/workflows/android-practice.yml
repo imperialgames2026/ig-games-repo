@@ -21,6 +21,8 @@ on:
       - 'scripts/*mobile*.mjs'
       - 'scripts/bootstrap-android.mjs'
       - 'scripts/android-*.mjs'
+      - 'scripts/verify-mobile-apk.py'
+      - 'tests/test_mobile_apk.py'
       - '.github/workflows/android-practice.yml'
       - 'docs/MOBILE_ANDROID_IMPLEMENTATION.md'
 permissions:
@@ -45,6 +47,8 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
+      - name: Test read-only APK contract verifier
+        run: python3 -B -m unittest discover -s tests -p test_mobile_apk.py
       - name: Test login syntax and native Auth guard without hosted calls
         run: node --test tests/mobileBuildRegression.test.mjs tests/mobileClientConfig.test.mjs tests/mobileIsolation.test.mjs tests/mobileSourceState.test.mjs tests/mobileDependencyInventory.test.mjs
       - name: Run existing application and backend unit/security regressions
@@ -102,6 +106,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p mobile-artifacts
+          python3 -B scripts/verify-mobile-apk.py android/app/build/outputs/apk/release/app-release-unsigned.apk --source "${{ steps.source.outputs.sha }}" > mobile-artifacts/apk-contract-verification.json
           cp android/app/build/outputs/apk/debug/app-debug.apk mobile-artifacts/imperial-games-practice-debug.apk
           cp android/app/build/outputs/apk/release/app-release-unsigned.apk mobile-artifacts/imperial-games-practice-release-unsigned.apk
           cp android/app/build/outputs/bundle/release/app-release.aab mobile-artifacts/imperial-games-practice-release-unsigned.aab
