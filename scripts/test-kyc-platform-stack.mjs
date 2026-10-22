@@ -34,7 +34,7 @@ try{
   const driver=execFileSync('docker',['info','--format','{{.Driver}}'],{encoding:'utf8'}).trim();
   assert.notEqual(driver,'vfs','Full platform requires an existing copy-on-write runner; do not repeat local vfs pull');
   started=true;
-  cli(['start','--exclude','studio,imgproxy,logflare,vector,postgres-meta,realtime,mailpit,supavisor,edge-runtime']);
+  cli(['start','--debug','--exclude','studio,imgproxy,logflare,vector,postgres-meta,realtime,mailpit,supavisor,edge-runtime']);
   const c=JSON.parse(cli(['status','--output','json']));
   assert.equal(c.API_URL,'http://127.0.0.1:54321');
   for(const field of ['ANON_KEY','SERVICE_ROLE_KEY','JWT_SECRET'])assert.equal(typeof c[field],'string',field+' is local CLI output');
@@ -61,8 +61,8 @@ try{
  let message=error.message.split('\n')[0];for(const secret of secrets)message=message.split(secret).join('[local credential]');
  console.error(message);
  if(error.stderr||error.stdout){
-  const lines=(String(error.stdout||'')+'\n'+String(error.stderr||'')).split('\n').filter(s=>!(/password|secret|bearer|authorization|api.?key|postgres(?:ql)?:\/\//i.test(s)));
-  console.error(lines.slice(-45).map(s=>s.replace(/eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g,'[local JWT]').slice(0,500)).join('\n'));
+  const lines=(String(error.stdout||'')+'\n'+String(error.stderr||'')).split('\n').filter(s=>!(/password|secret|bearer|authorization|api.?key|postgres(?:ql)?:\/\/|^[a-f0-9]{12}:|pulling|download|checksum|digest:|pgwire.*(?:Parse|Bind|DataRow)/i.test(s)));
+  console.error(lines.slice(-100).map(s=>s.replace(/eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g,'[local JWT]').slice(0,500)).join('\n'));
  }
  if(server){const lines=readFileSync(stage+'/edge.log','utf8').split('\n').filter(s=>/error|failed|exception/i.test(s)&&!(/token|secret|password|bearer|authorization|key/i.test(s)));console.error(lines.slice(-5).map(s=>s.slice(0,350)).join('\n'));}
  process.exitCode=1;
