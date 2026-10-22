@@ -110,7 +110,7 @@ jobs:
         run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
       - name: Build and validate debug APK and unsigned release candidates
         working-directory: android
-        run: bash ./gradlew assembleDebug assembleRelease bundleRelease testDebugUnitTest lintDebug --no-daemon
+        run: bash ./gradlew -PimperialUnsignedRelease=true assembleDebug assembleRelease bundleRelease testDebugUnitTest lintDebug --no-daemon
       - name: Collect artifacts without production signing
         shell: bash
         run: |
