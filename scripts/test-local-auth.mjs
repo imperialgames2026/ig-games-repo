@@ -1,3 +1,4 @@
+import { isLegacyProbeRequest } from './local-function-probe.mjs';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync, spawn } from 'node:child_process';
 import { createServer } from 'node:http';
@@ -127,14 +128,17 @@ try {
   await verifyStorageServices({origin:storageOrigin,users,serviceKey,sql});
  }
  if(process.env.IG_LOCAL_BROWSER === '1' || process.env.IG_LOCAL_EDGE === '1') {
-  let functionRequests=0, functionRequestPaths=[];
+  let legacyProbeRequests=0;
   proxy=createServer(async(req,res)=>{
    res.setHeader('Access-Control-Allow-Origin','*');
    res.setHeader('Access-Control-Allow-Headers','authorization,apikey,content-type,x-client-info,x-supabase-api-version');
    res.setHeader('Access-Control-Allow-Methods','GET,POST,PATCH,DELETE,OPTIONS');
    if(req.method==='OPTIONS'){res.writeHead(204);res.end();return;}
    const url=new URL(req.url,'http://127.0.0.1');
-   if(url.pathname.startsWith('/functions/v1/')){functionRequests++;functionRequestPaths.push(url.pathname);}
+   if(url.pathname.startsWith('/functions/v1/')){
+    if(await isLegacyProbeRequest(req))legacyProbeRequests++;
+    res.writeHead(404);res.end();return;
+   }
    const prefix=url.pathname.startsWith('/auth/v1/')?'/auth/v1':url.pathname.startsWith('/rest/v1/')?'/rest/v1':null;
    if(!prefix){res.writeHead(404);res.end();return;}
    try {
@@ -174,15 +178,14 @@ try {
   await page.goto(appOrigin+'/AdminUsers');
   await expect(page).toHaveURL(appOrigin+'/',{timeout:15000});
   console.log('PASS: browser signs in against real local Auth/REST, restores its session on reload, and cannot enter the Superadmin user directory.');
-  const legacyProbePath='/functions/v1/legacyReadProbe';
-  const beforeLegacyProbe=functionRequestPaths.filter(path=>path===legacyProbePath).length;
+  const beforeLegacyProbe=legacyProbeRequests;
   const blocked=await page.evaluate(async()=>{
    const {base44}=await import('/api/base44Client.js');
    try{await base44.functions.invoke('legacyReadProbe');return false;}
    catch(error){return error.message.includes('secure Supabase handler not verified');}
   });
-  assert.equal(blocked,true);assert.equal(functionRequestPaths.filter(path=>path===legacyProbePath).length,beforeLegacyProbe);
-  console.log('PASS: disabled legacy Base44 dispatch fails before any function HTTP request.');
+  assert.equal(blocked,true);assert.equal(legacyProbeRequests,beforeLegacyProbe);
+  console.log('PASS: disabled legacyReadProbe fails without dispatching its api function envelope.');
   }
  }
 } catch(error) {
