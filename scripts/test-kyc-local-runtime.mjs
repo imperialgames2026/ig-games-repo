@@ -1,4 +1,4 @@
-// Requires the separately started disposable ig-privacy-runtime stack only.
+// Requires a separately started disposable core or full-platform fixture stack.
 // Its ephemeral local connection metadata is never printed or committed.
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -8,9 +8,10 @@ import http from 'node:http';
 import {setTimeout} from 'node:timers/promises';
 import {createClient} from '@supabase/supabase-js';
 import {Image} from 'imagescript';
-assert.match(process.argv[2]||'',/^\/tmp\/ig-kyc-core-[^/]+\/runtime-info\.json$/);
+assert.match(process.argv[2]||'',/^\/tmp\/ig-kyc-(?:core|platform)-[^/]+\/runtime-info\.json$/);
 const c=JSON.parse(readFileSync(process.argv[2],'utf8'));
-assert.match(c.DB_CONTAINER,/^ig-kyc-core-[a-f0-9-]+-db$/);
+const fullSchema=c.SCHEMA_MODE==='full-platform';
+assert.match(c.DB_CONTAINER,fullSchema?/^supabase_db_ig-kyc-platform-[a-f0-9-]+$/:/^ig-kyc-core-[a-f0-9-]+-db$/);
 const origin=c.API_URL;
 assert.equal(origin,'http://127.0.0.1:54321');
 const sql=input=>execFileSync('docker',['exec','-i',c.DB_CONTAINER,'psql','-U','postgres','-v','ON_ERROR_STOP=1','-At'],{input,encoding:'utf8',stdio:['pipe','pipe','pipe']}).trim();
@@ -19,7 +20,12 @@ const image=new Image(240,240);image.fill(0x123456ff);const png=await image.enco
 async function account(role='player'){
  const email=`privacy-${randomUUID()}@example.invalid`,password=randomUUID()+'-Synthetic8!';
  const created=await service.auth.admin.createUser({email,password,email_confirm:true});assert.equal(created.error,null,'local account creation failed');
- const id=created.data.user.id;sql(`insert into public.profiles(id) values('${id}');insert into public.user_roles(user_id,role) values('${id}','${role}');`);
+ const id=created.data.user.id;
+ if(fullSchema){
+  assert.equal(sql(`select count(*) from public.profiles where id='${id}';`),'1','real signup trigger creates profile');
+  assert.equal(sql(`select role from public.user_roles where user_id='${id}';`),'player','real signup trigger creates player role');
+  if(role!=='player')assert.equal((await service.from('user_roles').update({role}).eq('user_id',id)).error,null,'synthetic reviewer fixture');
+ }else sql(`insert into public.profiles(id) values('${id}');insert into public.user_roles(user_id,role) values('${id}','${role}');`);
  const client=createClient(origin,c.ANON_KEY,{auth:{persistSession:false}});const signed=await client.auth.signInWithPassword({email,password});assert.equal(signed.error,null,'local login failed');
  return {id,client,token:signed.data.session.access_token};
 }

@@ -180,3 +180,27 @@ inventory remains recorded, while this branch's changed function is explicitly
 pending deployment. No biometric implementation bytes changed in this merge;
 main's broader test file is retained but excluded from scoped execution.
 The earlier concurrency snapshot is historical, not the final base.
+
+## Full-platform CI acceptance route
+
+After removal of all six task-owned disposable images, the local vfs pull still
+failed. Failed layers were automatically released, recovering about 26.2GB free;
+no shared volumes, user files or daemon settings were changed. No repeated local
+pull is needed: `scripts/test-kyc-platform-stack.mjs` refuses vfs.
+
+The scoped workflow now has an independent `full-platform` job on the existing
+Ubuntu-hosted runner, with read-only repository permission and no secrets. It
+uses the existing pinned Supabase CLI version 2.121.0, verifies all 106 migration
+checksums, disables fixture seeding and serves only the bundled KYC handler with
+JWT verification preserved. The actual CLI PostgreSQL migration ledger must
+match all 106 versions before synthetic scenarios can run through normal local
+Kong/Auth/Storage/PostgREST/Edge services. Full-schema signup triggers create the
+profiles/roles; only generated synthetic users receive reviewer fixture roles.
+No broad tests, comparison actions, models or hosted APIs are used.
+
+Reproduction on a provisioned copy-on-write Docker runner:
+`node scripts/test-kyc-platform-stack.mjs` after installing locked dependencies
+and Supabase CLI 2.121.0. `--check` validates packaging offline without Docker.
+Local preflight, syntax/lint and workflow YAML checks passed. Runtime acceptance
+is determined by the exact-head CI result linked in PR51, not this preflight.
+The earlier fixture-only evidence and local capacity report remain historical.

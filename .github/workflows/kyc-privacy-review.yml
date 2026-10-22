@@ -29,3 +29,23 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test --config playwright.privacy.config.mjs
       - run: npm run build
+
+  full-platform:
+    if: github.ref == 'refs/heads/review/nonbiometric-privacy-20261022' || startsWith(github.ref, 'refs/heads/verify/nonbiometric-privacy-20261022-')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.121.0
+      - run: node scripts/test-kyc-platform-stack.mjs --check
+      - run: node scripts/test-kyc-platform-stack.mjs
