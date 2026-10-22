@@ -107,7 +107,10 @@ export default function Login() {
     <main className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-12 text-white">
       <section className="w-full max-w-md rounded-2xl border border-white/10 bg-slate-900 p-8 shadow-2xl">
         <Link to="/" onClick={clearAuthLinkError} className="text-sm text-slate-300 hover:text-white">← Back to Imperial Games</Link>
-        <p className="mt-8 text-xs font-semibold uppercase tracking-[0.28em] text-amber-400">Imperial Games</p>
+        <div className="mt-7 flex items-center gap-3">
+          <img src="/imperial-gaming.png" alt="" className="h-12 w-12 rounded-xl object-contain" />
+          <p className="text-xs font-black uppercase tracking-[0.28em] text-pink-300">Imperial Games</p>
+        </div>
         <h1 ref={heading} tabIndex={-1} className="mt-3 text-3xl font-bold">{modes[mode][0]}</h1>
         <p className="mt-2 text-sm text-slate-400">{modes[mode][1]}</p>
         {authLinkError && <p role="alert" className="mt-4 rounded-lg bg-red-950/60 p-3 text-sm text-red-200">{authLinkError}</p>}
