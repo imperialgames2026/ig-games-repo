@@ -14,7 +14,7 @@ export default function BonusHero() {
           </div>
           <h1 className="text-4xl font-black text-white mb-4">Bonuses Hub</h1>
           <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-            Track daily, weekly, monthly, quest, wager, and locked deposit bonus progress all in one place.
+            View your saved VIP spins and the availability of other reward programs.
           </p>
         </motion.div>
       </div>
