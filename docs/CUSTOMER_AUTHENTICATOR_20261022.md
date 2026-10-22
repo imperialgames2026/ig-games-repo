@@ -24,7 +24,7 @@ Current implementation adds one proposed migration (102 packaged files total); t
 
 ## Supabase storage budget
 
-Owner stated willingness to spend $100/month on Supabase for storage including KYC. Use $100/month as the conservative planning ceiling until total versus incremental spend is clarified. No billing changes were made.
+Owner stated willingness to spend $100/month on Supabase for storage including KYC. Use $100/month as the conservative planning ceiling until total versus incremental spend is clarified. No billing changes were made. The selected project’s Imperial Gaming LLC organization is already on Pro (confirmed through the connected organization API).
 
 On October 22, 2026, published Pro pricing starts at $25/month, including 100 GB file storage, with additional file storage at $0.0213/GB-month. Compute, egress, other projects and add-ons also affect the bill; this is not a fixed $100 hard cap. Source: https://supabase.com/pricing . TOTP MFA is free to use: https://supabase.com/docs/guides/auth/auth-mfa/totp .
 

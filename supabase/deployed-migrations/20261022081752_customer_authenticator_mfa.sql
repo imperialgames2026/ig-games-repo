@@ -15,6 +15,19 @@ grant execute on function internal.mfa_satisfied() to authenticated,service_role
 comment on function internal.mfa_satisfied() is
  'Own-account MFA boundary. Internal schema must remain outside the Data API exposed schemas.';
 
+-- The historical own-update policy re-reads profiles in its WITH CHECK. Combined
+-- with restrictive policies this causes recursive RLS expansion. Preserve its
+-- exact protected-field comparisons in an own-actor private helper instead.
+create or replace function internal.profile_security_matches(p_role text,p_excluded boolean,p_kyc text)
+returns boolean language sql stable security definer set search_path = '' as $$
+ select exists(select 1 from public.profiles p where p.id=auth.uid()
+   and p.role::text=p_role and p.is_excluded=p_excluded and p.kyc_status::text=p_kyc);
+$$;
+revoke all on function internal.profile_security_matches(text,boolean,text) from public,anon;
+grant execute on function internal.profile_security_matches(text,boolean,text) to authenticated,service_role;
+alter policy "profiles own safe update" on public.profiles to authenticated
+ with check (auth.uid()=id and internal.profile_security_matches(role::text,is_excluded,kyc_status::text));
+
 -- Restrictive policies add a requirement; they never grant ownership or access.
 do $policies$
 declare t record;

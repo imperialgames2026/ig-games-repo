@@ -45,7 +45,7 @@ try {
  run(db,['--network-alias','db','--tmpfs','/var/lib/postgresql/data','-e','POSTGRES_HOST_AUTH_METHOD=trust','ig-local-postgres-cron','-c','shared_preload_libraries=pg_cron','-c','cron.database_name=postgres','-c','cron.launch_active_jobs=off']);
  await ready(()=>{docker(['exec',db,'pg_isready','-h','127.0.0.1','-U','postgres']);return true;});
  const bootstrap = read('tests/database/bootstrap.sql');
- let initial=bootstrap.replace(/^create table auth\.users.*\n/m,'').replace(/^create function auth\..*\n/gm,'');
+ let initial=bootstrap.replace(/^create table auth\.(users|mfa_factors).*\n/gm,'').replace(/^create function auth\..*\n/gm,'');
  if(withStorage)initial=initial.replace(/^.*storage\.(buckets|objects|foldername).*\n/gm,'');
  sql(initial+`
  create role supabase_auth_admin login;
