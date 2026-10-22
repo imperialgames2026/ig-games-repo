@@ -74,9 +74,9 @@ try {
   await device.shell(`am start -n ${TEST_PACKAGE}/.MainActivity`);
   await attach();
   checkpoint('bundled_home');
-  await page.getByRole('heading', { name: /Join the table/ }).waitFor();
+  await page.getByRole('heading', { name: 'IMPERIAL GAMES', exact: true }).waitFor();
   assert.equal(await page.evaluate(() => window.Capacitor?.isNativePlatform?.()), true);
-  report.results.push('cold launch renders bundled practice home in a real Capacitor WebView');
+  report.results.push('cold launch renders bundled Imperial Games home in a real Capacitor WebView');
   await page.screenshot({ path: 'android-evidence/home.png', fullPage: true });
   const metadata = await page.evaluate(async () => {
     const response = await fetch('/mobile-release.json');
@@ -91,7 +91,7 @@ try {
   report.results.push('installed APK reports the exact build source and practice-only scope');
 
   checkpoint('home_to_login');
-  await page.getByRole('link', { name: 'sign in to open your game library', exact: true }).click();
+  await page.getByRole('link', { name: 'Sign In', exact: true }).first().click();
   await page.getByRole('heading', { name: 'Welcome back' }).waitFor();
   report.results.push('home sign-in link opens bundled React login');
   await page.screenshot({ path: 'android-evidence/login.png', fullPage: true });
