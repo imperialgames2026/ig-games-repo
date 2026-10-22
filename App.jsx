@@ -14,6 +14,7 @@ import PlayerWalletBar from '@/components/casino/PlayerWalletBar';
 import GameUnavailable from '@/components/games/GameUnavailable';
 import Login from './pages/Login';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import { ImperialViewportProvider } from '@/lib/imperialViewport';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const publicPages = new Set([
@@ -95,17 +96,19 @@ function App() {
   }, []);
 
   return (
-    <AuthProvider>
-      <QueryClientProvider client={queryClientInstance}>
-        <Router>
-          <NavigationTracker />
-          <PlayerWalletBar />
-          <AuthenticatedApp />
-        </Router>
-        <Toaster />
-        <SonnerToaster richColors position="top-right" />
-      </QueryClientProvider>
-    </AuthProvider>
+    <ImperialViewportProvider>
+      <AuthProvider>
+        <QueryClientProvider client={queryClientInstance}>
+          <Router>
+            <NavigationTracker />
+            <PlayerWalletBar />
+            <AuthenticatedApp />
+          </Router>
+          <Toaster />
+          <SonnerToaster richColors position="top-right" />
+        </QueryClientProvider>
+      </AuthProvider>
+    </ImperialViewportProvider>
   );
 }
 

@@ -99,3 +99,32 @@
     touch-action: pan-y pinch-zoom;
   }
 }
+
+/* Capacitor/Android adaptive presentation. The native viewport controller sets
+   the data attributes and scale variables at runtime from visualViewport. */
+html[data-ig-native="true"] {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html[data-ig-native="true"] body {
+  min-width: 0;
+}
+
+.ig-adaptive-game-viewport {
+  position: relative;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+  transform-origin: top left;
+  touch-action: pan-y pinch-zoom;
+}
+
+html[data-ig-native="true"][data-ig-device-class="compact-phone"] .ig-adaptive-game-viewport,
+html[data-ig-native="true"][data-ig-device-class="phone"] .ig-adaptive-game-viewport,
+html[data-ig-native="true"][data-ig-device-class="large-phone"] .ig-adaptive-game-viewport {
+  --ig-game-control-density: 0.9;
+}
+
+html[data-ig-native="true"][data-ig-orientation="landscape"] .ig-adaptive-game-viewport {
+  min-height: 100dvh;
+}
