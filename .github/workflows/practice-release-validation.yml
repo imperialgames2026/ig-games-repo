@@ -9,7 +9,10 @@ jobs:
   validate:
     # Keep the runner compatible with the locked Playwright version.
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 35
+    env:
+      SUPABASE_TELEMETRY_DISABLED: '1'
+      DO_NOT_TRACK: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -24,7 +27,7 @@ jobs:
       - name: Assemble checksum-verified backend
         run: node scripts/prepare-reviewed-backend.mjs "$RUNNER_TEMP/ig-reviewed" --local-dev
       - name: Start isolated backend and replay reviewed migrations
-        run: supabase start --workdir "$RUNNER_TEMP/ig-reviewed" --exclude studio,imgproxy,logflare,vector,postgres-meta,storage-api,realtime
+        run: supabase start --workdir "$RUNNER_TEMP/ig-reviewed" --exclude studio,imgproxy,logflare,vector,postgres-meta,realtime
       - name: Run transactional database tests
         run: npm run test:database
       - name: Save local test connection

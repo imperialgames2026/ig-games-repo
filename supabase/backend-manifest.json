@@ -333,6 +333,20 @@
       "sha256": {
         "index.ts": "17d3d1a16be829bf76010d06562556e891b4b252b8fedcd68ef7caa87b009dce"
       }
+    },
+    {
+      "name": "ig-kyc-v1",
+      "deployed_version": null,
+      "verify_jwt": true,
+      "files": [
+        "index.ts",
+        "validation.js"
+      ],
+      "status": "pending_deployment",
+      "sha256": {
+        "index.ts": "95c50102c908d01deb73c1f1412a1457958a1076040c319acf39cd3f9b1fa444",
+        "validation.js": "121f6461333f6eadcc38b7ea77766142ac4941e0b4148674ab10650750085f5f"
+      }
     }
   ],
   "migrations": [
@@ -739,6 +753,11 @@
     {
       "file": "20261021032722_vip_wheel_atomic_redemption.sql",
       "sha256": "e86ba19f93adb0c83a2b5e7b29dd312c21ed3f601239a506dbcb1a5e661c0948"
+    },
+    {
+      "file": "20261022153018_secure_kyc_intake_review.sql",
+      "sha256": "fb0b77eb17faf1ad6dc74719b8f49428123571db7aec5aad627baff870198edc",
+      "status": "pending_deployment"
     }
   ]
 }

@@ -1,1 +1,1 @@
-export { default } from '@/components/VerifiedKYCStatus';
+export { default } from '@/components/kyc/KycSubmission';

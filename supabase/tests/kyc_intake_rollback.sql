@@ -1,0 +1,35 @@
+begin;
+do $test$
+declare player uuid:=gen_random_uuid();staff uuid:=gen_random_uuid();other_user uuid:=gen_random_uuid(); s jsonb; sid uuid; prior jsonb; result jsonb; token text:=repeat('a',64);
+begin
+ insert into auth.users(id,email) values(player,'kyc-'||player||'@example.invalid'),(staff,'kyc-'||staff||'@example.invalid'),(other_user,'kyc-'||other_user||'@example.invalid');
+ update public.user_roles set role='admin' where user_id=staff;
+ select to_jsonb(w) into prior from public.wallets w where user_id=player;
+ s:=public.ig_kyc_action(player,'begin','{"full_name":"Synthetic SQL","birth_date":"1990-01-01","country":"US","document_type":"passport","consent":true,"consent_version":"2026-10-22","face_consent":true}');sid:=(s->>'id')::uuid;
+ begin perform public.ig_kyc_action(other_user,'upload',jsonb_build_object('id',sid));raise exception 'Foreign upload accepted';exception when no_data_found then null;end;
+ begin perform public.ig_kyc_action(player,'queue');raise exception 'Player queue accepted';exception when insufficient_privilege then null;end;
+ begin perform public.ig_kyc_action(player,'submit',jsonb_build_object('id',sid,'evidence','{}'::jsonb));raise exception 'Missing evidence accepted';exception when invalid_parameter_value then null;end;
+ s:=public.ig_kyc_action(player,'submit',jsonb_build_object('id',sid,'evidence','{"id_front":{},"selfie":{}}'::jsonb));
+ begin perform public.ig_kyc_action(staff,'review',jsonb_build_object('id',sid,'revision',0,'outcome','approved','reason','Synthetic approval'));raise exception 'Stale reviewer accepted';exception when serialization_failure then null;end;
+ begin perform public.ig_kyc_action(staff,'review',jsonb_build_object('id',sid,'revision',1,'outcome','approved','reason','Synthetic approval','checks','{}'::jsonb));raise exception 'Unchecked approval accepted';exception when invalid_parameter_value then null;end;
+ insert into public.ig_kyc_workers(token_hash,name,expires_at) values(token,'synthetic',now()+interval '1 hour');
+ result:=public.ig_kyc_action(null,'worker_claim',jsonb_build_object('token_hash',token));if result->>'id'<>sid::text then raise exception 'Wrong claimed job';end if;
+ if public.ig_kyc_action(null,'worker_claim',jsonb_build_object('token_hash',token)) is not null then raise exception 'Duplicate lease';end if;
+ perform public.ig_kyc_action(null,'worker_finish',jsonb_build_object('token_hash',token,'id',sid,'lease',result->>'lease','result','{"status":"manual_review_required"}'::jsonb));
+ if (select status from public.ig_kyc_submissions where id=sid)<>'submitted' then raise exception 'Worker changed decision';end if;
+ update public.user_roles set role='admin' where user_id=player;
+ begin perform public.ig_kyc_action(player,'review',jsonb_build_object('id',sid,'revision',1,'outcome','approved','reason','Self approval forbidden'));raise exception 'Self approval accepted';exception when insufficient_privilege then null;end;
+ perform public.ig_kyc_action(staff,'review',jsonb_build_object('id',sid,'revision',1,'outcome','approved','reason','Synthetic independent verification','checks','{"document_authenticity":true,"selfie_match":true,"age_review":true,"liveness_review":true}'::jsonb));
+ if (select kyc_status from public.profiles where id=player)<>'approved' then raise exception 'Profile status not updated';end if;
+ if (select to_jsonb(w) from public.wallets w where user_id=player) is distinct from prior then raise exception 'KYC changed wallet';end if;
+ update public.ig_kyc_submissions set expires_at=now()-interval '1 second' where id=sid;
+ begin perform public.ig_kyc_action(staff,'evidence',jsonb_build_object('id',sid,'kind','id_front'));raise exception 'Expired evidence read';exception when insufficient_privilege then null;end;
+ perform public.ig_kyc_action(null,'worker_purged',jsonb_build_object('token_hash',token,'id',sid));
+ if exists(select 1 from public.ig_kyc_submissions where id=sid and (full_name<>'Deleted' or evidence<>'{}' or face_result is not null)) then raise exception 'PII not scrubbed';end if;
+ set local role authenticated;
+ begin perform public.ig_kyc_action(staff,'queue');raise exception 'Browser RPC allowed';exception when insufficient_privilege then null;end;
+ begin perform * from public.ig_kyc_workers;raise exception 'Worker hash exposed';exception when insufficient_privilege then null;end;
+ begin perform * from public.ig_kyc_submissions;raise exception 'Direct identity read allowed';exception when insufficient_privilege then null;end;
+ reset role;
+end $test$;
+rollback;

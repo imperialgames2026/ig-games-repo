@@ -13,8 +13,8 @@ test('reviewed backend packages all sources and rejects changed function bytes',
     const script = join(root, 'scripts/prepare-reviewed-backend.mjs');
     const valid = spawnSync(process.execPath, [script, join(root, 'valid')], { encoding: 'utf8' });
     assert.equal(valid.status, 0, valid.stderr);
-    assert.equal(JSON.parse(valid.stdout).functions, 30);
-    assert.equal(JSON.parse(valid.stdout).migrations, 101);
+    assert.equal(JSON.parse(valid.stdout).functions, 31);
+    assert.equal(JSON.parse(valid.stdout).migrations, 102);
     appendFileSync(join(root, 'supabase/functions/secure-wallet/index.ts'), '\n// unexpected change\n');
     const changed = spawnSync(process.execPath, [script, join(root, 'changed')], { encoding: 'utf8' });
     assert.notEqual(changed.status, 0);
