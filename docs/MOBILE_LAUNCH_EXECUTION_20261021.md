@@ -1,3 +1,7 @@
+> Identity update, October 22: current source uses owner-approved `com.imperialgaming.app`
+> and **Imperial Games**. Identity decisions below describe the earlier checkpoint;
+> signing and publication remain separate gates. See [readiness](ANDROID_SIGNING_READINESS.md).
+
 # Mobile daily checklist execution — October 21, 2026
 
 Source: owner's uploaded `Pasted text(20261021-161936).txt`, SHA-256 `d51d8adc21c61e1b706bf2fbc3e5a3e8a9365bc9ecfa1c57b2485a95e0f0635f`. This is an execution record, not a replacement for the owner's daily checklist.

@@ -29,6 +29,6 @@ writeFileSync('dist/mobile-release.json', JSON.stringify({
   package_lock_sha256: hash('package-lock.json'),
   backend_manifest_sha256: hash('supabase/backend-manifest.json'),
   game_scope_sha256: hash('config/game-migration-scope.json'),
-  release_gates: ['durable app ID', 'approved verified Auth links', 'isolated full Auth/device matrix', 'dependency security review', 'owner-controlled signing', 'tester acceptance', 'verify server-side redemption remains unavailable'],
+  release_gates: ['approved verified Auth links', 'isolated full Auth/device matrix', 'dependency security review', 'owner-controlled signing', 'tester acceptance', 'verify server-side redemption remains unavailable'],
 }, null, 2) + '\n');
 console.log('Bundled practice assets stamped for source ' + source + '; publication remains gated.');

@@ -1,6 +1,6 @@
 {
-  "appId": "com.imperialgaming.practice.dev",
-  "appName": "Imperial Games Practice DEV",
+  "appId": "com.imperialgaming.app",
+  "appName": "Imperial Games",
   "webDir": "dist",
   "android": {
     "allowMixedContent": false

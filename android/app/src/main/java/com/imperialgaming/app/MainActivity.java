@@ -1,4 +1,4 @@
-package com.imperialgaming.practice.dev;
+package com.imperialgaming.app;
 
 import com.getcapacitor.BridgeActivity;
 

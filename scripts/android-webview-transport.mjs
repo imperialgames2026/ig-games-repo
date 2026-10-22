@@ -4,7 +4,7 @@ import { promisify } from 'node:util';
 import { setTimeout as pause } from 'node:timers/promises';
 
 const exec = promisify(execFile);
-const PACKAGE = 'com.imperialgaming.practice.dev';
+const PACKAGE = 'com.imperialgaming.app';
 
 export async function withDeadline(operation, milliseconds, label) {
   assert.ok(Number.isInteger(milliseconds) && milliseconds > 0 && milliseconds <= 120000);

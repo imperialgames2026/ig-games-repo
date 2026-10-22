@@ -2,6 +2,10 @@
 
 Owner direction, 2026-10-21: bypass Google Play for now and work on a directly installable APK. Play Console, Play App Signing and store submission are not prerequisites for the current private APK test. This document does not approve public distribution.
 
+Current source uses the owner-approved `com.imperialgaming.app` / **Imperial Games**
+identity. The retrieved build below is historical and retains its original provisional
+identity. See [current signing readiness](ANDROID_SIGNING_READINESS.md).
+
 ## Retrieved build
 
 - Source commit: `b7d1a6a761f7c9ace4089c9d2a950d7b818b878f`.
