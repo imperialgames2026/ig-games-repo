@@ -60,7 +60,10 @@ try{
  // Never dump local CLI status/env or entire logs (they include generated keys).
  let message=error.message.split('\n')[0];for(const secret of secrets)message=message.split(secret).join('[local credential]');
  console.error(message);
- if(error.stderr){const lines=String(error.stderr).split('\n').filter(s=>/error|failed|exception/i.test(s)&&!(/token|secret|password|bearer|authorization|key/i.test(s)));console.error(lines.slice(-8).map(s=>s.slice(0,350)).join('\n'));}
+ if(error.stderr||error.stdout){
+  const lines=(String(error.stdout||'')+'\n'+String(error.stderr||'')).split('\n').filter(s=>!(/password|secret|bearer|authorization|api.?key|postgres(?:ql)?:\/\//i.test(s)));
+  console.error(lines.slice(-45).map(s=>s.replace(/eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g,'[local JWT]').slice(0,500)).join('\n'));
+ }
  if(server){const lines=readFileSync(stage+'/edge.log','utf8').split('\n').filter(s=>/error|failed|exception/i.test(s)&&!(/token|secret|password|bearer|authorization|key/i.test(s)));console.error(lines.slice(-5).map(s=>s.slice(0,350)).join('\n'));}
  process.exitCode=1;
 }finally{

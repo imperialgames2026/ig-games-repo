@@ -35,8 +35,8 @@ async function call(actor,action,payload={}){
  const r=await fetch(origin+'/functions/v1/ig-kyc-v1',{method:'POST',headers:{apikey:c.ANON_KEY,authorization:'Bearer '+actor.token,'content-type':'application/json'},body:JSON.stringify({action,...payload}),signal:AbortSignal.timeout(20000)});
  return {status:r.status,data:await r.json()};
 }
-const begin=async()=>{const r=await call(user,'begin',{full_name:'Synthetic Raster Fixture',birth_date:'1990-01-01',country:'US',document_type:'passport',consent:true,consent_version:'2026-10-22',face_consent:false});assert.equal(r.status,200,'begin');return r.data.result.id;};
-async function upload(id,kind,bytes=png){const r=await call(user,'upload',{id,kind});assert.equal(r.status,200,'grant');const result=await user.client.storage.from('ig-kyc-evidence').uploadToSignedUrl(r.data.path,r.data.token,bytes,{contentType:'image/png',upsert:false});assert.equal(result.error,null,'signed local upload');return r.data;}
+const begin=async(actor=user)=>{const r=await call(actor,'begin',{full_name:'Synthetic Raster Fixture',birth_date:'1990-01-01',country:'US',document_type:'passport',consent:true,consent_version:'2026-10-22',face_consent:false});assert.equal(r.status,200,'begin');return r.data.result.id;};
+async function upload(id,kind,bytes=png,actor=user){const r=await call(actor,'upload',{id,kind});assert.equal(r.status,200,'grant');const result=await actor.client.storage.from('ig-kyc-evidence').uploadToSignedUrl(r.data.path,r.data.token,bytes,{contentType:'image/png',upsert:false});assert.equal(result.error,null,'signed local upload');return r.data;}
 assert.equal((await call({token:'synthetic.invalid.token'},'mine')).status,401,'forged auth rejected by actual Edge/Auth');
 const id=await begin();await upload(id,'id_front');await upload(id,'selfie');
 assert.equal((await call(user,'submit',{id})).status,200,'complete file submit');
@@ -59,6 +59,14 @@ console.log('PASS real PostgREST: legacy array compatibility and complete 131-ro
 const bad=await begin();const header=Buffer.alloc(64);header.set([137,80,78,71,13,10,26,10]);header.write('IHDR',12);header.writeUInt32BE(240,16);header.writeUInt32BE(240,20);
 await upload(bad,'id_front',header);await upload(bad,'selfie');assert.equal((await call(user,'submit',{id:bad})).status,422);await call(user,'cancel',{id:bad});
 console.log('PASS actual Edge rejects header-only file');
+const cancelUser=await account(),cancelId=await begin(cancelUser);
+await upload(cancelId,'id_front',png,cancelUser);await upload(cancelId,'selfie',png,cancelUser);
+assert.equal((await call(cancelUser,'submit',{id:cancelId})).status,200);
+assert.equal(sql(`select kyc_status from public.profiles where id='${cancelUser.id}';`),'pending_review');
+assert.equal((await call(cancelUser,'cancel',{id:cancelId})).status,200);
+assert.equal(sql(`select kyc_status from public.profiles where id='${cancelUser.id}';`),'not_started');
+console.log('PASS persisted profile changes pending_review -> not_started after real submitted cancellation');
+
 // A separate user avoids fixture queue rows consuming the daily intake limit.
 const lateUser=other;const lateId=randomUUID();sql(`insert into public.ig_kyc_submissions(id,user_id,full_name,birth_date,country,document_type,consent_version,face_consent) values('${lateId}','${lateUser.id}','Synthetic Late Stream','1990-01-01','US','passport','2026-10-22',false);`);
 const grant=await call(lateUser,'upload',{id:lateId,kind:'id_front'});assert.equal(grant.status,200);
