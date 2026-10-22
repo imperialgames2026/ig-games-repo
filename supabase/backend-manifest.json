@@ -346,10 +346,10 @@
       ],
       "status": "pending_deployment",
       "sha256": {
-        "index.ts": "014e31503ec92f8a5fd0241ad2921b4ff7766c87924c32b15b26cb0e8873c50a",
+        "index.ts": "1b6ecad4f5765e0ad586a7ce4b64770ea9f7406e3a54e0f366eb4789ec0d34c2",
         "validation.js": "e830ed987d63509a331d54ac75201011638dbdc9df095c603a6b9e7552f52ad9",
         "privacy.js": "965c14650e2c83dd09c515281b8ce8ea05f276477c447368304a59515548be41",
-        "image-file.js": "1ae953ba0a48c16f86b4c1ac70bdcc672df47f07d6f989e998c1d3ec45a131ad"
+        "image-file.js": "d2129172de2642cf184ea2e7591b90d297d9da61dfd4d23fa09205c8796e702c"
       }
     }
   ],

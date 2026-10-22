@@ -1,9 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {Image} from 'imagescript';
-import {validateImageFile} from '../supabase/functions/ig-kyc-v1/image-file.js';
+import jpeg from 'jpeg-js';
+import {validateImageFile as validateFile} from '../supabase/functions/ig-kyc-v1/image-file.js';
 import {issueUpload,reviewQueue,purgeExpired,validateQueue} from '../supabase/functions/ig-kyc-v1/privacy.js';
 const decode=Image.decode.bind(Image);
+const validateImageFile=(bytes,decoder)=>validateFile(bytes,decoder,jpeg.decode);
 const id='00000000-0000-4000-8000-000000000001';
 const row={id,user_id:'synthetic',document_type:'passport'};
 test('upload returns immutable grants only after current authorization succeeds',async()=>{
@@ -76,4 +78,12 @@ test('keyset traversal reaches more than 100 submissions without repeating tied 
  let cursor,seen=[];
  do{const result=await reviewQueue(async()=>{},db,{limit:25,...(cursor?{cursor}:{})});seen.push(...result.rows.map(r=>r.id));cursor=result.next_cursor;}while(cursor);
  assert.equal(seen.length,153);assert.equal(new Set(seen).size,153);assert.deepEqual(seen,all.map(r=>r.id));
+});
+
+test('JPEG entropy truncation is rejected even when a valid end marker is appended',async()=>{
+ const image=new Image(128,128);image.fill(0x123456ff);const jpegBytes=await image.encodeJPEG();
+ for(const cut of [Math.floor(jpegBytes.length/2),jpegBytes.length-20,jpegBytes.length-3]){
+  const b=new Uint8Array(cut+2);b.set(jpegBytes.slice(0,cut));b.set([255,217],cut);
+  await assert.rejects(validateImageFile(b,decode));
+ }
 });

@@ -1,6 +1,7 @@
 import {createClient} from 'npm:@supabase/supabase-js@2.118.0';
 import {validateInput,KINDS} from './validation.js';
 import {Image} from 'npm:imagescript@3.3.0';
+import jpeg from 'npm:jpeg-js@0.4.4';
 import {validateImageFile} from './image-file.js';
 import {issueUpload,reviewQueue,purgeExpired} from './privacy.js';
 const BUCKET='ig-kyc-evidence';
@@ -52,7 +53,7 @@ Deno.serve(async request=>{
    for(const kind of s.document_type==='passport'?['id_front','selfie']:KINDS){
     const name=path(s,kind);const {data,error}=await db.storage.from(BUCKET).download(name);
     if(error||!data||data.size>8388608)return reply(422,{error:'Upload each required image, up to 8 MiB'});
-    const bytes=new Uint8Array(await data.arrayBuffer());let info;try{info=await validateImageFile(bytes,Image.decode.bind(Image));}catch{return reply(422,{error:'An image is invalid. Cancel this draft and upload valid images.'});}
+    const bytes=new Uint8Array(await data.arrayBuffer());let info;try{info=await validateImageFile(bytes,Image.decode.bind(Image),jpeg.decode);}catch{return reply(422,{error:'An image is invalid. Cancel this draft and upload valid images.'});}
     if(data.type!==info.mime)return reply(422,{error:'Image type does not match the file'});
     evidence[kind]={path:name,sha256:await sha(bytes),...info};
    }

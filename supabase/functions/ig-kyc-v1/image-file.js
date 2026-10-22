@@ -1,7 +1,7 @@
 import {imageInfo} from './validation.js';
 const invalid=()=>{throw Error('Invalid or incomplete image file');};
 function crc(bytes){let n=0xffffffff;for(const value of bytes){n^=value;for(let i=0;i<8;i++)n=(n>>>1)^((n&1)?0xedb88320:0);}return (n^0xffffffff)>>>0;}
-export async function validateImageFile(bytes,decode){
+export async function validateImageFile(bytes,decode,decodeJpeg){
  const b=bytes instanceof Uint8Array?bytes:new Uint8Array(bytes);
  const info=imageInfo(b),v=new DataView(b.buffer,b.byteOffset,b.byteLength);
  const ascii=(a,z)=>String.fromCharCode(...b.subarray(a,z));
@@ -14,6 +14,7 @@ export async function validateImageFile(bytes,decode){
    if(!header&&type!=='IHDR')invalid();
    if(type==='IHDR'){if(header||size!==13)invalid();header=true;}
    if(['acTL','fcTL','fdAT'].includes(type))invalid();
+   if(type[0]===type[0].toUpperCase()&&!['IHDR','PLTE','IDAT','IEND'].includes(type))invalid();
    if(type==='IDAT'){if(dataEnded)invalid();data=true;}else if(data)dataEnded=true;
    if(type==='IEND'){if(size!==0||!data||next!==b.length)invalid();end=true;}
    p=next;
@@ -35,7 +36,11 @@ export async function validateImageFile(bytes,decode){
  }
  // Decode pixels, never faces. Explicit allocation budget is checked by each
  // codec before allocation, including embedded bitstream dimensions.
- const image=await decode(b,{applyOrientation:false,maxPixels:24000000});
- if(image.width!==info.width||image.height!==info.height||image.bitmap?.length!==info.width*info.height*4)invalid();
+ // ImageScript's JPEG decoder tolerates truncated entropy streams. Use the
+ // strict JPEG codec instead; an appended EOI must not mask missing pixels.
+ const image=info.mime==='image/jpeg'
+  ?decodeJpeg(b,{useTArray:true,tolerantDecoding:false,maxResolutionInMP:24,maxMemoryUsageInMB:160})
+  :await decode(b,{applyOrientation:false,maxPixels:24000000});
+ if(image.width!==info.width||image.height!==info.height||(image.bitmap??image.data)?.length!==info.width*info.height*4)invalid();
  return info;
 }

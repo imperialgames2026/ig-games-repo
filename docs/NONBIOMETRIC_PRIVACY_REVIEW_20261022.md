@@ -19,12 +19,13 @@ Changes:
   default. Service-side reviewer/exclusion authorization is checked using the
   existing RPC before selecting only queue metadata. No schema change is needed.
 - Submission now performs full raster decoding with pinned ImageScript 3.3.0
-  (MIT license selected), in addition to byte/dimension limits, PNG CRC/chunk
+  (MIT license selected) for PNG/WebP and jpeg-js 0.4.4 (BSD-3-Clause) for JPEG, in addition to byte/dimension limits, PNG CRC/chunk
   integrity, complete RIFF bounds, animation rejection and terminal file checks.
-  The codec receives a 24-megapixel allocation limit and orientation disabled so
+  The codecs receive a 24-megapixel allocation limit (JPEG also has a 160 MiB
+  allocation budget and tolerant decoding disabled), and orientation is disabled so
   decoded dimensions must match the bounded header. No identity or face analysis
   is performed. ImageScript is a dev dependency for identical local fixtures;
-  the Edge import uses the same exact npm version. It has no dependencies.
+  the Edge imports use the same exact npm versions. Neither has dependencies.
 - Refreshing submission history also refreshes the verified account profile.
 - A standalone deletion-only Python client needs no image or model dependencies.
   It uses the existing authorized deletion endpoint and continues after individual
@@ -33,10 +34,11 @@ Changes:
 
 Local evidence (synthetic data only):
 
-- Nine Node tests: grant ordering and cancellation/exclusion, cursor validation,
+- Ten Node tests: grant ordering and cancellation/exclusion, cursor validation,
   metadata authorization, traversal of 153 equal-timestamp submissions, failed
   and repeated cleanup, complete solid-color PNG/JPEG/WebP decoding, malformed
-  payload rejection, and backend checksum packaging.
+  payload rejection (including truncated JPEG entropy with an appended end marker),
+  and backend checksum packaging.
 - Four Python deletion-client tests, including repeated cycles, partial failure,
   private config permissions, symlink refusal and no model imports/network calls.
 - Two intercepted browser tests: customer status refresh/cancellation and reviewer
@@ -87,3 +89,10 @@ exposed a disposable-Postgres initialization race before SQL execution. The
 follow-up waits for TCP inside the network-isolated container, rather than the
 temporary initialization Unix socket. Browser/build steps in that first run
 were skipped, not passed.
+
+Run 39853337833 passed the complete scoped suite at 540c125. An additional
+synthetic corruption probe then found that ImageScript tolerated incomplete JPEG
+entropy with an appended EOI. The final follow-up uses jpeg-js with tolerant
+decoding disabled and adds the reproduced truncation regression. Earlier green
+CI therefore does not certify the final codec change; exact-head CI is linked in
+the draft PR.
