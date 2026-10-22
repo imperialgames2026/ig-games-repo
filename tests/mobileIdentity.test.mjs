@@ -18,3 +18,10 @@ test('permanent identity agrees across bundled app, Android and native test targ
   for (const name of ['package_name', 'custom_url_scheme']) assert.ok(strings.includes(`<string name="${name}">com.imperialgaming.app</string>`));
   assert.match(read('scripts/android-webview-transport.mjs'), /const PACKAGE = 'com\.imperialgaming\.app'/);
 });
+
+test('connected instrumentation checks the permanent target application identity', () => {
+  const instrumentation = read('android/app/src/androidTest/java/com/getcapacitor/myapp/ExampleInstrumentedTest.java');
+  assert.match(instrumentation, /getInstrumentation\(\)\.getTargetContext\(\)/);
+  assert.match(instrumentation, /assertEquals\("com\.imperialgaming\.app", appContext\.getPackageName\(\)\)/);
+  assert.doesNotMatch(instrumentation, /com\.getcapacitor\.app/);
+});
