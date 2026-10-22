@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Scoped private KYC worker. No customer names, images, URLs or tokens in logs."""
-import argparse, hashlib, json, os, stat, time, urllib.request, urllib.parse
+import argparse, hashlib, json, math, os, stat, time, urllib.request, urllib.parse
 from pathlib import Path
 
 PROJECT = 'https://qonqemhljgxlwpghkxhn.supabase.co'
@@ -16,7 +16,7 @@ OPENER = urllib.request.build_opener(NoRedirect())
 
 def read_json_private(path):
  p=Path(path)
- if p.is_symlink() or stat.S_IMODE(p.stat().st_mode)&0o077:
+ if p.is_symlink() or not stat.S_ISREG(p.stat().st_mode) or stat.S_IMODE(p.stat().st_mode)&0o077:
   raise ValueError('Worker config must be a private regular file (mode 0600)')
  return json.loads(p.read_text())
 
@@ -65,6 +65,7 @@ def compare(images,models):
   aligned=recognizer.alignCrop(image,faces[0]);features.append(recognizer.feature(aligned))
   sharpness.append(float(cv2.Laplacian(cv2.cvtColor(aligned,cv2.COLOR_BGR2GRAY),cv2.CV_64F).var()))
  score=float(recognizer.match(features[0],features[1],cv2.FaceRecognizerSF_FR_COSINE))
+ if not math.isfinite(score) or not all(math.isfinite(x) for x in sharpness):raise ValueError('Invalid model measurement')
  return {'status':'compared','cosine_similarity':max(-1,min(1,round(score,5))),'id_image_sharpness':round(sharpness[0],1),'selfie_sharpness':round(sharpness[1],1)}
 
 def cycle(config,models):
