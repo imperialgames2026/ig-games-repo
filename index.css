@@ -83,7 +83,19 @@
     @apply border-border outline-ring/50;
   }
 
+  html,
+  body,
+  #root {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: clip;
+    overscroll-behavior-x: none;
+  }
+
   body {
+    margin: 0;
     @apply bg-background text-foreground;
+    touch-action: pan-y pinch-zoom;
   }
 }
