@@ -1,4 +1,4 @@
-> Identity update, October 22: current source uses owner-approved `com.imperialgaming.app`
+> Identity update, October 22: current source uses owner-approved `llc.imperialgaming.games`
 > and **Imperial Games**. Identity decisions below describe the earlier checkpoint;
 > signing and publication remain separate gates. See [readiness](ANDROID_SIGNING_READINESS.md).
 

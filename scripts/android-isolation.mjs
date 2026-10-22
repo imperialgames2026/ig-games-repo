@@ -5,7 +5,7 @@ import { promisify } from 'node:util';
 import { setTimeout as pause } from 'node:timers/promises';
 
 const exec = promisify(execFile);
-export const TEST_PACKAGE = 'com.imperialgaming.app';
+export const TEST_PACKAGE = 'llc.imperialgaming.games';
 export const CHAIN = 'IG_APK_ISOLATION';
 
 export function validateIsolationTarget({ ci, serial, emulator, rootUid, appUid, packageId }) {

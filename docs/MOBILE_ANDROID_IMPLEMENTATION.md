@@ -6,7 +6,7 @@ This branch is **not** a signed APK or release-ready native application.
 
 ## Permanent identity
 
-Owner-approved package: `com.imperialgaming.app`; display name: **Imperial Games**.
+Owner-approved package: `llc.imperialgaming.games`; display name: **Imperial Games**.
 This installs separately from `com.imperialgaming.practice.dev`; existing app data
 is not automatically transferred. Keep the development installation and its data.
 No conflicting registration was found in repository configuration. Play Console
