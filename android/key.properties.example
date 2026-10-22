@@ -1,0 +1,6 @@
+# Copy this file to android/key.properties on Nate's owner-controlled build computer.
+# android/key.properties is gitignored. Never commit the real file or keystore.
+storeFile=/absolute/path/to/ImperialGames-release.jks
+storePassword=REPLACE_LOCALLY
+keyAlias=imperial-games-release
+keyPassword=REPLACE_LOCALLY

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Imperial Games Practice DEV</string>
-    <string name="title_activity_main">Imperial Games Practice DEV</string>
-    <string name="package_name">com.imperialgaming.practice.dev</string>
-    <string name="custom_url_scheme">com.imperialgaming.practice.dev</string>
+    <string name="app_name">Imperial Games</string>
+    <string name="title_activity_main">Imperial Games</string>
+    <string name="package_name">llc.imperialgaming.games</string>
+    <string name="custom_url_scheme">llc.imperialgaming.games</string>
 </resources>
