@@ -94,7 +94,7 @@ if(fullSchema&&finished.status!==200){
  // Require that specific rejection, not an arbitrary failing upload.
  assert.equal(finished.status,400);
  const rejected=JSON.parse(finished.body.toString('utf8'));
- assert.match(rejected.message||'',/expired/i,'gateway must reject the expired token');
+ assert.match(rejected.message||'',/expired|^"exp" claim timestamp check failed$/i,'gateway must reject the expired token');
  assert(lateObject.error,'expired buffered upload must leave no object');
  console.log('PASS normal Kong rejects the buffered expired upload without recreating evidence');
  // Exercise real post-purge deletion through the normal gateway as well. The
