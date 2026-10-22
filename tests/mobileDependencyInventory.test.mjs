@@ -1,9 +1,31 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { inventory } from '../scripts/mobile-dependency-inventory.mjs';
+import { inventory, auditProcessEvidence, parseAuditRun } from '../scripts/mobile-dependency-inventory.mjs';
 const sha = 'a'.repeat(40);
 const lock = { packages: { 'node_modules/a': { version: '1.0.0', dev: true }, 'node_modules/b': { version: '2.0.0' } } };
 const clean = () => ({ metadata: { vulnerabilities: { low: 0, moderate: 0, high: 0, critical: 0, total: 0 } }, vulnerabilities: {} });
+test('timeout fails even when stdout contains a valid clean report', () => {
+  assert.throws(() => parseAuditRun({status: 0, stdout: JSON.stringify(clean()), error: {code: 'ETIMEDOUT'}}), /ETIMEDOUT.*no clean audit/);
+});
+test('audit finding exit status remains supported without waiving findings', () => {
+  const audit = clean(); audit.metadata.vulnerabilities.high = 1; audit.metadata.vulnerabilities.total = 1;
+  const result = inventory(parseAuditRun({status: 1, stdout: JSON.stringify(audit)}), lock, sha);
+  assert.equal(result.critical_or_high_present, true);
+  assert.equal(result.security_release_approved, false);
+});
+test('terminated or invalid process output fails closed', () => {
+  assert.throws(() => parseAuditRun({status: null, signal: 'SIGTERM', stdout: '{}'}), /SIGTERM/);
+  assert.throws(() => parseAuditRun({status: 2, stdout: '{}'}), /could not complete/);
+  assert.throws(() => parseAuditRun({status: 0, stdout: ''}), /invalid JSON/);
+});
+test('process evidence retains codes but not raw URLs, credentials or stderr', () => {
+  const result = auditProcessEvidence({status: null, signal: 'SIGTERM', error: {code: 'ETIMEDOUT', message: 'sensitive-url'}, stderr: 'sensitive-url', stdout: ''}, 120003.2);
+  assert.equal(result.error_code, 'ETIMEDOUT');
+  assert.equal(result.elapsed_ms, 120003);
+  assert.equal(JSON.stringify(result).includes('sensitive-url'), false);
+  assert.equal(result.security_release_approved, false);
+  assert.equal(auditProcessEvidence({error: {code: 'https://secret.invalid'}}, 1).error_code, null);
+});
 test('zero findings never grants publication or security acceptance', () => {
   const result = inventory(clean(), lock, sha);
   assert.equal(result.critical_or_high_present, false);
