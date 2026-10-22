@@ -69,7 +69,7 @@ test('password recovery is reachable without an authenticated session',async({pa
 
 test('a signed-out Imperial Games homepage offers games and sign-in without a leaderboard error',async({page})=>{
  await page.goto('/',{waitUntil:'domcontentloaded'});
- await expect(page.getByRole('heading',{name:'IMPERIAL GAMES'})).toBeVisible();
+ await expect(page.getByRole('heading',{name:'IMPERIAL GAMES',exact:true})).toBeVisible();
  await expect(page.getByRole('link',{name:/Browse Games/i})).toBeVisible();
  await expect(page.getByRole('link',{name:'Sign in to view the practice leaderboard'})).toBeVisible();
  await expect(page.getByText('Practice leaderboard is unavailable right now.')).toHaveCount(0);
