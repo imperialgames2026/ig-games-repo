@@ -13,6 +13,7 @@ import CommandCenterLayout from '@/components/admin/CommandCenterLayout';
 import PlayerWalletBar from '@/components/casino/PlayerWalletBar';
 import GameUnavailable from '@/components/games/GameUnavailable';
 import Login from './pages/Login';
+import AuthenticatorChallenge from '@/components/auth/AuthenticatorChallenge';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -57,6 +58,7 @@ function AuthenticatedApp() {
   }
 
   if (authError?.type === 'user_not_registered') return <UserNotRegisteredError />;
+  if (authError?.type === 'mfa_required') return <AuthenticatorChallenge />;
   if (authLinkError && !['/login', '/resetpassword'].includes(location.pathname.toLowerCase())) {
     return <Navigate to="/login?mode=confirmation" replace />;
   }

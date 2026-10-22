@@ -35,7 +35,7 @@ export function AuthProvider({ children }) {
     } catch (error) {
       if (request !== generation.current) return;
       clearIdentity();
-      setError({ type: 'account_unverified', message: error.message });
+      setError({ type: error.type === 'mfa_required' ? 'mfa_required' : 'account_unverified', message: error.message });
       return null;
     } finally {
       if (request === generation.current) setLoading(false);
@@ -50,7 +50,7 @@ export function AuthProvider({ children }) {
       clearTimeout(timer);
       if (!session) { clearIdentity();setError(null);setLoading(false);return; }
       const sameUser = session.user?.id === verifiedUserId.current;
-      const background = sameUser && ['USER_UPDATED', 'TOKEN_REFRESHED', 'SIGNED_IN'].includes(_event);
+      const background = sameUser && ['USER_UPDATED', 'TOKEN_REFRESHED', 'SIGNED_IN', 'MFA_CHALLENGE_VERIFIED'].includes(_event);
       if (!background) { clearIdentity();setError(null);setLoading(true); }
       // Leave the auth callback before calling Supabase APIs (auth lock).
       timer = setTimeout(() => { if (mounted) void checkAppState({background}); }, 0);

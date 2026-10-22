@@ -35,6 +35,7 @@ Deno.serve(async(request:Request)=>{
  const auth=createClient(Deno.env.get("SUPABASE_URL")!,publicKey);
  const {data:{user},error:authError}=await auth.auth.getUser(bearer);
  if(authError||!user||user.is_anonymous)return reply(401,{error:"Invalid session"});
+ if(!hasCompletedMfa(user,bearer))return reply(403,{error:'Two-step verification required',code:'mfa_required'});
  const db=createClient(Deno.env.get("SUPABASE_URL")!,serviceKey,{auth:{persistSession:false}});
  const [role,profile]=await Promise.all([
   db.from("user_roles").select("role").eq("user_id",user.id).maybeSingle(),
@@ -96,3 +97,18 @@ Deno.serve(async(request:Request)=>{
   return reply(503,{error:"Sandbox operation requires manual reconciliation; do not retry with a new account"});
  }
 });
+
+// BEGIN GENERATED MFA GUARD
+// SERVER ONLY: call exclusively AFTER Auth getUser validates this EXACT token.
+// Never use decoded claims as standalone authentication. Auth supplies factors;
+// user_metadata and request bodies cannot choose whether MFA is required.
+function hasCompletedMfa(user, verifiedAccessToken) {
+  if (!user?.id) return false;
+  if (!user.factors?.some(factor => factor.status === 'verified')) return true;
+  try {
+    const part = verifiedAccessToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const claims = JSON.parse(atob(part.padEnd(Math.ceil(part.length / 4) * 4, '=')));
+    return claims.sub === user.id && claims.aal === 'aal2';
+  } catch { return false; }
+}
+// END GENERATED MFA GUARD

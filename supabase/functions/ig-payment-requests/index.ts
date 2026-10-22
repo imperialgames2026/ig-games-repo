@@ -17,6 +17,7 @@ export async function context(req:Request){
  const auth=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
  const {data:{user},error}=await auth.auth.getUser(token);
  if(error||!user||user.is_anonymous)throw new HttpError(401,'Invalid session');
+ if(!hasCompletedMfa(user,token))throw new HttpError(403,'Two-step verification required');
  const db=createClient(url,secret,{auth:{persistSession:false,autoRefreshToken:false}});
  const [profile,role]=await Promise.all([db.from('profiles').select('*').eq('id',user.id).single(),db.from('user_roles').select('role').eq('user_id',user.id).single()]);
  if(profile.error||role.error||!profile.data||!['player','tester','admin','superadmin'].includes(role.data?.role)||profile.data.is_excluded)throw new HttpError(403,'Account ineligible');
@@ -65,3 +66,18 @@ Deno.serve(async req=>{
   return json({request:data,executionEnabled:false,message:'Preparation recorded. No funds have moved; provider connection and validation are required.'});
  }catch(error){return failure(error);}
 });
+
+// BEGIN GENERATED MFA GUARD
+// SERVER ONLY: call exclusively AFTER Auth getUser validates this EXACT token.
+// Never use decoded claims as standalone authentication. Auth supplies factors;
+// user_metadata and request bodies cannot choose whether MFA is required.
+function hasCompletedMfa(user, verifiedAccessToken) {
+  if (!user?.id) return false;
+  if (!user.factors?.some(factor => factor.status === 'verified')) return true;
+  try {
+    const part = verifiedAccessToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const claims = JSON.parse(atob(part.padEnd(Math.ceil(part.length / 4) * 4, '=')));
+    return claims.sub === user.id && claims.aal === 'aal2';
+  } catch { return false; }
+}
+// END GENERATED MFA GUARD
