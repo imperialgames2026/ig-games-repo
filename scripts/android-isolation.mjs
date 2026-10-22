@@ -5,7 +5,7 @@ import { promisify } from 'node:util';
 import { setTimeout as pause } from 'node:timers/promises';
 
 const exec = promisify(execFile);
-export const TEST_PACKAGE = 'com.imperialgaming.practice.dev';
+export const TEST_PACKAGE = 'llc.imperialgaming.games';
 export const CHAIN = 'IG_APK_ISOLATION';
 
 export function validateIsolationTarget({ ci, serial, emulator, rootUid, appUid, packageId }) {
@@ -13,7 +13,7 @@ export function validateIsolationTarget({ ci, serial, emulator, rootUid, appUid,
   assert.match(serial, /^emulator-\d+$/, 'Refusing a physical device.');
   assert.equal(emulator, '1', 'An Android emulator is required.');
   assert.equal(rootUid, '0', 'A rootable google_apis emulator is required.');
-  assert.equal(packageId, TEST_PACKAGE, 'Only the provisional practice app is allowed.');
+  assert.equal(packageId, TEST_PACKAGE, 'Only the configured Imperial Games practice app is allowed.');
   assert.ok(Number.isInteger(appUid) && appUid >= 10000 && appUid < 20000, 'Unexpected emulator app UID.');
 }
 

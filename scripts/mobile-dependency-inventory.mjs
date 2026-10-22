@@ -42,18 +42,36 @@ export function inventory(audit, lock, source) {
   };
 }
 
+export function auditProcessEvidence(run, elapsedMs) {
+  // Do not persist raw stderr/error messages: npm may include configured URLs.
+  const token = value => typeof value === 'string' && /^[A-Z0-9_]{1,40}$/.test(value) ? value : null;
+  return { exit_status: Number.isInteger(run.status) ? run.status : null,
+    signal: token(run.signal), error_code: token(run.error?.code),
+    process_error: Boolean(run.error), elapsed_ms: Math.round(elapsedMs),
+    timeout_ms: 120000, stdout_bytes: Buffer.byteLength(run.stdout ?? ''),
+    stderr_bytes: Buffer.byteLength(run.stderr ?? ''), security_release_approved: false };
+}
+
+export function parseAuditRun(run) {
+  if (run.error || ![0, 1].includes(run.status)) {
+    const evidence = auditProcessEvidence(run, 0);
+    throw new Error(`npm audit could not complete (status=${evidence.exit_status}, signal=${evidence.signal}, error=${evidence.error_code}); no clean audit is claimed.`);
+  }
+  try { return JSON.parse(run.stdout); } catch { throw new Error('npm audit returned invalid JSON.'); }
+}
+
 export function collect(outputDirectory) {
   const out = resolve(outputDirectory);
   mkdirSync(out, { recursive: true });
   const source = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
   const lockText = readFileSync('package-lock.json', 'utf8');
+  const started = performance.now();
   const run = spawnSync('npm', ['audit', '--json', '--package-lock-only'], {
     encoding: 'utf8', timeout: 120000, maxBuffer: 16 * 1024 * 1024,
   });
   writeFileSync(resolve(out, 'npm-audit.json'), run.stdout ?? '');
-  if (run.error || ![0, 1].includes(run.status)) throw new Error('npm audit could not complete; no clean audit is claimed.');
-  let audit;
-  try { audit = JSON.parse(run.stdout); } catch { throw new Error('npm audit returned invalid JSON.'); }
+  writeFileSync(resolve(out, 'npm-audit-process.json'), JSON.stringify(auditProcessEvidence(run, performance.now() - started), null, 2) + '\n');
+  const audit = parseAuditRun(run);
   const report = inventory(audit, JSON.parse(lockText), source);
   report.package_lock_sha256 = createHash('sha256').update(lockText).digest('hex');
   report.collected_at = new Date().toISOString();
