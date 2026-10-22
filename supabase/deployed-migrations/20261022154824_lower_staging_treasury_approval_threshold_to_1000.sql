@@ -1,0 +1,1 @@
+alter table public.crypto_treasury_control_policy drop constraint crypto_treasury_control_policy_approval_threshold_usd_check; alter table public.crypto_treasury_control_policy add constraint crypto_treasury_control_policy_approval_threshold_usd_check check (approval_threshold_usd > 0);

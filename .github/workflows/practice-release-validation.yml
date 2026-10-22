@@ -9,7 +9,10 @@ jobs:
   validate:
     # Keep the runner compatible with the locked Playwright version.
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 35
+    env:
+      SUPABASE_TELEMETRY_DISABLED: '1'
+      DO_NOT_TRACK: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -18,13 +21,14 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: npm test
+      - run: python3 -m unittest discover -s services/kyc-worker -p test_worker.py
       - uses: supabase/setup-cli@v1
         with:
           version: 2.121.0
       - name: Assemble checksum-verified backend
         run: node scripts/prepare-reviewed-backend.mjs "$RUNNER_TEMP/ig-reviewed" --local-dev
       - name: Start isolated backend and replay reviewed migrations
-        run: supabase start --workdir "$RUNNER_TEMP/ig-reviewed" --exclude studio,imgproxy,logflare,vector,postgres-meta,storage-api,realtime
+        run: supabase start --workdir "$RUNNER_TEMP/ig-reviewed" --exclude studio,imgproxy,logflare,vector,postgres-meta,realtime
       - name: Run transactional database tests
         run: npm run test:database
       - name: Save local test connection
