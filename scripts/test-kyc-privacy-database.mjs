@@ -22,7 +22,7 @@ try{
  `;
  const migration=readFileSync(new URL('../supabase/migrations/20261022153018_secure_kyc_intake_review.sql',import.meta.url),'utf8');
  const regression=readFileSync(new URL('../tests/kyc-privacy-retention.sql',import.meta.url),'utf8');
- docker(['exec','-i',name,'psql','-h','127.0.0.1','-U','postgres','-v','ON_ERROR_STOP=1'],{input:bootstrap+mutationGuard(migration)+regression});
+ docker(['exec','-i',name,'psql','-h','127.0.0.1','-U','postgres','-v','ON_ERROR_STOP=1'],{input:bootstrap+mutationGuard(migration)+readFileSync(new URL('../supabase/migrations/20261022210709_kyc_profile_lifecycle.sql',import.meta.url),'utf8')+regression+readFileSync(new URL('../tests/kyc-profile-lifecycle.sql',import.meta.url),'utf8')});
  console.log('PASS isolated Postgres: cancellation, grant fencing, late keys, repeated batch cleanup, role exclusion, no client RPC access');
 }finally{try{docker(['rm','--force',name]);}catch{}}
 function mutationGuard(sql){

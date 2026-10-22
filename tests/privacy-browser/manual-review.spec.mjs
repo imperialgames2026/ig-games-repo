@@ -3,7 +3,7 @@ const actor='11111111-1111-4111-8111-111111111111';
 async function setup(page,role='player'){
  const user={id:actor,email:'synthetic@example.invalid',aud:'authenticated',role:'authenticated',is_anonymous:false,app_metadata:{provider:'email'},user_metadata:{}};
  const profile={id:actor,email:user.email,full_name:'Synthetic Fixture',is_excluded:false,kyc_status:'pending_review'};
- const calls=[],state={profile,calls,status:'submitted'};
+ const calls=[],state={profile,calls,status:'submitted',oldQueue:false};
  const exp=Math.floor(Date.now()/1000)+3600,payload=Buffer.from(JSON.stringify({sub:actor,role:'authenticated',exp})).toString('base64url');
  await page.addInitScript(value=>localStorage.setItem('sb-qonqemhljgxlwpghkxhn-auth-token',JSON.stringify(value)),{user,access_token:`e30.${payload}.fixture`,refresh_token:'fixture',token_type:'bearer',expires_at:exp,expires_in:3600});
  await page.route('**/*',async route=>{
@@ -21,6 +21,7 @@ async function setup(page,role='player'){
    const row={id:actor,user_id:actor,country:'US',created_at:'2026-10-22T12:00:00Z',expires_at:'2026-11-22T12:00:00Z',document_type:'passport',status:state.status};
    if(b.action==='mine')return reply({result:[row]});
    if(b.action==='cancel'){state.status='cancelled';return reply({result:{}});}
+   if(b.action==='queue'&&state.oldQueue){if(b.status!==undefined)return reply({error:'Invalid or incomplete identity request'},400);return reply({result:[row]});}
    if(b.action==='queue')return reply({result:{rows:[{...row,user_id:b.cursor?'22222222-2222-4222-8222-222222222222':actor,status:b.status==='approved'?'approved':'submitted'}],next_cursor:b.cursor||b.status==='approved'?null:{created_at:row.created_at,id:row.id}}});
    throw Error('Forbidden or unexpected action '+b.action);
   }
@@ -45,4 +46,12 @@ test('reviewer can paginate and filter without requesting evidence or comparison
  await page.getByLabel('Submission status').selectOption('approved');await expect(page.getByRole('button',{name:'Previous page',exact:true})).toBeDisabled();
  await expect.poll(()=>state.calls.filter(x=>x.action==='queue').at(-1)).toEqual({action:'queue',status:'approved',limit:25});
  expect(state.calls.every(x=>x.action==='queue')).toBe(true);
+});
+
+test('new reviewer UI reports the old API limit instead of crashing or hiding truncation',async({page})=>{
+ const state=await setup(page,'admin');state.oldQueue=true;await page.goto('/AdminKYC');
+ await expect(page.getByRole('button',{name:/11111111 · US/})).toBeVisible();
+ await expect(page.getByText(/Only the most recent 100 submissions/)).toBeVisible();
+ await expect(page.getByRole('button',{name:'Next page',exact:true})).toBeDisabled();
+ expect(state.calls.filter(x=>x.action==='queue').slice(0,2)).toEqual([{action:'queue',status:'pending',limit:25},{action:'queue'}]);
 });

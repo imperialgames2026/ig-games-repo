@@ -74,7 +74,7 @@ Deno.serve(async request=>{
   if(input.action==='worker_purged'){
    return reply(200,{result:await purgeExpired(rpc,db,BUCKET,input.id)});
   }
-  if(input.action==='queue')return reply(200,{result:await reviewQueue(rpc,db,input)});
+  if(input.action==='queue'&&(input.status!==undefined||input.limit!==undefined||input.cursor!==undefined))return reply(200,{result:await reviewQueue(rpc,db,input)});
   const result=await rpc(input.action);
   if(input.action==='detail'){
    // Storage paths and lease credentials never appear in the browser response.

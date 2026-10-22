@@ -96,3 +96,24 @@ entropy with an appended EOI. The final follow-up uses jpeg-js with tolerant
 decoding disabled and adds the reproduced truncation regression. Earlier green
 CI therefore does not certify the final codec change; exact-head CI is linked in
 the draft PR.
+
+## Follow-up review corrections (pending deployment)
+
+The original refresh test proved client refresh only. The follow-up adds the
+CLI-generated `20261022210709_kyc_profile_lifecycle.sql` (105th proposed packaged
+migration) and a real PostgreSQL lifecycle regression. Drafts do not change the
+profile. Submission sets `pending_review`; cancelling/expiring unresolved work
+restores an independently recorded previous `verified`/`rejected` decision, or
+`not_started` when none remains. A cancelled draft cannot erase approval. This
+uses existing canonical `kyc_verifications` decisions; it never infers approval
+from images or creates a verification decision. Reviewer outcomes retain the
+existing RPC mapping. The trigger is service-only/security-invoker. Existing
+pending submissions are backfilled; no hosted migration was run.
+
+Queue rollout no longer requires atomic API/UI replacement. Calls without page
+fields preserve the legacy array response. The new UI retries an old API's 400
+response using the legacy request and prominently reports the 100-row limitation;
+filters apply only to that bounded legacy set and pagination stays disabled.
+Authorization failures never trigger the fallback. This supersedes the earlier
+coordinated-rollout gate. Both mixed-version client behavior and database
+lifecycle now have dedicated synthetic regressions.

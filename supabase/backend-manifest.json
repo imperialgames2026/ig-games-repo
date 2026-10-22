@@ -346,7 +346,7 @@
       ],
       "status": "pending_deployment",
       "sha256": {
-        "index.ts": "1b6ecad4f5765e0ad586a7ce4b64770ea9f7406e3a54e0f366eb4789ec0d34c2",
+        "index.ts": "80b5f38d534cf7784da43e33d335edb9e07af4b8203a59a18a304977da5631d5",
         "validation.js": "e830ed987d63509a331d54ac75201011638dbdc9df095c603a6b9e7552f52ad9",
         "privacy.js": "965c14650e2c83dd09c515281b8ce8ea05f276477c447368304a59515548be41",
         "image-file.js": "d2129172de2642cf184ea2e7591b90d297d9da61dfd4d23fa09205c8796e702c"
@@ -770,6 +770,11 @@
     {
       "file": "20261022154824_lower_staging_treasury_approval_threshold_to_1000.sql",
       "sha256": "a39bb4958adb8fc7ec9278daf1388174552c7321280193660edd05f19457891e"
+    },
+    {
+      "file": "20261022210709_kyc_profile_lifecycle.sql",
+      "sha256": "92a8ee01467e39ef465745007470f2f2ef4a563ee6aec35654ddb6e249b4b33c",
+      "status": "pending_deployment"
     }
   ]
 }

@@ -87,3 +87,12 @@ test('JPEG entropy truncation is rejected even when a valid end marker is append
   await assert.rejects(validateImageFile(b,decode));
  }
 });
+test('mixed queue versions preserve legacy arrays and fail closed on authorization errors',async()=>{
+ const {loadReviewQueue}=await import('../lib/kycQueue.js');const calls=[];
+ const old={async action(action,payload){calls.push(payload);if(payload)throw Object.assign(Error('old fields'),{status:400});return [{status:'submitted'},{status:'approved'}];}};
+ assert.deepEqual(await loadReviewQueue(old,{status:'pending',limit:25}),{rows:[{status:'submitted'}],next_cursor:null,limited:true});
+ assert.equal(calls.length,2);
+ const modern={async action(){return {rows:[],next_cursor:null};}};
+ assert.deepEqual(await loadReviewQueue(modern,{}),{rows:[],next_cursor:null,limited:false});
+ let deniedCalls=0;await assert.rejects(loadReviewQueue({async action(){deniedCalls++;throw Object.assign(Error('denied'),{status:403});}},{}));assert.equal(deniedCalls,1);
+});
