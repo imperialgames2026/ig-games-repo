@@ -37,7 +37,9 @@ test('real signup confirmation establishes a session and the consumed link canno
     expect(before.error).toBeNull();
     expect(before.data.user.email_confirmed_at).toBeFalsy();
     await page.goto(fixture.action, { waitUntil: 'domcontentloaded' });
-    await expect(page).toHaveURL(appOrigin + '/');
+    // The SDK can leave a bare trailing # after clearing the auth fragment.
+    // Require the exact origin/root and no remaining query or fragment data.
+    await expect(page).toHaveURL(url => url.origin === appOrigin && url.pathname === '/' && url.search === '' && url.hash === '');
     await page.goto('/Profile');
     await expect(page.getByRole('heading', { name: /profile/i }).first()).toBeVisible();
     const confirmed = await admin.auth.admin.getUserById(fixture.id);
