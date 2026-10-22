@@ -55,6 +55,8 @@ jobs:
         run: npm test
       - name: Compile web assets (not a hosted authentication test)
         run: npm run build
+      - name: Verify responsive Tailwind utilities were bundled
+        run: node scripts/verify-tailwind-bundle.mjs
   debug-apk:
     needs: web-regression
     if: github.repository == 'imperialgames2026/ig-games-repo' && ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'feature/android-capacitor-practice-shell') || (github.event_name == 'workflow_dispatch' && github.ref_name == 'feature/android-capacitor-practice-shell'))
