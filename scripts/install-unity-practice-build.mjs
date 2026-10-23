@@ -6,7 +6,7 @@ if (!source)
   throw new Error(
     "Usage: node scripts/install-unity-practice-build.mjs /path/to/Build/WebGL",
   );
-const target = resolve("public/unity/practice/v1");
+const target = resolve("public/unity/practice/v2");
 await mkdir(join(target, "Build"), { recursive: true });
 const manifest = { version: 1, mode: "practice", sha256: {} };
 for (const [key, suffix] of [
@@ -24,7 +24,7 @@ for (const [key, suffix] of [
   if (suffix === "wasm" && bytes.subarray(0, 4).toString("hex") !== "0061736d")
     throw new Error("Not a WebAssembly binary");
   await copyFile(from, join(target, "Build", name));
-  manifest[key] = "/unity/practice/v1/Build/" + name;
+  manifest[key] = "/unity/practice/v2/Build/" + name;
   manifest.sha256[name] = createHash("sha256").update(bytes).digest("hex");
 }
 await writeFile(

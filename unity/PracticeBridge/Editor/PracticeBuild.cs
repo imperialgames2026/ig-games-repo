@@ -28,7 +28,7 @@ public static class PracticeBuild {
   PlayerSettings.WebGL.dataCaching=true;
   PlayerSettings.WebGL.initialMemorySize=128;
   PlayerSettings.WebGL.maximumMemorySize=512;
-  PlayerSettings.runInBackground=false;PlayerSettings.colorSpace=ColorSpace.Linear;
+  PlayerSettings.runInBackground=true;PlayerSettings.colorSpace=ColorSpace.Linear;
   PlayerSettings.SetApiCompatibilityLevel(NamedBuildTarget.WebGL,ApiCompatibilityLevel.NET_Standard);
   var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=new[]{"Assets/Practice.unity"},locationPathName="Build/WebGL",target=BuildTarget.WebGL,options=BuildOptions.None});
   if(report.summary.result!=BuildResult.Succeeded)throw new System.Exception("Practice build failed: "+report.summary.result);

@@ -6,9 +6,10 @@ This candidate adds `/TableLab` to the existing authenticated React/Capacitor ap
 
 - Actual Unity 6000.3.6f1 Web build: roulette and craps scene, original cloth textures, 37 single-zero pockets, wheel, ball, rounded dice with opposite faces summing to seven, rails and chip stacks.
 - React loader with progress, retry, failure handling, same-origin versioned asset validation and an isolated frame per Unity session. Frame messages check origin and source; page exit requests Unity Quit and discards the runtime context. Lightweight Three.js renderer is available as a fallback.
-- React touch betting controls, camera modes, reduced motion, optional original synthesized sounds, local practice chips and recent results.
-- Immutable practice outcomes generated outside either renderer. Unity cannot read or change balances. Animation completion is presentation telemetry, not settlement authority.
-- Roulette straight-number and red/black/even/odd practice bets. Craps pass line, including stake reservation through a point. Other cloth markings are decorative.
+- Full-size interactive felt with a wager input, amount-labelled chips on tapped fields, unlimited repeated placements within the available practice balance, Clear and Back / Undo. Camera modes, zoom, reduced motion, optional synthesized sounds and recent results.
+- Immutable practice outcomes generated outside either renderer. Unity cannot read or change balances. Animation completion gates the next round; it never supplies the outcome or payout. A guarded timeout prevents a renderer failure from trapping the practice session.
+- Roulette straight numbers including green 0, plus red/black/even/odd. Bets remain after each round and reserve the next stake; optional automatic rounds repeat until stopped or underfunded. Craps pass line stays reserved through a point. Clear during action queues removal until the hand ends; Undo is locked during a pass-line contract. Pass-line win conditions and 1:1 payout are printed on both sides of the felt. Other cloth markings are decorative.
+- Unity keeps rendering while React controls have focus; explicit document visibility handling pauses hidden pages.
 - A 30 FPS target and capped rendering resolution, visibility handling and WebGL resource cleanup. These are budgets, not proof of physical device performance.
 
 ## Rebuild Unity
@@ -25,7 +26,7 @@ Cloth artwork is reproducible with `python scripts/generate-practice-cloths.py` 
 
 ## Host and test
 
-Serve the Vite dist directory over HTTPS. Keep the generated runtime assets under `/unity/practice/v1/`; wasm must be served as `application/wasm`. This build deliberately uses uncompressed asset filenames to avoid requiring custom Content-Encoding rules. The host may supply ordinary HTTP transport compression. Rebuild with a new version path before releasing changed immutable assets.
+Serve the Vite dist directory over HTTPS. Keep the generated runtime assets under `/unity/practice/v2/`; wasm must be served as `application/wasm`. This build deliberately uses uncompressed asset filenames to avoid requiring custom Content-Encoding rules. The host may supply ordinary HTTP transport compression. Rebuild with a new version path before releasing changed immutable assets.
 
 ```
 node --test tests/tableLab.test.mjs

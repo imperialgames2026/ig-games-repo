@@ -9,7 +9,7 @@ export function validateUnityManifest(manifest, origin) {
     const url = new URL(manifest[key], origin);
     if (
       url.origin !== origin ||
-      !url.pathname.startsWith("/unity/practice/v1/") ||
+      !url.pathname.startsWith("/unity/practice/v2/") ||
       url.search ||
       url.hash
     )
@@ -39,7 +39,7 @@ export async function loadUnity(
   };
   signal?.addEventListener("abort", cancel, { once: true });
   try {
-    const response = await fetch("/unity/practice/v1/manifest.json", {
+    const response = await fetch("/unity/practice/v2/manifest.json", {
       signal,
       cache: "no-cache",
     });

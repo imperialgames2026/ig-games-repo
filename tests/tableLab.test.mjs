@@ -109,10 +109,10 @@ test("Unity manifest rejects executable assets outside the versioned same-origin
   const manifest = {
     version: 1,
     mode: "practice",
-    loaderUrl: "/unity/practice/v1/Build/WebGL.loader.js",
-    dataUrl: "/unity/practice/v1/Build/WebGL.data",
-    codeUrl: "/unity/practice/v1/Build/WebGL.wasm",
-    frameworkUrl: "/unity/practice/v1/Build/WebGL.framework.js",
+    loaderUrl: "/unity/practice/v2/Build/WebGL.loader.js",
+    dataUrl: "/unity/practice/v2/Build/WebGL.data",
+    codeUrl: "/unity/practice/v2/Build/WebGL.wasm",
+    frameworkUrl: "/unity/practice/v2/Build/WebGL.framework.js",
   };
   assert.equal(
     validateUnityManifest(manifest, "https://imperialgaming.llc")
@@ -121,7 +121,7 @@ test("Unity manifest rejects executable assets outside the versioned same-origin
   );
   for (const loaderUrl of [
     "https://evil.example/loader.js",
-    "/unity/practice/v1/../../bad.js",
+    "/unity/practice/v2/../../bad.js",
     "javascript:alert(1)",
     "/other.js",
   ])
@@ -131,4 +131,30 @@ test("Unity manifest rejects executable assets outside the versioned same-origin
         "https://imperialgaming.llc",
       ),
     );
+});
+import {tableReducer,initialTableState} from '../components/practice/practice-rules.mjs';
+import {betFromPixel,betPixel,validBet} from '../components/practice/bet-layout.mjs';
+test('unlimited repeated placements aggregate; undo refunds only last placement',()=>{
+ let s=initialTableState;for(let i=0;i<300;i++)s=tableReducer(s,{type:'place',selection:'red',amount:1});
+ assert.equal(s.bets.red,300);assert.equal(s.chips,700);assert.equal(s.undo.length,300);
+ s=tableReducer(s,{type:'place',selection:'0',amount:125});assert.equal(s.chips,575);
+ s=tableReducer(s,{type:'undo'});assert.equal(s.bets['0'],undefined);assert.equal(s.chips,700);
+ s=tableReducer(s,{type:'settle',outcome:result('roulette',[2])});assert.equal(s.bets.red,300);assert.equal(s.chips,400);
+ s=tableReducer(s,{type:'clear'});assert.equal(s.chips,700);assert.deepEqual(s.bets,{});
+});
+test('multiple winning bets settle independently and reserve next round',()=>{
+ let s=tableReducer(initialTableState,{type:'place',selection:'red',amount:100});s=tableReducer(s,{type:'place',selection:'1',amount:25});
+ s=tableReducer(s,{type:'settle',outcome:result('roulette',[1])});assert.equal(s.chips,1850);assert.deepEqual(s.bets,{red:100,1:25});
+});
+test('unaffordable repeat keeps placements without spending balance below zero',()=>{
+ let s=tableReducer(initialTableState,{type:'place',selection:'red',amount:600});s=tableReducer(s,{type:'settle',outcome:result('roulette',[2])});assert.equal(s.chips,400);assert.equal(s.funded,false);assert.equal(s.bets.red,600);
+ s=tableReducer(s,{type:'clear'});assert.equal(s.chips,400);
+});
+test('craps pass contract stays reserved across point rolls and repeats after resolution',()=>{
+ let s=tableReducer({...initialTableState,game:'craps'},{type:'place',selection:'pass',amount:100});s=tableReducer(s,{type:'settle',outcome:result('craps',[3,3])});assert.equal(s.point,6);assert.equal(s.chips,900);assert.equal(tableReducer(s,{type:'clear'}),s);
+ s=tableReducer(s,{type:'settle',outcome:result('craps',[4,4])});assert.equal(s.chips,900);s=tableReducer(s,{type:'settle',outcome:result('craps',[2,4])});assert.equal(s.point,0);assert.equal(s.chips,1000);assert.equal(s.bets.pass,100);
+});
+test('felt hit positions match every offered selection including green zero',()=>{
+ for(const game of ['roulette','craps'])for(const selection of game==='craps'?['pass']:[...Array.from({length:37},(_,n)=>String(n)),'red','black','even','odd']){const p=betPixel(game,selection);assert.equal(betFromPixel(game,p.x,p.y),selection);}
+ assert.equal(validBet({version:1,game:'roulette',locked:false,placements:[{selection:'red',amount:123}]}),true);
 });
