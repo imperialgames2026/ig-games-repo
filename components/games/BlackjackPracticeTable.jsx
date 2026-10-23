@@ -2,6 +2,7 @@ import React,{useEffect,useState} from 'react';
 import { Link } from 'react-router-dom';
 import { useBlackjackPractice } from '@/hooks/useBlackjackPractice';
 import { ShieldCheck, Crown, Users } from 'lucide-react';
+import GameTableScene3D from '@/components/games/3d/GameTableScene3D';
 
 const values=[1,5,10,25,100];
 function Card({value,back=false}) {
@@ -44,6 +45,7 @@ export default function BlackjackPracticeTable() {
     <ShieldCheck className="h-5 w-5 shrink-0 text-sky-300"/>
     <span>Six-deck Blackjack with server-owned cards and player turns. Practice chips have no monetary value, cannot be bought or withdrawn, and are isolated from cryptocurrency and financial wallets.</span>
    </p>
+   <GameTableScene3D key={'blackjack-3d-'+(state?.round||0)+'-'+dealerCards.join('-')} game="blackjack" cards={dealerCards.map(String)} seats={players} chipCount={state?.chips||0} outcome={last} label="3D blackjack table with cards, seats, and chip stacks" />
    {state&&<div role="status" className={'flex items-center justify-between rounded-xl border p-4 '+(canBet?'border-green-400/40 bg-green-950/30':'border-amber-300/30 bg-amber-950/20')}>
     <span className="text-sm font-black uppercase tracking-wide">Round {state.round} · {state.phase==='betting'?canBet?'Betting open':'Betting closed':state.phase==='playing'?'Player turns':'Dealer showdown'}</span>
     <span className="font-mono text-2xl font-black text-amber-200">{state.phase==='betting'?canBet?seconds+'s':'LOCKED':state.phase==='playing'?turnSeconds+'s TO ACT':'SETTLE'}</span>
