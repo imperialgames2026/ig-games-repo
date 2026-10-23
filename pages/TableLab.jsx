@@ -5,6 +5,7 @@ import { createOutcome } from '../components/practice/outcomes.mjs';
 import { settlePractice, tableReducer, initialTableState } from '../components/practice/practice-rules.mjs';
 import { ACTION_DURATION_MS, betName, validAmount, validSelection } from '../components/practice/bet-layout.mjs';
 import { PracticeAudio } from '../components/practice/practice-audio.mjs';
+import { createVisibleRounds } from '../components/practice/visible-rounds.mjs';
 import '../components/practice/table-lab.css';
 export default function TableLab() {
   const [table, dispatch] = useReducer(tableReducer, initialTableState),
@@ -29,14 +30,12 @@ export default function TableLab() {
     [auto, setAuto] = useState(false);
   const audio = useRef(null),
     lock = useRef(false),
-    timer = useRef(null),
+    rounds = useRef(null),
     scene = useRef(null),
     settled = useRef(new Set()),
     latest = useRef(null),
-    autoTimer = useRef(null),
     playRef = useRef(null),
-    clearQueued = useRef(false),
-    pendingPresentation = useRef(null);
+    clearQueued = useRef(false);
   latest.current = {
     table,
     amount
@@ -45,11 +44,7 @@ export default function TableLab() {
     unityReady = unityStatus === 'Unity ready';
   const onStatus = useCallback(s => setUnityStatus(s), []);
   const onComplete = useCallback(id => {
-    if (pendingPresentation.current?.id === id) {
-      clearTimeout(timer.current);
-      pendingPresentation.current.finish();
-      pendingPresentation.current = null;
-    }
+    rounds.current?.complete(id);
   }, []);
   const onTableBet = useCallback(selection => {
     const {
@@ -57,7 +52,7 @@ export default function TableLab() {
         amount: a
       } = latest.current,
       n = Number(a);
-    if (lock.current || t.point) return;
+    if (!rounds.current?.canPlay() || lock.current || t.point) return;
     if (!validSelection(t.game, selection)) return;
     if (!validAmount(n)) {
       setMessage('Enter a whole-chip wager from 1 or more.');
@@ -82,11 +77,13 @@ export default function TableLab() {
     audio.current?.tone(1200, 0, .08, .035, 'triangle');
   }, []);
   useEffect(() => {
+    rounds.current = createVisibleRounds({hidden: () => document.hidden});
     audio.current = new PracticeAudio();
     const media = matchMedia('(prefers-reduced-motion: reduce)');
     setReduced(media.matches);
     const update = () => setReduced(media.matches),
       hidden = () => {
+        rounds.current?.visibilityChanged();
         if (document.hidden) audio.current?.stop();
       };
     media.addEventListener('change', update);
@@ -94,8 +91,7 @@ export default function TableLab() {
     return () => {
       media.removeEventListener('change', update);
       document.removeEventListener('visibilitychange', hidden);
-      clearTimeout(timer.current);
-      clearTimeout(autoTimer.current);
+      rounds.current?.dispose();
       audio.current?.close();
     };
   }, []);
@@ -108,7 +104,7 @@ export default function TableLab() {
     }
   }
   function play() {
-    if (lock.current || !total || !table.funded || renderer === 'unity' && !unityReady) return;
+    if (!rounds.current?.canPlay() || lock.current || !total || !table.funded || renderer === 'unity' && !unityReady) return;
     scene.current?.scrollIntoView({
       behavior: 'instant',
       block: 'center'
@@ -153,17 +149,13 @@ export default function TableLab() {
       lock.current = false;
       setBusy(false);
     };
-    pendingPresentation.current = {
-      id: next.roundId,
-      finish
-    };
-    timer.current = setTimeout(finish, renderer === 'unity' && !reduced ? 30000 : reduced ? 100 : ACTION_DURATION_MS);
+    rounds.current.start(next.roundId, renderer === 'unity' && !reduced ? 30000 : reduced ? 100 : ACTION_DURATION_MS, finish);
   }
   playRef.current = play;
   useEffect(() => {
-    clearTimeout(autoTimer.current);
-    if (auto && !busy && total && table.funded && (renderer !== 'unity' || unityReady)) autoTimer.current = setTimeout(() => playRef.current(), 1400);
-    return () => clearTimeout(autoTimer.current);
+    const eligible = auto && !busy && total && table.funded && (renderer !== 'unity' || unityReady);
+    rounds.current?.scheduleAuto(eligible ? () => playRef.current() : null);
+    return () => rounds.current?.scheduleAuto(null);
   }, [auto, busy, total, table.funded, renderer, unityReady]);
   const payload = {
     version: 1,
