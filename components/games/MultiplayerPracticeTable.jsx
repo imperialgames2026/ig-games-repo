@@ -430,7 +430,7 @@ export default function MultiplayerPracticeTable({ game }) {
         <div className="ig-cockpit-notice"><PracticeNotice /></div>
         {table && <div className="ig-cockpit-status-group"><div role="status" aria-live="polite" className={"ig-cockpit-status flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-4 " +
           (bettingOpen ? 'border-green-400/40 bg-green-950/35' : 'border-amber-400/40 bg-amber-950/25')}>
-          <div><p className="font-black uppercase tracking-wider">{bettingOpen ? 'Bets open — place your chips' : 'No more bets — shooter turn'}</p>
+          <div><p className="font-black uppercase tracking-wider">{bettingOpen ? 'Bets open — place your chips' : game==='craps' ? 'No more bets — shooter turn' : 'No more bets — wheel spin'}</p>
             <p className="ig-round-subtitle mt-1 text-sm text-gray-300">Shared round {table.round} · All players see the same lock time.</p>
           </div>
           <p className="ig-round-clock font-mono text-3xl font-black tabular-nums text-amber-200" aria-label={bettingOpen ? secondsLeft + ' seconds remaining' : 'Betting closed'}>

@@ -288,3 +288,24 @@ body:has(.ig-roulette-board-wrap) { touch-action:pan-x pan-y pinch-zoom; }
   .ig-poker-table-area { min-height:280px; }
   .ig-poker-hole-center { position:static; transform:none; }
 }
+
+/* Multiplayer controls can exceed a phone viewport. Preserve the felt's natural
+   height and let the document scroll instead of shrinking the table to zero. */
+@media (max-width:1024px), (max-height:820px) {
+  .ig-mp-screen { height:auto; min-height:calc(100dvh - 64px) !important; overflow:visible; }
+  .ig-mp-screen .ig-cockpit-shell { height:auto; display:flex; flex-direction:column; }
+  .ig-mp-screen .ig-cockpit-grid { height:auto; overflow:visible; align-items:start; }
+  .ig-mp-screen .ig-cockpit-main { height:auto; overflow:visible; }
+  .ig-mp-screen .ig-cockpit-main > .ig-table-stage { flex:none; min-height:420px; overflow:visible; }
+  .ig-mp-screen .ig-roulette-stage { height:auto; }
+  .ig-mp-screen .ig-roulette-stage > div { height:auto; min-height:400px; }
+  .ig-mp-screen .ig-roulette-board-wrap { flex:none; min-height:240px; overflow-x:auto; padding-bottom:8px; }
+  .ig-mp-screen .ig-roulette-board { min-width:660px; }
+  .ig-mp-screen .ig-roulette-number-grid button { min-height:44px; }
+  .ig-mp-screen .ig-craps-table { height:auto; min-height:410px !important; }
+}
+@media (max-width:640px) and (orientation:portrait) {
+  .ig-mp-screen .ig-cockpit-grid { grid-template-columns:minmax(0,1fr) !important; grid-template-rows:auto auto; }
+  .ig-mp-screen .ig-cockpit-rail { max-height:none; overflow:visible; display:flex; }
+  .ig-mp-screen .ig-cockpit-status { font-size:.75rem; }
+}

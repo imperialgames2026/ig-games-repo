@@ -16,6 +16,7 @@ export default defineConfig(({mode})=>{
  }};
  return {
   logLevel: 'error',
+  build: {rollupOptions:{input:{index:fileURLToPath(new URL('./index.html',import.meta.url)),practice:fileURLToPath(new URL('./practice-lab.html',import.meta.url)),unity:fileURLToPath(new URL('./unity-practice-frame.html',import.meta.url))}}},
   plugins: [react(),release],
   resolve: {
     alias: {
