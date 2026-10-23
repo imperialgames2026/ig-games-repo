@@ -77,8 +77,11 @@ incompatible server or safely substitute the old cleanup contract.
 
 Each cycle emits one JSON journal record with status, a bounded failure code,
 selected/deleted/failed counts, `batch_full`, `due_count_lower_bound` and elapsed
-seconds. Configuration/queue failures are nonzero exits with no IDs, credentials,
-provider error text or evidence. Per-item failures continue through the remaining
+seconds. Configuration failure exits nonzero and emits only event/status/failure.
+An unexpected cycle failure adds duration but may omit batch counts. In `--once`
+mode any cycle failure exits nonzero; loop mode logs the failure and retries after
+60 seconds instead of exiting. Records never contain IDs, credentials, provider
+error text or evidence. Per-item failures continue through the remaining
 batch. A full batch means **at least ten were due when fetched**, not an exact
 backlog estimate. A successful empty batch is not proof that future late uploads
 cannot reappear. `deleted` counts acknowledged sweeps, including repeat sweeps.

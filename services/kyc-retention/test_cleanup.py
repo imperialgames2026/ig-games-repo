@@ -114,4 +114,13 @@ class Tests(unittest.TestCase):
             cycle.assert_called_once()
             sleep.assert_called_once_with(60)
 
+    def test_loop_logs_failure_then_retries_and_recovers(self):
+        failure = cleanup.RetentionFailure({'event': 'retention_cycle', 'status': 'failed', 'failure': 'queue_unavailable'})
+        success = {'event': 'retention_cycle', 'status': 'complete', 'deleted': 0}
+        with patch.object(sys, 'argv', ['cleanup.py', '--config', 'synthetic']), patch.object(cleanup, 'read_config', return_value={}), patch.object(cleanup, 'cycle', side_effect=[failure, success]) as cycle, patch('builtins.print') as output, patch.object(cleanup.time, 'sleep', side_effect=[None, KeyboardInterrupt]) as sleep:
+            with self.assertRaises(KeyboardInterrupt): cleanup.main()
+            self.assertEqual(cycle.call_count, 2)
+            self.assertEqual([json.loads(c.args[0])['status'] for c in output.call_args_list], ['failed', 'complete'])
+            self.assertEqual([c.args for c in sleep.call_args_list], [(60,), (60,)])
+
 if __name__ == '__main__': unittest.main()
