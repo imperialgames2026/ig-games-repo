@@ -216,3 +216,30 @@ only the fixture database fence to exercise actual post-purge object deletion.
 That second case is not represented as an accepted post-expiry stream. The core
 job retains the genuine post-expiry streaming regression. Both paths must pass
 repeated reconciliation and preserve the first deletion audit/timestamp.
+
+## Pre-rollout operational readiness (2026-10-23)
+
+Fresh concurrency check retained main4676b56 and PR51head980ceb2; no competing
+retention changes were present. The standalone client now verifies an explicit
+`reconcile-v1` protocol marker and boolean deletion acknowledgement. An old or
+rolled-back API fails visibly before cleanup instead of silently claiming that
+indefinite reconciliation is healthy. The additive response retains legacy
+`result` shapes; migrations still precede Edge, then client/scheduler rollout.
+Frontend rollback is compatible; backend rollback must preserve the new retention
+routing. Keeping only the migration while reverting Edge is insufficient.
+
+Cycles now report aggregate selected/deleted/failed counts, batch saturation,
+due-count lower bound and elapsed time with bounded failure codes. No identifiers,
+provider exception messages, secrets or evidence are logged. A read-only health
+query reports exact due count/age for an authorized operator; isolated core and
+full-platform runs validate its fence/recheck semantics. Saturated failing batches
+can still starve later work; this is exposed and documented, not claimed fixed.
+
+Uninstalled systemd oneshot/timer templates provide an unprivileged, hardened
+client using an existing protected configuration via LoadCredential. Runs are
+completion-relative with a seven-minute process deadline. Static/offline parser
+checks use only temporary synthetic paths; no unit, live schedule or credential
+was created or activated. Host installation, monitoring destination/ownership,
+acceptable backlog/due-age thresholds, and capacity remain operator decisions.
+Python regressions cover rollback refusal, malformed queues, strict deletion
+acknowledgements, saturation, safe failure logs and non-overlapping retry behavior.

@@ -84,10 +84,10 @@ sql(`update public.ig_kyc_submissions set upload_valid_until=now()-interval '1 s
 const workerToken=randomBytes(32).toString('hex'),hash=createHash('sha256').update(workerToken).digest('hex');
 sql(`insert into public.ig_kyc_workers(token_hash,name,expires_at) values('${hash}','synthetic-retention-only',now()+interval '1 hour');`);
 async function worker(action){assert(['worker_purged','worker_expired'].includes(action));const r=await fetch(origin+'/functions/v1/ig-kyc-v1',{method:'POST',headers:{apikey:c.ANON_KEY,authorization:'Bearer '+c.ANON_KEY,'x-kyc-worker-token':workerToken,'content-type':'application/json'},body:JSON.stringify({action,...(action==='worker_purged'?{id:lateId}:{})}),signal:AbortSignal.timeout(10000)});return {status:r.status,data:await r.json()};}
-const purged=await worker('worker_purged');assert.equal(purged.status,200,'purge while upload is still streaming');
+const purged=await worker('worker_purged');assert.equal(purged.status,200,'purge while upload is still streaming');assert.equal(purged.data.retention_protocol,'reconcile-v1');
 req.end(png.subarray(32));const finished=await response;
 const lateObject=await service.storage.from('ig-kyc-evidence').download(grant.data.path);
-const batch=await worker('worker_expired');assert.equal(batch.status,200);
+const batch=await worker('worker_expired');assert.equal(batch.status,200);assert.equal(batch.data.retention_protocol,'reconcile-v1');
 console.log(JSON.stringify({late_stream_status:finished.status,reappeared_after_purge:!lateObject.error,still_queued:batch.data.result.some(x=>x.id===lateId),test_time_compression:'3-second token; completion after expiry and purge'}));
 if(fullSchema&&finished.status!==200){
  // Normal Kong buffers the body: Storage sees the shortened token after expiry.
@@ -119,3 +119,29 @@ for(let cycle=0;cycle<2;cycle++){
  assert.equal(sql(`select count(*) from public.ig_kyc_audit where submission_id='${lateId}' and action='evidence_deleted';`),'1');
 }
 console.log('PASS durable tombstone reconciliation removes the actual post-purge object; repeated sweeps preserve deletion timestamp and single audit event');
+
+// Same aggregate-only query supplied for an operator's authorized read-only
+// health check; this run uses only the disposable synthetic database.
+const healthSql=readFileSync(new URL('../services/kyc-retention/health.sql',import.meta.url),'utf8').trim().replace(/;$/,'');
+const health=()=>JSON.parse(sql(`select row_to_json(h) from (${healthSql}) h;`));
+assert.equal(health().due_count,0);
+sql(`update public.ig_kyc_submissions set evidence_recheck_at=now()-interval '1 second' where id='${lateId}';`);
+const due=health();assert.equal(due.due_count,1);assert.equal(due.first_deletion_due,0);assert.equal(due.recheck_due,1);assert(due.oldest_due_seconds>=0);
+assert.deepEqual(Object.keys(due).sort(),['due_count','first_deletion_due','oldest_due_seconds','recheck_due']);
+console.log('PASS aggregate backlog query matches reconciliation eligibility without evidence or identifiers');
+// Demonstrate why reverting Edge to the old RPC is not a safe backend rollback.
+assert.equal(sql(`select exists(select 1 from jsonb_array_elements(public.ig_kyc_action(null,'worker_expired',jsonb_build_object('token_hash','${hash}'))) x where x->>'id'='${lateId}');`),'f');
+assert((await worker('worker_expired')).data.result.some(x=>x.id===lateId));
+console.log('PASS rollback regression: old RPC omits purged tombstone; retained reconciliation RPC includes it');
+// Simulate function-before-migration deployment only in the disposable DB.
+sql('alter function public.ig_kyc_retention_action(uuid,text,jsonb) rename to ig_kyc_retention_action_fixture;');
+try{
+ const absent=await worker('worker_expired');assert.equal(absent.status,503);
+ assert.equal(absent.data.retention_protocol,undefined,'missing migration must not advertise a healthy retention response');
+}finally{
+ sql("alter function public.ig_kyc_retention_action_fixture(uuid,text,jsonb) rename to ig_kyc_retention_action; notify pgrst, 'reload schema';");
+}
+let restored=false;
+for(let i=0;i<20;i++){const r=await worker('worker_expired');if(r.status===200&&r.data.retention_protocol==='reconcile-v1'){restored=true;break;}await setTimeout(250);}
+assert(restored,'restored migration must recover the retention protocol');
+console.log('PASS migration-first gate fails visibly when RPC is absent and recovers after restoration');

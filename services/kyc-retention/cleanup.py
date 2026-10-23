@@ -4,12 +4,15 @@ import argparse
 import json
 import os
 import stat
+import uuid
 import time
 import urllib.request
 from pathlib import Path
 
 PROJECT = 'https://qonqemhljgxlwpghkxhn.supabase.co'
 ACTIONS = frozenset(('worker_expired', 'worker_purged'))
+PROTOCOL = 'reconcile-v1'
+BATCH_LIMIT = 10
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
@@ -44,18 +47,56 @@ def request_json(config, action, **payload):
         raise ValueError('Retention request failed')
     return result
 
+class RetentionFailure(RuntimeError):
+    def __init__(self, report):
+        super().__init__('Retention cycle incomplete')
+        self.report = report
+
+
 def cycle(config, request=request_json):
-    # One bounded server batch per cycle. One failing item must not starve others.
-    items = request(config, 'worker_expired')['result']
-    failed = False
+    # Counts describe this bounded due batch, never the total backlog.
+    report = {'event': 'retention_cycle', 'status': 'failed', 'failure': None,
+              'selected': 0, 'deleted': 0, 'failed': 0, 'batch_full': False,
+              'due_count_lower_bound': 0}
+    def fail(code):
+        report['failure'] = code
+        raise RetentionFailure(report)
+    try:
+        reply = request(config, 'worker_expired')
+    except Exception:
+        fail('queue_unavailable')
+    if not isinstance(reply, dict) or reply.get('retention_protocol') != PROTOCOL:
+        fail('incompatible_api')
+    items = reply.get('result')
+    if not isinstance(items, list) or len(items) > BATCH_LIMIT:
+        fail('invalid_queue')
+    ids = []
     for item in items:
         try:
-            request(config, 'worker_purged', id=item['id'])
+            value = item['id']
+            if not isinstance(value, str) or str(uuid.UUID(value)) != value:
+                raise ValueError('Invalid id')
+            ids.append(value)
+        except (TypeError, KeyError, ValueError, AttributeError):
+            fail('invalid_queue')
+    if len(set(ids)) != len(ids):
+        fail('invalid_queue')
+    report.update(selected=len(ids), due_count_lower_bound=len(ids),
+                  batch_full=len(ids) == BATCH_LIMIT)
+    for item_id in ids:
+        try:
+            result = request(config, 'worker_purged', id=item_id)
+            if (not isinstance(result, dict) or result.get('retention_protocol') != PROTOCOL
+                    or not isinstance(result.get('result'), dict)
+                    or result['result'].get('deleted') is not True):
+                raise ValueError('Deletion not acknowledged')
+            report['deleted'] += 1
         except Exception:
-            failed = True
-    if failed:
-        raise RuntimeError('Retention batch incomplete')
-    return len(items)
+            report['failed'] += 1
+    if report['failed']:
+        fail('deletion_incomplete')
+    report['status'] = 'complete'
+    return report
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -65,16 +106,19 @@ def main():
     try:
         config = read_config(Path(args.config))
     except Exception:
-        print('Retention configuration unavailable; no sensitive details logged', flush=True)
+        print(json.dumps({'event': 'retention_cycle', 'status': 'failed', 'failure': 'configuration_unavailable'}), flush=True)
         return 1
     while True:
         status = 0
+        started = time.monotonic()
         try:
-            cycle(config)
-            print('Retention cycle complete', flush=True)
+            report = cycle(config)
+        except RetentionFailure as error:
+            status, report = 1, error.report
         except Exception:
-            status = 1
-            print('Retention cycle incomplete; retry required; no sensitive details logged', flush=True)
+            status, report = 1, {'event': 'retention_cycle', 'status': 'failed', 'failure': 'unexpected_failure'}
+        report['duration_seconds'] = round(time.monotonic() - started, 3)
+        print(json.dumps(report, sort_keys=True), flush=True)
         if args.once:
             return status
         time.sleep(60)

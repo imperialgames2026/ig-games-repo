@@ -345,7 +345,7 @@
         "image-file.js"
       ],
       "sha256": {
-        "index.ts": "2519a57918166996105f2c8aed755878dfbcc89fcd95765cf372013ba884b818",
+        "index.ts": "aa5791110dfa35c77a9739ad21252d550dc55a9bf60a90f4fe1662edb29ada21",
         "validation.js": "f5e488154a7ec6102fbe3ba51f524aaa1229ddf3d031b16bbe20906bebb16105",
         "privacy.js": "965c14650e2c83dd09c515281b8ce8ea05f276477c447368304a59515548be41",
         "image-file.js": "d1e888a264afbf78183c1e673cf31a2b868a942b99e3c67ea58f44d07672e7ed"
