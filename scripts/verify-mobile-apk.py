@@ -40,7 +40,7 @@ def verify(apk, source, read_source):
         manifest = json.loads(read_source("supabase/backend-manifest.json"))
         scope = json.loads(read_source("config/game-migration-scope.json"))
         require(release.get("reviewed_migration_count") == len(manifest["migrations"]) == mobile.get("reviewed_migration_count"), "Migration count mismatch")
-        require(release.get("held_game_count") == len(scope["nonMigration"]) == 23, "Excluded-game scope mismatch")
+        require(release.get("held_game_count") == len(scope["nonMigration"]) == 10, "Excluded-game scope mismatch")
     digest = hashlib.sha256()
     with open(apk, "rb") as stream:
         for chunk in iter(lambda: stream.read(1024 * 1024), b""):

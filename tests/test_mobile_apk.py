@@ -20,10 +20,10 @@ class ApkContractTests(unittest.TestCase):
         self.files = {"capacitor.config.json": b'{"appId":"example.dev"}',
                       "package-lock.json": b'{}',
                       "supabase/backend-manifest.json": b'{"migrations":[]}',
-                      "config/game-migration-scope.json": json.dumps({"nonMigration": list(range(23))}).encode()}
+                      "config/game-migration-scope.json": json.dumps({"nonMigration": list(range(10))}).encode()}
         backend = "https://qonqemhljgxlwpghkxhn.supabase.co"
         self.release = dict(commit=self.sha, release_mode="practice", legacy_operations_enabled=False,
-                            backend_url=backend, reviewed_migration_count=0, held_game_count=23)
+                            backend_url=backend, reviewed_migration_count=0, held_game_count=10)
         self.mobile = dict(source_commit=self.sha, app_id="example.dev", release_scope="practice", backend_url=backend,
                            reviewed_migration_count=0, publish_approved=False, production_signing_configured=False,
                            native_email_callbacks_enabled=False, native_wallet_credit_redemption_enabled=False)

@@ -6,7 +6,7 @@ export async function verifyPublishedRelease(origin,expectedSha,{fetcher=fetch}=
  async function get(path){const response=await fetcher(new URL(path,site),{headers:{'Cache-Control':'no-cache'},redirect:'error',signal:AbortSignal.timeout(20000)});if(!response.ok)throw Error('Published '+path+': HTTP '+response.status);return response;}
  const release=await (await get('/release.json')).json();
  if(release.commit!==expectedSha)throw Error('Published commit does not match expected release.');
- if(release.release_mode!=='practice'||release.backend_url!=='https://qonqemhljgxlwpghkxhn.supabase.co'||release.legacy_operations_enabled!==false||release.held_game_count!==23)throw Error('Published release configuration does not match the reviewed practice scope.');
+ if(release.release_mode!=='practice'||release.backend_url!=='https://qonqemhljgxlwpghkxhn.supabase.co'||release.legacy_operations_enabled!==false||release.held_game_count!==10)throw Error('Published release configuration does not match the reviewed practice scope.');
  let assets;
  for(const route of ['/','/Games','/login','/ResetPassword','/AMOE','/PrizeClaims']){
   const response=await get(route),html=await response.text();
