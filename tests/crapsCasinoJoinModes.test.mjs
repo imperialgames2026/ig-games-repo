@@ -39,9 +39,11 @@ test('practice refill cannot touch exchangeable currencies, is strictly limited'
  assert.match(api,/ig_mp_craps_refill/);
  assert.match(felt,/500 free practice chips/);
 });
-test('long felt uses two real server-provided dice; point and last roll are separate',()=>{
+test('responsive felt uses two real server-provided dice; point and last roll are separate',()=>{
  assert.match(felt,/ig-craps-rail/);
- assert.match(felt,/min-w-\[890px\]/);
+ assert.match(felt,/ig-table-stage h-full/);
+ assert.doesNotMatch(felt,/min-w-\[890px\]/);
+ assert.doesNotMatch(felt,/Slide sideways/);
  assert.match(felt,/DICE_GLYPHS/);
  assert.match(felt,/roll\?\.dice\?\.\[i\]/);
  assert.match(felt,/ESTABLISHED POINT/);

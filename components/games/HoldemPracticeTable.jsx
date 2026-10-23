@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { supabase } from '@/lib/supabaseClient';
+import './game-cockpit.css';
 
 // All cards/turns/side pots are managed by poker-table-v1.
 // No local card shuffle, pot assignment, bankroll or wallet access.
@@ -13,6 +14,10 @@ const cardText = c => {
   return (ranks[c.rank]||c.rank)+(suits[c.suit]||'?');
 };
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const SEAT_POSITIONS={
+  8:[['50%','8%'],['78%','18%'],['91%','48%'],['78%','79%'],['50%','90%'],['22%','79%'],['9%','48%'],['22%','18%']],
+  6:[['50%','8%'],['83%','27%'],['80%','74%'],['50%','90%'],['20%','74%'],['17%','27%']],
+};
 export default function HoldemPracticeTable({variant='holdem'}) {
  const isOmaha=variant==='omaha';
  const {user,isAuthenticated}=useAuth();
@@ -83,14 +88,14 @@ export default function HoldemPracticeTable({variant='holdem'}) {
  const myTurn=!!mySeat && !wrongVariant && table?.turnIndex===mySeat.seat_no && table?.status==='playing';
  const isOwner=table?.ownerId===user?.id;
  const rank=Math.max(0,Number(raise)||0);
- return <main className="min-h-screen bg-[#0a0612] px-4 py-8 text-white">
-   <div className="mx-auto max-w-6xl space-y-5">
-     <div className="flex flex-wrap items-center justify-between gap-2">
+ return <main className={(tableId?'ig-poker-screen ':'')+"min-h-screen bg-[#0a0612] px-4 py-8 text-white"}>
+   <div className="ig-poker-shell mx-auto max-w-6xl space-y-5">
+     <div className="ig-poker-header flex flex-wrap items-center justify-between gap-2">
        <div className="flex flex-wrap gap-4"><Link to="/Games" className="text-amber-300 hover:underline">← Games</Link><Link to="/PokerBotLab" className="text-amber-300 hover:underline">AI Poker Lab</Link><Link to="/PastPlayedHands" className="text-amber-300 hover:underline">Past Played Hands</Link><Link to="/ImperialMembership" className="text-amber-300 hover:underline">3-Bet Membership</Link>{!isOmaha&&<Link to="/PokerMultiTable" className="font-bold text-amber-300 underline">+ Add table · Open up to 3</Link>}</div>
        <span className="rounded-full border border-amber-300/40 bg-amber-300/10 px-4 py-1 text-xs font-bold uppercase tracking-widest text-amber-200">Practice {isOmaha?'Omaha · 6 seats':'Hold’em · 8 seats'}</span>
        {table?.eventId&&<Link to={"/PokerTournamentPrizes?eventId="+encodeURIComponent(table.eventId)} className="text-sm font-semibold text-amber-300 underline">Tournament prize ladder</Link>}
      </div>
-     <p className="rounded-xl border border-sky-300/20 bg-sky-950/30 p-4 text-sm text-sky-100">
+     <p className="ig-poker-practice rounded-xl border border-sky-300/20 bg-sky-950/30 p-4 text-sm text-sky-100">
        Multiplayer {isOmaha?'Omaha with four private cards, exactly two private and three community cards at showdown':'Texas Hold’em with two private cards'}; shared board, forced blinds and server-authoritative turns. Only nonredeemable 1,000-chip practice stacks. No deposits, prizes or payouts. Planned fees (not active): 1% of each participating player's ante at hand start, plus 2% of the final pot after ante fees. Whole practice-chip fees round down; winners split the net pot.
      </p>
      {!tableId && <section className="mx-auto max-w-xl rounded-xl border border-white/10 bg-[#1d1727] p-6">
@@ -106,9 +111,9 @@ export default function HoldemPracticeTable({variant='holdem'}) {
          className="mt-3 rounded-lg border border-amber-300 px-5 py-2 font-bold text-amber-200 disabled:opacity-50">Open table</button>
        {!isAuthenticated&&<Link to="/login" className="mt-4 block text-amber-200 underline">Sign in to join a table</Link>}
      </section>}
-     {tableId && <section className="space-y-4">
+     {tableId && <section className="ig-poker-live space-y-4">
        {wrongVariant&&<p role="alert" className="rounded-lg border border-red-400 bg-red-950 p-4 text-red-100">This table is {table?.variant}, not {variant}. Use the matching poker page. No actions will be permitted here.</p>}
-       <div className="rounded-xl border border-white/10 bg-[#1d1727] p-4 text-sm">
+       <div className="ig-poker-invite rounded-xl border border-white/10 bg-[#1d1727] p-4 text-sm">
          <p className="font-semibold text-amber-200">Table invite link</p>
          <div className="mt-2 flex flex-wrap items-center gap-2">
            <code className="max-w-full break-all text-gray-300">{tableId}</code>
@@ -117,38 +122,37 @@ export default function HoldemPracticeTable({variant='holdem'}) {
          </div>
          <p className="mt-2 text-gray-400">Hand #{table?.handNo??0} · {table?.status||'Not yet joined'} · {table?.street||'Preflop'} · Version {table?.version??'—'}</p>
        </div>
-       <div className="rounded-[3rem] border-[12px] border-[#67452a] bg-[#0b4e38] p-4 shadow-2xl sm:p-8">
-         <div className="rounded-[2.5rem] border-2 border-amber-200/60 bg-[radial-gradient(ellipse_at_top,_#176448,_#06452f)] px-3 py-8 text-center">
-           <h1 className="text-3xl font-black italic">{isOmaha?'OMAHA':'TEXAS HOLD’EM'}</h1>
-           <p className="mt-2 text-sm text-amber-200">Small blind {table?.smallBlind??'—'} · Big blind {table?.bigBlind??'—'}</p>
-           <p className="mt-3 text-xs text-white/70">Communal board</p>
-           <div className="mt-3 flex min-h-20 flex-wrap items-center justify-center gap-2">
-             {Array.from({length:5},(_,i)=><span key={i} className="flex h-16 w-12 items-center justify-center rounded-lg border-2 border-white/70 bg-white text-lg font-black text-slate-950">
-               {cardText(table?.board?.[i])||'🂠'}
-             </span>)}
+       <div className="ig-poker-felt-shell rounded-[3rem] border-[12px] border-[#67452a] bg-[#0b4e38] p-4 shadow-2xl sm:p-8">
+         <div className="ig-poker-stage rounded-[2.5rem] border-2 border-amber-200/60 bg-[radial-gradient(ellipse_at_top,_#176448,_#06452f)] text-center">
+           <div className="ig-poker-board-center">
+             <h1 className="text-3xl font-black italic">{isOmaha?'OMAHA':'TEXAS HOLD’EM'}</h1>
+             <p className="mt-1 text-sm text-amber-200">SB {table?.smallBlind??'—'} · BB {table?.bigBlind??'—'} · Hand #{table?.handNo??0}</p>
+             <div className="mt-2 flex items-center justify-center gap-2">
+               {Array.from({length:5},(_,i)=><span key={i} className="ig-board-card flex h-16 w-12 items-center justify-center rounded-lg border-2 border-white/70 bg-white text-lg font-black text-slate-950">
+                 {cardText(table?.board?.[i])||'🂠'}
+               </span>)}
+             </div>
+             <p className="mt-2 text-sm font-black text-amber-100">POT {seats.reduce((sum,s)=>sum+Number(s.committed||0),0).toLocaleString()}</p>
            </div>
-           <p className="mt-5 text-sm font-bold text-amber-100">Pot: {seats.reduce((sum,s)=>sum+Number(s.committed||0),0).toLocaleString()} chips</p>
-           <div className="mx-auto mt-5 grid max-w-4xl grid-cols-2 gap-2 sm:grid-cols-3">
+           <div className="ig-poker-seat-ring">
              {Array.from({length:isOmaha?6:8},(_,number)=>{
                const s=seats.find(x=>x.seat_no===number);
-               return <div key={number} className={'rounded-xl border p-3 text-left text-sm '+(s?.seat_no===turn?.seat_no?'border-amber-300 bg-amber-200/15':'border-white/30 bg-black/15')}>
-                 <div className="font-bold">Seat {number+1} {s?.user_id===user?.id?'(You)':''}</div>
-                 <div className="mt-1 text-gray-300">{s?'Seated player':'Open seat'}</div>
-                 {!!s&&<><p className="text-amber-200">{s.stack} chips</p><p className="text-gray-300">In pot: {s.committed}</p>
-                   <p className="text-xs">{s.folded?'Folded':s.all_in?'All-in':s.acted?'Acted':'Waiting'}</p>
-                   <div className="mt-1 flex gap-1"><span>🂠</span><span>🂠</span></div></>}
+               const [left,top]=SEAT_POSITIONS[isOmaha?6:8][number];
+               return <div key={number} style={{left,top}} className={'ig-poker-seat rounded-xl border p-2 text-left text-xs shadow-lg '+(s?.seat_no===turn?.seat_no?'border-amber-300 bg-amber-200/20 ring-2 ring-amber-300/30':'border-white/30 bg-[#0b241d]/90')}>
+                 <div className="truncate font-black">Seat {number+1} {s?.user_id===user?.id?'· YOU':''}</div>
+                 <div className="ig-seat-detail mt-1 truncate text-gray-300">{s?'Player':'Open seat'}</div>
+                 {!!s&&<><p className="ig-seat-detail font-black text-amber-200">{s.stack} chips</p>
+                   <p className="ig-seat-detail text-white/70">Pot {s.committed} · {s.folded?'Folded':s.all_in?'All-in':s.acted?'Acted':'Waiting'}</p></>}
                </div>;
              })}
            </div>
-           {mySeat&&<div className="mx-auto mt-6 max-w-sm rounded-xl border-2 border-amber-300 bg-black/30 p-4">
-             <p className="mb-2 text-sm font-semibold text-amber-200">Your private cards</p>
-             <div className="flex justify-center gap-3">{(snapshot?.holeCards||[]).map((c,i)=><span key={i}
-               className="flex h-20 w-14 items-center justify-center rounded-lg bg-white text-xl font-black text-slate-950">{cardText(c)}</span>)}</div>
-             <p className="mt-2 text-xs text-white/70">These cards are returned only to your authenticated player session.</p>
+           {mySeat&&<div className="ig-poker-hole-center rounded-xl border-2 border-amber-300 bg-black/55 px-3 py-2">
+             <div className="flex justify-center gap-2">{(snapshot?.holeCards||[]).map((c,i)=><span key={i}
+               className="ig-hole-card flex h-20 w-14 items-center justify-center rounded-lg bg-white text-xl font-black text-slate-950">{cardText(c)}</span>)}</div>
            </div>}
          </div>
        </div>
-       <div className="rounded-xl border border-white/10 bg-[#1d1727] p-5">
+       <div className="ig-poker-controls rounded-xl border border-white/10 bg-[#1d1727] p-5">
          <div className="flex flex-wrap items-center justify-between gap-4">
            <div><h2 className="text-lg font-black">Table controls</h2>
              <p className="mt-1 text-sm text-gray-300">
@@ -176,10 +180,13 @@ export default function HoldemPracticeTable({variant='holdem'}) {
                className="rounded-lg border border-amber-300 px-4 py-2 text-amber-200">All in</button>
            </div>
            <div className="mt-3 flex flex-wrap items-center gap-2">
-             <label className="text-sm">Total bet / raise to
-               <input type="number" min="1" step="1" value={raise} onChange={e=>setRaise(e.target.value)}
-                 className="ml-2 w-24 rounded-lg border border-white/30 bg-[#0d0915] p-2" />
-             </label>
+             <span className="text-sm font-semibold">Bet / raise to</span>
+             <button type="button" disabled={busy||rank<=1} onClick={()=>setRaise(String(Math.max(1,Math.floor(rank/2))))}
+               className="rounded-lg border border-white/25 px-3 py-2 font-black disabled:opacity-35" aria-label="Halve bet">÷2</button>
+             <input type="number" inputMode="numeric" min="1" step="1" value={raise} onChange={e=>setRaise(e.target.value)}
+               className="w-24 rounded-lg border border-white/30 bg-[#0d0915] p-2 text-center font-black" aria-label="Bet or raise amount" />
+             <button type="button" disabled={busy||!Number.isSafeInteger(rank)||rank<=0} onClick={()=>setRaise(String(rank*2))}
+               className="rounded-lg border border-white/25 px-3 py-2 font-black disabled:opacity-35" aria-label="Double bet">×2</button>
              <button disabled={busy||!Number.isSafeInteger(rank)||rank<=0}
                onClick={()=>void doAction('act',{move:Number(table.currentBet)>0?'raise':'bet',amount:rank,version:table.version})}
                className="rounded-lg border border-amber-300 px-4 py-2 font-bold text-amber-200">Confirm {Number(table.currentBet)>0?'raise':'bet'}</button>
