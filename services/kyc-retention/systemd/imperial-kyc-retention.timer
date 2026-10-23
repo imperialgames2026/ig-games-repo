@@ -1,0 +1,13 @@
+# Review template only. Enabling this timer requires separate operations approval.
+[Unit]
+Description=Schedule the standalone model-free evidence retention client
+
+[Timer]
+OnBootSec=2min
+# Restart after completion, not on a wall-clock cadence: the unit cannot overlap.
+OnUnitInactiveSec=60s
+AccuracySec=5s
+Unit=imperial-kyc-retention.service
+
+[Install]
+WantedBy=timers.target

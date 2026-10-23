@@ -1,4 +1,6 @@
+import {validateQueue} from './privacy.js';
 export const MAX_IMAGE_BYTES=8*1024*1024;
+export const MAX_IMAGE_PIXELS=4000000;
 export const KINDS=['id_front','id_back','selfie'];
 export const UUID=/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
 export function object(value){return value!==null&&typeof value==='object'&&!Array.isArray(value);}
@@ -22,7 +24,7 @@ export function imageInfo(bytes){
    if([192,193,194,195,197,198,199,201,202,203,205,206,207].includes(marker)&&size>=7){height=v.getUint16(p+3);width=v.getUint16(p+5);break;}p+=size;
   }
  }
- if(!mime||!width||!height||Math.min(width,height)<120||Math.max(width,height)>6000||width*height>24000000)throw Error('Use a JPEG, PNG or WebP image between 120 and 6000 pixels, up to 24 megapixels');
+ if(!mime||!width||!height||Math.min(width,height)<120||Math.max(width,height)>6000||width*height>MAX_IMAGE_PIXELS)throw Error('Use a JPEG, PNG or WebP image between 120 and 6000 pixels, up to 4 megapixels');
  return {mime,width,height,size:b.length};
 }
 export function normalizeFaceResult(input){
@@ -33,10 +35,11 @@ export function normalizeFaceResult(input){
  return {...input,display_similarity_index_0_to_100:Math.round((input.cosine_similarity+1)*500)/10,model:'OpenCV YuNet + SFace',score_calibrated:false};
 }
 export function validateInput(b){
- const fields={mine:[],queue:[],begin:['full_name','birth_date','country','document_type','consent','consent_version','face_consent'],upload:['id','kind'],submit:['id'],cancel:['id'],detail:['id'],evidence:['id','kind'],review:['id','revision','outcome','reason','customer_message','checks'],worker_claim:[],worker_finish:['id','lease','result'],worker_expired:[],worker_purged:['id']};
+ const fields={mine:[],queue:['status','cursor','limit'],begin:['full_name','birth_date','country','document_type','consent','consent_version','face_consent'],upload:['id','kind'],submit:['id'],cancel:['id'],detail:['id'],evidence:['id','kind'],review:['id','revision','outcome','reason','customer_message','checks'],worker_claim:[],worker_finish:['id','lease','result'],worker_expired:[],worker_purged:['id']};
  if(!object(b)||!Object.hasOwn(fields,b.action))throw Error('Unknown action');exact(b,['action',...fields[b.action]]);
  if(fields[b.action].includes('id')&&!UUID.test(b.id||''))throw Error('Invalid submission ID');
  if(fields[b.action].includes('kind')&&!KINDS.includes(b.kind))throw Error('Invalid evidence type');
+ if(b.action==='queue')validateQueue(b);
  if(b.action==='begin'){
   if(typeof b.full_name!=='string'||b.full_name.trim().length<2||b.full_name.length>120||/[\x00-\x1f<>]/.test(b.full_name)||!/^\d{4}-\d{2}-\d{2}$/.test(b.birth_date||'')||!/^[A-Z]{2}$/.test(b.country||'')||!['passport','driver_license','national_id'].includes(b.document_type)||b.consent!==true||b.consent_version!=='2026-10-22'||typeof b.face_consent!=='boolean')throw Error('Complete the identity details and consent');
  }
