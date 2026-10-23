@@ -12,7 +12,7 @@ public sealed class PracticeBridge : MonoBehaviour {
  public void PresentOutcome(string json) {
   Outcome o;
   try { o = JsonUtility.FromJson<Outcome>(json); } catch { return; }
-  if (o == null || o.version != 1 || o.mode != "practice" || string.IsNullOrEmpty(o.roundId) || o.values == null) return;
+  if (o == null || o.version != 1 || o.mode != "practice" || !Guid.TryParse(o.roundId, out _) || o.values == null) return;
   bool roulette = o.game == "roulette";
   if (!roulette && o.game != "craps") return;
   if (o.values.Length != (roulette ? 1 : 2)) return;

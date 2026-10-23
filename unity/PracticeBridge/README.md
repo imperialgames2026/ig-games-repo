@@ -1,11 +1,39 @@
-# Practice table integration candidate
+# Imperial 3D practice prototype
 
-Route: `/TableLab` (existing authentication and app layout). This is a new route, leaving current production game routes and Android signing configuration intact.
+This candidate adds `/TableLab` to the existing authenticated React/Capacitor app and `/practice-lab.html` as a standalone practice-only review entry. Existing production game routes, app ID, signing configuration and keystore are unchanged.
 
-The current playable visual spike uses Three.js meshes inside the React WebView. It demonstrates 3D rendering in the existing Vite/Capacitor bundle, without a new native application. It is not a compiled Unity game. Geometry and materials are procedural placeholders pending realistic table assets.
+## Implemented
 
-`outcomes.mjs` owns local practice generation and immutable outcome messages. `TableScene` consumes those messages and cannot settle balances. React owns local demo chips, which have no persisted value or wallet API. Pass-line stakes remain reserved through the point. No hosted database changes.
+- Actual Unity 6000.3.6f1 Web build: roulette and craps scene, original cloth textures, 37 single-zero pockets, wheel, ball, rounded dice with opposite faces summing to seven, rails and chip stacks.
+- React loader with progress, retry, failure handling, same-origin versioned asset validation and an isolated frame per Unity session. Frame messages check origin and source; page exit requests Unity Quit and discards the runtime context. Lightweight Three.js renderer is available as a fallback.
+- React touch betting controls, camera modes, reduced motion, optional original synthesized sounds, local practice chips and recent results.
+- Immutable practice outcomes generated outside either renderer. Unity cannot read or change balances. Animation completion is presentation telemetry, not settlement authority.
+- Roulette straight-number and red/black/even/odd practice bets. Craps pass line, including stake reservation through a point. Other cloth markings are decorative.
+- A 30 FPS target and capped rendering resolution, visibility handling and WebGL resource cleanup. These are budgets, not proof of physical device performance.
 
-For Unity Web: host a versioned, same-origin Unity build under `/unity/practice/<version>/`. Load its generated loader only after the player opens the game, create the Unity instance in a dedicated canvas, and pass validated outcomes through `presentToUnity(instance, outcome)`. Attach `PracticeBridge.cs` to a GameObject named PracticeBridge; wire its presentation event to the scene animator. The receiver validates practice scope and ignores duplicate rounds. Do not accept Unity messages as wallet or settlement instructions. Call Unity Quit on route exit; handle load failures with retry and a return-to-lobby action. Keep React touch controls outside the canvas.
+## Rebuild Unity
 
-Not yet verified: Unity compilation/export, actual Unity load/quit and Android lifecycle, compressed asset hosting headers, context loss recovery, physical Razr frame pacing/memory/thermal behavior. Do not replace the current screens or describe the Unity bridge as proven until these pass. The existing keystore, app ID and signing files have not been accessed or changed.
+Use an isolated Unity project with Editor 6000.3.6f1 and WebGL support. Copy the C# files to Assets, Editor to Assets/Editor, Plugins to Assets/Plugins, and the two PNGs to Assets/Art. Do not use the production Android project or modify its signing files.
+
+```
+Unity -batchmode -nographics -quit -projectPath /path/to/isolated-project -buildTarget WebGL -executeMethod PracticeBuild.Build -logFile /path/to/build.log
+node scripts/install-unity-practice-build.mjs /path/to/isolated-project/Build/WebGL
+npm run build
+```
+
+Cloth artwork is reproducible with `python scripts/generate-practice-cloths.py` (Pillow and DejaVu fonts). The WebAssembly export uses Unity DiskSizeLTO optimization. The Unity editor build script preserves the required fonts, shader and primitive meshes explicitly for IL2CPP stripping.
+
+## Host and test
+
+Serve the Vite dist directory over HTTPS. Keep the generated runtime assets under `/unity/practice/v1/`; wasm must be served as `application/wasm`. This build deliberately uses uncompressed asset filenames to avoid requiring custom Content-Encoding rules. The host may supply ordinary HTTP transport compression. Rebuild with a new version path before releasing changed immutable assets.
+
+```
+node --test tests/tableLab.test.mjs
+LAB_URL=http://127.0.0.1:4189/practice-lab.html LAB_CHROME=/usr/bin/google-chrome node tests/tableLab.browser.mjs
+```
+
+On a USB-authorized Android phone, `adb reverse tcp:4189 tcp:4189` permits a localhost browser preview. This does not replace or resign the installed application.
+
+## Limits
+
+This is a procedural 3D practice integration prototype, not a finished casino asset pack or a multiplayer game. It does not connect to Supabase, cash balances, deposits, withdrawals or wallet settlement. Physical Razr performance, Capacitor lifecycle on the device, hosting response headers and production deployment remain separate checks. The current full-app APK packaging guard expects 101 migrations while the main manifest contains 104; it was not relaxed for this prototype. Poker, Omaha, blackjack, baccarat, Crash, Trenball and other originals have not yet been converted by this prototype.
