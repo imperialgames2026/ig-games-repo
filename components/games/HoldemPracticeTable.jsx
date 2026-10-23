@@ -64,6 +64,9 @@ export default function HoldemPracticeTable({variant='holdem'}) {
  const [error,setError]=useState('');
  const [raise,setRaise]=useState('40');
  const [profileSeat,setProfileSeat]=useState(null);
+ const [profileAnalytics,setProfileAnalytics]=useState(null);
+ const [profileAnalyticsLoading,setProfileAnalyticsLoading]=useState(false);
+ const [profileAnalyticsError,setProfileAnalyticsError]=useState('');
  const [settingsOpen,setSettingsOpen]=useState(false);
  const [pokerSettings,setPokerSettings]=useState(()=>{
    if(typeof window==='undefined')return DEFAULT_POKER_SETTINGS;
@@ -97,6 +100,17 @@ export default function HoldemPracticeTable({variant='holdem'}) {
    const interval=window.setInterval(()=>void fetchState(true),2500);
    return ()=>{alive.current=false;clearInterval(interval);};
  },[fetchState]);
+ useEffect(()=>{
+   let cancelled=false;
+   if(!profileSeat?.user_id||!tableId||!isAuthenticated){setProfileAnalytics(null);setProfileAnalyticsError('');return;}
+   setProfileAnalyticsLoading(true);setProfileAnalyticsError('');setProfileAnalytics(null);
+   void invoke({action:'playerStats',tableId,targetUserId:profileSeat.user_id}).then(data=>{
+     if(!cancelled)setProfileAnalytics(data);
+   }).catch(e=>{
+     if(!cancelled)setProfileAnalyticsError(e?.message||'Player statistics unavailable');
+   }).finally(()=>{if(!cancelled)setProfileAnalyticsLoading(false);});
+   return ()=>{cancelled=true;};
+ },[profileSeat?.user_id,tableId,isAuthenticated,invoke]);
  const doAction=useCallback(async(action,fields={})=>{
    if(busy||!isAuthenticated)return;
    setBusy(true);setError('');
@@ -271,6 +285,9 @@ export default function HoldemPracticeTable({variant='holdem'}) {
        <div onClick={e=>e.stopPropagation()} className="w-full max-w-lg">
          <PokerPlayerProfile
            player={{id:profileSeat.user_id,displayName:profileSeat.displayName,avatarUrl:profileSeat.avatarUrl}}
+           analytics={profileAnalytics}
+           loading={profileAnalyticsLoading}
+           analyticsError={profileAnalyticsError}
            onClose={()=>setProfileSeat(null)}
            disabled
          />
