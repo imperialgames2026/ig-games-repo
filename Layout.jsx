@@ -495,7 +495,7 @@ export default function Layout({ children, currentPageName }) {
                   </Link>
                 </li>
                 <li>
-                  <a href="mailto:support@imperialhouse.online" className="text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-colors">
+                  <a href="mailto:support@imperialgaming.llc" className="text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-colors">
                     Contact Us
                   </a>
                 </li>
@@ -517,7 +517,7 @@ export default function Layout({ children, currentPageName }) {
           {/* Bottom Bar */}
           <div className="pt-8 border-t border-gray-200 dark:border-white/5">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500 dark:text-gray-500 mb-6">
-              <p>© 2026 Imperial House Gaming LLC. All rights reserved.</p>
+              <p>© 2026 IMPERIAL GAMING LLC. All rights reserved.</p>
               <p className="flex items-center gap-2">
                 <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                 For entertainment purposes only
@@ -530,10 +530,10 @@ export default function Layout({ children, currentPageName }) {
                 Imperial Gaming is a premium social casino for entertainment only. Play responsibly.
               </p>
               <div className="text-xs text-gray-600 dark:text-gray-500 space-y-1 max-w-4xl mx-auto">
-                <p>ImperialGaming.games is owned and operated by Imperial House Gaming also known as Imperial Gaming</p>
+                <p>imperialgaming.llc is owned and operated by IMPERIAL GAMING LLC also known as Imperial Gaming</p>
                 <p>State Tax Registration number: 10-228399686F-001 | License number for Imperial Gaming LLC: 38-228399686F-001</p>
                 <p>Registered address: 391 Brook Dr. Hot Springs, Virginia 24445 U.S.A.</p>
-                <p>Support: <a href="mailto:support@imperialhouse.online" className="text-pink-400 hover:text-pink-300">support@imperialhouse.online</a> | Admin: <a href="mailto:admin@imperialhouse.online" className="text-pink-400 hover:text-pink-300">admin@imperialhouse.online</a></p>
+                <p>Support: <a href="mailto:support@imperialgaming.llc" className="text-pink-400 hover:text-pink-300">support@imperialgaming.llc</a> | Admin: <a href="mailto:admin@imperialhouse.online" className="text-pink-400 hover:text-pink-300">admin@imperialhouse.online</a></p>
                 <p className="mt-3 text-gray-600 dark:text-gray-400 italic">
                   No purchase necessary to play or enter sweepstakes. Games and sweepstakes are void where prohibited by law. For detailed rules see{' '}
                   <Link to={createPageUrl('TermsOfService')} className="text-pink-400 hover:text-pink-300">
