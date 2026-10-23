@@ -18,9 +18,9 @@ if (release.reviewed_migration_count !== manifest.migrations.length)
   fail('backend migration manifest mismatch');
 if (release.held_game_count !== scope.nonMigration.length || scope.nonMigration.length !== 23)
   fail('excluded-game policy mismatch');
-// Reconciled main 76eb7ac includes the already recorded PR33 migration.
-// Importing its contract does not enable redemption in this private APK.
-if (manifest.migrations.length !== 101) fail('baseline migration count changed; re-review required');
+// Reconciled public main 4676b565 includes the reviewed KYC release plus the
+// two already-recorded Imperial Wallet staging migrations. Mobile stays practice-only.
+if (manifest.migrations.length !== 104) fail('baseline migration count changed; re-review required');
 const expectedBackend = 'https://qonqemhljgxlwpghkxhn.supabase.co';
 if (release.backend_url !== expectedBackend) fail('unexpected Supabase backend');
 if (!process.env.MOBILE_ISOLATED_AUTH_REVIEWED)
