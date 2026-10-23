@@ -49,6 +49,25 @@ test('avatar tap opens three-tab verified stats card with showdown heat',()=>{
  assert.match(ui,/action:'playerStats'/);
 });
 
+test('poker social actions are same-table, cosmetic, allowlisted and cooldown-limited',()=>{
+ const social=file('supabase/migrations/20261023174424_poker_social_events_v1.sql');
+ const profile=file('components/poker/PokerPlayerProfile.jsx');
+ assert.match(edge,/action==="sendSocial"/);
+ assert.match(edge,/SOCIAL_ACTIONS/);
+ assert.match(edge,/Target player is not seated at this table/);
+ assert.match(edge,/Choose another seated player/);
+ assert.match(edge,/Social action cooldown/);
+ assert.match(edge,/poker_social_events_v1/);
+ assert.match(edge,/cosmeticOnly:true/);
+ assert.match(edge,/socialEvents:socialEvents\|\|\[\]/);
+ assert.match(social,/enable row level security/i);
+ assert.match(social,/revoke all on public\.poker_social_events_v1 from public,anon,authenticated/i);
+ assert.doesNotMatch(social,/grant .* to authenticated/i);
+ assert.match(ui,/onSendAction=\{sendSocial\}/);
+ assert.match(ui,/activeSocialEvent/);
+ assert.match(profile,/PLAYER_EMOTES/);
+});
+
 test('poker table connects persistent skins, sound and action voice settings',()=>{
  assert.match(ui,/PokerSettingsModal/);
  assert.match(ui,/usePokerSounds/);
