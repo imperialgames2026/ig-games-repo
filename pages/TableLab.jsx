@@ -4,7 +4,7 @@ import {createOutcome, reds, passLine} from '../components/practice/outcomes.mjs
 import '../components/practice/table-lab.css';
 export default function TableLab() {
   const [game,setGame]=useState('roulette'), [outcome,setOutcome]=useState(null), [busy,setBusy]=useState(false);
-  const [selected,setSelected]=useState('red'), [chips,setChips]=useState(1000), [stake,setStake]=useState(10), [point,setPoint]=useState(0), [message,setMessage]=useState('Choose a practice bet, then spin.');
+  const [selected,setSelected]=useState(/** @type {string|number} */ ('red')), [chips,setChips]=useState(1000), [stake,setStake]=useState(10), [point,setPoint]=useState(0), [message,setMessage]=useState('Choose a practice bet, then spin.');
   const [reduced,setReduced]=useState(false);
   const lock=useRef(false), timer=useRef(null);
   useEffect(()=>{const q=matchMedia('(prefers-reduced-motion: reduce)'); const update=()=>setReduced(q.matches);update();q.addEventListener('change',update);return()=>{q.removeEventListener('change',update);clearTimeout(timer.current);};},[]);
