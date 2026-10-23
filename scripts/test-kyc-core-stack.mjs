@@ -100,6 +100,7 @@ try {
  sql(read('supabase/migrations/20261022153018_secure_kyc_intake_review.sql'));
  sql(read('supabase/migrations/20261022210709_kyc_profile_lifecycle.sql'));
  sql(read('supabase/migrations/20261022212136_kyc_retention_reconciliation.sql'));
+ sql(read('supabase/migrations/20261023164745_kyc_retention_fair_retry.sql'));
  run(rest,['--network-alias','rest','-p','127.0.0.1::3000','-e','PGRST_DB_URI=postgres://authenticator@db:5432/postgres',
  '-e','PGRST_DB_SCHEMAS=public','-e','PGRST_DB_ANON_ROLE=anon','-e',`PGRST_JWT_SECRET=${secret}`,
  'postgrest/postgrest:v16.4@sha256:d155c6718ed9a9f990d159a2ab7c0a3f16944dbb6d0a0344557421042acfe0df']);
@@ -111,6 +112,6 @@ try {
  run(prefix+'-edge',['--network-alias','edge','-e','NO_PROXY=kong,auth,rest,storage,edge,localhost,127.0.0.1','-v',stage+':/probe:ro','supabase/edge-runtime:v1.77.4@sha256:ad45164b7548bf5820ed7be714789c17ac2865edce79a09cfb4c3756c3d365a8','start','--main-service','/probe/application-main','--port','9000']);
  writeFileSync(stage+'/runtime-info.json',JSON.stringify({DB_CONTAINER:db,API_URL:'http://127.0.0.1:54321',ANON_KEY:anonKey,SERVICE_ROLE_KEY:serviceKey,JWT_SECRET:secret}),{mode:0o600});
  await ready(async()=> (await fetch('http://127.0.0.1:54321/functions/v1/health')).status===200);
- console.log('PASS core local Auth/Storage/PostgREST startup, three KYC migrations, isolated fixture schemas; no full platform replay');
+ console.log('PASS core local Auth/Storage/PostgREST startup, four KYC migrations, isolated fixture schemas; no full platform replay');
  for(const [script,arg] of [['test-kyc-local-runtime.mjs',stage+'/runtime-info.json'],['test-kyc-edge-resources.mjs','http://127.0.0.1:54321']]){const r=spawnSync(process.execPath,[resolve(root,'scripts',script),arg],{stdio:'inherit',timeout:180000});assert.equal(r.status,0,script);}
 }catch(error){let message=error.message;for(const value of [secret,anonKey,serviceKey])message=message.split(value).join('[local fixture credential]');console.error(message);process.exitCode=1;}finally{for(const name of created.reverse()){try{docker(['rm','-fv',name]);}catch{}}if(net){try{docker(['network','rm',network]);}catch{}}rmSync(stage,{recursive:true,force:true});}

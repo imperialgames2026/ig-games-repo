@@ -36,10 +36,10 @@ export async function reviewQueue(rpc,db,input){
 export async function purgeExpired(rpc,db,bucket,id){
  const expired=await rpc('worker_expired');
  if(!expired.some(x=>x.id===id))throw Object.assign(Error('Evidence is not due for deletion'),{code:'40001'});
- const {data:s,error:readError}=await db.from('ig_kyc_submissions').select('user_id,id').eq('id',id).single();
- if(readError||!s)throw Error('Unavailable');
+ // Durable reservation precedes network I/O; failures/crashes need no callback.
+ const s=await rpc('worker_attempt');
  // Always remove predictable unfinalized keys, including late cancelled uploads.
  const {error}=await db.storage.from(bucket).remove(['id_front','id_back','selfie'].map(k=>`${s.user_id}/${s.id}/${k}`));
  if(error)throw Error('Deletion incomplete');
- return rpc('worker_purged');
+ return rpc('worker_purged',{attempt:s.attempt});
 }

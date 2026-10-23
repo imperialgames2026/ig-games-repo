@@ -11,7 +11,7 @@ from pathlib import Path
 
 PROJECT = 'https://qonqemhljgxlwpghkxhn.supabase.co'
 ACTIONS = frozenset(('worker_expired', 'worker_purged'))
-PROTOCOL = 'reconcile-v1'
+PROTOCOL = 'reconcile-v2'
 BATCH_LIMIT = 10
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):

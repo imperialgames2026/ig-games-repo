@@ -345,9 +345,9 @@
         "image-file.js"
       ],
       "sha256": {
-        "index.ts": "aa5791110dfa35c77a9739ad21252d550dc55a9bf60a90f4fe1662edb29ada21",
+        "index.ts": "6ad224fa33785287a75944e220ff3ce8b15f13bfe3400430ce55c564f4b49d06",
         "validation.js": "f5e488154a7ec6102fbe3ba51f524aaa1229ddf3d031b16bbe20906bebb16105",
-        "privacy.js": "965c14650e2c83dd09c515281b8ce8ea05f276477c447368304a59515548be41",
+        "privacy.js": "cf5c282a513c7517d5e506e859b5e458cf94ec0c44e0688b47de6cbad6811f4c",
         "image-file.js": "d1e888a264afbf78183c1e673cf31a2b868a942b99e3c67ea58f44d07672e7ed"
       },
       "status": "pending_deployment"
@@ -778,6 +778,11 @@
     {
       "file": "20261022212136_kyc_retention_reconciliation.sql",
       "sha256": "9fd7313f02c7bc619d56389737d2f5be83cd8ffbc68f9de7bd5bb1c7b28a9697",
+      "status": "pending_deployment"
+    },
+    {
+      "file": "20261023164745_kyc_retention_fair_retry.sql",
+      "sha256": "f8cd8f4ef9ceb1dd88d5ed5e1076ed61f9a476b5fa422c4d511e04ada1aecd89",
       "status": "pending_deployment"
     }
   ]

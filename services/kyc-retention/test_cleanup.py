@@ -53,7 +53,7 @@ class Tests(unittest.TestCase):
             self.assertNotIn('SECRET', str(output.call_args_list))
 
     def test_old_or_rolled_back_api_is_not_reported_healthy(self):
-        for reply in ({'result': []}, {'retention_protocol': 'legacy', 'result': []}):
+        for reply in ({'result': []}, {'retention_protocol': 'reconcile-v1', 'result': []}, {'retention_protocol': 'legacy', 'result': []}):
             calls = []
             def request(config, action, **payload):
                 calls.append(action)

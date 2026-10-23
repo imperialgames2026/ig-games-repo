@@ -8,6 +8,7 @@ import http from 'node:http';
 import {setTimeout} from 'node:timers/promises';
 import {createClient} from '@supabase/supabase-js';
 import {Image} from 'imagescript';
+import {purgeExpired} from '../supabase/functions/ig-kyc-v1/privacy.js';
 assert.match(process.argv[2]||'',/^\/tmp\/ig-kyc-(?:core|platform)-[^/]+\/runtime-info\.json$/);
 const c=JSON.parse(readFileSync(process.argv[2],'utf8'));
 const fullSchema=c.SCHEMA_MODE==='full-platform';
@@ -84,10 +85,10 @@ sql(`update public.ig_kyc_submissions set upload_valid_until=now()-interval '1 s
 const workerToken=randomBytes(32).toString('hex'),hash=createHash('sha256').update(workerToken).digest('hex');
 sql(`insert into public.ig_kyc_workers(token_hash,name,expires_at) values('${hash}','synthetic-retention-only',now()+interval '1 hour');`);
 async function worker(action){assert(['worker_purged','worker_expired'].includes(action));const r=await fetch(origin+'/functions/v1/ig-kyc-v1',{method:'POST',headers:{apikey:c.ANON_KEY,authorization:'Bearer '+c.ANON_KEY,'x-kyc-worker-token':workerToken,'content-type':'application/json'},body:JSON.stringify({action,...(action==='worker_purged'?{id:lateId}:{})}),signal:AbortSignal.timeout(10000)});return {status:r.status,data:await r.json()};}
-const purged=await worker('worker_purged');assert.equal(purged.status,200,'purge while upload is still streaming');assert.equal(purged.data.retention_protocol,'reconcile-v1');
+const purged=await worker('worker_purged');assert.equal(purged.status,200,'purge while upload is still streaming');assert.equal(purged.data.retention_protocol,'reconcile-v2');
 req.end(png.subarray(32));const finished=await response;
 const lateObject=await service.storage.from('ig-kyc-evidence').download(grant.data.path);
-const batch=await worker('worker_expired');assert.equal(batch.status,200);assert.equal(batch.data.retention_protocol,'reconcile-v1');
+const batch=await worker('worker_expired');assert.equal(batch.status,200);assert.equal(batch.data.retention_protocol,'reconcile-v2');
 console.log(JSON.stringify({late_stream_status:finished.status,reappeared_after_purge:!lateObject.error,still_queued:batch.data.result.some(x=>x.id===lateId),test_time_compression:'3-second token; completion after expiry and purge'}));
 if(fullSchema&&finished.status!==200){
  // Normal Kong buffers the body: Storage sees the shortened token after expiry.
@@ -127,21 +128,61 @@ const health=()=>JSON.parse(sql(`select row_to_json(h) from (${healthSql}) h;`))
 assert.equal(health().due_count,0);
 sql(`update public.ig_kyc_submissions set evidence_recheck_at=now()-interval '1 second' where id='${lateId}';`);
 const due=health();assert.equal(due.due_count,1);assert.equal(due.first_deletion_due,0);assert.equal(due.recheck_due,1);assert(due.oldest_due_seconds>=0);
-assert.deepEqual(Object.keys(due).sort(),['due_count','first_deletion_due','oldest_due_seconds','recheck_due']);
+assert.deepEqual(Object.keys(due).sort(),['due_count','first_deletion_due','oldest_due_seconds','oldest_waiting_seconds','recheck_due','retry_waiting']);
 console.log('PASS aggregate backlog query matches reconciliation eligibility without evidence or identifiers');
 // Demonstrate why reverting Edge to the old RPC is not a safe backend rollback.
 assert.equal(sql(`select exists(select 1 from jsonb_array_elements(public.ig_kyc_action(null,'worker_expired',jsonb_build_object('token_hash','${hash}'))) x where x->>'id'='${lateId}');`),'f');
 assert((await worker('worker_expired')).data.result.some(x=>x.id===lateId));
 console.log('PASS rollback regression: old RPC omits purged tombstone; retained reconciliation RPC includes it');
 // Simulate function-before-migration deployment only in the disposable DB.
-sql('alter function public.ig_kyc_retention_action(uuid,text,jsonb) rename to ig_kyc_retention_action_fixture;');
+sql('alter function public.ig_kyc_retention_action_v2(uuid,text,jsonb) rename to ig_kyc_retention_action_fixture;');
 try{
  const absent=await worker('worker_expired');assert.equal(absent.status,503);
  assert.equal(absent.data.retention_protocol,undefined,'missing migration must not advertise a healthy retention response');
 }finally{
- sql("alter function public.ig_kyc_retention_action_fixture(uuid,text,jsonb) rename to ig_kyc_retention_action; notify pgrst, 'reload schema';");
+ sql("alter function public.ig_kyc_retention_action_fixture(uuid,text,jsonb) rename to ig_kyc_retention_action_v2; notify pgrst, 'reload schema';");
 }
 let restored=false;
-for(let i=0;i<20;i++){const r=await worker('worker_expired');if(r.status===200&&r.data.retention_protocol==='reconcile-v1'){restored=true;break;}await setTimeout(250);}
+for(let i=0;i<20;i++){const r=await worker('worker_expired');if(r.status===200&&r.data.retention_protocol==='reconcile-v2'){restored=true;break;}await setTimeout(250);}
 assert(restored,'restored migration must recover the retention protocol');
 console.log('PASS migration-first gate fails visibly when RPC is absent and recovers after restoration');
+
+// Real local DB + Storage, with only the removal failure injected in the same
+// orchestration helper used by Edge. No service setting or live fault injection.
+assert.equal((await worker('worker_purged')).status,200);
+const fairIds=Array.from({length:13},()=>randomUUID()),failIds=new Set(fairIds.slice(0,10));
+for(let i=0;i<fairIds.length;i++){
+ const item=fairIds[i];
+ sql(`insert into public.ig_kyc_submissions(id,user_id,full_name,birth_date,country,document_type,consent_version,face_consent,status,expires_at) values('${item}','${other.id}','Synthetic Fair Retry','1990-01-01','US','passport','2026-10-22',false,'cancelled',now()-interval '${i<10?2:1} days');`);
+ assert.equal((await service.storage.from('ig-kyc-evidence').upload(`${other.id}/${item}/id_front`,png,{contentType:'image/png'})).error,null);
+}
+const retryRpc=async(action,item,extra={})=>{
+ assert(['worker_expired','worker_attempt','worker_purged'].includes(action));
+ const r=await service.rpc('ig_kyc_retention_action_v2',{p_actor:null,p_action:action,p_payload:{token_hash:hash,...(item?{id:item}:{}),...extra}});
+ if(r.error)throw Error('Synthetic retry RPC rejected');return r.data;
+};
+const retryDb={storage:{from:()=>({remove:async paths=>{
+ if(failIds.has(paths[0].split('/')[1]))return {error:Error('Synthetic persistent removal failure')};
+ return service.storage.from('ig-kyc-evidence').remove(paths);
+}})}};
+const sweep=item=>purgeExpired((action,extra)=>retryRpc(action,item,extra),retryDb,'ig-kyc-evidence',item);
+const firstBatch=await retryRpc('worker_expired');assert.equal(firstBatch.length,10);assert(firstBatch.every(x=>failIds.has(x.id)));
+for(const item of firstBatch)await assert.rejects(sweep(item.id),/Deletion incomplete/);
+assert.equal(health().retry_waiting,10);
+assert.equal(health().due_count,3);
+// Even if a slow cycle outlasts every delay, their newer due time yields to the
+// later successful rows, instead of putting the original oldest failures first.
+const failedList=fairIds.slice(0,10).map(id=>`'${id}'`).join(',');
+sql(`update public.ig_kyc_submissions set cleanup_retry_at=now()-interval '1 second' where id in (${failedList});`);
+const nextBatch=await retryRpc('worker_expired');
+assert.deepEqual(new Set(nextBatch.slice(0,3).map(x=>x.id)),new Set(fairIds.slice(10)));
+for(const item of nextBatch.slice(0,3))assert.equal((await sweep(item.id)).deleted,true);
+for(const item of fairIds.slice(0,10))assert.equal((await service.storage.from('ig-kyc-evidence').download(`${other.id}/${item}/id_front`)).error,null);
+failIds.clear();
+for(const item of await retryRpc('worker_expired'))assert.equal((await sweep(item.id)).deleted,true);
+for(const item of fairIds){
+ assert((await service.storage.from('ig-kyc-evidence').download(`${other.id}/${item}/id_front`)).error);
+ assert.equal(sql(`select cleanup_attempts=0 and cleanup_attempt is null and cleanup_retry_at is null from public.ig_kyc_submissions where id='${item}';`),'t');
+ assert.equal(sql(`select count(*) from public.ig_kyc_audit where submission_id='${item}' and action='evidence_deleted';`),'1');
+}
+console.log('PASS fair retry: ten persistent failures yield to later real Storage deletions even after delay elapsed; recovery clears retry state and audits once');

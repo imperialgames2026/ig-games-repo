@@ -40,7 +40,7 @@ Deno.serve(async request=>{
   actor=user.id;
  }
  async function rpc(action:string,payload:any=input){
-  const {data,error}=await db.rpc(['worker_expired','worker_purged'].includes(action)?'ig_kyc_retention_action':'ig_kyc_action',{p_actor:actor,p_action:action,p_payload:payload});
+  const {data,error}=await db.rpc(['worker_expired','worker_attempt','worker_purged'].includes(action)?'ig_kyc_retention_action_v2':'ig_kyc_action',{p_actor:actor,p_action:action,p_payload:payload});
   if(error)throw Object.assign(Error('Request rejected'),{code:error.code});return data;
  }
  const path=(s:any,kind:string)=>`${s.user_id}/${s.id}/${kind}`;
@@ -72,7 +72,7 @@ Deno.serve(async request=>{
    return reply(200,{job:{id:job.id,lease:job.lease,images}});
   }
   if(input.action==='worker_purged'){
-   return reply(200,{retention_protocol:'reconcile-v1',result:await purgeExpired(rpc,db,BUCKET,input.id)});
+   return reply(200,{retention_protocol:'reconcile-v2',result:await purgeExpired((action,extra)=>rpc(action,{...input,...extra}),db,BUCKET,input.id)});
   }
   if(input.action==='queue'&&(input.status!==undefined||input.limit!==undefined||input.cursor!==undefined))return reply(200,{result:await reviewQueue(rpc,db,input)});
   const result=await rpc(input.action);
@@ -81,7 +81,7 @@ Deno.serve(async request=>{
    if(new Date(result.expires_at).getTime()<=Date.now()){result.full_name='Expired identity details';result.birth_date=null;result.face_result=null;result.evidence={};}
    result.evidence=Object.fromEntries(Object.entries(result.evidence||{}).map(([k,v]:[string,any])=>[k,{sha256:v.sha256,mime:v.mime,size:v.size,width:v.width,height:v.height}]));
   }
-  if(input.action==='worker_expired')return reply(200,{retention_protocol:'reconcile-v1',result:result.map((x:any)=>({id:x.id}))});
+  if(input.action==='worker_expired')return reply(200,{retention_protocol:'reconcile-v2',result:result.map((x:any)=>({id:x.id}))});
   return reply(200,{result});
  }catch(error){
   const status=({'42501':403,'P0002':404,'23505':409,'40001':409,'22023':422,'23514':422,'23502':422,'22007':422,'22008':422,'54000':429} as any)[error.code]||503;

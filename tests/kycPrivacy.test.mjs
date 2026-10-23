@@ -46,12 +46,12 @@ test('queue authorizes before selecting minimal fields and returns a stable next
 });
 test('late cancelled upload is removed after fence; failed removal retries; repeat is denied',async()=>{
  let due=false,deleted=false,fail=true;const objects=new Set();
- const rpc=async action=>{if(action==='worker_expired')return due&&!deleted?[row]:[];if(action==='worker_purged'){assert.equal(objects.size,0);deleted=true;return {deleted:true};}throw Error('unexpected');};
+ const rpc=async(action,payload)=>{if(action==='worker_expired')return due&&!deleted?[row]:[];if(action==='worker_attempt'){due=false;return {...row,attempt:'synthetic-attempt'};}if(action==='worker_purged'){assert.equal(payload.attempt,'synthetic-attempt');assert.equal(objects.size,0);deleted=true;return {deleted:true};}throw Error('unexpected');};
  const db={from(){return {select(){return this;},eq(){return this;},async single(){return {data:row};}};},storage:{from(){return {async remove(paths){if(fail)return {error:Error('retry')};for(const p of paths)objects.delete(p);return {};}};}}};
  await assert.rejects(purgeExpired(rpc,db,'synthetic',id));
  objects.add(`synthetic/${id}/id_back`); // Unfinalized late upload, absent from evidence metadata.
  due=true;await assert.rejects(purgeExpired(rpc,db,'synthetic',id));assert.equal(deleted,false);
- fail=false;assert.deepEqual(await purgeExpired(rpc,db,'synthetic',id),{deleted:true});
+ due=true;fail=false;assert.deepEqual(await purgeExpired(rpc,db,'synthetic',id),{deleted:true});
  await assert.rejects(purgeExpired(rpc,db,'synthetic',id));assert.equal(objects.size,0);
 });
 test('full non-person PNG JPEG and WebP payloads decode; truncated files fail',async()=>{
