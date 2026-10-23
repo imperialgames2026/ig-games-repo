@@ -6,6 +6,7 @@ import PokerPlayerProfile, { PLAYER_EMOTES } from '@/components/poker/PokerPlaye
 import PokerSettingsModal from '@/components/poker/PokerSettingsModal';
 import { usePokerSounds } from '@/components/poker/usePokerSounds';
 import './game-cockpit.css';
+import { safePokerAvatar } from '@/lib/pokerAvatar';
 
 // All cards/turns/side pots are managed by poker-table-v1.
 // No local card shuffle, pot assignment, bankroll or wallet access.
@@ -69,6 +70,7 @@ export default function HoldemPracticeTable({variant='holdem'}) {
  const [profileAnalyticsLoading,setProfileAnalyticsLoading]=useState(false);
  const [profileAnalyticsError,setProfileAnalyticsError]=useState('');
  const [activeSocialEvent,setActiveSocialEvent]=useState(null);
+ const profileTrigger=useRef(null);
  const [settingsOpen,setSettingsOpen]=useState(false);
  const [pokerSettings,setPokerSettings]=useState(()=>{
    if(typeof window==='undefined')return DEFAULT_POKER_SETTINGS;
@@ -227,6 +229,7 @@ export default function HoldemPracticeTable({variant='holdem'}) {
        </div>
        <div className="ig-poker-felt-shell rounded-[3rem] border-[12px] border-[#67452a] p-4 shadow-2xl sm:p-8" style={{background:skin.rail}}>
          <div className="ig-poker-stage rounded-[2.5rem] border-2 border-amber-200/60 text-center" style={{background:skin.felt}}>
+           <div className="ig-poker-table-area">
            <div className="ig-poker-board-center">
              <h1 className="text-3xl font-black italic">{isOmaha?'OMAHA':'TEXAS HOLD’EM'}</h1>
              <p className="mt-1 text-sm text-amber-200">SB {table?.smallBlind??'—'} · BB {table?.bigBlind??'—'} · Hand #{table?.handNo??0}</p>
@@ -245,10 +248,10 @@ export default function HoldemPracticeTable({variant='holdem'}) {
                if(!s)return <div key={number} style={{left,top}} className={seatClass}>
                  <div className="truncate font-black">Seat {number+1}</div><div className="ig-seat-detail mt-1 text-gray-300">Open seat</div>
                </div>;
-               return <button type="button" key={number} style={{left,top}} onClick={()=>setProfileSeat(s)}
+               return <button type="button" key={number} style={{left,top}} onClick={event=>{profileTrigger.current=event.currentTarget;setProfileSeat(s);}}
                  aria-label={'Open '+(s.displayName||'player')+' profile'} className={seatClass+' transition hover:border-amber-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-300'}>
                  <div className="flex items-center gap-2">
-                   {s.avatarUrl?<img src={s.avatarUrl} alt="" className="h-8 w-8 shrink-0 rounded-full border border-amber-200/60 object-cover" referrerPolicy="no-referrer"/>:
+                   {safePokerAvatar(s.avatarUrl,s.user_id)?<img src={safePokerAvatar(s.avatarUrl,s.user_id)} alt="" className="h-8 w-8 shrink-0 rounded-full border border-amber-200/60 object-cover" referrerPolicy="no-referrer"/>:
                      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-amber-200/40 bg-amber-950 text-amber-200">♛</span>}
                    <div className="min-w-0"><div className="truncate font-black">{s.displayName||'Imperial Player'} {s.user_id===user?.id?'· YOU':''}</div>
                      <div className="ig-seat-detail truncate text-gray-300">Seat {number+1}</div></div>
@@ -258,6 +261,7 @@ export default function HoldemPracticeTable({variant='holdem'}) {
                  {activeSocialEvent?.target_user_id===s.user_id&&<span aria-live="polite" className="pointer-events-none absolute -top-8 left-1/2 z-20 -translate-x-1/2 animate-bounce rounded-full border border-amber-200/60 bg-black/80 px-3 py-1 text-2xl shadow-xl">{SOCIAL_ICON[activeSocialEvent.action_id]||'✨'}</span>}
                </button>;
              })}
+           </div>
            </div>
            {mySeat&&<div className="ig-poker-hole-center rounded-xl border-2 border-amber-300 bg-black/55 px-3 py-2">
              <div className="flex justify-center gap-2">{(snapshot?.holeCards||[]).map((c,i)=><span key={i}
@@ -309,19 +313,16 @@ export default function HoldemPracticeTable({variant='holdem'}) {
          {loading&&<p role="status" className="mt-2 text-gray-400">Contacting poker table…</p>}
        </div>
      </section>}
-     {profileSeat&&<div className="fixed inset-0 z-[90] grid place-items-center bg-black/70 p-4" onClick={()=>setProfileSeat(null)}>
-       <div onClick={e=>e.stopPropagation()} className="w-full max-w-lg">
-         <PokerPlayerProfile
-           player={{id:profileSeat.user_id,displayName:profileSeat.displayName,avatarUrl:profileSeat.avatarUrl}}
-           analytics={profileAnalytics}
-           loading={profileAnalyticsLoading}
-           analyticsError={profileAnalyticsError}
-           onClose={()=>setProfileSeat(null)}
-           onSendAction={sendSocial}
-           disabled={profileSeat.user_id===user?.id}
-         />
-       </div>
-     </div>}
+     {profileSeat&&<PokerPlayerProfile
+       player={{id:profileSeat.user_id,displayName:profileSeat.displayName,avatarUrl:profileSeat.avatarUrl}}
+       analytics={profileAnalytics}
+       loading={profileAnalyticsLoading}
+       analyticsError={profileAnalyticsError}
+       onClose={()=>setProfileSeat(null)}
+       onRestoreFocus={()=>profileTrigger.current?.focus()}
+       onSendAction={sendSocial}
+       disabled={profileSeat.user_id===user?.id}
+     />}
      <PokerSettingsModal open={settingsOpen} onClose={()=>setSettingsOpen(false)}
        settings={pokerSettings} onSettingsChange={setPokerSettings}/>
    </div>
