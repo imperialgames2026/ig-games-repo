@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { supabase } from '@/lib/supabaseClient';
 import { verifyPracticeDice } from '@/lib/practiceFairDice';
+import '@/components/games/originals-cockpit.css';
 
 const DECISIONS = [
   { id: 'under', label: 'Under 7', test: sum => sum < 7 },
@@ -59,17 +60,18 @@ export default function PlayDice() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0A0612] text-white px-4 py-8">
-      <div className="mx-auto max-w-3xl space-y-6">
+    <main className="ig-original-screen ig-original-dice min-h-screen bg-[#0A0612] text-white px-4 py-8">
+      <div className="ig-original-shell mx-auto max-w-3xl space-y-6">
         <Link className="text-sm text-amber-300 hover:underline" to="/Games">← Back to games</Link>
-        <div className="rounded-2xl border border-amber-500/25 bg-[#191529] p-6">
+        <div className="ig-original-header rounded-2xl border border-amber-500/25 bg-[#191529] p-6">
           <p className="text-sm font-semibold uppercase tracking-widest text-amber-300">Imperial Games · Verified staging</p>
           <h1 className="mt-2 text-4xl font-black">Practice Dice</h1>
-          <p className="mt-3 text-gray-300">Roll two six-sided dice. Predict whether their total is under, equal to, or over seven. Each result comes from a server commitment and can be independently verified.</p>
-          <p className="mt-3 rounded-lg border border-sky-500/30 bg-sky-950/40 p-3 text-sm text-sky-200">Practice only. No wager, purchase, crypto transfer, balance change, or cash prize is possible here.</p>
+          <p className="ig-original-description mt-3 text-gray-300">Roll two six-sided dice. Predict whether their total is under, equal to, or over seven. Each result comes from a server commitment and can be independently verified.</p>
+          <p className="ig-original-notice mt-3 rounded-lg border border-sky-500/30 bg-sky-950/40 p-3 text-sm text-sky-200">Practice only. No wager, purchase, crypto transfer, balance change, or cash prize is possible here.</p>
         </div>
 
-        <section aria-label="Play practice dice" className="rounded-2xl border border-white/10 bg-[#191529] p-6 space-y-5">
+        <div className="ig-original-grid grid gap-5 md:grid-cols-[1fr_1.15fr]">
+        <section aria-label="Play practice dice" className="ig-original-controls rounded-2xl border border-white/10 bg-[#191529] p-6 space-y-5">
           <div className="grid grid-cols-3 gap-2" role="group" aria-label="Prediction">
             {DECISIONS.map(option => (
               <button key={option.id} type="button" disabled={busy}
@@ -98,8 +100,8 @@ export default function PlayDice() {
           {error && <p role="alert" className="rounded-lg bg-red-950 p-3 text-red-200">{error}</p>}
         </section>
 
-        {result && (
-          <section aria-label="Verified result" className="rounded-2xl border border-white/10 bg-[#191529] p-6 space-y-4">
+        {result ? (
+          <section aria-label="Verified result" className="ig-original-stage rounded-2xl border border-white/10 bg-[#191529] p-6 space-y-4">
             <div className="text-center">
               <p className="text-lg text-gray-300">Dice</p>
               <p className="text-6xl font-black text-amber-300">{result.dice.join(' + ')} = {result.sum}</p>
@@ -115,9 +117,12 @@ export default function PlayDice() {
               <p className="mt-2">Algorithm: HMAC-SHA256-v2, rejection-sampled dice</p>
             </details>
           </section>
-        )}
+        ) : <section aria-label="Verified result" className="ig-original-stage rounded-2xl border border-white/10 bg-[#191529] p-6">
+          <div className="text-center"><p className="text-6xl">🎲</p><p className="mt-4 text-xl font-black text-amber-200">Choose a prediction and roll</p></div>
+        </section>}
+        </div>
         {!!history.length && (
-          <section className="rounded-2xl bg-[#191529] p-6">
+          <section className="ig-original-history rounded-2xl bg-[#191529] p-6">
             <h2 className="text-xl font-bold">Recent practice rounds</h2>
             <ul className="mt-4 space-y-2">
               {history.map(round => <li key={round.id} className="flex justify-between border-b border-white/10 pb-2 text-sm">
