@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {Image} from 'imagescript';
 import jpeg from 'jpeg-js';
 import {validateImageFile as validateFile} from '../supabase/functions/ig-kyc-v1/image-file.js';
-import {issueUpload,reviewQueue,purgeExpired,validateQueue} from '../supabase/functions/ig-kyc-v1/privacy.js';
+import {issueUpload,reviewQueue,purgeExpired,validateQueue,redactReviewerDetail} from '../supabase/functions/ig-kyc-v1/privacy.js';
 const decode=Image.decode.bind(Image);
 const validateImageFile=(bytes,decoder)=>validateFile(bytes,decoder,jpeg.decode);
 const id='00000000-0000-4000-8000-000000000001';
@@ -100,4 +100,10 @@ test('resource bound rejects oversized pixel counts before invoking a raster dec
  const image=new Image(2001,2000);image.fill(0x123456ff);const bytes=await image.encode();let invoked=false;
  await assert.rejects(validateImageFile(bytes,async()=>{invoked=true;}),/4 megapixels/);assert.equal(invoked,false);
  const allowed=new Image(2000,2000);allowed.fill(0x123456ff);assert.equal((await validateImageFile(await allowed.encode(),decode)).width,2000);
+});
+
+test('reviewer detail never serializes internal cleanup reservation metadata',()=>{
+ const source={id,revision:3,evidence:{},audit:[],cleanup_attempt:'synthetic-private-token',cleanup_attempts:2,cleanup_retry_at:'2099-01-01',cleanup_future_private:'private',face_lease:'private',face_lease_until:'2099-01-01'};
+ assert.deepEqual(redactReviewerDetail(source),{id,revision:3,evidence:{},audit:[]});
+ assert.equal(source.cleanup_attempt,'synthetic-private-token','redaction must not alter service state');
 });

@@ -43,3 +43,10 @@ export async function purgeExpired(rpc,db,bucket,id){
  if(error)throw Error('Deletion incomplete');
  return rpc('worker_purged',{attempt:s.attempt});
 }
+
+// The detail RPC is service-only and returns the evolving database row. Keep
+// all reservation state inside that boundary, including future cleanup fields.
+export function redactReviewerDetail(result){
+ return Object.fromEntries(Object.entries(result).filter(([key])=>
+  !key.startsWith('cleanup_')&&!['face_lease','face_lease_until'].includes(key)));
+}

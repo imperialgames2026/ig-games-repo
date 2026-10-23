@@ -345,9 +345,9 @@
         "image-file.js"
       ],
       "sha256": {
-        "index.ts": "6ad224fa33785287a75944e220ff3ce8b15f13bfe3400430ce55c564f4b49d06",
+        "index.ts": "a5bee2cb5b3f3f5e3dbc4425109312514a940ca8c5c4a414d9b1ff00afab66bb",
         "validation.js": "f5e488154a7ec6102fbe3ba51f524aaa1229ddf3d031b16bbe20906bebb16105",
-        "privacy.js": "cf5c282a513c7517d5e506e859b5e458cf94ec0c44e0688b47de6cbad6811f4c",
+        "privacy.js": "09ee58de80c4d26169af81be76992a2a38ff405bb856f13333b439cff0ed2146",
         "image-file.js": "d1e888a264afbf78183c1e673cf31a2b868a942b99e3c67ea58f44d07672e7ed"
       },
       "status": "pending_deployment"

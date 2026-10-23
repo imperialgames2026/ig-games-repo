@@ -3,7 +3,7 @@ import {validateInput,KINDS} from './validation.js';
 import {Image} from 'npm:imagescript@3.3.0';
 import jpeg from 'npm:jpeg-js@0.4.4';
 import {validateImageFile} from './image-file.js';
-import {issueUpload,reviewQueue,purgeExpired} from './privacy.js';
+import {issueUpload,reviewQueue,purgeExpired,redactReviewerDetail} from './privacy.js';
 const BUCKET='ig-kyc-evidence';
 const headers={'content-type':'application/json','cache-control':'no-store','access-control-allow-origin':'*','access-control-allow-methods':'POST, OPTIONS','access-control-allow-headers':'authorization,apikey,content-type,x-client-info,x-supabase-api-version'};
 const reply=(status:number,data:unknown)=>new Response(JSON.stringify(data),{status,headers});
@@ -75,8 +75,9 @@ Deno.serve(async request=>{
    return reply(200,{retention_protocol:'reconcile-v2',result:await purgeExpired((action,extra)=>rpc(action,{...input,...extra}),db,BUCKET,input.id)});
   }
   if(input.action==='queue'&&(input.status!==undefined||input.limit!==undefined||input.cursor!==undefined))return reply(200,{result:await reviewQueue(rpc,db,input)});
-  const result=await rpc(input.action);
+  let result=await rpc(input.action);
   if(input.action==='detail'){
+   result=redactReviewerDetail(result);
    // Storage paths and lease credentials never appear in the browser response.
    if(new Date(result.expires_at).getTime()<=Date.now()){result.full_name='Expired identity details';result.birth_date=null;result.face_result=null;result.evidence={};}
    result.evidence=Object.fromEntries(Object.entries(result.evidence||{}).map(([k,v]:[string,any])=>[k,{sha256:v.sha256,mime:v.mime,size:v.size,width:v.width,height:v.height}]));

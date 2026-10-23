@@ -168,6 +168,20 @@ const retryDb={storage:{from:()=>({remove:async paths=>{
 const sweep=item=>purgeExpired((action,extra)=>retryRpc(action,item,extra),retryDb,'ig-kyc-evidence',item);
 const firstBatch=await retryRpc('worker_expired');assert.equal(firstBatch.length,10);assert(firstBatch.every(x=>failIds.has(x.id)));
 for(const item of firstBatch)await assert.rejects(sweep(item.id),/Deletion incomplete/);
+// An actual current reservation must remain server-internal even for staff.
+const reserved=fairIds[0];
+const privateAttempt=sql(`select cleanup_attempt from public.ig_kyc_submissions where id='${reserved}';`);
+assert.match(privateAttempt,/^[0-9a-f-]{36}$/);
+for(const reviewer of [admin,await account('superadmin')]){
+ const response=await call(reviewer,'detail',{id:reserved});assert.equal(response.status,200);
+ assert(!Object.keys(response.data.result).some(key=>key.startsWith('cleanup_')));
+ assert(!JSON.stringify(response.data).includes(privateAttempt));
+ assert.equal(response.data.result.id,reserved);
+}
+assert.equal((await call(other,'detail',{id:reserved})).status,403);
+assert((await other.client.rpc('ig_kyc_action',{p_actor:other.id,p_action:'detail',p_payload:{id:reserved}})).error,'browser cannot bypass Edge redaction via service-only RPC');
+assert.equal(sql(`select cleanup_attempt from public.ig_kyc_submissions where id='${reserved}';`),privateAttempt);
+console.log('PASS active cleanup reservation stays internal across admin/superadmin detail; customer and direct RPC denied; reservation unchanged');
 assert.equal(health().retry_waiting,10);
 assert.equal(health().due_count,3);
 // Even if a slow cycle outlasts every delay, their newer due time yields to the
