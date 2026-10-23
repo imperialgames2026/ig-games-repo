@@ -162,3 +162,109 @@
   .ig-poker-seat { width:68px; }
   .ig-poker-board-center { width:58%; }
 }
+
+/* Remaining active game cockpits: Blackjack, Baccarat, Crash and Trenball. */
+.ig-blackjack-stage,.ig-shared-stage,.ig-crash-stage { min-width:0; width:100%; }
+.ig-compact-wager { display:grid; grid-template-columns:40px minmax(72px,110px) 40px; gap:6px; align-items:center; }
+.ig-compact-wager button,.ig-compact-wager input { min-height:40px; }
+.ig-compact-wager input { width:100%; text-align:center; }
+
+@media (max-width:1024px), (max-height:820px) {
+  .ig-blackjack-screen,.ig-shared-screen,.ig-crash-screen {
+    height:calc(100dvh - 64px);
+    min-height:0 !important;
+    overflow:hidden;
+    padding:.35rem !important;
+  }
+  .ig-blackjack-shell,.ig-shared-shell,.ig-crash-shell {
+    height:100%;
+    min-height:0;
+    display:grid;
+    grid-template-rows:auto auto minmax(0,1fr);
+    gap:.35rem !important;
+  }
+  .ig-blackjack-notice,.ig-shared-notice,.ig-crash-description { display:none !important; }
+  .ig-blackjack-status,.ig-shared-status { padding:.4rem .65rem !important; min-height:36px; }
+  .ig-blackjack-grid,.ig-shared-grid,.ig-crash-grid {
+    min-height:0;
+    height:100%;
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) minmax(210px,28vw) !important;
+    gap:.4rem !important;
+    overflow:hidden;
+  }
+  .ig-blackjack-main,.ig-shared-main,.ig-crash-main {
+    min-height:0;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    gap:.35rem !important;
+  }
+  .ig-blackjack-rail,.ig-shared-rail,.ig-crash-rail {
+    min-height:0;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    scrollbar-width:thin;
+    display:flex;
+    flex-direction:column;
+    gap:.4rem !important;
+  }
+  .ig-blackjack-stage,.ig-shared-stage,.ig-crash-stage {
+    flex:1 1 auto;
+    min-height:0;
+    overflow:hidden;
+  }
+  .ig-blackjack-stage { border-width:6px !important; padding:.3rem !important; border-radius:28px !important; }
+  .ig-blackjack-felt { height:100%; min-height:0; padding:.4rem !important; border-radius:22px !important; display:flex; flex-direction:column; }
+  .ig-blackjack-title { font-size:1.25rem !important; margin-top:.1rem !important; }
+  .ig-blackjack-dealer { margin-top:.25rem !important; min-height:48px !important; }
+  .ig-blackjack-dealer > span { width:34px !important; height:46px !important; font-size:.85rem !important; }
+  .ig-blackjack-ruleline { margin:.25rem auto !important; padding:.25rem !important; font-size:.58rem !important; }
+  .ig-blackjack-seats { flex:1 1 auto; min-height:0; gap:.25rem !important; grid-template-columns:repeat(4,minmax(0,1fr)) !important; }
+  .ig-blackjack-seat { min-height:0 !important; padding:.35rem !important; border-radius:.65rem !important; font-size:.65rem; overflow:hidden; }
+  .ig-blackjack-seat .ig-bj-card { width:28px !important; height:38px !important; font-size:.7rem !important; }
+  .ig-blackjack-bets { margin-top:.3rem !important; gap:.3rem !important; }
+  .ig-blackjack-bets button { min-height:50px !important; padding:.35rem !important; }
+  .ig-blackjack-bets button strong { font-size:.8rem !important; }
+  .ig-blackjack-bets button span { font-size:.58rem !important; margin-top:.05rem !important; }
+  .ig-blackjack-footnote { display:none; }
+  .ig-blackjack-controls,.ig-shared-controls { flex:0 0 auto; padding:.45rem !important; }
+  .ig-blackjack-controls h2,.ig-shared-controls h2 { font-size:.82rem !important; }
+  .ig-blackjack-controls p,.ig-shared-controls p,.ig-blackjack-controls button,.ig-shared-controls button { font-size:.66rem !important; }
+
+  .ig-shared-stage { border-width:6px !important; padding:.3rem !important; border-radius:26px !important; }
+  .ig-shared-felt { height:100%; min-height:0; padding:.45rem !important; border-radius:20px !important; display:flex; flex-direction:column; }
+  .ig-shared-heading { font-size:1.3rem !important; margin-top:.1rem !important; }
+  .ig-shared-result { margin:.3rem 0 !important; padding:.45rem !important; }
+  .ig-shared-result .text-5xl { font-size:2.3rem !important; }
+  .ig-shared-options { flex:1 1 auto; min-height:0; gap:.3rem !important; grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
+  .ig-shared-options button { min-height:0 !important; padding:.45rem !important; }
+  .ig-shared-options strong { font-size:.78rem !important; }
+  .ig-shared-options span { font-size:.58rem !important; margin-top:.08rem !important; }
+  .ig-shared-footnote { display:none; }
+  .ig-shared-tabs { margin:0 !important; }
+  .ig-shared-tabs p { display:none; }
+
+  .ig-crash-shell { grid-template-rows:auto auto minmax(0,1fr); }
+  .ig-crash-header { margin:0 !important; }
+  .ig-crash-title-row { margin:0 !important; }
+  .ig-crash-title-row h1 { font-size:1.6rem !important; }
+  .ig-crash-stage { padding:.45rem !important; border-radius:18px !important; display:flex; flex-direction:column; }
+  .ig-crash-multiplier { font-size:3rem !important; padding-top:.25rem !important; }
+  .ig-crash-chart { flex:1 1 auto; min-height:90px; max-height:220px; }
+  .ig-crash-controls { padding:.5rem !important; border-radius:18px !important; }
+  .ig-crash-controls .mt-6 { margin-top:.35rem !important; }
+  .ig-crash-rail > div { padding:.55rem !important; border-radius:18px !important; }
+  .ig-crash-rail h2 { margin-bottom:.35rem !important; font-size:.9rem !important; }
+  .ig-crash-disclaimer { display:none; }
+}
+
+@media (max-width:640px) and (orientation:portrait) {
+  .ig-blackjack-grid,.ig-shared-grid,.ig-crash-grid {
+    grid-template-columns:1fr !important;
+    grid-template-rows:minmax(0,1fr) auto;
+  }
+  .ig-blackjack-rail,.ig-shared-rail,.ig-crash-rail { max-height:27dvh; display:grid; grid-template-columns:1fr 1fr; overflow:auto; }
+  .ig-blackjack-rail > section:last-child,.ig-shared-rail > section:last-child,.ig-crash-rail > div:last-child { display:none; }
+  .ig-blackjack-seat:nth-child(n+5) { display:none; }
+}
