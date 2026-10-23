@@ -34,3 +34,35 @@ retained craps point/bets, and no unseen new rounds. Also exercise lightweight a
 reduced-motion modes. No APK, signing, installation, hosted writes or credentials
 were used. Footer and unrelated website changes remain unchanged. Draft only;
 merge/deployment and device acceptance are separate gates.
+
+
+## Additional validation
+
+The application regression command from package.json passed 170 tests with only
+`tests/kycValidation.test.mjs` excluded because it exercises comparison-result
+normalization. No comparison worker or biometric suite ran. Focused visibility
+regressions remained green. Review found no additional reproducible defect in
+round identity, generation invalidation, reentrant completion or disposal.
+
+The existing lightweight renderer flow passed. The existing actual Unity flow
+loaded and exercised roulette but timed out selecting `Roll dice · 10 chips`.
+The same command on unchanged main `0d32d24` failed at the same assertion; this is
+not attributed to the timing patch and is not marked passed.
+
+The additional opt-in `npm run test:tables:unity-visibility` uses actual bundled
+Unity WASM and a 640×480 headless Chromium viewport with software WebGL. It injects
+only practice bet callbacks and document visibility events; it does not mock
+Unity motion or completion. All external requests are blocked. It uses real
+35-second waits and requires Unity completion (watchdog-only settlement fails).
+All four cases passed. It checks roulette/craps, auto off/on, paused motion and balances while hidden,
+one completion after resume, and inter-round hiding without restart/catch-up.
+
+Important limits: at 1280×1000, two attempts reached watchdog settlement without
+a Unity completion, so the completion assertion failed. This may be runtime
+capacity; it is not certified as fixed or harmless. The smaller viewport is an
+explicit bounded test, not a performance claim. Genuine tab switching was also
+probed without visibility overrides: both foreground and background tabs remained
+`document.hidden=false`, `visibilityState=visible`. No DISPLAY or Xvfb is available.
+Thus real OS/browser backgrounding and Razr acceptance remain blocked by this
+headless-only environment and must be performed elsewhere without changing these
+permissions. No denied remote access was retried.
