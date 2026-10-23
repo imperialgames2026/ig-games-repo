@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { supabase } from '@/lib/supabaseClient';
+import PokerPlayerProfile from '@/components/poker/PokerPlayerProfile';
 import './game-cockpit.css';
 
 // All cards/turns/side pots are managed by poker-table-v1.
@@ -29,6 +30,7 @@ export default function HoldemPracticeTable({variant='holdem'}) {
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState('');
  const [raise,setRaise]=useState('40');
+ const [profileSeat,setProfileSeat]=useState(null);
  const requestRef=useRef(null);
  const last=useRef(null);
  const alive=useRef(true);
@@ -138,12 +140,21 @@ export default function HoldemPracticeTable({variant='holdem'}) {
              {Array.from({length:isOmaha?6:8},(_,number)=>{
                const s=seats.find(x=>x.seat_no===number);
                const [left,top]=SEAT_POSITIONS[isOmaha?6:8][number];
-               return <div key={number} style={{left,top}} className={'ig-poker-seat rounded-xl border p-2 text-left text-xs shadow-lg '+(s?.seat_no===turn?.seat_no?'border-amber-300 bg-amber-200/20 ring-2 ring-amber-300/30':'border-white/30 bg-[#0b241d]/90')}>
-                 <div className="truncate font-black">Seat {number+1} {s?.user_id===user?.id?'· YOU':''}</div>
-                 <div className="ig-seat-detail mt-1 truncate text-gray-300">{s?'Player':'Open seat'}</div>
-                 {!!s&&<><p className="ig-seat-detail font-black text-amber-200">{s.stack} chips</p>
-                   <p className="ig-seat-detail text-white/70">Pot {s.committed} · {s.folded?'Folded':s.all_in?'All-in':s.acted?'Acted':'Waiting'}</p></>}
+               const seatClass='ig-poker-seat rounded-xl border p-2 text-left text-xs shadow-lg '+(s?.seat_no===turn?.seat_no?'border-amber-300 bg-amber-200/20 ring-2 ring-amber-300/30':'border-white/30 bg-[#0b241d]/90');
+               if(!s)return <div key={number} style={{left,top}} className={seatClass}>
+                 <div className="truncate font-black">Seat {number+1}</div><div className="ig-seat-detail mt-1 text-gray-300">Open seat</div>
                </div>;
+               return <button type="button" key={number} style={{left,top}} onClick={()=>setProfileSeat(s)}
+                 aria-label={'Open '+(s.displayName||'player')+' profile'} className={seatClass+' transition hover:border-amber-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-300'}>
+                 <div className="flex items-center gap-2">
+                   {s.avatarUrl?<img src={s.avatarUrl} alt="" className="h-8 w-8 shrink-0 rounded-full border border-amber-200/60 object-cover" referrerPolicy="no-referrer"/>:
+                     <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-amber-200/40 bg-amber-950 text-amber-200">♛</span>}
+                   <div className="min-w-0"><div className="truncate font-black">{s.displayName||'Imperial Player'} {s.user_id===user?.id?'· YOU':''}</div>
+                     <div className="ig-seat-detail truncate text-gray-300">Seat {number+1}</div></div>
+                 </div>
+                 <p className="ig-seat-detail mt-1 font-black text-amber-200">{s.stack} chips</p>
+                 <p className="ig-seat-detail text-white/70">Pot {s.committed} · {s.folded?'Folded':s.all_in?'All-in':s.acted?'Acted':'Waiting'}</p>
+               </button>;
              })}
            </div>
            {mySeat&&<div className="ig-poker-hole-center rounded-xl border-2 border-amber-300 bg-black/55 px-3 py-2">
@@ -196,6 +207,15 @@ export default function HoldemPracticeTable({variant='holdem'}) {
          {loading&&<p role="status" className="mt-2 text-gray-400">Contacting poker table…</p>}
        </div>
      </section>}
+     {profileSeat&&<div className="fixed inset-0 z-[90] grid place-items-center bg-black/70 p-4" onClick={()=>setProfileSeat(null)}>
+       <div onClick={e=>e.stopPropagation()} className="w-full max-w-lg">
+         <PokerPlayerProfile
+           player={{id:profileSeat.user_id,displayName:profileSeat.displayName,avatarUrl:profileSeat.avatarUrl}}
+           onClose={()=>setProfileSeat(null)}
+           disabled
+         />
+       </div>
+     </div>}
    </div>
  </main>;
 }

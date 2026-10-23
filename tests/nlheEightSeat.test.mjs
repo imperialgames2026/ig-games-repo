@@ -22,3 +22,12 @@ test('side-pot tie remainder follows 8-seat button order',()=>{
  assert.match(edge,/b\.seat_no-button-1\+8\)%8/);
  assert.doesNotMatch(edge,/seat_no-button-1\+6\)%6/);
 });
+test('seat snapshots expose only public player identity needed by the table profile button',()=>{
+ assert.match(edge,/select\("id,display_name,profile_picture"\)/);
+ assert.match(edge,/seatedIds/);
+ assert.match(edge,/displayName:profile\?\.display_name/);
+ assert.match(edge,/avatarUrl:profile\?\.profile_picture/);
+ assert.doesNotMatch(edge,/select\("id,display_name,profile_picture,email/);
+ assert.match(ui,/PokerPlayerProfile/);
+ assert.match(ui,/Open '\+\(s\.displayName\|\|'player'\)\+' profile'/);
+});
