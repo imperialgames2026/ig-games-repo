@@ -158,6 +158,18 @@ Deno.serve(async(req)=>{
   if(action==="snapshot"){
    const {data:seats,error:seatsError}=await db.from("poker_seats_v1").select("seat_no,user_id,stack,committed,street_bet,folded,all_in,acted").eq("table_id",tableId).order("seat_no");
    if(seatsError)throw seatsError;
+   const seatedIds=(seats||[]).map((seat:any)=>seat.user_id).filter(Boolean);
+   let publicProfiles:any[]=[];
+   if(seatedIds.length){
+    const {data:profiles,error:profilesError}=await db.from("profiles").select("id,display_name,profile_picture").in("id",seatedIds);
+    if(profilesError)throw profilesError;
+    publicProfiles=profiles||[];
+   }
+   const publicProfileById=new Map(publicProfiles.map((profile:any)=>[profile.id,profile]));
+   const publicSeats=(seats||[]).map((seat:any)=>{
+    const profile=publicProfileById.get(seat.user_id);
+    return {...seat,displayName:profile?.display_name||"Imperial Player",avatarUrl:profile?.profile_picture||null};
+   });
    const {data:hole}=await db.from("poker_seats_v1").select("private_hole").eq("table_id",tableId).eq("user_id",user.id).single();
    const publicTable={id:table.id,variant:table.variant,status:table.status,version:table.version,button:table.button,turnIndex:table.turn_index,street:table.street,board:table.board,smallBlind:table.small_blind,bigBlind:table.big_blind,currentBet:table.current_bet,minRaise:table.min_raise,deckCommitment:table.deck_commitment,handNo:table.hand_no,eventId:table.event_id,ownerId:table.owner_id,
     turnStartedAt:table.turn_started_at,turnDeadlineAt:table.turn_deadline_at,
@@ -165,7 +177,7 @@ Deno.serve(async(req)=>{
    const {data:priceConfig}=await db.from("poker_timebank_prices_v1").select("igd_price,ign_price,payment_enabled,practice_preview_enabled").eq("singleton",true).maybeSingle();
    const price={igd:priceConfig?.igd_price??"0.15",ign:priceConfig?.ign_price??null,
     paymentEnabled:priceConfig?.payment_enabled===true,practicePreviewEnabled:priceConfig?.practice_preview_enabled===true};
-   return json({table:publicTable,seats,holeCards:hole?.private_hole??[],serverNow:new Date().toISOString(),timebank:price,
+   return json({table:publicTable,seats:publicSeats,holeCards:hole?.private_hole??[],serverNow:new Date().toISOString(),timebank:price,
     ...(table.status==="complete"?{revealedSeed:table.seed_secret,verificationHandId:tableId+":"+table.hand_no}: {})});
   }
   return json({error:"Unsupported action"},400);
