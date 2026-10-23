@@ -1,5 +1,9 @@
 import {createClient} from 'npm:@supabase/supabase-js@2.118.0';
-import {validateInput,imageInfo,KINDS} from './validation.js';
+import {validateInput,KINDS} from './validation.js';
+import {Image} from 'npm:imagescript@3.3.0';
+import jpeg from 'npm:jpeg-js@0.4.4';
+import {validateImageFile} from './image-file.js';
+import {issueUpload,reviewQueue,purgeExpired,redactReviewerDetail} from './privacy.js';
 const BUCKET='ig-kyc-evidence';
 const headers={'content-type':'application/json','cache-control':'no-store','access-control-allow-origin':'*','access-control-allow-methods':'POST, OPTIONS','access-control-allow-headers':'authorization,apikey,content-type,x-client-info,x-supabase-api-version'};
 const reply=(status:number,data:unknown)=>new Response(JSON.stringify(data),{status,headers});
@@ -36,26 +40,20 @@ Deno.serve(async request=>{
   actor=user.id;
  }
  async function rpc(action:string,payload:any=input){
-  const {data,error}=await db.rpc('ig_kyc_action',{p_actor:actor,p_action:action,p_payload:payload});
+  const {data,error}=await db.rpc(['worker_expired','worker_attempt','worker_purged'].includes(action)?'ig_kyc_retention_action_v2':'ig_kyc_action',{p_actor:actor,p_action:action,p_payload:payload});
   if(error)throw Object.assign(Error('Request rejected'),{code:error.code});return data;
  }
  const path=(s:any,kind:string)=>`${s.user_id}/${s.id}/${kind}`;
  try{
   if(input.action==='upload'){
-   const s=await rpc('upload');if(input.kind==='id_back'&&s.document_type==='passport')return reply(400,{error:'Passport needs its photo page only'});
-   const {data,error}=await db.storage.from(BUCKET).createSignedUploadUrl(path(s,input.kind),{upsert:false});
-   if(error)throw Error('Storage unavailable');
-   // Recheck after issuance: cancellation/demotion must not receive a new token,
-   // and cleanup must outlive the actual issue time, including slow Storage calls.
-   await rpc('upload');
-   return reply(200,{path:data.path,token:data.token});
+   return reply(200,await issueUpload(rpc,db.storage.from(BUCKET),input.kind));
   }
   if(input.action==='submit'){
    const s=await rpc('upload');const evidence:Record<string,unknown>={};
    for(const kind of s.document_type==='passport'?['id_front','selfie']:KINDS){
     const name=path(s,kind);const {data,error}=await db.storage.from(BUCKET).download(name);
     if(error||!data||data.size>8388608)return reply(422,{error:'Upload each required image, up to 8 MiB'});
-    const bytes=new Uint8Array(await data.arrayBuffer());let info;try{info=imageInfo(bytes);}catch{return reply(422,{error:'An image is invalid. Cancel this draft and upload valid images.'});}
+    const bytes=new Uint8Array(await data.arrayBuffer());let info;try{info=await validateImageFile(bytes,Image.decode.bind(Image),jpeg.decode);}catch{return reply(422,{error:'An image is invalid or exceeds 4 megapixels. Cancel this draft and upload valid resized images.'});}
     if(data.type!==info.mime)return reply(422,{error:'Image type does not match the file'});
     evidence[kind]={path:name,sha256:await sha(bytes),...info};
    }
@@ -74,19 +72,17 @@ Deno.serve(async request=>{
    return reply(200,{job:{id:job.id,lease:job.lease,images}});
   }
   if(input.action==='worker_purged'){
-   const expired=await rpc('worker_expired');const job=expired.find((x:any)=>x.id===input.id);if(!job)return reply(409,{error:'Evidence is not due for deletion'});
-   // Include predictable unfinalized upload keys too; no orphaned cancelled drafts.
-   const {data:s,error:readError}=await db.from('ig_kyc_submissions').select('user_id,id').eq('id',job.id).single();if(readError)throw Error('Unavailable');
-   const {error}=await db.storage.from(BUCKET).remove(KINDS.map(k=>path(s,k)));if(error)throw Error('Deletion incomplete');
-   return reply(200,{result:await rpc('worker_purged')});
+   return reply(200,{retention_protocol:'reconcile-v2',result:await purgeExpired((action,extra)=>rpc(action,{...input,...extra}),db,BUCKET,input.id)});
   }
-  const result=await rpc(input.action);
+  if(input.action==='queue'&&(input.status!==undefined||input.limit!==undefined||input.cursor!==undefined))return reply(200,{result:await reviewQueue(rpc,db,input)});
+  let result=await rpc(input.action);
   if(input.action==='detail'){
+   result=redactReviewerDetail(result);
    // Storage paths and lease credentials never appear in the browser response.
    if(new Date(result.expires_at).getTime()<=Date.now()){result.full_name='Expired identity details';result.birth_date=null;result.face_result=null;result.evidence={};}
    result.evidence=Object.fromEntries(Object.entries(result.evidence||{}).map(([k,v]:[string,any])=>[k,{sha256:v.sha256,mime:v.mime,size:v.size,width:v.width,height:v.height}]));
   }
-  if(input.action==='worker_expired')return reply(200,{result:result.map((x:any)=>({id:x.id}))});
+  if(input.action==='worker_expired')return reply(200,{retention_protocol:'reconcile-v2',result:result.map((x:any)=>({id:x.id}))});
   return reply(200,{result});
  }catch(error){
   const status=({'42501':403,'P0002':404,'23505':409,'40001':409,'22023':422,'23514':422,'23502':422,'22007':422,'22008':422,'54000':429} as any)[error.code]||503;

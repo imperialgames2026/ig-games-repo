@@ -59,13 +59,13 @@
     },
     {
       "name": "poker-table-v1",
-      "deployed_version": 12,
+      "deployed_version": 15,
       "verify_jwt": true,
       "files": [
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "e4fde9cfb9e95dedb21cbd4b74b8b8bf013a8ca257af807670024315f29d21a6"
+        "index.ts": "4681da277214319a8a9decbcb5a7d29895de584006ac5e032a2da429c5c79288"
       }
     },
     {
@@ -340,12 +340,17 @@
       "verify_jwt": true,
       "files": [
         "index.ts",
-        "validation.js"
+        "validation.js",
+        "privacy.js",
+        "image-file.js"
       ],
       "sha256": {
-        "index.ts": "c6bcb885f544f795154c268947621fb4d9d4c46c0070e91a6d3d405b3699cb7f",
-        "validation.js": "121f6461333f6eadcc38b7ea77766142ac4941e0b4148674ab10650750085f5f"
-      }
+        "index.ts": "a5bee2cb5b3f3f5e3dbc4425109312514a940ca8c5c4a414d9b1ff00afab66bb",
+        "validation.js": "f5e488154a7ec6102fbe3ba51f524aaa1229ddf3d031b16bbe20906bebb16105",
+        "privacy.js": "09ee58de80c4d26169af81be76992a2a38ff405bb856f13333b439cff0ed2146",
+        "image-file.js": "d1e888a264afbf78183c1e673cf31a2b868a942b99e3c67ea58f44d07672e7ed"
+      },
+      "status": "pending_deployment"
     }
   ],
   "migrations": [
@@ -764,6 +769,25 @@
     {
       "file": "20261022154824_lower_staging_treasury_approval_threshold_to_1000.sql",
       "sha256": "a39bb4958adb8fc7ec9278daf1388174552c7321280193660edd05f19457891e"
+    },
+    {
+      "file": "20261022210709_kyc_profile_lifecycle.sql",
+      "sha256": "92a8ee01467e39ef465745007470f2f2ef4a563ee6aec35654ddb6e249b4b33c",
+      "status": "pending_deployment"
+    },
+    {
+      "file": "20261022212136_kyc_retention_reconciliation.sql",
+      "sha256": "9fd7313f02c7bc619d56389737d2f5be83cd8ffbc68f9de7bd5bb1c7b28a9697",
+      "status": "pending_deployment"
+    },
+    {
+      "file": "20261023164745_kyc_retention_fair_retry.sql",
+      "sha256": "f8cd8f4ef9ceb1dd88d5ed5e1076ed61f9a476b5fa422c4d511e04ada1aecd89",
+      "status": "pending_deployment"
+    },
+    {
+      "file": "20261023174424_poker_social_events_v1.sql",
+      "sha256": "f9fe890fda7b7d7871b6a7e4013ce83af4a7a4c022e0cf8b1b4093d99f2386d7"
     }
   ]
 }

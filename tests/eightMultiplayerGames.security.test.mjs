@@ -90,6 +90,23 @@ test('server handlers reject unauthenticated real money action paths',()=>{
   }
 });
 
+test('Blackjack, Baccarat, Crash and Trenball use compact in-game cockpits with direct wager sizing',()=>{
+  const blackjack=file('components/games/BlackjackPracticeTable.jsx');
+  const shared=file('components/games/SharedEventPracticeTable.jsx');
+  const crash=file('components/games/CrashPracticeV2.jsx');
+  for(const text of [blackjack,shared,crash]){
+    assert.match(text,/game-cockpit\.css/);
+    assert.match(text,/÷2/);
+    assert.match(text,/×2/);
+  }
+  assert.match(blackjack,/ig-blackjack-screen/);
+  assert.match(shared,/ig-shared-screen/);
+  assert.match(crash,/ig-crash-screen/);
+  assert.doesNotMatch(blackjack,/overflow-x-auto/);
+  assert.doesNotMatch(shared,/overflow-x-auto/);
+  assert.doesNotMatch(crash,/overflow-x-auto/);
+});
+
 test('Blackjack abandoned turns expire on server clock without giving browser authority',()=>{
   const migration=file('supabase/migrations/20261017205500_blackjack_turn_timeouts.sql');
   const api=file('supabase/functions/ig-blackjack-practice/index.ts');
