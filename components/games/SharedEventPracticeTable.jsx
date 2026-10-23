@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSharedEventPractice } from '@/hooks/useSharedEventPractice';
 import { CircleDot, Crown, Users, ShieldCheck } from 'lucide-react';
+import './game-cockpit.css';
 
 const ALL_CRASH = [
   {id:'auto_150',label:'AUTO 1.50×',detail:'Classic cashout at 1.50×',payout:'1.5×'},
@@ -22,13 +23,22 @@ const BACCARAT = [
 ];
 const CHIP_VALUES=[1,5,10,25,100];
 const asChips = n => Number(n||0).toLocaleString();
+function WagerAmount({value,setValue,max=0,disabled=false}){
+ const limit=Math.max(1,Math.floor(Number(max)||1));
+ const set=n=>setValue(Math.max(1,Math.min(limit,Math.floor(Number(n)||1))));
+ return <div className="ig-compact-wager" aria-label="Practice wager amount">
+  <button type="button" disabled={disabled||value<=1} onClick={()=>set(Math.floor(value/2))} className="rounded-lg border border-white/30 bg-black/20 font-black disabled:opacity-40">÷2</button>
+  <input aria-label="Practice wager amount" type="number" inputMode="numeric" min="1" max={limit} value={value} disabled={disabled} onChange={e=>set(e.target.value)} className="rounded-lg border border-yellow-300/40 bg-[#0d0915] px-2 text-center font-black text-yellow-100"/>
+  <button type="button" disabled={disabled||value>=limit} onClick={()=>set(value*2)} className="rounded-lg border border-white/30 bg-black/20 font-black disabled:opacity-40">×2</button>
+ </div>;
+}
 const formatCard = rank => {
   const n=Number(rank);
   return n===1?'A':n===11?'J':n===12?'Q':n===13?'K':String(n);
 };
 
 function TableOptions({options,totals,onBet,canBet,busy}) {
-  return <div className={'grid gap-3 '+(options.length===3?'sm:grid-cols-3':'sm:grid-cols-2 lg:grid-cols-3')}>
+  return <div className={'ig-shared-options grid gap-3 '+(options.length===3?'sm:grid-cols-3':'sm:grid-cols-2 lg:grid-cols-3')}>
     {options.map(opt=>{
       const summary=totals.find(x=>x.target===opt.id);
       return <button type="button" key={opt.id} disabled={!canBet||busy}
@@ -88,45 +98,46 @@ export default function SharedEventPracticeTable({mode='crash'}) {
   const options=mode==='baccarat'?BACCARAT:mode==='trenball'?TRENBALL:ALL_CRASH;
   const title=mode==='trenball'?'TREN BALL':mode==='baccarat'?'BACCARAT':'CRASH';
   const playerBets=table?.myBets||[];
-  return <main className="min-h-screen bg-[#0b0714] px-3 py-8 text-white sm:px-6">
-    <div className="mx-auto max-w-7xl space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-2">
+  return <main className="ig-game-screen ig-shared-screen min-h-screen bg-[#0b0714] px-3 py-8 text-white sm:px-6">
+    <div className="ig-shared-shell mx-auto max-w-7xl space-y-5">
+      <div className="ig-cockpit-topbar flex flex-wrap items-center justify-between gap-2">
         <Link to="/Games" className="text-sm font-semibold text-yellow-200 hover:underline">← Game lobby</Link>
         <span className="rounded-full border border-yellow-300/35 bg-yellow-300/10 px-4 py-1 text-xs font-black uppercase text-yellow-200">Shared multiplayer · Staging only</span>
       </div>
-      <div className="flex items-start gap-3 rounded-xl border border-sky-300/25 bg-sky-950/60 p-4 text-sm text-sky-100">
+      <div className="ig-shared-notice flex items-start gap-3 rounded-xl border border-sky-300/25 bg-sky-950/60 p-4 text-sm text-sky-100">
         <ShieldCheck className="h-5 w-5 shrink-0 text-sky-300"/>
         <p>Practice chips only · No deposits, purchases, crypto, cashouts, transfers, or redeemable rewards. The server decides and settles every shared round.</p>
       </div>
-      {game==='crash' && <div className="flex flex-wrap gap-2">
+      {game==='crash' && <div className="ig-shared-tabs flex flex-wrap gap-2">
         <Link className={'rounded-lg px-5 py-2 font-black '+(mode==='crash'?'bg-yellow-300 text-black':'border border-white/30')} to="/PlayCrash">Classic Crash · automatic cashout</Link>
         <Link className={'rounded-lg px-5 py-2 font-black '+(mode==='trenball'?'bg-yellow-300 text-black':'border border-white/30')} to="/PlayTrenball">Trenball · Red / Green / Moon</Link>
         <p className="self-center text-xs text-white/60">Both tabs share one multiplier and betting window.</p>
       </div>}
-      {table && <div role="status" className={'flex items-center justify-between gap-3 rounded-xl border p-4 '+(isOpen?'border-green-400/40 bg-green-950/30':'border-yellow-300/40 bg-yellow-950/20')}>
+      {table && <div role="status" className={'ig-shared-status flex items-center justify-between gap-3 rounded-xl border p-4 '+(isOpen?'border-green-400/40 bg-green-950/30':'border-yellow-300/40 bg-yellow-950/20')}>
         <span className="text-sm font-bold">{isOpen?'BETTING OPEN · ROUND '+table.round:'NO MORE BETS · READY TO RESOLVE'}</span>
         <strong className="font-mono text-2xl text-yellow-200">{isOpen?seconds+'s':'LOCKED'}</strong>
       </div>}
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <div className="space-y-5">
-          <div className="rounded-[2.5rem] border-[12px] border-[#644222] bg-[#0e5b44] p-3 shadow-2xl sm:p-7">
-            <div className="rounded-3xl border-2 border-yellow-200/65 bg-[radial-gradient(ellipse_at_top,_#116d53,_#064231)] p-4 sm:p-7">
+      <div className="ig-shared-grid grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
+        <div className="ig-shared-main space-y-5">
+          <div className="ig-shared-stage rounded-[2.5rem] border-[12px] border-[#644222] bg-[#0e5b44] p-3 shadow-2xl sm:p-7">
+            <div className="ig-shared-felt rounded-3xl border-2 border-yellow-200/65 bg-[radial-gradient(ellipse_at_top,_#116d53,_#064231)] p-4 sm:p-7">
               <p className="text-xs font-bold tracking-[0.22em] text-yellow-200">IMPERIAL GAMES · SHARED TABLE</p>
-              <h1 className="mt-2 text-4xl font-black italic tracking-wider">{title}</h1>
-              <div className="my-5 rounded-2xl border border-white/30 bg-black/20 px-4 py-7">
+              <h1 className="ig-shared-heading mt-2 text-4xl font-black italic tracking-wider">{title}</h1>
+              <div className="ig-shared-result my-5 rounded-2xl border border-white/30 bg-black/20 px-4 py-7">
                 <Results game={game} last={table?.lastResult}/>
               </div>
               <h2 className="mb-3 text-sm font-black uppercase tracking-widest text-yellow-200">Place your chips on a betting area</h2>
               <TableOptions options={options} totals={table?.publicBets||[]} onBet={target=>void bet(target,stake)} canBet={canBet} busy={busy}/>
-              {game==='crash' && <p className="mt-3 text-center text-xs text-white/70">Classic Crash offers server-side preset automatic cashouts; manual real-time cashout is not enabled in this practice build. Trenball pays Red 1.96×, Green 2×, Moon 10×.</p>}
-              {game==='baccarat' && <p className="mt-3 text-center text-xs text-white/70">8-deck baccarat; Banker commission 5%, Tie pays 8:1 profit; Player/Banker push on a tie. Server deals the third card by baccarat drawing rules.</p>}
+              {game==='crash' && <p className="ig-shared-footnote mt-3 text-center text-xs text-white/70">Classic Crash offers server-side preset automatic cashouts; manual real-time cashout is not enabled in this practice build. Trenball pays Red 1.96×, Green 2×, Moon 10×.</p>}
+              {game==='baccarat' && <p className="ig-shared-footnote mt-3 text-center text-xs text-white/70">8-deck baccarat; Banker commission 5%, Tie pays 8:1 profit; Player/Banker push on a tie. Server deals the third card by baccarat drawing rules.</p>}
             </div>
           </div>
-          {table && <div className="rounded-2xl border border-white/10 bg-[#1b1727] p-5">
+          {table && <div className="ig-shared-controls rounded-2xl border border-white/10 bg-[#1b1727] p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h2 className="font-black">Practice chip selection</h2>
-                <div className="mt-3 flex flex-wrap gap-2">
+                <h2 className="font-black">Wager amount</h2>
+                <div className="mt-2"><WagerAmount value={stake} setValue={setStake} max={table.chips} disabled={busy}/></div>
+                <div className="mt-2 flex flex-wrap gap-2">
                   {CHIP_VALUES.map(v=><button key={v} type="button" disabled={busy} aria-pressed={v===stake}
                     onClick={()=>setStake(v)}
                     className={'h-12 w-12 rounded-full border-4 font-black '+(v===stake?'border-yellow-200 bg-purple-700 text-white':'border-white/40 bg-purple-950 text-yellow-100')}>{v}</button>)}
@@ -153,7 +164,7 @@ export default function SharedEventPracticeTable({mode='crash'}) {
           </div>}
           {loading&&!table&&<p role="status" className="rounded-lg bg-white/10 p-8 text-center">Connecting to the shared practice table…</p>}
         </div>
-        <aside className="space-y-5">
+        <aside className="ig-shared-rail space-y-5">
           <section className="rounded-xl border border-white/10 bg-[#1b1727] p-5">
             <h2 className="flex items-center gap-2 text-lg font-black"><Users className="h-5 w-5 text-yellow-300"/>Seated players ({table?.players?.length||0}/24)</h2>
             {(table?.players||[]).map(p=><div key={p.id} className="mt-2 flex justify-between rounded-lg bg-white/5 p-2 text-sm">
