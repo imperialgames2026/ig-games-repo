@@ -18,9 +18,12 @@ if (release.reviewed_migration_count !== manifest.migrations.length)
   fail('backend migration manifest mismatch');
 if (release.held_game_count !== scope.nonMigration.length || scope.nonMigration.length !== 23)
   fail('excluded-game policy mismatch');
-// Reconciled public main 4676b565 includes the reviewed KYC release plus the
-// two already-recorded Imperial Wallet staging migrations. Mobile stays practice-only.
-if (manifest.migrations.length !== 104) fail('baseline migration count changed; re-review required');
+// Mobile may carry reviewed-but-pending source migrations, but it must not silently
+// treat them as hosted/deployed. Current hosted practice baseline remains 104.
+const pendingMigrations = manifest.migrations.filter(m => m.status === 'pending_deployment');
+const deployedReviewedMigrations = manifest.migrations.length - pendingMigrations.length;
+if (deployedReviewedMigrations !== 104) fail('deployed migration baseline changed; re-review required');
+if (pendingMigrations.length !== 3) fail('pending migration set changed; re-review required');
 const expectedBackend = 'https://qonqemhljgxlwpghkxhn.supabase.co';
 if (release.backend_url !== expectedBackend) fail('unexpected Supabase backend');
 if (!process.env.MOBILE_ISOLATED_AUTH_REVIEWED)
