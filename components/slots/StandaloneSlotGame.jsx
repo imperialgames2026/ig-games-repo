@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Minus, Plus, RotateCcw, Zap } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
-import FarmageddonBonusModal from './FarmageddonBonusModal';
+import { supabase } from '@/lib/supabaseClient';
 import SlotCelebrationFX from './SlotCelebrationFX';
 
 const COLS = 5;
@@ -72,14 +71,14 @@ export default function StandaloneSlotGame({
   symbols,
   wallet,
   onBet,
-  currency = 'IC',
+  currency = 'PRACTICE',
   artworkUrl,
   cabinetVariant,
 }) {
   const isFarmageddon = cabinetVariant === 'farmageddon';
   const slotCols = isFarmageddon ? FARMAGEDDON_COLS : COLS;
   const slotRows = isFarmageddon ? FARMAGEDDON_ROWS : ROWS;
-  const [bet, setBet] = useState(0.1);
+  const [bet, setBet] = useState(1);
   const [lines, setLines] = useState(isFarmageddon ? 6 : 20);
   const [spinning, setSpinning] = useState(false);
   const [grid, setGrid] = useState(() => Array(slotCols).fill(null).map(() => Array(slotRows).fill(Object.values(symbols)[0]?.id)));
@@ -87,59 +86,58 @@ export default function StandaloneSlotGame({
   const [winningCells, setWinningCells] = useState([]);
   const [showWin, setShowWin] = useState(false);
   const [bonusResult, setBonusResult] = useState(null);
-  const spinSoundStopRef = React.useRef(null);
+  const [practiceChips,setPracticeChips]=useState(null);
+  const [serviceError,setServiceError]=useState('');
+  const spinSoundStopRef = useRef(null);
+  const requestRef=useRef(null);
 
-  const balanceKey = currency === 'ID' ? 'cat_dollars' : currency === 'IGT' ? 'igt_balance' : 'tokens';
-  const balance = wallet?.[balanceKey] || 0;
-
+  const balance = Number(practiceChips ?? 0);
+  async function slotCall(body){
+    const {data,error}=await supabase.functions.invoke('ig-slot-practice-v1',{body});
+    if(error){
+      let message=error.message||'Slot practice unavailable';
+      try{const detail=await error.context?.json();message=detail?.error||message;}catch{}
+      throw new Error(message);
+    }
+    if(!data||data.error||data.practiceOnly!==true||data.realMoneyEnabled!==false)throw new Error(data?.error||'Invalid slot-practice response');
+    return data;
+  }
+  useEffect(()=>{let alive=true;void slotCall({action:'state'}).then(data=>{if(alive)setPracticeChips(Number(data.chips));}).catch(e=>{if(alive)setServiceError(e.message);});return()=>{alive=false;};},[]);
   const adjustBet = (delta) => {
-    const maxBetPerLine = Math.max(0.1, balance / Math.max(lines, 1));
-    setBet(prev => parseFloat(Math.max(0.1, Math.min(maxBetPerLine, prev + delta)).toFixed(2)));
+    const maxBetPerLine = Math.max(1, Math.min(100,Math.floor(balance / Math.max(lines, 1))));
+    setBet(prev => Math.max(1, Math.min(maxBetPerLine, Math.floor(Number(prev)+delta))));
   };
 
   const spin = async () => {
-    if (spinning || bet * lines > balance) return;
-    setSpinning(true);
-    setShowWin(false);
-    setWinAmount(0);
-    setWinningCells([]);
-    setBonusResult(null);
-    spinSoundStopRef.current?.();
-    spinSoundStopRef.current = playReelSpinSound();
+    if (spinning || !Number.isFinite(balance) || bet * lines > balance) return;
+    setSpinning(true);setServiceError('');
+    setShowWin(false);setWinAmount(0);setWinningCells([]);setBonusResult(null);
+    spinSoundStopRef.current?.();spinSoundStopRef.current = playReelSpinSound();
+    const spinTimer=setInterval(()=>setGrid(createPreviewGrid()),90);
+    const requestId=requestRef.current||crypto.randomUUID();requestRef.current=requestId;
+    try{
+      const outcome=await slotCall({action:'spin',game:gameSlug,requestId,betUnits:bet,lines});
+      const mapped=(outcome.grid||[]).map(reel=>reel.map(index=>symbolList[Number(index)]?.id||symbolList[0]?.id));
+      clearInterval(spinTimer);
+      await new Promise(resolve=>setTimeout(resolve,250));
+      spinSoundStopRef.current?.();spinSoundStopRef.current=null;
+      setGrid(mapped);setPracticeChips(Number(outcome.chips));
+      setWinAmount(Number(outcome.paidUnits||0));setWinningCells(outcome.winningCells||[]);
+      setShowWin(Number(outcome.paidUnits||0)>0);
+      setBonusResult(outcome.scatterCount>=3?{triggered:true,scatterCount:outcome.scatterCount}:null);
+      if(outcome.scatterCount>=3)playScatterSound();
+      if(Number(outcome.paidUnits||0)>0)playWinSound();
+      requestRef.current=null;
+    }catch(error){
+      clearInterval(spinTimer);spinSoundStopRef.current?.();spinSoundStopRef.current=null;
+      setServiceError(error?.message||'Practice spin failed. Retry the same spin.');
+    }finally{setSpinning(false);}
+  };
 
-    const spinTimer = setInterval(() => {
-      setGrid(createPreviewGrid());
-    }, 90);
-
-    const { data: outcome } = await base44.functions.invoke('generateSlotOutcome', {
-      bet_amount: bet,
-      slot_type: slotType,
-      lines,
-      currency,
-    });
-
-    clearInterval(spinTimer);
-
-    if (outcome?.success) {
-      setTimeout(async () => {
-        spinSoundStopRef.current?.();
-        spinSoundStopRef.current = null;
-        setGrid(outcome.grid);
-        setWinAmount(outcome.total_win || 0);
-        setWinningCells(outcome.winningCells || []);
-        setShowWin((outcome.total_win || 0) > 0);
-        setBonusResult(outcome.bonus || null);
-        if (outcome.grid?.some((reel) => reel.includes('SCATTER'))) playScatterSound();
-        if ((outcome.total_win || 0) > 0) playWinSound();
-        await onBet(bet * lines, outcome.total_win || 0, gameSlug, Math.floor(bet * lines));
-        setSpinning(false);
-      }, 250);
-      return;
-    }
-
-    spinSoundStopRef.current?.();
-    spinSoundStopRef.current = null;
-    setSpinning(false);
+  const refill = async () => {
+    if(spinning)return;
+    try{const data=await slotCall({action:'refill'});setPracticeChips(Number(data.chips));setServiceError('');}
+    catch(error){setServiceError(error?.message||'Practice refill unavailable');}
   };
 
   const symbolList = Object.values(symbols);
@@ -152,22 +150,25 @@ export default function StandaloneSlotGame({
   );
 
   return (
-    <div className={`relative overflow-hidden border shadow-2xl ${isFarmageddon ? 'mx-auto aspect-square max-w-[920px] rounded-[1.75rem]' : 'rounded-[2rem]'} ${theme.shell}`}>
+    <div className={`ig-standalone-slot ${isFarmageddon?'ig-farmageddon-slot':''} relative overflow-hidden border shadow-2xl ${isFarmageddon ? 'mx-auto aspect-square max-w-[920px] rounded-[1.75rem]' : 'rounded-[2rem]'} ${theme.shell}`}>
       {artworkUrl && <img src={artworkUrl} alt={`${title} artwork`} className={`absolute inset-0 h-full w-full object-cover ${isFarmageddon ? 'opacity-100' : 'opacity-55'}`} />}
       {!isFarmageddon && <div className={`absolute inset-0 ${theme.bg} ${artworkUrl ? 'opacity-90 mix-blend-multiply' : ''}`} />}
       {artworkUrl && !isFarmageddon && <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/80" />}
       {showWin && <SlotCelebrationFX variant={winFxVariant} label={winFxLabel} />}
-      {bonusResult?.triggered && <SlotCelebrationFX variant="scatter" label="Scatter Bonus" />}
-      {bonusResult?.triggered && <SlotCelebrationFX variant="freeSpins" label="Free Spins" />}
+      {bonusResult?.triggered && <SlotCelebrationFX variant="scatter" label={`${bonusResult.scatterCount} Scatters`} />}
       <div className={isFarmageddon ? 'absolute inset-0 z-10' : 'relative z-10 p-4 md:p-5'}>
-        <div className={isFarmageddon ? 'hidden' : 'mb-4 flex items-center justify-center'}>
+        <div className={isFarmageddon ? 'hidden' : 'ig-slot-title mb-4 flex items-center justify-between gap-3'}>
           <div className={`inline-flex items-center gap-3 rounded-xl border px-6 py-3 text-xl md:text-3xl font-black tracking-[0.12em] uppercase ${theme.badge}`}>
             <span className="text-3xl md:text-4xl normal-case tracking-normal">{titleEmoji}</span>
             <span className="drop-shadow-[0_3px_0_rgba(0,0,0,0.65)]">{title}</span>
           </div>
+          <div className="rounded-xl border border-white/15 bg-black/45 px-3 py-2 text-right">
+            <div className="text-[9px] font-black uppercase tracking-[.18em] text-white/55">Practice chips</div>
+            <div className="font-mono text-lg font-black text-amber-200">{balance.toLocaleString()}</div>
+          </div>
         </div>
 
-        <div className={`${isFarmageddon ? 'absolute left-[26.1%] right-[25.6%] top-[42.1%] h-[36.8%] border-0 bg-transparent p-0 shadow-none' : `relative rounded-[1.5rem] border p-3 ${theme.frame}`}`}>
+        <div className={`ig-slot-reels ${isFarmageddon ? 'absolute left-[26.1%] right-[25.6%] top-[42.1%] h-[36.8%] border-0 bg-transparent p-0 shadow-none' : `relative rounded-[1.5rem] border p-3 ${theme.frame}`}`}>
           {isFarmageddon ? (
             <div className="grid h-full grid-cols-4 grid-rows-4 gap-x-[1.9%] gap-y-[3.8%] overflow-hidden">
               {Array(4).fill(null).map((_, row) =>
@@ -244,22 +245,22 @@ export default function StandaloneSlotGame({
 
         <AnimatePresence>
           {showWin && winAmount > 0 && (
-            <motion.div initial={{ opacity: 0, y: 8, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0 }} className={`${isFarmageddon ? 'absolute bottom-[14.6%] right-[33%] z-30 rounded-md border border-[#d6b17a] bg-[#6b371b]/90 px-3 py-1 text-center shadow-xl shadow-black/60' : 'mt-4 rounded-2xl border px-4 py-3 text-center'} ${isFarmageddon ? '' : theme.winBanner}`}>
-              <div className={isFarmageddon ? 'text-sm md:text-lg font-black text-white' : 'text-3xl font-black text-white'}>+{winAmount.toFixed(2)} {currency}</div>
+            <motion.div initial={{ opacity: 0, y: 8, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0 }} className={`ig-slot-win ${isFarmageddon ? 'absolute bottom-[14.6%] right-[33%] z-30 rounded-md border border-[#d6b17a] bg-[#6b371b]/90 px-3 py-1 text-center shadow-xl shadow-black/60' : 'mt-4 rounded-2xl border px-4 py-3 text-center'} ${isFarmageddon ? '' : theme.winBanner}`}>
+              <div className={isFarmageddon ? 'text-sm md:text-lg font-black text-white' : 'text-3xl font-black text-white'}>+{winAmount.toLocaleString()} PRACTICE</div>
               <div className={isFarmageddon ? 'text-[10px] text-white/80 font-bold uppercase' : 'text-sm text-white/70 font-bold tracking-[0.24em] uppercase'}>win</div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        <div className={isFarmageddon ? 'absolute bottom-[3.1%] left-[25.8%] right-[25.8%] grid grid-cols-[1fr_1fr] gap-[34%] bg-transparent p-0' : 'mt-4 grid grid-cols-2 gap-3'}>
+        <div className={`ig-slot-controls ${isFarmageddon ? 'absolute bottom-[3.1%] left-[25.8%] right-[25.8%] grid grid-cols-[1fr_1fr] gap-[34%] bg-transparent p-0' : 'mt-4 grid grid-cols-2 gap-3'}`}>
           <div className={isFarmageddon ? 'rounded-md border border-[#5b341c] bg-[#6b371b]/80 p-1.5 shadow-inner shadow-black' : 'rounded-2xl border border-white/10 bg-black/30 p-3'}>
             <div className="mb-2 flex items-center justify-between text-xs uppercase tracking-[0.2em] text-white/60">
-              <span>Bet / line</span><span className="text-white font-bold">{bet.toFixed(2)}</span>
+              <span>Bet / line</span><span className="text-white font-bold">{bet}</span>
             </div>
             <div className="flex items-center gap-2">
-              <Button onClick={() => adjustBet(-0.1)} disabled={spinning} variant="outline" size="icon" className={isFarmageddon ? 'h-8 min-h-0 w-12 min-w-0 rounded-md border-[#d6b17a] bg-[#8a4b25] p-0 text-white hover:bg-[#a65f30]' : 'h-9 w-9 min-h-0 min-w-0 p-0'}><Minus className="w-3 h-3" /></Button>
-              <div className={isFarmageddon ? 'hidden' : 'flex-1 rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-center text-white font-mono'}>{bet.toFixed(2)}</div>
-              <Button onClick={() => adjustBet(0.1)} disabled={spinning} variant="outline" size="icon" className={isFarmageddon ? 'h-8 min-h-0 w-12 min-w-0 rounded-md border-[#d6b17a] bg-[#8a4b25] p-0 text-white hover:bg-[#a65f30]' : 'h-9 w-9 min-h-0 min-w-0 p-0'}><Plus className="w-3 h-3" /></Button>
+              <Button onClick={() => adjustBet(-1)} disabled={spinning} variant="outline" size="icon" className={isFarmageddon ? 'h-8 min-h-0 w-12 min-w-0 rounded-md border-[#d6b17a] bg-[#8a4b25] p-0 text-white hover:bg-[#a65f30]' : 'h-9 w-9 min-h-0 min-w-0 p-0'}><Minus className="w-3 h-3" /></Button>
+              <div className={isFarmageddon ? 'hidden' : 'flex-1 rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-center text-white font-mono'}>{bet}</div>
+              <Button onClick={() => adjustBet(1)} disabled={spinning} variant="outline" size="icon" className={isFarmageddon ? 'h-8 min-h-0 w-12 min-w-0 rounded-md border-[#d6b17a] bg-[#8a4b25] p-0 text-white hover:bg-[#a65f30]' : 'h-9 w-9 min-h-0 min-w-0 p-0'}><Plus className="w-3 h-3" /></Button>
             </div>
           </div>
           <div className={isFarmageddon ? 'rounded-md border border-[#5b341c] bg-[#6b371b]/80 p-1.5 shadow-inner shadow-black' : 'rounded-2xl border border-white/10 bg-black/30 p-3'}>
@@ -276,12 +277,12 @@ export default function StandaloneSlotGame({
           </div>
         </div>
 
-        <Button onClick={spin} disabled={spinning || bet * lines > balance} className={`${isFarmageddon ? 'absolute bottom-[2.7%] left-1/2 z-20 h-[10.3%] w-[10.3%] min-w-0 -translate-x-1/2 rounded-full border-[5px] border-[#d8f89a] bg-gradient-to-b from-lime-300 via-lime-500 to-green-600 text-[clamp(12px,1.5vw,24px)] font-black text-[#173500] shadow-[0_0_24px_rgba(132,255,30,0.75),inset_0_4px_10px_rgba(255,255,255,0.55)] hover:from-lime-200 hover:to-green-500' : 'mt-4 w-full h-14 rounded-2xl text-base font-black'} ${isFarmageddon ? '' : theme.spin}`}>
-          {spinning ? <><RotateCcw className={isFarmageddon ? 'w-5 h-5 animate-spin' : 'w-5 h-5 animate-spin mr-2'} />{isFarmageddon ? '' : 'SPINNING...'}</> : <>{!isFarmageddon && <Zap className="w-5 h-5 mr-2" />}{isFarmageddon ? 'SPIN' : `SPIN — ${(bet * lines).toFixed(2)} ${currency}`}</>}
+        <Button onClick={spin} disabled={spinning || practiceChips===null || bet * lines > balance} className={`ig-slot-spin ${isFarmageddon ? 'absolute bottom-[2.7%] left-1/2 z-20 h-[10.3%] w-[10.3%] min-w-0 -translate-x-1/2 rounded-full border-[5px] border-[#d8f89a] bg-gradient-to-b from-lime-300 via-lime-500 to-green-600 text-[clamp(12px,1.5vw,24px)] font-black text-[#173500] shadow-[0_0_24px_rgba(132,255,30,0.75),inset_0_4px_10px_rgba(255,255,255,0.55)] hover:from-lime-200 hover:to-green-500' : 'mt-4 w-full h-14 rounded-2xl text-base font-black'} ${isFarmageddon ? '' : theme.spin}`}>
+          {spinning ? <><RotateCcw className={isFarmageddon ? 'w-5 h-5 animate-spin' : 'w-5 h-5 animate-spin mr-2'} />{isFarmageddon ? '' : 'SPINNING...'}</> : <>{!isFarmageddon && <Zap className="w-5 h-5 mr-2" />}{isFarmageddon ? 'SPIN' : `SPIN — ${bet * lines} PRACTICE`}</>}
         </Button>
-        {isFarmageddon && (
-          <FarmageddonBonusModal bonus={bonusResult} currency={currency} onClose={() => setBonusResult(null)} />
-        )}
+        {serviceError&&<p role="alert" className={isFarmageddon?'absolute bottom-[14%] left-1/2 z-30 -translate-x-1/2 rounded bg-red-950/90 px-3 py-1 text-xs text-red-100':'mt-3 rounded-lg bg-red-950/80 p-2 text-xs text-red-100'}>{serviceError}</p>}
+        {balance<100&&practiceChips!==null&&<button type="button" disabled={spinning} onClick={()=>void refill()} className={isFarmageddon?'absolute left-[2%] top-[2%] z-30 rounded bg-amber-300 px-2 py-1 text-[10px] font-black text-black':'mt-2 text-xs font-bold text-amber-200 underline'}>Free practice refill</button>}
+        {isFarmageddon&&<div className="absolute right-[2%] top-[2%] z-30 rounded bg-black/60 px-2 py-1 text-[10px] font-black text-amber-200">{balance.toLocaleString()} PRACTICE</div>}
       </div>
     </div>
   );

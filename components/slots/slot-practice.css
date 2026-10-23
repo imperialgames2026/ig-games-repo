@@ -1,0 +1,24 @@
+.ig-slot-screen{height:calc(100dvh - 64px);min-height:0;overflow:hidden}
+.ig-slot-shell{min-height:0}
+.ig-slot-cabinet-wrap{display:flex;align-items:center;justify-content:center;overflow:hidden}
+.ig-slot-cabinet-wrap>.ig-standalone-slot{width:100%;max-height:100%}
+@media(max-width:1024px),(max-height:820px){
+ .ig-slot-shell{padding:.3rem!important}
+ .ig-slot-topbar{margin-bottom:.25rem!important}
+ .ig-standalone-slot:not(.ig-farmageddon-slot){border-radius:1rem!important}
+ .ig-standalone-slot:not(.ig-farmageddon-slot)>.relative{padding:.45rem!important}
+ .ig-standalone-slot:not(.ig-farmageddon-slot) .ig-slot-title{margin-bottom:.35rem!important}
+ .ig-standalone-slot:not(.ig-farmageddon-slot) .ig-slot-title>div:first-child{padding:.4rem .7rem!important;font-size:.95rem!important}
+ .ig-standalone-slot:not(.ig-farmageddon-slot) .ig-slot-title>div:first-child span:first-child{font-size:1.2rem!important}
+ .ig-standalone-slot:not(.ig-farmageddon-slot) .ig-slot-reels{padding:.35rem!important;border-radius:.8rem!important}
+ .ig-standalone-slot:not(.ig-farmageddon-slot) .ig-slot-reels .h-\[86px\]{height:48px!important;border-radius:.55rem!important}
+ .ig-standalone-slot:not(.ig-farmageddon-slot) .ig-slot-reels .text-3xl{font-size:1.15rem!important}
+ .ig-standalone-slot:not(.ig-farmageddon-slot) .ig-slot-reels .h-12{height:2rem!important}
+ .ig-standalone-slot:not(.ig-farmageddon-slot) .ig-slot-reels .w-12{width:2rem!important}
+ .ig-standalone-slot:not(.ig-farmageddon-slot) .ig-slot-controls{margin-top:.35rem!important;gap:.35rem!important}
+ .ig-standalone-slot:not(.ig-farmageddon-slot) .ig-slot-controls>div{padding:.4rem!important;border-radius:.65rem!important}
+ .ig-standalone-slot:not(.ig-farmageddon-slot) .ig-slot-controls .mb-2{margin-bottom:.2rem!important}
+ .ig-standalone-slot:not(.ig-farmageddon-slot) .ig-slot-spin{margin-top:.35rem!important;height:38px!important}
+ .ig-standalone-slot .ig-slot-win{margin-top:.3rem!important;padding:.35rem!important}
+ .ig-farmageddon-slot{max-width:min(76dvh,100%)!important}
+}
