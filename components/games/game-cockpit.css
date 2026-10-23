@@ -269,6 +269,26 @@
   .ig-blackjack-seat:nth-child(n+5) { display:none; }
 }
 
+/* Preserve usable controls without changing the shared table or settlement rules. */
+.ig-cockpit-status-group { min-width:0; }
+.ig-poker-stage { display:flex; flex-direction:column; }
+.ig-poker-table-area { position:relative; flex:1 1 auto; min-height:300px; }
+.ig-poker-hole-center { position:static; transform:none; flex:0 0 auto; align-self:center; margin:24px 8px 8px; }
+.ig-roulette-board-wrap { overflow:auto; touch-action:pan-x pan-y; }
+.ig-roulette-board { min-width:720px; }
+.ig-roulette-number-grid button { min-width:44px; min-height:44px; }
+body:has(.ig-roulette-board-wrap) { touch-action:pan-x pan-y pinch-zoom; }
+@media (max-width:1024px), (max-height:820px) {
+  .ig-poker-live { grid-template-rows:auto minmax(0,1fr) auto; }
+  .ig-poker-invite { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:4px 8px !important; }
+  .ig-poker-invite > p,.ig-poker-invite code { display:none; }
+  .ig-poker-invite > div { margin:0 !important; }
+  .ig-poker-invite button { min-height:44px; }
+  .ig-poker-stage { overflow:auto; }
+  .ig-poker-table-area { min-height:280px; }
+  .ig-poker-hole-center { position:static; transform:none; }
+}
+
 /* Multiplayer controls can exceed a phone viewport. Preserve the felt's natural
    height and let the document scroll instead of shrinking the table to zero. */
 @media (max-width:1024px), (max-height:820px) {

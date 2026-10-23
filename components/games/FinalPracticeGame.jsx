@@ -3,6 +3,7 @@ import {Link} from 'react-router-dom';
 import {useAuth} from '@/lib/AuthContext';
 import {supabase} from '@/lib/supabaseClient';
 import {verifyFinalRound,dartTables} from '@/lib/finalPracticeFairness';
+import './originals-cockpit.css';
 const names={darts:'Darts',dicezone:'Dice Zone',hilo:'HiLo',towers:'Towers'};
 const ranks=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const sameOptions=(a,b)=>a&&b&&JSON.stringify(Object.entries(a).sort())===JSON.stringify(Object.entries(b).sort());
@@ -49,11 +50,11 @@ export default function FinalPracticeGame({game}){
  const options=game==='dicezone'?{start,end}:game==='hilo'?{}:{difficulty};
  const invalid=game==='dicezone'&&(!Number.isInteger(start)||!Number.isInteger(end)||start<1||end>100||start>end);
  const action=(type,choice)=>mutate({action:type,roundId:round.roundId,requestId:crypto.randomUUID(),version:round.version,...(choice!==undefined?{choice}:{}),...(type==='start'?{clientSeed:clientSeed.trim()}:{})});
- return <main className="min-h-screen bg-[#0a0612] px-4 py-8 text-white"><div className="mx-auto max-w-4xl space-y-5">
+ return <main className="ig-original-screen ig-original-final min-h-screen bg-[#0a0612] px-4 py-8 text-white"><div className="ig-original-shell mx-auto max-w-4xl space-y-5">
   <Link to="/Games" className="text-amber-300 underline">← Back to games</Link>
-  <h1 className="text-4xl font-black">{names[game]}</h1>
-  <p className="rounded-xl border border-sky-400/20 bg-sky-950/30 p-4 text-sky-100">Free practice. No coins, tokens, money or prizes are charged or awarded.</p>
-  <div className="grid gap-5 md:grid-cols-2"><section className="space-y-4 rounded-xl bg-[#191529] p-5">
+  <header className="ig-original-header"><h1 className="text-4xl font-black">{names[game]}</h1>
+  <p className="ig-original-notice rounded-xl border border-sky-400/20 bg-sky-950/30 p-4 text-sky-100">Free practice. No coins, tokens, money or prizes are charged or awarded.</p></header>
+  <div className="ig-original-grid grid gap-5 md:grid-cols-2"><section className="ig-original-controls space-y-4 rounded-xl bg-[#191529] p-5">
    {['darts','towers'].includes(game)&&<label className="block">Difficulty<select aria-label="Difficulty" value={round&&!ended?round.options.difficulty:difficulty} disabled={blocked||active||committed} onChange={e=>setDifficulty(e.target.value)} className="mt-2 block w-full rounded bg-slate-800 p-3">{(game==='darts'?['easy','medium','hard','expert']:['easy','hard']).map(x=><option key={x}>{x}</option>)}</select></label>}
    {game==='dicezone'&&<div className="grid grid-cols-2 gap-3">{[['Zone start',start,setStart,'start'],['Zone end',end,setEnd,'end']].map(([label,value,set,name])=><label key={label}>{label}<input aria-label={label} type="number" min="1" max="100" disabled={blocked||committed} value={round&&!ended?round.options[name]:value} onChange={e=>set(Number(e.target.value))} className="mt-2 w-full rounded bg-slate-800 p-3"/></label>)}</div>}
    <label className="block">Client seed<input aria-label="Client seed" maxLength={128} disabled={blocked||active} value={pending?.clientSeed??(active?round.clientSeed:clientSeed)} onChange={e=>setClientSeed(e.target.value)} className="mt-2 w-full rounded bg-slate-800 p-3"/></label>
@@ -64,13 +65,13 @@ export default function FinalPracticeGame({game}){
    {game==='darts'&&<p className="text-sm text-gray-300">Practice multipliers and weights: {dartTables[(round?.options.difficulty)||difficulty][0].map((n,i)=>`${n}× (${dartTables[(round?.options.difficulty)||difficulty][1][i]}%)`).join(', ')}. These are score labels, not payouts.</p>}
    {busy&&<p role="status">Loading round…</p>}{error&&<p role="alert" className="rounded bg-red-950 p-3 text-red-200">{error}</p>}
    {user?.role==='tester'&&<p>This account has read-only access.</p>}
-  </section><section aria-label={`${names[game]} board`} className="rounded-xl bg-[#191529] p-5">
+  </section><section aria-label={`${names[game]} board`} className="ig-original-stage rounded-xl bg-[#191529] p-5">
    {game==='towers'?<div className="space-y-2">{Array.from({length:9},(_,i)=>8-i).map(level=><div key={level} className="grid grid-cols-3 gap-2">{[0,1,2].map(tile=>{
     const selected=round?.history[level]?.tile===tile,mine=ended&&round.layout[level].includes(tile);
     return <button key={tile} aria-label={`Floor ${level+1} tile ${tile+1}`} disabled={!active||blocked||level!==round.history.length} onClick={()=>action('move',String(tile))} className={`rounded border p-4 ${selected?'border-amber-300':'border-white/15'} disabled:opacity-70`}>{mine?'💣':selected||ended?'💎':'◆'}</button>;
    })}</div>)}</div>:game==='hilo'?<div className="space-y-5 text-center"><p aria-live="polite" className="rounded-xl bg-white p-8 text-5xl font-bold text-slate-950">{round?.outcome?`${ranks[round.outcome.rank-1]} ${['♥','♦','♣','♠'][round.outcome.suit]}`:'?'}</p><div className="grid gap-2">{[['higherOrSame','Higher or same'],['lowerOrSame','Lower or same'],['same','Same']].map(([choice,label])=><button key={choice} disabled={!active||blocked} onClick={()=>action('move',choice)} className="rounded bg-violet-700 p-3 font-bold disabled:opacity-40">{label}</button>)}</div><p>Successful predictions: {round?.history.filter(h=>h.won).length||0}</p></div>:<div className="flex min-h-64 flex-col items-center justify-center gap-4"><p className="text-7xl">{game==='darts'?'🎯':'🎲'}</p><p aria-live="polite" className="text-3xl font-bold">{ended?(game==='darts'?`${round.outcome.multiplier}× · zone ${round.outcome.zone+1}`:`Roll ${round.outcome.roll} · ${round.outcome.won?'Inside your zone':'Outside your zone'}`):'Commit a round to begin'}</p></div>}
    {ended&&<p role="status" className="mt-5 text-emerald-300">✓ Fairness proof verified on your device · {round.endReason}</p>}
   </section></div>
-  {round&&<details className="break-all rounded-xl bg-[#191529] p-4 text-sm"><summary>Round commitment and proof</summary><p className="mt-3">Round: {round.roundId}</p><p>SHA-256: {round.serverSeedHash}</p>{ended&&<><p>Server seed: {round.serverSeed}</p><p>Client seed: {round.clientSeed}</p><p>Transcript: {JSON.stringify(round.history)}</p></>}<p>Algorithm: HMAC-SHA256-final-v1</p></details>}
+  {round&&<details className="ig-original-extra break-all rounded-xl bg-[#191529] p-4 text-sm"><summary>Round commitment and proof</summary><p className="mt-3">Round: {round.roundId}</p><p>SHA-256: {round.serverSeedHash}</p>{ended&&<><p>Server seed: {round.serverSeed}</p><p>Client seed: {round.clientSeed}</p><p>Transcript: {JSON.stringify(round.history)}</p></>}<p>Algorithm: HMAC-SHA256-final-v1</p></details>}
  </div></main>;
 }

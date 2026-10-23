@@ -428,7 +428,7 @@ export default function MultiplayerPracticeTable({ game }) {
           <span className="rounded-full border border-amber-300/50 bg-amber-300/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-200">Multiplayer · Shared staging room</span>
         </div>
         <div className="ig-cockpit-notice"><PracticeNotice /></div>
-        {table && <div role="status" aria-live="polite" className={"ig-cockpit-status flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-4 " +
+        {table && <div className="ig-cockpit-status-group"><div role="status" aria-live="polite" className={"ig-cockpit-status flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-4 " +
           (bettingOpen ? 'border-green-400/40 bg-green-950/35' : 'border-amber-400/40 bg-amber-950/25')}>
           <div><p className="font-black uppercase tracking-wider">{bettingOpen ? 'Bets open — place your chips' : game==='craps' ? 'No more bets — shooter turn' : 'No more bets — wheel spin'}</p>
             <p className="ig-round-subtitle mt-1 text-sm text-gray-300">Shared round {table.round} · All players see the same lock time.</p>
@@ -436,8 +436,9 @@ export default function MultiplayerPracticeTable({ game }) {
           <p className="ig-round-clock font-mono text-3xl font-black tabular-nums text-amber-200" aria-label={bettingOpen ? secondsLeft + ' seconds remaining' : 'Betting closed'}>
             {bettingOpen ? secondsLeft + 's' : 'LOCKED'}
           </p>
-        </div>}
+        </div>
         {game==='craps'&&dragChips.notice&&<div aria-live="polite" role="status" className="rounded-xl border border-amber-300/35 bg-amber-300/10 px-4 py-3 text-sm text-amber-100">{dragChips.notice}</div>}
+        </div>}
         <div className="ig-cockpit-grid grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
           <div className="ig-cockpit-main space-y-5">
             {loading && !table ? <div role="status" className="rounded-xl border border-white/10 bg-white/5 p-10 text-center">Connecting to the practice table…</div> : null}

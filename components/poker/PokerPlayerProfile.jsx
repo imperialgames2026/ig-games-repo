@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { safePokerAvatar } from '@/lib/pokerAvatar';
 
 export const PLAYER_EMOTES = [
   { id: 'poop', label: '💩 Throw Poop' },
@@ -35,7 +37,7 @@ function MetricGrid({stats}){
  </div>;
 }
 
-export default function PokerPlayerProfile({ player, analytics, loading = false, analyticsError = '', onClose, onSendAction, disabled = false }) {
+export default function PokerPlayerProfile({ player, analytics, loading = false, analyticsError = '', onClose, onRestoreFocus, onSendAction, disabled = false }) {
   const [tab, setTab] = useState('session');
   const [selected, setSelected] = useState('');
   const [pending, setPending] = useState(false);
@@ -54,13 +56,17 @@ export default function PokerPlayerProfile({ player, analytics, loading = false,
       setError(e?.message || 'Action could not be sent.');
     } finally { setPending(false); }
   }
-  return <section role="dialog" aria-modal="true" aria-label={`${player.displayName || 'Player'} stats card`} className="max-h-[88dvh] w-full max-w-lg overflow-y-auto rounded-2xl border border-amber-700 bg-slate-950 p-5 text-white shadow-2xl">
+  return <Dialog open onOpenChange={open=>{if(!open)onClose?.();}}>
+   <DialogContent aria-describedby={undefined} aria-label={`${player.displayName || 'Player'} stats card`}
+     onCloseAutoFocus={event=>{event.preventDefault();onRestoreFocus?.();}}
+     className="max-h-[88dvh] w-[calc(100%-2rem)] max-w-lg overflow-y-auto rounded-2xl border border-amber-700 bg-slate-950 p-5 text-white shadow-2xl">
+
     <header className="flex items-center justify-between gap-3">
-      <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-amber-400">Player Stats Card</p><h2 className="text-xl font-black">{player.displayName || 'Imperial Player'}</h2></div>
+      <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-amber-400">Player Stats Card</p><DialogTitle className="text-xl font-black">{player.displayName || 'Imperial Player'}</DialogTitle></div>
       <button type="button" onClick={onClose} aria-label="Close profile" className="rounded-lg border border-white/20 px-3 py-2">✕</button>
     </header>
     <div className="my-4 flex items-center gap-4">
-      {player.avatarUrl ? <img src={player.avatarUrl} alt="" className="h-16 w-16 rounded-full border-2 border-amber-300/60 object-cover" /> : <div className="grid h-16 w-16 place-items-center rounded-full bg-amber-900 text-2xl">♛</div>}
+      {safePokerAvatar(player.avatarUrl,player.id) ? <img src={safePokerAvatar(player.avatarUrl,player.id)} alt="" className="h-16 w-16 rounded-full border-2 border-amber-300/60 object-cover" /> : <div className="grid h-16 w-16 place-items-center rounded-full bg-amber-900 text-2xl">♛</div>}
       <div><p className="text-sm text-slate-400">Verified archived poker data</p><p className="mt-1 text-xs text-slate-500">Only completed server-recorded hands count.</p></div>
     </div>
     <nav aria-label="Player stat sections" className="grid grid-cols-3 gap-1 rounded-xl bg-slate-900 p-1">
@@ -110,5 +116,5 @@ export default function PokerPlayerProfile({ player, analytics, loading = false,
       {error&&<p role="alert" className="mt-2 text-red-400">{error}</p>}
       <p className="mt-2 text-xs text-slate-500">{disabled?'Table actions are disabled until shared social-event transport is enabled.':'Cosmetic table actions only.'}</p>
     </div>
-  </section>;
+  </DialogContent></Dialog>;
 }

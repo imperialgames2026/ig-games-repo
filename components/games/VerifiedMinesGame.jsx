@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { supabase } from '@/lib/supabaseClient';
 import { verifyMinesRound } from '@/lib/minesFairness';
+import './originals-cockpit.css';
 
 export default function VerifiedMinesGame() {
  const { user } = useAuth();
@@ -91,16 +92,16 @@ export default function VerifiedMinesGame() {
  const safe = picks.length - (round?.endReason === 'mine' ? 1 : 0);
  const blocked = busy || readonly || !!pending;
  const request = (action,extra = {}) => ({ action,roundId: round.roundId,requestId: crypto.randomUUID(),version: round.version,...extra });
- return <main className="min-h-screen bg-[#0a0612] px-4 py-8 text-white">
-  <div className="mx-auto max-w-4xl space-y-5">
+ return <main className="ig-original-screen ig-original-mines min-h-screen bg-[#0a0612] px-4 py-8 text-white">
+  <div className="ig-original-shell mx-auto max-w-4xl space-y-5">
    <Link to="/Games" className="text-sm text-amber-300 hover:underline">← Back to games</Link>
-   <header><p className="text-xs font-bold uppercase tracking-[0.25em] text-violet-300">Imperial Originals · Practice</p>
+   <header className="ig-original-header"><p className="text-xs font-bold uppercase tracking-[0.25em] text-violet-300">Imperial Originals · Practice</p>
     <h1 className="mt-2 text-4xl font-black">💎 Mines</h1>
-    <p className="mt-3 text-gray-300">Find gems on the 25-tile board. Choose 1 to 24 hidden mines and stop whenever you want. The board stays on the server until your round ends.</p>
-    <p className="mt-3 rounded-xl border border-sky-400/20 bg-sky-950/30 p-3 text-sm text-sky-100">Free practice. No coins, tokens, money or prizes are charged or awarded.</p>
+    <p className="ig-original-description mt-3 text-gray-300">Find gems on the 25-tile board. Choose 1 to 24 hidden mines and stop whenever you want. The board stays on the server until your round ends.</p>
+    <p className="ig-original-notice mt-3 rounded-xl border border-sky-400/20 bg-sky-950/30 p-3 text-sm text-sky-100">Free practice. No coins, tokens, money or prizes are charged or awarded.</p>
    </header>
-   <div className="grid gap-5 md:grid-cols-[1fr_1.5fr]">
-    <section className="space-y-4 rounded-2xl border border-white/10 bg-[#191529] p-5">
+   <div className="ig-original-grid grid gap-5 md:grid-cols-[1fr_1.5fr]">
+    <section className="ig-original-controls space-y-4 rounded-2xl border border-white/10 bg-[#191529] p-5">
      <label className="block text-sm text-gray-300">Number of mines
       <input type="number" min="1" max="24" value={round && !ended ? round.mineCount : mineCount} disabled={blocked || active || committed}
        onChange={e => setMineCount(Number(e.target.value))} className="mt-2 w-full rounded-lg border border-white/15 bg-black/25 p-3 text-white" />
@@ -121,7 +122,7 @@ export default function VerifiedMinesGame() {
      {busy && <p role="status" className="text-sm text-violet-200">Loading round…</p>}
      {error && <p role="alert" className="rounded-xl bg-red-950/60 p-3 text-sm text-red-200">{error}</p>}
     </section>
-    <section aria-label="Mines board" className="rounded-2xl border border-white/10 bg-[#191529] p-5">
+    <section aria-label="Mines board" className="ig-original-stage rounded-2xl border border-white/10 bg-[#191529] p-5">
      <div className="grid grid-cols-5 gap-2">
       {Array.from({ length: 25 },(_,cell) => {
        const picked = picks.includes(cell), mine = ended && round.mines.includes(cell);
@@ -134,7 +135,7 @@ export default function VerifiedMinesGame() {
      {ended && <div className="mt-5 text-center"><p className="text-xl font-bold">{round.endReason === 'mine' ? 'Mine found' : round.endReason === 'cleared' ? 'All gems cleared!' : 'Round stopped'}</p><p className="mt-2 text-sm text-emerald-300">✓ Board proof verified on your device</p></div>}
     </section>
    </div>
-   {round && <details className="break-all rounded-xl border border-white/10 bg-[#191529] p-4 text-sm text-gray-300">
+   {round && <details className="ig-original-extra break-all rounded-xl border border-white/10 bg-[#191529] p-4 text-sm text-gray-300">
     <summary className="cursor-pointer font-bold text-white">Round commitment and proof</summary>
     <p className="mt-3">Round: {round.roundId}</p><p className="mt-2">SHA-256 commitment: {round.serverSeedHash}</p>
     {ended && <><p className="mt-2">Server seed: {round.serverSeed}</p><p className="mt-2">Client seed: {round.clientSeed}</p><p className="mt-2">Mine tiles (zero-based): {round.mines.join(', ')}</p></>}
