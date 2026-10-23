@@ -22,6 +22,31 @@ const score5=(hand:C[]):number[]=>{
 const compare=(a:number[],b:number[])=>{for(let i=0;i<Math.max(a.length,b.length);i++)if((a[i]??0)!==(b[i]??0))return Math.sign((a[i]??0)-(b[i]??0));return 0;};
 const best=(cards:C[])=>{let result:number[]=[];for(let a=0;a<7;a++)for(let b=a+1;b<7;b++){const candidate=score5(cards.filter((_,i)=>i!==a&&i!==b));if(!result.length||compare(candidate,result)>0)result=candidate;}return result;};
 const random=(max:number)=>{const upper=4294967296,cutoff=Math.floor(upper/max)*max;let value=0;do{value=crypto.getRandomValues(new Uint32Array(1))[0];}while(value>=cutoff);return value%max;};
+const pct=(n:number,d:number)=>d>0?Math.round((n*10000)/d)/100:null;
+const summarizeFacts=(rows:any[])=>{
+ const n=rows.length;
+ const yes=(key:string)=>rows.filter(r=>r[key]===true).length;
+ const opp=(key:string)=>yes(key);
+ const calls=rows.reduce((s,r)=>s+Number(r.calls||0),0);
+ const aggressive=rows.reduce((s,r)=>s+Number(r.aggressive_actions||0),0);
+ const showdowns=yes("saw_showdown"),showdownWins=yes("won_showdown"),flops=yes("went_to_flop");
+ return {
+  hands:n,
+  vpip:pct(yes("voluntarily_put_money_preflop"),n),
+  pfr:pct(yes("preflop_raised"),n),
+  threeBet:pct(yes("threebet_made"),opp("threebet_opportunity")),
+  foldToThreeBet:pct(yes("folded_to_threebet"),opp("faced_threebet")),
+  flopCBet:pct(yes("cbet_flop_made"),opp("cbet_flop_opportunity")),
+  foldToFlopCBet:pct(yes("folded_to_cbet_flop"),opp("faced_cbet_flop")),
+  steal:pct(yes("steal_attempt"),opp("steal_opportunity")),
+  blindDefense:pct(yes("defended_blind"),opp("blind_defense_opportunity")),
+  wtsd:pct(showdowns,flops),
+  wsd:pct(showdownWins,showdowns),
+  showdowns,showdownWins,flopsSeen:flops,
+  handsWon:pct(yes("won_hand"),n),
+  aggressionFactor:calls>0?Math.round((aggressive/calls)*100)/100:null,
+ };
+};
 async function committedDeck(seed:string,handId:string):Promise<{deck:C[];commitment:string}>{
  const encoder=new TextEncoder();
  const commitment=hex(new Uint8Array(await crypto.subtle.digest("SHA-256",encoder.encode(seed+":"+handId))));
@@ -154,6 +179,33 @@ Deno.serve(async(req)=>{
    const {data,error}=await db.rpc("poker_event_tick_v1",{p_event:table.event_id});
    if(error)throw error;
    return json(data);
+  }
+  if(action==="playerStats"){
+   const targetUserId=body.targetUserId;
+   if(typeof targetUserId!=="string"||!/^[0-9a-f-]{36}$/i.test(targetUserId))return json({error:"Invalid target player"},400);
+   const {data:targetSeat,error:targetSeatError}=await db.from("poker_seats_v1").select("user_id").eq("table_id",tableId).eq("user_id",targetUserId).maybeSingle();
+   if(targetSeatError||!targetSeat)return json({error:"Player is not seated at this table"},404);
+   const factColumns="completed_hand_id,went_to_flop,saw_showdown,won_showdown,won_hand,voluntarily_put_money_preflop,preflop_raised,threebet_opportunity,threebet_made,faced_threebet,folded_to_threebet,cbet_flop_opportunity,cbet_flop_made,faced_cbet_flop,folded_to_cbet_flop,steal_opportunity,steal_attempt,blind_defense_opportunity,defended_blind,aggressive_actions,calls,recorded_at";
+   const {data:careerFacts,error:careerError}=await db.from("ig_poker_hand_facts").select(factColumns).eq("user_id",targetUserId).order("recorded_at",{ascending:false}).limit(1000);
+   if(careerError)throw careerError;
+   const {data:sessionHands,error:sessionHandsError}=await db.from("ig_poker_completed_hands").select("id").eq("player_user_id",targetUserId).eq("table_id",tableId).order("completed_at",{ascending:false}).limit(500);
+   if(sessionHandsError)throw sessionHandsError;
+   const sessionIds=(sessionHands||[]).map((row:any)=>row.id);
+   let sessionFacts:any[]=[];
+   if(sessionIds.length){
+    const {data,error}=await db.from("ig_poker_hand_facts").select(factColumns).eq("user_id",targetUserId).in("completed_hand_id",sessionIds).order("recorded_at",{ascending:false});
+    if(error)throw error;sessionFacts=data||[];
+   }
+   const {data:profile,error:profileError}=await db.from("profiles").select("display_name,profile_picture").eq("id",targetUserId).maybeSingle();
+   if(profileError)throw profileError;
+   return json({
+    player:{id:targetUserId,displayName:profile?.display_name||"Imperial Player",avatarUrl:profile?.profile_picture||null},
+    currentSession:summarizeFacts(sessionFacts),
+    career:summarizeFacts(careerFacts||[]),
+    source:"server_archived_completed_hands",
+    practiceOnly:true,
+    sampledCareer:(careerFacts||[]).length>=1000
+   });
   }
   if(action==="snapshot"){
    const {data:seats,error:seatsError}=await db.from("poker_seats_v1").select("seat_no,user_id,stack,committed,street_bet,folded,all_in,acted").eq("table_id",tableId).order("seat_no");
