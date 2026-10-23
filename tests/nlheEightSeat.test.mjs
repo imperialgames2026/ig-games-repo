@@ -31,3 +31,12 @@ test('seat snapshots expose only public player identity needed by the table prof
  assert.match(ui,/PokerPlayerProfile/);
  assert.match(ui,/Open '\+\(s\.displayName\|\|'player'\)\+' profile'/);
 });
+test('poker table connects persistent skins, sound and action voice settings',()=>{
+ assert.match(ui,/PokerSettingsModal/);
+ assert.match(ui,/usePokerSounds/);
+ assert.match(ui,/POKER_SETTINGS_KEY/);
+ assert.match(ui,/POKER_SKINS/);
+ assert.match(ui,/pokerSettings\.gameSound/);
+ assert.match(ui,/pokerSettings\.actionVoice/);
+ assert.match(ui,/speechSynthesis/);
+});
