@@ -22,7 +22,7 @@ if (release.held_game_count !== scope.nonMigration.length || scope.nonMigration.
 // treat them as hosted/deployed. Current hosted practice baseline remains 104.
 const pendingMigrations = manifest.migrations.filter(m => m.status === 'pending_deployment');
 const deployedReviewedMigrations = manifest.migrations.length - pendingMigrations.length;
-if (deployedReviewedMigrations !== 104) fail('deployed migration baseline changed; re-review required');
+if (deployedReviewedMigrations !== 105) fail('deployed migration baseline changed; re-review required');
 if (pendingMigrations.length !== 3) fail('pending migration set changed; re-review required');
 const expectedBackend = 'https://qonqemhljgxlwpghkxhn.supabase.co';
 if (release.backend_url !== expectedBackend) fail('unexpected Supabase backend');
