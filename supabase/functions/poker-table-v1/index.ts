@@ -22,6 +22,7 @@ const score5=(hand:C[]):number[]=>{
 const compare=(a:number[],b:number[])=>{for(let i=0;i<Math.max(a.length,b.length);i++)if((a[i]??0)!==(b[i]??0))return Math.sign((a[i]??0)-(b[i]??0));return 0;};
 const best=(cards:C[])=>{let result:number[]=[];for(let a=0;a<7;a++)for(let b=a+1;b<7;b++){const candidate=score5(cards.filter((_,i)=>i!==a&&i!==b));if(!result.length||compare(candidate,result)>0)result=candidate;}return result;};
 const random=(max:number)=>{const upper=4294967296,cutoff=Math.floor(upper/max)*max;let value=0;do{value=crypto.getRandomValues(new Uint32Array(1))[0];}while(value>=cutoff);return value%max;};
+const SOCIAL_ACTIONS=new Set(["poop","dynamite","cheers","pie","money","chicken","water"]);
 const pct=(n:number,d:number)=>d>0?Math.round((n*10000)/d)/100:null;
 const summarizeFacts=(rows:any[])=>{
  const n=rows.length;
@@ -180,6 +181,21 @@ Deno.serve(async(req)=>{
    if(error)throw error;
    return json(data);
   }
+  if(action==="sendSocial"){
+   const targetUserId=body.targetUserId,actionId=body.actionId;
+   if(typeof targetUserId!=="string"||!/^[0-9a-f-]{36}$/i.test(targetUserId)||typeof actionId!=="string"||!SOCIAL_ACTIONS.has(actionId))
+    return json({error:"Invalid social action"},400);
+   if(targetUserId===user.id)return json({error:"Choose another seated player"},400);
+   const {data:targetSeat,error:targetSeatError}=await db.from("poker_seats_v1").select("user_id").eq("table_id",tableId).eq("user_id",targetUserId).maybeSingle();
+   if(targetSeatError||!targetSeat)return json({error:"Target player is not seated at this table"},404);
+   const {data:lastEvent,error:lastEventError}=await db.from("poker_social_events_v1").select("created_at").eq("table_id",tableId).eq("actor_id",user.id).order("created_at",{ascending:false}).limit(1).maybeSingle();
+   if(lastEventError)throw lastEventError;
+   if(lastEvent&&Date.now()-new Date(lastEvent.created_at).getTime()<2500)return json({error:"Social action cooldown"},429);
+   await db.from("poker_social_events_v1").delete().eq("table_id",tableId).lt("created_at",new Date(Date.now()-30000).toISOString());
+   const {data:event,error:eventError}=await db.from("poker_social_events_v1").insert({table_id:tableId,actor_id:user.id,target_user_id:targetUserId,action_id:actionId}).select("id,actor_id,target_user_id,action_id,created_at").single();
+   if(eventError)throw eventError;
+   return json({event,cosmeticOnly:true});
+  }
   if(action==="playerStats"){
    const targetUserId=body.targetUserId;
    if(typeof targetUserId!=="string"||!/^[0-9a-f-]{36}$/i.test(targetUserId))return json({error:"Invalid target player"},400);
@@ -226,10 +242,14 @@ Deno.serve(async(req)=>{
    const publicTable={id:table.id,variant:table.variant,status:table.status,version:table.version,button:table.button,turnIndex:table.turn_index,street:table.street,board:table.board,smallBlind:table.small_blind,bigBlind:table.big_blind,currentBet:table.current_bet,minRaise:table.min_raise,deckCommitment:table.deck_commitment,handNo:table.hand_no,eventId:table.event_id,ownerId:table.owner_id,
     turnStartedAt:table.turn_started_at,turnDeadlineAt:table.turn_deadline_at,
     turnExtensionUsed:table.turn_extension_used};
-   const {data:priceConfig}=await db.from("poker_timebank_prices_v1").select("igd_price,ign_price,payment_enabled,practice_preview_enabled").eq("singleton",true).maybeSingle();
+   const [{data:priceConfig},{data:socialEvents,error:socialError}]=await Promise.all([
+    db.from("poker_timebank_prices_v1").select("igd_price,ign_price,payment_enabled,practice_preview_enabled").eq("singleton",true).maybeSingle(),
+    db.from("poker_social_events_v1").select("id,actor_id,target_user_id,action_id,created_at").eq("table_id",tableId).gte("created_at",new Date(Date.now()-10000).toISOString()).order("created_at",{ascending:true}).limit(20)
+   ]);
+   if(socialError)throw socialError;
    const price={igd:priceConfig?.igd_price??"0.15",ign:priceConfig?.ign_price??null,
     paymentEnabled:priceConfig?.payment_enabled===true,practicePreviewEnabled:priceConfig?.practice_preview_enabled===true};
-   return json({table:publicTable,seats:publicSeats,holeCards:hole?.private_hole??[],serverNow:new Date().toISOString(),timebank:price,
+   return json({table:publicTable,seats:publicSeats,holeCards:hole?.private_hole??[],socialEvents:socialEvents||[],serverNow:new Date().toISOString(),timebank:price,
     ...(table.status==="complete"?{revealedSeed:table.seed_secret,verificationHandId:tableId+":"+table.hand_no}: {})});
   }
   return json({error:"Unsupported action"},400);

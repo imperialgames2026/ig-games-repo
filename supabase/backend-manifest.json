@@ -59,13 +59,13 @@
     },
     {
       "name": "poker-table-v1",
-      "deployed_version": 14,
+      "deployed_version": 15,
       "verify_jwt": true,
       "files": [
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "6c85661641511ea40e414f713f7e81ec3e53df3ba4903dc165c48fdda56b6a53"
+        "index.ts": "4681da277214319a8a9decbcb5a7d29895de584006ac5e032a2da429c5c79288"
       }
     },
     {
@@ -784,6 +784,10 @@
       "file": "20261023164745_kyc_retention_fair_retry.sql",
       "sha256": "f8cd8f4ef9ceb1dd88d5ed5e1076ed61f9a476b5fa422c4d511e04ada1aecd89",
       "status": "pending_deployment"
+    },
+    {
+      "file": "20261023174424_poker_social_events_v1.sql",
+      "sha256": "f9fe890fda7b7d7871b6a7e4013ce83af4a7a4c022e0cf8b1b4093d99f2386d7"
     }
   ]
 }

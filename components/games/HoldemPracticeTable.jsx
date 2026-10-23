@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { supabase } from '@/lib/supabaseClient';
-import PokerPlayerProfile from '@/components/poker/PokerPlayerProfile';
+import PokerPlayerProfile, { PLAYER_EMOTES } from '@/components/poker/PokerPlayerProfile';
 import PokerSettingsModal from '@/components/poker/PokerSettingsModal';
 import { usePokerSounds } from '@/components/poker/usePokerSounds';
 import './game-cockpit.css';
@@ -35,6 +35,7 @@ const POKER_SKINS={
  black:{rail:'#2a2a2a',felt:'radial-gradient(ellipse at top,#343434,#090909 72%)'}
 };
 const CARD_BACKS=['🔵','🟤','👑','💎','🟢','🟩'];
+const SOCIAL_ICON=Object.fromEntries(PLAYER_EMOTES.map(item=>[item.id,item.label.split(' ')[0]]));
 function cardColor(c,pattern){
  if(!c||typeof c==='string')return 'text-slate-950';
  if(pattern==='four-color')return c.suit==='h'?'text-red-600':c.suit==='d'?'text-blue-600':c.suit==='c'?'text-emerald-700':'text-slate-950';
@@ -67,6 +68,7 @@ export default function HoldemPracticeTable({variant='holdem'}) {
  const [profileAnalytics,setProfileAnalytics]=useState(null);
  const [profileAnalyticsLoading,setProfileAnalyticsLoading]=useState(false);
  const [profileAnalyticsError,setProfileAnalyticsError]=useState('');
+ const [activeSocialEvent,setActiveSocialEvent]=useState(null);
  const [settingsOpen,setSettingsOpen]=useState(false);
  const [pokerSettings,setPokerSettings]=useState(()=>{
    if(typeof window==='undefined')return DEFAULT_POKER_SETTINGS;
@@ -75,6 +77,8 @@ export default function HoldemPracticeTable({variant='holdem'}) {
  });
  const sounds=usePokerSounds();
  const requestRef=useRef(null);
+ const lastSocialRef=useRef(null);
+ const socialTimerRef=useRef(null);
  const last=useRef(null);
  const alive=useRef(true);
  useEffect(()=>{
@@ -83,7 +87,11 @@ export default function HoldemPracticeTable({variant='holdem'}) {
 
  const invoke=useCallback(async(input)=>{
    const {data,error:e}=await supabase.functions.invoke('poker-table-v1',{body:input});
-   if(e)throw new Error('Poker server unavailable. Refresh table before retrying.');
+   if(e){
+     let message=e.message||'Poker server unavailable. Refresh table before retrying.';
+     if(e.context?.json){const detail=await e.context.json().catch(()=>null);message=detail?.error||message;}
+     throw new Error(message);
+   }
    if(!data||data.error)throw new Error(data?.error||'Poker action was rejected');
    return data;
  },[]);
@@ -101,6 +109,20 @@ export default function HoldemPracticeTable({variant='holdem'}) {
    return ()=>{alive.current=false;clearInterval(interval);};
  },[fetchState]);
  useEffect(()=>{
+   const events=snapshot?.socialEvents||[];
+   const newest=events[events.length-1];
+   if(!newest||newest.id===lastSocialRef.current)return;
+   lastSocialRef.current=newest.id;
+   if(Date.now()-Date.parse(newest.created_at)>5000)return;
+   setActiveSocialEvent(newest);
+   if(pokerSettings.gameSound){
+     try{newest.action_id==='cheers'?sounds.beerClink():sounds.taunt();}catch{}
+   }
+   if(socialTimerRef.current)window.clearTimeout(socialTimerRef.current);
+   socialTimerRef.current=window.setTimeout(()=>setActiveSocialEvent(null),2600);
+   return ()=>{if(socialTimerRef.current)window.clearTimeout(socialTimerRef.current);};
+ },[snapshot?.socialEvents,pokerSettings.gameSound,sounds]);
+ useEffect(()=>{
    let cancelled=false;
    if(!profileSeat?.user_id||!tableId||!isAuthenticated){setProfileAnalytics(null);setProfileAnalyticsError('');return;}
    setProfileAnalyticsLoading(true);setProfileAnalyticsError('');setProfileAnalytics(null);
@@ -111,6 +133,11 @@ export default function HoldemPracticeTable({variant='holdem'}) {
    }).finally(()=>{if(!cancelled)setProfileAnalyticsLoading(false);});
    return ()=>{cancelled=true;};
  },[profileSeat?.user_id,tableId,isAuthenticated,invoke]);
+ const sendSocial=useCallback(async({targetPlayerId,actionId})=>{
+   if(!tableId)throw new Error('Table unavailable');
+   await invoke({action:'sendSocial',tableId,targetUserId:targetPlayerId,actionId});
+   await fetchState(true);
+ },[tableId,invoke,fetchState]);
  const doAction=useCallback(async(action,fields={})=>{
    if(busy||!isAuthenticated)return;
    setBusy(true);setError('');
@@ -214,7 +241,7 @@ export default function HoldemPracticeTable({variant='holdem'}) {
              {Array.from({length:isOmaha?6:8},(_,number)=>{
                const s=seats.find(x=>x.seat_no===number);
                const [left,top]=SEAT_POSITIONS[isOmaha?6:8][number];
-               const seatClass='ig-poker-seat rounded-xl border p-2 text-left text-xs shadow-lg '+(s?.seat_no===turn?.seat_no?'border-amber-300 bg-amber-200/20 ring-2 ring-amber-300/30':'border-white/30 bg-[#0b241d]/90');
+               const seatClass='ig-poker-seat relative rounded-xl border p-2 text-left text-xs shadow-lg '+(s?.seat_no===turn?.seat_no?'border-amber-300 bg-amber-200/20 ring-2 ring-amber-300/30':'border-white/30 bg-[#0b241d]/90');
                if(!s)return <div key={number} style={{left,top}} className={seatClass}>
                  <div className="truncate font-black">Seat {number+1}</div><div className="ig-seat-detail mt-1 text-gray-300">Open seat</div>
                </div>;
@@ -228,6 +255,7 @@ export default function HoldemPracticeTable({variant='holdem'}) {
                  </div>
                  <p className="ig-seat-detail mt-1 font-black text-amber-200">{s.stack} chips</p>
                  <p className="ig-seat-detail text-white/70">Pot {s.committed} · {s.folded?'Folded':s.all_in?'All-in':s.acted?'Acted':'Waiting'}</p>
+                 {activeSocialEvent?.target_user_id===s.user_id&&<span aria-live="polite" className="pointer-events-none absolute -top-8 left-1/2 z-20 -translate-x-1/2 animate-bounce rounded-full border border-amber-200/60 bg-black/80 px-3 py-1 text-2xl shadow-xl">{SOCIAL_ICON[activeSocialEvent.action_id]||'✨'}</span>}
                </button>;
              })}
            </div>
@@ -289,7 +317,8 @@ export default function HoldemPracticeTable({variant='holdem'}) {
            loading={profileAnalyticsLoading}
            analyticsError={profileAnalyticsError}
            onClose={()=>setProfileSeat(null)}
-           disabled
+           onSendAction={sendSocial}
+           disabled={profileSeat.user_id===user?.id}
          />
        </div>
      </div>}
