@@ -31,6 +31,24 @@ test('seat snapshots expose only public player identity needed by the table prof
  assert.match(ui,/PokerPlayerProfile/);
  assert.match(ui,/Open '\+\(s\.displayName\|\|'player'\)\+' profile'/);
 });
+test('avatar tap opens three-tab verified stats card with showdown heat',()=>{
+ const profile=file('components/poker/PokerPlayerProfile.jsx');
+ assert.match(edge,/action==="playerStats"/);
+ assert.match(edge,/Player is not seated at this table/);
+ assert.match(edge,/ig_poker_completed_hands/);
+ assert.match(edge,/currentSession:summarizeFacts/);
+ assert.match(edge,/career:summarizeFacts/);
+ assert.match(profile,/Current Session/);
+ assert.match(profile,/Career/);
+ assert.match(profile,/Showdown/);
+ assert.match(profile,/WTSD/);
+ assert.match(profile,/Went To Showdown/);
+ assert.match(profile,/WSD/);
+ assert.match(profile,/Won At Showdown/);
+ for(const label of ['Hot','Warm','Half & Half','Cold','Freezing']) assert.ok(profile.includes(label),label+' showdown temperature missing');
+ assert.match(ui,/action:'playerStats'/);
+});
+
 test('poker table connects persistent skins, sound and action voice settings',()=>{
  assert.match(ui,/PokerSettingsModal/);
  assert.match(ui,/usePokerSounds/);
