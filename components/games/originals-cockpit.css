@@ -1,0 +1,71 @@
+.ig-original-screen{background:#0a0612;color:#fff}
+.ig-original-shell{width:100%;margin:0 auto}
+.ig-original-grid{min-width:0}
+.ig-original-controls,.ig-original-stage{min-width:0}
+
+@media (max-width:1024px),(max-height:820px){
+ .ig-original-screen{
+  height:calc(100dvh - 64px);
+  min-height:0!important;
+  overflow:hidden;
+  padding:.35rem!important;
+ }
+ .ig-original-shell{
+  height:100%;
+  min-height:0;
+  display:grid;
+  grid-template-rows:auto auto minmax(0,1fr);
+  gap:.35rem!important;
+ }
+ .ig-original-shell>a{font-size:.7rem;line-height:1rem}
+ .ig-original-header{min-height:0}
+ .ig-original-header h1{font-size:1.45rem!important;line-height:1.7rem!important;margin-top:.1rem!important}
+ .ig-original-header .ig-original-description,
+ .ig-original-header .ig-original-notice{display:none!important}
+ .ig-original-grid{
+  height:100%;
+  min-height:0;
+  display:grid!important;
+  grid-template-columns:minmax(210px,.9fr) minmax(0,1.45fr)!important;
+  gap:.4rem!important;
+  overflow:hidden;
+ }
+ .ig-original-controls,.ig-original-stage{
+  height:100%;
+  min-height:0;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+  padding:.55rem!important;
+  border-radius:.8rem!important;
+ }
+ .ig-original-controls{display:flex;flex-direction:column;justify-content:center;gap:.45rem!important}
+ .ig-original-controls fieldset{gap:.45rem!important}
+ .ig-original-controls legend{margin-bottom:.35rem!important;font-size:.85rem!important}
+ .ig-original-controls label,.ig-original-controls p,.ig-original-controls button,.ig-original-controls input,.ig-original-controls select{font-size:.7rem!important}
+ .ig-original-controls input,.ig-original-controls select{padding:.45rem!important;margin-top:.25rem!important}
+ .ig-original-controls button{padding:.55rem!important;min-height:34px}
+ .ig-original-stage{display:flex!important;flex-direction:column;justify-content:center}
+ .ig-original-stage .text-7xl{font-size:3.4rem!important}
+ .ig-original-stage .text-6xl{font-size:3rem!important}
+ .ig-original-stage .text-5xl{font-size:2.5rem!important}
+ .ig-original-stage .text-4xl{font-size:1.9rem!important}
+ .ig-original-stage .text-3xl{font-size:1.45rem!important}
+ .ig-original-stage .h-44{height:8rem!important}.ig-original-stage .w-44{width:8rem!important}
+ .ig-original-stage .h-40{height:8rem!important}.ig-original-stage .w-40{width:8rem!important}
+ .ig-original-extra,.ig-original-history{display:none!important}
+ .ig-original-mines .ig-original-stage{padding:.45rem!important}
+ .ig-original-mines .ig-original-stage .grid-cols-5{gap:.3rem!important}
+ .ig-original-mines .ig-original-stage button{font-size:1.05rem!important;border-radius:.55rem!important}
+ .ig-original-final .ig-original-stage{padding:.45rem!important}
+ .ig-original-final .ig-original-stage .space-y-2{gap:.2rem!important}
+ .ig-original-final .ig-original-stage button{padding:.45rem!important}
+ .ig-original-dice .ig-original-stage{padding:.55rem!important}
+}
+
+@media (max-width:640px) and (orientation:portrait){
+ .ig-original-grid{grid-template-columns:1fr!important;grid-template-rows:minmax(0,1fr) auto}
+ .ig-original-controls{max-height:31dvh;order:2}
+ .ig-original-stage{order:1}
+ .ig-original-header p:first-child{font-size:.55rem!important}
+}
