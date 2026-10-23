@@ -59,13 +59,13 @@
     },
     {
       "name": "poker-table-v1",
-      "deployed_version": 13,
+      "deployed_version": 14,
       "verify_jwt": true,
       "files": [
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "73df6ace5087864602f16df0ad9ab92fd105c3804fb1513be506ecc40e7cae99"
+        "index.ts": "6c85661641511ea40e414f713f7e81ec3e53df3ba4903dc165c48fdda56b6a53"
       }
     },
     {
