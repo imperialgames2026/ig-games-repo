@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSharedEventPractice } from '@/hooks/useSharedEventPractice';
 import { CircleDot, Crown, Users, ShieldCheck } from 'lucide-react';
+import GameTableScene3D from '@/components/games/3d/GameTableScene3D';
 
 const ALL_CRASH = [
   {id:'auto_150',label:'AUTO 1.50×',detail:'Classic cashout at 1.50×',payout:'1.5×'},
@@ -98,6 +99,7 @@ export default function SharedEventPracticeTable({mode='crash'}) {
         <ShieldCheck className="h-5 w-5 shrink-0 text-sky-300"/>
         <p>Practice chips only · No deposits, purchases, crypto, cashouts, transfers, or redeemable rewards. The server decides and settles every shared round.</p>
       </div>
+      {game==='baccarat'&&<GameTableScene3D game="baccarat" outcome={table?.lastResult} seats={table?.players||[]} chipCount={table?.chips||0} label="3D baccarat table with card and chip presentation" />}
       {game==='crash' && <div className="flex flex-wrap gap-2">
         <Link className={'rounded-lg px-5 py-2 font-black '+(mode==='crash'?'bg-yellow-300 text-black':'border border-white/30')} to="/PlayCrash">Classic Crash · automatic cashout</Link>
         <Link className={'rounded-lg px-5 py-2 font-black '+(mode==='trenball'?'bg-yellow-300 text-black':'border border-white/30')} to="/PlayTrenball">Trenball · Red / Green / Moon</Link>
