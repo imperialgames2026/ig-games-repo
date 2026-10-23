@@ -2,19 +2,29 @@ import React,{useEffect,useState} from 'react';
 import { Link } from 'react-router-dom';
 import { useBlackjackPractice } from '@/hooks/useBlackjackPractice';
 import { ShieldCheck, Crown, Users } from 'lucide-react';
+import './game-cockpit.css';
 
 const values=[1,5,10,25,100];
 function Card({value,back=false}) {
-  if(back||value==null)return <span className="flex h-16 w-12 items-center justify-center rounded-lg border-2 border-pink-300 bg-gradient-to-br from-purple-950 to-blue-950 text-3xl text-amber-200 shadow-lg">✦</span>;
+  if(back||value==null)return <span className="ig-bj-card flex h-16 w-12 items-center justify-center rounded-lg border-2 border-pink-300 bg-gradient-to-br from-purple-950 to-blue-950 text-3xl text-amber-200 shadow-lg">✦</span>;
   const number=(value%13)+1;
   const rank={1:'A',11:'J',12:'Q',13:'K'}[number]||number;
   const suit=['♣','♦','♥','♠'][Math.floor(value/13)];
   const red=Math.floor(value/13)===1||Math.floor(value/13)===2;
-  return <span className={'flex h-16 w-12 flex-col items-center justify-center rounded-lg border-2 border-slate-200 bg-white text-lg font-black shadow-lg '+(red?'text-red-600':'text-slate-950')}>
+  return <span className={'ig-bj-card flex h-16 w-12 flex-col items-center justify-center rounded-lg border-2 border-slate-200 bg-white text-lg font-black shadow-lg '+(red?'text-red-600':'text-slate-950')}>
     <span>{rank}</span><span>{suit}</span>
   </span>;
 }
 const asChips=n=>Number(n||0).toLocaleString();
+function WagerAmount({value,setValue,max=100,disabled=false}){
+ const limit=Math.max(1,Math.floor(Number(max)||1));
+ const set=n=>setValue(Math.max(1,Math.min(limit,Math.floor(Number(n)||1))));
+ return <div className="ig-compact-wager" aria-label="Blackjack wager amount">
+  <button type="button" disabled={disabled||value<=1} onClick={()=>set(Math.floor(value/2))} className="rounded-lg border border-white/30 bg-black/20 font-black disabled:opacity-40">÷2</button>
+  <input aria-label="Blackjack wager amount" type="number" inputMode="numeric" min="1" max={limit} value={value} disabled={disabled} onChange={e=>set(e.target.value)} className="rounded-lg border border-amber-300/40 bg-[#0d0915] px-2 text-center font-black text-amber-100"/>
+  <button type="button" disabled={disabled||value>=limit} onClick={()=>set(value*2)} className="rounded-lg border border-white/30 bg-black/20 font-black disabled:opacity-40">×2</button>
+ </div>;
+}
 
 export default function BlackjackPracticeTable() {
  const {user,isAuthenticated,state,loading,busy,error,refresh,join,leave,claim,bet,action}=useBlackjackPractice();
@@ -34,42 +44,42 @@ export default function BlackjackPracticeTable() {
  const gameInProgress=state?.phase==='playing'||state?.phase==='showdown';
  const dealerCards=state?.dealerCards||[];
  const last=state?.lastResult;
- return <main className="min-h-screen bg-[#0a0612] px-3 py-8 text-white sm:px-6">
-  <div className="mx-auto max-w-7xl space-y-5">
-   <div className="flex flex-wrap justify-between gap-2">
+ return <main className="ig-game-screen ig-blackjack-screen min-h-screen bg-[#0a0612] px-3 py-8 text-white sm:px-6">
+  <div className="ig-blackjack-shell mx-auto max-w-7xl space-y-5">
+   <div className="ig-cockpit-topbar flex flex-wrap justify-between gap-2">
     <Link to="/Games" className="font-semibold text-amber-300 hover:underline">← Game lobby</Link>
     <span className="rounded-full border border-amber-300/40 bg-amber-300/10 px-4 py-1 text-xs font-black uppercase tracking-wider text-amber-200">Seven-seat shared practice table</span>
    </div>
-   <p className="flex items-start gap-3 rounded-xl border border-sky-400/30 bg-sky-950/50 p-4 text-sm text-sky-100">
+   <p className="ig-blackjack-notice flex items-start gap-3 rounded-xl border border-sky-400/30 bg-sky-950/50 p-4 text-sm text-sky-100">
     <ShieldCheck className="h-5 w-5 shrink-0 text-sky-300"/>
     <span>Six-deck Blackjack with server-owned cards and player turns. Practice chips have no monetary value, cannot be bought or withdrawn, and are isolated from cryptocurrency and financial wallets.</span>
    </p>
-   {state&&<div role="status" className={'flex items-center justify-between rounded-xl border p-4 '+(canBet?'border-green-400/40 bg-green-950/30':'border-amber-300/30 bg-amber-950/20')}>
+   {state&&<div role="status" className={'ig-blackjack-status flex items-center justify-between rounded-xl border p-4 '+(canBet?'border-green-400/40 bg-green-950/30':'border-amber-300/30 bg-amber-950/20')}>
     <span className="text-sm font-black uppercase tracking-wide">Round {state.round} · {state.phase==='betting'?canBet?'Betting open':'Betting closed':state.phase==='playing'?'Player turns':'Dealer showdown'}</span>
     <span className="font-mono text-2xl font-black text-amber-200">{state.phase==='betting'?canBet?seconds+'s':'LOCKED':state.phase==='playing'?turnSeconds+'s TO ACT':'SETTLE'}</span>
    </div>}
-   <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
-    <div className="space-y-5">
-     <div className="rounded-[2.7rem] border-[12px] border-[#684125] bg-[#0d6547] p-2 shadow-2xl sm:p-6">
-      <div className="rounded-[2.3rem] border-2 border-amber-200/70 bg-[radial-gradient(circle_at_top,_#186e4a,_#07513b_62%,_#063d30)] p-3 sm:p-6">
+   <div className="ig-blackjack-grid grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
+    <div className="ig-blackjack-main space-y-5">
+     <div className="ig-blackjack-stage rounded-[2.7rem] border-[12px] border-[#684125] bg-[#0d6547] p-2 shadow-2xl sm:p-6">
+      <div className="ig-blackjack-felt rounded-[2.3rem] border-2 border-amber-200/70 bg-[radial-gradient(circle_at_top,_#186e4a,_#07513b_62%,_#063d30)] p-3 sm:p-6">
        <div className="text-center">
         <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-200">Imperial Games · Table BJ1</p>
-        <h1 className="mt-1 text-3xl font-black italic sm:text-4xl">BLACKJACK PAYS 3 TO 2</h1>
+        <h1 className="ig-blackjack-title mt-1 text-3xl font-black italic sm:text-4xl">BLACKJACK PAYS 3 TO 2</h1>
         <p className="mt-2 text-xs font-bold uppercase text-amber-100">Dealer stands on all 17s · 6 decks</p>
-        <div className="mt-5 flex min-h-20 flex-wrap justify-center gap-2">
+        <div className="ig-blackjack-dealer mt-5 flex min-h-20 flex-wrap justify-center gap-2">
          {dealerCards.length?dealerCards.map((card,i)=><Card value={card} key={i}/>):<Card back/>}
          {state?.dealerHidden&&<Card back/>}
         </div>
         <p className="mt-2 text-xs text-gray-200">Dealer {state?.dealerHidden?'hole card hidden until showdown':'cards'}</p>
        </div>
-       <div className="mx-auto my-5 max-w-3xl rounded-full border-2 border-dashed border-yellow-200/50 p-3 text-center text-xs text-amber-200">
+       <div className="ig-blackjack-ruleline mx-auto my-5 max-w-3xl rounded-full border-2 border-dashed border-yellow-200/50 p-3 text-center text-xs text-amber-200">
         Insurance is not enabled. Only base hands and Perfect Pairs practice side bets settle on this table.
        </div>
-       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+       <div className="ig-blackjack-seats grid grid-cols-2 gap-2 sm:grid-cols-4">
         {Array.from({length:7},(_,seatNo)=>{
          const p=players.find(x=>x.seat===seatNo);
          const isTurn=p&&state?.turnActor===p.id;
-         return <div key={seatNo} className={'min-h-36 rounded-2xl border-2 p-3 '+(isTurn?'border-amber-300 bg-amber-100/15':'border-white/40 bg-black/15')}>
+         return <div key={seatNo} className={'ig-blackjack-seat min-h-36 rounded-2xl border-2 p-3 '+(isTurn?'border-amber-300 bg-amber-100/15':'border-white/40 bg-black/15')}>
           <p className="text-sm font-black">Seat {seatNo+1} {p?.id===user?.id?'· YOU':''}</p>
           {p?<><p className="mt-1 text-xs text-white/80">{p.mainBet?'Main '+p.mainBet:'Watching'}</p>
            <p className="text-xs text-yellow-100">{p.pairsBet?'Pairs '+p.pairsBet:''}</p>
@@ -79,7 +89,7 @@ export default function BlackjackPracticeTable() {
          </div>;
         })}
        </div>
-       <div className="mt-5 grid grid-cols-2 gap-3">
+       <div className="ig-blackjack-bets mt-5 grid grid-cols-2 gap-3">
         <button disabled={!canBet||!me||busy||me.mainBet>0||me.chips<chip}
           onClick={()=>void bet('main',chip)}
           className="min-h-28 rounded-xl border-2 border-white/60 bg-amber-200/15 p-3 text-left disabled:opacity-45">
@@ -93,12 +103,13 @@ export default function BlackjackPracticeTable() {
           <span className="mt-2 block font-bold text-amber-200">Optional {chip}-chip side bet</span>
         </button>
        </div>
-       <p className="mt-3 text-center text-xs text-amber-100/75">The dealer handles a single shared six-deck shoe. Every seated player with a main practice bet gets a hand; each player chooses Hit or Stand on their turn.</p>
+       <p className="ig-blackjack-footnote mt-3 text-center text-xs text-amber-100/75">The dealer handles a single shared six-deck shoe. Every seated player with a main practice bet gets a hand; each player chooses Hit or Stand on their turn.</p>
       </div>
      </div>
-     {state&&<div className="rounded-2xl border border-white/10 bg-[#1b1727] p-5">
+     {state&&<div className="ig-blackjack-controls rounded-2xl border border-white/10 bg-[#1b1727] p-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
-       <div><h2 className="font-black">Choose chips</h2>
+       <div><h2 className="font-black">Wager amount</h2>
+        <div className="mt-2"><WagerAmount value={chip} setValue={setChip} max={me?.chips??state.chips} disabled={busy}/></div>
         <div className="mt-2 flex flex-wrap gap-2">{values.map(v=><button type="button" key={v} disabled={busy}
           aria-pressed={v===chip} onClick={()=>setChip(v)}
           className={'h-12 w-12 rounded-full border-4 font-black '+(v===chip?'border-amber-300 bg-purple-700':'border-white/30 bg-purple-950')}>{v}</button>)}</div>
@@ -127,7 +138,7 @@ export default function BlackjackPracticeTable() {
      </div>}
      {loading&&!state&&<p role="status" className="rounded-lg bg-white/10 p-8 text-center">Connecting to Blackjack table…</p>}
     </div>
-    <aside className="space-y-5">
+    <aside className="ig-blackjack-rail space-y-5">
      <section className="rounded-xl border border-white/10 bg-[#1b1727] p-5">
       <h2 className="flex items-center gap-2 text-lg font-black"><Users className="h-5 w-5 text-amber-200"/>Seated players ({players.length}/7)</h2>
       {players.map(p=><div key={p.id} className="mt-2 flex items-center justify-between rounded-lg bg-white/5 px-3 py-2 text-sm">
