@@ -4,6 +4,7 @@ import { Crown, Dices, RotateCw, Users, ShieldCheck } from 'lucide-react';
 import { useMultiplayerPractice } from '@/hooks/useMultiplayerPractice';
 import './craps-casino.css';
 import {validCrapsDropTarget,canDropCrapsChip} from '@/lib/crapsChipDragRules';
+import GameTableScene3D from '@/components/games/3d/GameTableScene3D';
 
 
 const CHIP_VALUES = [1, 5, 10, 25, 100];
@@ -412,6 +413,7 @@ export default function MultiplayerPracticeTable({ game }) {
           <span className="rounded-full border border-amber-300/50 bg-amber-300/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-200">Multiplayer · Shared staging room</span>
         </div>
         <PracticeNotice />
+        <GameTableScene3D game={game} outcome={last} chipCount={table?.chips||0} seats={table?.players||[]} label={game==='craps'?'3D craps table with animated dice and chip stacks':'3D roulette table with animated wheel, ball, and chip stacks'} />
         {table && <div role="status" aria-live="polite" className={"flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-4 " +
           (bettingOpen ? 'border-green-400/40 bg-green-950/35' : 'border-amber-400/40 bg-amber-950/25')}>
           <div><p className="font-black uppercase tracking-wider">{bettingOpen ? 'Bets open — place your chips' : 'No more bets — shooter turn'}</p>
