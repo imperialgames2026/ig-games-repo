@@ -1,10 +1,11 @@
 [Unit]
-Description=Imperial Games private KYC advisory comparison and retention
+Description=Imperial Games private KYC advisory comparison
 After=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=%h/Projects/imperial-kyc-lab/.venv/bin/python %h/Projects/imperial-games-kyc-integration-20261022/services/kyc-worker/worker.py --config %h/.config/imperial-kyc/worker-20261022.json --models %h/Projects/imperial-kyc-lab/models --once
+# Install and verify imperial-kyc-retention.timer before using this unit.
+ExecStart=%h/Projects/imperial-kyc-lab/.venv/bin/python %h/Projects/imperial-games-kyc-integration-20261022/services/kyc-worker/worker.py --config %h/.config/imperial-kyc/worker-20261022.json --models %h/Projects/imperial-kyc-lab/models --once --skip-cleanup
 WorkingDirectory=%h/Projects/imperial-games-kyc-integration-20261022
 UMask=0077
 NoNewPrivileges=yes

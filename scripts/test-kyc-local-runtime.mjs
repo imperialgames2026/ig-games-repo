@@ -135,13 +135,28 @@ assert.equal(sql(`select exists(select 1 from jsonb_array_elements(public.ig_kyc
 assert((await worker('worker_expired')).data.result.some(x=>x.id===lateId));
 console.log('PASS rollback regression: old RPC omits purged tombstone; retained reconciliation RPC includes it');
 // Simulate function-before-migration deployment only in the disposable DB.
-sql('alter function public.ig_kyc_retention_action_v2(uuid,text,jsonb) rename to ig_kyc_retention_action_fixture;');
+// A cached prepared read can still succeed by function OID during a rename.
+// Wait for the actual PostgREST schema view on both sides of this DDL fixture,
+// rather than treating a single successful worker_expired call as cache recovery.
+async function retentionSchemaReady(present){
+ for(let i=0;i<40;i++){
+  const r=await fetch(origin+'/rest/v1/',{headers:{apikey:c.SERVICE_ROLE_KEY,authorization:'Bearer '+c.SERVICE_ROLE_KEY},signal:AbortSignal.timeout(5000)});
+  assert.equal(r.status,200,'local PostgREST schema inspection');
+  const schema=await r.json(),paths=schema.paths||{};
+  if(Boolean(paths['/rpc/ig_kyc_retention_action_v2'])===present&&Boolean(paths['/rpc/ig_kyc_retention_action_fixture'])===!present)return;
+  await setTimeout(250);
+ }
+ assert.fail('PostgREST schema must converge after synthetic retention RPC rename');
+}
+sql("alter function public.ig_kyc_retention_action_v2(uuid,text,jsonb) rename to ig_kyc_retention_action_fixture; notify pgrst, 'reload schema';");
 try{
+ await retentionSchemaReady(false);
  const absent=await worker('worker_expired');assert.equal(absent.status,503);
  assert.equal(absent.data.retention_protocol,undefined,'missing migration must not advertise a healthy retention response');
 }finally{
  sql("alter function public.ig_kyc_retention_action_fixture(uuid,text,jsonb) rename to ig_kyc_retention_action_v2; notify pgrst, 'reload schema';");
 }
+await retentionSchemaReady(true);
 let restored=false;
 for(let i=0;i<20;i++){const r=await worker('worker_expired');if(r.status===200&&r.data.retention_protocol==='reconcile-v2'){restored=true;break;}await setTimeout(250);}
 assert(restored,'restored migration must recover the retention protocol');

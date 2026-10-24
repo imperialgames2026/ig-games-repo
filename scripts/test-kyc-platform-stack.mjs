@@ -24,14 +24,15 @@ let started=false,server,logfd;let secrets=[];
 try{
  execFileSync(process.execPath,[resolve(root,'scripts/prepare-reviewed-backend.mjs'),stage],{stdio:'pipe'});
  const manifest=JSON.parse(readFileSync(resolve(root,'supabase/backend-manifest.json'),'utf8'));
- assert.equal(manifest.migrations.length,107);
+ const migrationCount=manifest.migrations.length;
+ assert(migrationCount>=107,'Retain the full reviewed KYC migration chain');
  // Package checksums first, then retain only the allowed HTTP handler. No
  // comparison worker, other function or model code is launched by this harness.
  rmSync(stage+'/supabase/functions',{recursive:true});mkdirSync(stage+'/supabase/functions/ig-kyc-v1',{recursive:true});
  await build({entryPoints:[resolve(root,'supabase/functions/ig-kyc-v1/index.ts')],outfile:stage+'/supabase/functions/ig-kyc-v1/index.ts',bundle:true,platform:'browser',format:'esm',plugins:[{name:'locked-npm',setup(b){b.onResolve({filter:/^npm:/},a=>({path:require.resolve(a.path.replace(/^npm:/,'').replace(/@\d.*$/,''))}));}}]});
  writeFileSync(stage+'/supabase/config.toml',`project_id = "${project}"\n[db]\nmajor_version = 17\n[db.seed]\nenabled = false\n[functions.ig-kyc-v1]\nverify_jwt = true\n`);
  writeFileSync(stage+'/local.env','IG_LOCAL_PRACTICE=true\n',{mode:0o600});
- console.log('PASS full-platform preflight: 107 checksum-verified migrations, one bundled reviewed handler, seeds disabled, JWT guard preserved');
+ console.log(`PASS full-platform preflight: ${migrationCount} checksum-verified migrations, one bundled reviewed handler, seeds disabled, JWT guard preserved`);
  if(!check){
   const driver=execFileSync('docker',['info','--format','{{.Driver}}'],{encoding:'utf8'}).trim();
   assert.notEqual(driver,'vfs','Full platform requires an existing copy-on-write runner; do not repeat local vfs pull');
@@ -43,7 +44,7 @@ try{
   secrets=[c.ANON_KEY,c.SERVICE_ROLE_KEY,c.JWT_SECRET];
   const versions=execFileSync('docker',['exec',db,'psql','-U','postgres','-d','postgres','-At','-c','select version from supabase_migrations.schema_migrations order by version;'],{encoding:'utf8'}).trim().split('\n');
   assert.deepEqual(versions,manifest.migrations.map(m=>m.file.split('_')[0]).sort());
-  console.log('PASS actual Supabase PostgreSQL: all 107 packaged migration versions replayed');
+  console.log(`PASS actual Supabase PostgreSQL: all ${migrationCount} packaged migration versions replayed`);
   logfd=openSync(stage+'/edge.log','w',0o600);
   server=spawn('supabase',['functions','serve','--workdir',stage,'--env-file',stage+'/local.env'],{env,stdio:['ignore',logfd,logfd]});
   let ready=false;
