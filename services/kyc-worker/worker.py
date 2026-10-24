@@ -68,10 +68,11 @@ def compare(images,models):
  if not math.isfinite(score) or not all(math.isfinite(x) for x in sharpness):raise ValueError('Invalid model measurement')
  return {'status':'compared','cosine_similarity':max(-1,min(1,round(score,5))),'id_image_sharpness':round(sharpness[0],1),'selfie_sharpness':round(sharpness[1],1)}
 
-def cycle(config,models):
+def cycle(config,models,*,skip_cleanup=False):
  # Deletion runs independently of comparison availability. No disk evidence cache.
- for item in request_json(config,'worker_expired')['result']:
-  request_json(config,'worker_purged',id=item['id'])
+ if not skip_cleanup:
+  for item in request_json(config,'worker_expired')['result']:
+   request_json(config,'worker_purged',id=item['id'])
  job=request_json(config,'worker_claim')['job']
  if not job:return False
  try:
@@ -86,13 +87,13 @@ def cycle(config,models):
  return True
 
 def main():
- parser=argparse.ArgumentParser();parser.add_argument('--config',required=True);parser.add_argument('--models',required=True);parser.add_argument('--once',action='store_true');parser.add_argument('--check-models',action='store_true');args=parser.parse_args()
+ parser=argparse.ArgumentParser();parser.add_argument('--config',required=True);parser.add_argument('--models',required=True);parser.add_argument('--once',action='store_true');parser.add_argument('--check-models',action='store_true');parser.add_argument('--skip-cleanup',action='store_true',help='Use only when the separate retention service is installed');args=parser.parse_args()
  models=load_models(args.models)
  if args.check_models: print('Pinned face models loaded successfully');return
  config=read_json_private(args.config)
  while True:
   try:
-   completed=cycle(config,models)
+   completed=cycle(config,models,skip_cleanup=args.skip_cleanup)
    print('KYC worker cycle complete'+(' (comparison processed)' if completed else ''),flush=True)
   except Exception:
    print('KYC worker cycle failed; no sensitive details logged',flush=True)

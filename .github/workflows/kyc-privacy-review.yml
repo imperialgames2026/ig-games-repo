@@ -4,13 +4,16 @@ name: Non-biometric privacy review
 on:
   create:
   workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths: ['supabase/**', 'services/kyc-retention/**', 'scripts/test-kyc*', 'tests/kyc*', '.github/workflows/kyc-privacy-review.yml']
 permissions:
   contents: read
 jobs:
   privacy:
-    if: github.ref == 'refs/heads/review/nonbiometric-privacy-20261022' || startsWith(github.ref, 'refs/heads/verify/nonbiometric-privacy-20261022-')
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/review/nonbiometric-privacy-20261022' || startsWith(github.ref, 'refs/heads/verify/nonbiometric-privacy-20261022-')
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
         with:
@@ -32,7 +35,7 @@ jobs:
       - run: npm run build
 
   full-platform:
-    if: github.ref == 'refs/heads/review/nonbiometric-privacy-20261022' || startsWith(github.ref, 'refs/heads/verify/nonbiometric-privacy-20261022-')
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/review/nonbiometric-privacy-20261022' || startsWith(github.ref, 'refs/heads/verify/nonbiometric-privacy-20261022-')
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:

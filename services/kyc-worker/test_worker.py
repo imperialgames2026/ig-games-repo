@@ -3,6 +3,15 @@ from pathlib import Path
 from unittest.mock import patch
 s=importlib.util.spec_from_file_location('worker',Path(__file__).with_name('worker.py'));worker=importlib.util.module_from_spec(s);s.loader.exec_module(worker)
 class Tests(unittest.TestCase):
+ def test_separate_retention_mode_never_runs_legacy_cleanup(self):
+  actions=[]
+  def request(config,action,**payload):
+   actions.append(action)
+   if action!='worker_claim':raise AssertionError('Legacy cleanup was invoked')
+   return {'job':None}
+  with patch.object(worker,'request_json',request):
+   self.assertFalse(worker.cycle({},None,skip_cleanup=True))
+  self.assertEqual(actions,['worker_claim'])
  def test_config_is_private(self):
   with tempfile.TemporaryDirectory() as d:
    p=Path(d)/'config.json';p.write_text('{}');p.chmod(0o644)
