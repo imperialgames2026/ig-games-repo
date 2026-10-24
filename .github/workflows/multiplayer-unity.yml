@@ -1,0 +1,35 @@
+name: Shared practice Unity integration
+on:
+  pull_request:
+    paths:
+      - 'components/practice/**'
+      - 'components/games/MultiplayerPracticeTable.jsx'
+      - 'components/games/game-cockpit.css'
+      - 'tests/multiplayerUnity*'
+      - '.github/workflows/multiplayer-unity.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  shared-renderer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm test
+      - run: npm run build
+        env:
+          VITE_SUPABASE_URL: https://qonqemhljgxlwpghkxhn.supabase.co
+          VITE_SUPABASE_ANON_KEY: fixture-public-key
+          VITE_ENABLE_LEGACY_EDGE_FUNCTIONS: 'false'
+      - name: Exercise real Unity against controlled shared-table API responses
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4193 > /tmp/shared-unity-preview.log 2>&1 &
+          node -e "const u='http://127.0.0.1:4193';for(let i=0;i<60;i++){try{if((await fetch(u)).ok)process.exit(0)}catch{}await new Promise(r=>setTimeout(r,500))}process.exit(1)" --input-type=module
+          npm run test:multiplayer:unity

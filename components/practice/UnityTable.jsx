@@ -6,6 +6,7 @@ export default function UnityTable({
   outcome,
   reduced,
   camera,
+  fallbackLabel="Lightweight 3D",
   onStatus,
   onComplete,
   onBet,
@@ -92,6 +93,6 @@ export default function UnityTable({
   return <div className="unity-surface">
       <iframe ref={frame} src="/unity-practice-frame.html" title={`Unity 3D ${game} table`} className="table-scene" />
       {!ready && !error && <p role="status">Loading Unity table… {Math.round(progress * 100)}%</p>}
-      {error && <p role="alert">{error}. Select Lightweight 3D to keep practicing.</p>}
+      {error && <p role="alert">{error}. Select {fallbackLabel} to keep practicing.</p>}
     </div>;
 }
