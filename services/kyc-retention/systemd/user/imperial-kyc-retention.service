@@ -1,0 +1,21 @@
+[Unit]
+Description=Imperial Games private evidence retention
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+LoadCredential=retention-config:%h/.config/imperial-kyc/worker-20261022.json
+ExecStart=/usr/bin/python3 -B %h/Projects/imperial-games-kyc-integration-20261022/services/kyc-retention/cleanup.py --config %d/retention-config --once
+WorkingDirectory=%h/Projects/imperial-games-kyc-integration-20261022/services/kyc-retention
+TimeoutStartSec=7min
+UMask=0077
+LimitCORE=0
+MemoryMax=64M
+MemorySwapMax=0
+NoNewPrivileges=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+StandardOutput=journal
+StandardError=journal

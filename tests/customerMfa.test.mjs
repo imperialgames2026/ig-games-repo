@@ -5,6 +5,7 @@ import vm from 'node:vm';
 import ts from 'typescript';
 import { hasCompletedMfa } from '../lib/serverMfa.js';
 import { requireCompletedMfa, verifyAuthenticator } from '../lib/mfa.js';
+import { validateInput, KINDS } from '../supabase/functions/ig-kyc-v1/validation.js';
 import { resolveIdentity } from '../lib/identity.js';
 const id = '11111111-1111-4111-8111-111111111111';
 const enrolled = { id, factors: [{ id:'factor', factor_type:'totp', status:'verified' }] };
@@ -45,9 +46,9 @@ for(const fn of manifest.functions.filter(f=>f.name!=='ig-fireblocks-sandbox-web
     const client={auth:{getUser:async()=>({data:{user:enrolled},error:null})},from(){reads++;throw Error('MFA bypass reached data');},rpc(){reads++;throw Error('MFA bypass reached RPC');}};
     vm.runInNewContext(ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS}}).outputText,{
       exports:{},Deno:{serve:fn=>handler=fn,env:{get:key=>key==='SUPABASE_URL'?'https://qonqemhljgxlwpghkxhn.supabase.co':key==='IG_LOCAL_PRACTICE'?'false':'fixture-key'}},
-      createClient:()=>client,Response,Request,Headers,URL,URLSearchParams,TextEncoder,TextDecoder,atob,btoa,crypto,JSON,console,
+      createClient:()=>client,validateInput,KINDS,Response,Request,Headers,URL,URLSearchParams,TextEncoder,TextDecoder,atob,btoa,crypto,JSON,console,
     });
-    const response=await handler(new Request('https://fixture.invalid',{method:'POST',headers:{authorization:`Bearer ${token({sub:id,aal:'aal1'})}`,'content-type':'application/json'},body:JSON.stringify({action:fn.name==='ign-staking-v1'?'overview':'list'})}));
+    const response=await handler(new Request('https://fixture.invalid',{method:'POST',headers:{authorization:`Bearer ${token({sub:id,aal:'aal1'})}`,'content-type':'application/json'},body:JSON.stringify({action:fn.name==='ign-staking-v1'?'overview':fn.name==='ig-kyc-v1'?'mine':'list'})}));
     assert.equal(response.status,403,await response.clone().text());
     assert.match(await response.text(),/Two-step verification required/);
     assert.equal(reads,0);

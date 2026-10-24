@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Crown, Dices, RotateCw, Users, ShieldCheck } from 'lucide-react';
 import { useMultiplayerPractice } from '@/hooks/useMultiplayerPractice';
 import './craps-casino.css';
+import './game-cockpit.css';
 import {validCrapsDropTarget,canDropCrapsChip} from '@/lib/crapsChipDragRules';
 
 
@@ -16,6 +17,20 @@ const CRAPS_BETS = [
   { target: 'any_seven', label: 'ANY SEVEN', detail: 'One-roll proposition', payout: '4:1' },
 ];
 const chip = (v) => Number(v ?? 0).toLocaleString();
+function WagerAmountControl({stake,setStake,max=0,disabled=false,label='Wager amount'}) {
+  const limit=Math.max(1,Math.floor(Number(max)||1));
+  const setAmount=value=>setStake(Math.max(1,Math.min(limit,Math.floor(Number(value)||1))));
+  return <div className="ig-wager-control" aria-label={label}>
+    <button type="button" disabled={disabled||stake<=1} onClick={()=>setAmount(Math.max(1,Math.floor(Number(stake)/2)))}
+      className="rounded-lg border border-white/25 bg-black/20 font-black text-white disabled:opacity-35" aria-label="Halve wager">÷2</button>
+    <input type="number" inputMode="numeric" min="1" max={limit} step="1" value={stake}
+      onChange={e=>setAmount(e.target.value)} disabled={disabled}
+      className="rounded-lg border border-amber-300/40 bg-[#0c0b12] px-2 font-black text-amber-100 outline-none focus:border-amber-200"
+      aria-label={label}/>
+    <button type="button" disabled={disabled||Number(stake)>=limit} onClick={()=>setAmount(Number(stake)*2)}
+      className="rounded-lg border border-white/25 bg-black/20 font-black text-white disabled:opacity-35" aria-label="Double wager">×2</button>
+  </div>;
+}
 // Pointer Events work with a mouse, pen and touch. Only a successful server action
 // can remove practice chips or create a bet; the dragged token itself has no value.
 function useCrapsChipDrag({enabled,blocked,available,point,onDrop}) {
@@ -130,8 +145,8 @@ function CrapsFelt({table,choose,selected,disabled,canBet,canShoot,isShooter,onS
  const stats=t=>totals.get(t)||{units:0,count:0};
  const mine=target=>(table.myBets||[]).filter(b=>b.target===target).reduce((sum,b)=>sum+Number(b.units||0),0);
  const status=table.point===null||table.point===undefined?'COME OUT':'POINT '+table.point+' ON';
- return <div className="overflow-x-auto pb-4" aria-label="Casino craps practice table">
-   <div className="ig-craps-rail min-w-[890px] rounded-[76px] p-[11px] sm:p-[18px]">
+ return <div className="ig-table-stage h-full" aria-label="Casino craps practice table">
+   <div className="ig-craps-rail h-full w-full rounded-[76px] p-[11px] sm:p-[18px]">
     <div className="ig-craps-table relative min-h-[410px] overflow-hidden rounded-[62px] border-[3px] border-[#d2bb80] px-9 py-5 text-white">
      <div className="flex items-center justify-between gap-6 border-b border-[#f4e3b2]/35 pb-3">
       <div><div className="text-[10px] font-black uppercase tracking-[.3em] text-[#f6dfa7]">Imperial Games · Casino felt</div>
@@ -197,7 +212,6 @@ function CrapsFelt({table,choose,selected,disabled,canBet,canShoot,isShooter,onS
      </div>
     </div>
    </div>
-   <p className="mt-2 text-xs text-[#b6c9c0]">Slide sideways on smaller screens to see the complete, full-length casino felt. Pick a betting zone and confirm it on your betting card.</p>
  </div>;
 }
 function CrapsChipRack({table,stake,setStake,dragHandlers,busy,joined}) {
@@ -233,7 +247,9 @@ function CrapsBettingCard({table,stake,setStake,selected,setSelected,canBet,busy
      <div className="mt-1 text-lg font-black text-white">{selected?labelForBet(selected):'Select a table zone'}</div>
      <div className="mt-1 text-xs text-white/55">Open bets: {chip((table.myBets||[]).reduce((a,b)=>a+Number(b.units||0),0))} practice chips</div>
    </div>
-   <div className="mt-4 text-[11px] font-bold text-[#ddc9a8]">CHIP DENOMINATION</div>
+   <div className="mt-4 text-[11px] font-bold text-[#ddc9a8]">WAGER AMOUNT</div>
+   <div className="mt-2"><WagerAmountControl stake={stake} setStake={setStake} max={table.chips} disabled={busy||placing||!joined}/></div>
+   <div className="mt-3 text-[10px] font-bold text-white/50">QUICK CHIPS</div>
    <div className="mt-2 flex flex-wrap gap-2">
     {CHIP_VALUES.map(value=><button key={value} type="button" disabled={busy||placing||value>table.chips}
       aria-label={'Drag '+value+' practice chip onto craps table or tap to select'}
@@ -271,16 +287,16 @@ function RouletteFelt({ table, choose, disabled, canBet }) {
       className={extraClass} />;
   };
   return (
-    <div className="rounded-[2.5rem] border-[10px] border-[#654023] bg-[#073f34] p-2 shadow-[0_16px_55px_rgba(0,0,0,0.6)] sm:border-[15px]">
+    <div className="ig-table-stage ig-roulette-stage rounded-[2.5rem] border-[10px] border-[#654023] bg-[#073f34] p-2 shadow-[0_16px_55px_rgba(0,0,0,0.6)] sm:border-[15px]">
       <div className="overflow-hidden rounded-[2rem] border-2 border-yellow-200/60 bg-[radial-gradient(ellipse_at_top,_#146d51,_#07533f_60%,_#043c31)] p-3 text-white sm:p-6">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="ig-roulette-header mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.23em] text-yellow-200">Imperial Casino · Table R1</p>
             <h2 className="text-2xl font-black italic sm:text-3xl">EUROPEAN ROULETTE</h2>
             <p className="text-xs text-white/70">Single zero · 37 pockets · no double zero</p>
           </div>
           <div className="flex items-center gap-4">
-            <div className="relative flex h-24 w-24 items-center justify-center rounded-full border-[8px] border-[#674224] bg-[conic-gradient(#b91c1c_0deg_20deg,#141414_20deg_40deg,#b91c1c_40deg_60deg,#141414_60deg_80deg,#b91c1c_80deg_100deg,#141414_100deg_120deg,#b91c1c_120deg_140deg,#141414_140deg_160deg,#b91c1c_160deg_180deg,#141414_180deg_200deg,#b91c1c_200deg_220deg,#141414_220deg_240deg,#b91c1c_240deg_260deg,#141414_260deg_280deg,#b91c1c_280deg_300deg,#141414_300deg_320deg,#b91c1c_320deg_340deg,#15803d_340deg_360deg)] shadow-xl">
+            <div className="ig-roulette-wheel relative flex h-24 w-24 items-center justify-center rounded-full border-[8px] border-[#674224] bg-[conic-gradient(#b91c1c_0deg_20deg,#141414_20deg_40deg,#b91c1c_40deg_60deg,#141414_60deg_80deg,#b91c1c_80deg_100deg,#141414_100deg_120deg,#b91c1c_120deg_140deg,#141414_140deg_160deg,#b91c1c_160deg_180deg,#141414_180deg_200deg,#b91c1c_200deg_220deg,#141414_220deg_240deg,#b91c1c_240deg_260deg,#141414_260deg_280deg,#b91c1c_280deg_300deg,#141414_300deg_320deg,#b91c1c_320deg_340deg,#15803d_340deg_360deg)] shadow-xl">
               <span className={'flex h-14 w-14 items-center justify-center rounded-full border-4 border-amber-300 text-2xl font-black ' +
                 (last?.color === 'red' ? 'bg-red-800' : last?.color === 'black' ? 'bg-black' : 'bg-emerald-800')}>
                 {last?.number ?? '—'}
@@ -289,11 +305,11 @@ function RouletteFelt({ table, choose, disabled, canBet }) {
             <div className="text-right"><p className="text-xs text-yellow-200">LAST SPIN</p><p className="text-xl font-black">{last ? last.number + ' ' + last.color.toUpperCase() : 'Waiting'}</p><p className="text-xs text-white/60">Round {table.round}</p></div>
           </div>
         </div>
-        <div className="overflow-x-auto pb-2">
-          <div className="min-w-[740px]">
-            <div className="grid grid-cols-[60px_minmax(0,1fr)_80px] gap-2">
+        <div className="ig-roulette-board-wrap">
+          <div className="ig-roulette-board">
+            <div className="grid grid-cols-[42px_minmax(0,1fr)_52px] gap-1">
               <div className="flex flex-col">{tile('number_0', '0', '!h-full !bg-emerald-700')}</div>
-              <div className="grid grid-cols-12 gap-1">
+              <div className="ig-roulette-number-grid grid grid-cols-12 gap-1">
                 {[2,1,0].flatMap(row => Array.from({length:12}, (_,column) => {
                   const num=3*column+row+1;
                   return tile('number_'+num, String(num),
@@ -306,12 +322,12 @@ function RouletteFelt({ table, choose, disabled, canBet }) {
                 {tile('column_1','2:1','!rounded-sm')}
               </div>
             </div>
-            <div className="ml-[68px] mr-[88px] mt-2 grid grid-cols-3 gap-1.5">
+            <div className="ml-[46px] mr-[56px] mt-1 grid grid-cols-3 gap-1">
               {tile('dozen_1', '1ST 12', '!rounded-sm','2:1')}
               {tile('dozen_2', '2ND 12', '!rounded-sm','2:1')}
               {tile('dozen_3', '3RD 12', '!rounded-sm','2:1')}
             </div>
-            <div className="ml-[68px] mr-[88px] mt-2 grid grid-cols-6 gap-1.5">
+            <div className="ml-[46px] mr-[56px] mt-1 grid grid-cols-6 gap-1">
               {tile('low', '1–18', '!rounded-sm')}
               {tile('even', 'EVEN', '!rounded-sm')}
               {tile('red', 'RED', '!rounded-sm !bg-red-900/70')}
@@ -321,7 +337,7 @@ function RouletteFelt({ table, choose, disabled, canBet }) {
             </div>
           </div>
         </div>
-        <p className="mt-4 text-center text-xs text-white/70">Inside bets (numbers) pay 35:1. Dozens / columns pay 2:1. Outside bets pay 1:1. Zero loses all outside bets.</p>
+        <p className="ig-roulette-footnote mt-3 text-center text-xs text-white/70">Inside bets (numbers) pay 35:1. Dozens / columns pay 2:1. Outside bets pay 1:1. Zero loses all outside bets.</p>
       </div>
     </div>
   );
@@ -405,39 +421,40 @@ export default function MultiplayerPracticeTable({ game }) {
     },
   });
   return (
-    <main className="min-h-screen bg-[#0a0612] px-3 py-7 text-white sm:px-6">
-      <div className="mx-auto max-w-[1440px] space-y-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+    <main className="ig-game-screen ig-mp-screen min-h-screen bg-[#0a0612] px-3 py-7 text-white sm:px-6">
+      <div className="ig-cockpit-shell mx-auto max-w-[1440px] space-y-5">
+        <div className="ig-cockpit-topbar flex flex-wrap items-center justify-between gap-3">
           <Link to="/Games" className="text-sm font-semibold text-amber-300 hover:underline">← All games</Link>
           <span className="rounded-full border border-amber-300/50 bg-amber-300/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-200">Multiplayer · Shared staging room</span>
         </div>
-        <PracticeNotice />
-        {table && <div role="status" aria-live="polite" className={"flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-4 " +
+        <div className="ig-cockpit-notice"><PracticeNotice /></div>
+        {table && <div className="ig-cockpit-status-group"><div role="status" aria-live="polite" className={"ig-cockpit-status flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-4 " +
           (bettingOpen ? 'border-green-400/40 bg-green-950/35' : 'border-amber-400/40 bg-amber-950/25')}>
-          <div><p className="font-black uppercase tracking-wider">{bettingOpen ? 'Bets open — place your chips' : 'No more bets — shooter turn'}</p>
-            <p className="mt-1 text-sm text-gray-300">Shared round {table.round} · All players see the same lock time.</p>
+          <div><p className="font-black uppercase tracking-wider">{bettingOpen ? 'Bets open — place your chips' : game==='craps' ? 'No more bets — shooter turn' : 'No more bets — wheel spin'}</p>
+            <p className="ig-round-subtitle mt-1 text-sm text-gray-300">Shared round {table.round} · All players see the same lock time.</p>
           </div>
-          <p className="font-mono text-3xl font-black tabular-nums text-amber-200" aria-label={bettingOpen ? secondsLeft + ' seconds remaining' : 'Betting closed'}>
+          <p className="ig-round-clock font-mono text-3xl font-black tabular-nums text-amber-200" aria-label={bettingOpen ? secondsLeft + ' seconds remaining' : 'Betting closed'}>
             {bettingOpen ? secondsLeft + 's' : 'LOCKED'}
           </p>
-        </div>}
+        </div>
         {game==='craps'&&dragChips.notice&&<div aria-live="polite" role="status" className="rounded-xl border border-amber-300/35 bg-amber-300/10 px-4 py-3 text-sm text-amber-100">{dragChips.notice}</div>}
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
-          <div className="space-y-5">
+        </div>}
+        <div className="ig-cockpit-grid grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
+          <div className="ig-cockpit-main space-y-5">
             {loading && !table ? <div role="status" className="rounded-xl border border-white/10 bg-white/5 p-10 text-center">Connecting to the practice table…</div> : null}
-            {table && game==='craps'&&<CrapsChipRack table={table} stake={stake} setStake={setStake}
-              dragHandlers={dragChips.handlers} busy={busy} joined={joined}/>}
+            {table && game==='craps'&&<div className="ig-redundant-rack"><CrapsChipRack table={table} stake={stake} setStake={setStake}
+              dragHandlers={dragChips.handlers} busy={busy} joined={joined}/></div>}
             {table && (game==='craps'
               ? <CrapsFelt table={table} choose={setCrapsBetTarget} selected={crapsBetTarget}
                   hovered={dragChips.hovered} disabled={busy} canBet={betEligible} canShoot={canShoot} isShooter={amShooter} onShoot={()=>void runRound()} />
               : <RouletteFelt table={table} choose={target=>void placeBet(target,stake)} disabled={busy} canBet={canBet} />)}
-            {table && <section className="rounded-2xl border border-white/10 bg-[#1b1728] p-5">
+            {table && <section className="ig-round-controls rounded-2xl border border-white/10 bg-[#1b1728] p-5">
               <div className="grid gap-5 md:grid-cols-[1fr_auto]">
                 <div>
                   <h2 className="text-lg font-black">{game==='craps'?'Shooter and player controls':'Select practice chips'}</h2>
                   {game==='craps'
                     ? <p className="mt-2 text-sm text-gray-300">Join the action to bet on each roll, or volunteer as shooter. Shooters share one server-authoritative dice result with everyone at this table.</p>
-                    : <><div className="mt-3 flex flex-wrap gap-2">
+                    : <><div className="mt-3"><WagerAmountControl stake={stake} setStake={setStake} max={table.chips} disabled={busy||!joined}/></div><div className="mt-2 flex flex-wrap gap-2">
                       {CHIP_VALUES.map(v=><button key={v} type="button" disabled={busy}
                         aria-pressed={stake===v} onClick={()=>setStake(v)}
                         className={'flex h-14 w-14 items-center justify-center rounded-full border-4 font-black shadow-inner '+(stake===v?'scale-105 border-amber-300 bg-purple-700 text-white ring-2 ring-amber-300':'border-gray-200 bg-purple-950 text-amber-100')}>{v}</button>)}
@@ -486,12 +503,12 @@ export default function MultiplayerPracticeTable({ game }) {
               {error && <p role="alert" className="mt-3 rounded-xl bg-red-950/70 p-3 text-sm text-red-200">{error}</p>}
             </section>}
           </div>
-          <aside className="space-y-5">
+          <aside className="ig-cockpit-rail space-y-5">
             {table && <>{game==='craps'&&<CrapsBettingCard table={table} stake={stake} setStake={setStake}
               selected={crapsBetTarget} setSelected={setCrapsBetTarget} canBet={canBet} busy={busy}
               placeBet={placeBet} joined={joined} refill={refill} dragHandlers={dragChips.handlers}/>}
-              <PlayersPanel table={table}/><MyBetsPanel table={table}/></>}
-            <section className="rounded-2xl border border-white/10 bg-[#1b1728] p-5">
+              <div className="ig-secondary-panel"><PlayersPanel table={table}/></div><MyBetsPanel table={table}/></>}
+            <section className="ig-secondary-panel rounded-2xl border border-white/10 bg-[#1b1728] p-5">
               <h2 className="text-lg font-black">How this table works</h2>
               {game==='craps'
                 ? <p className="mt-2 text-sm leading-6 text-gray-300">The shooter rolls for everyone. A 7 on the come-out does not pass the dice. When a point is established, repeat it to make the point, or roll a 7 to seven-out and rotate the shooter. Players may place Field and Any Seven side bets on the next roll, or Place Number bets while a point is active.</p>

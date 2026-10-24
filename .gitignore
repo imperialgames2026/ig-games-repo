@@ -9,3 +9,14 @@ game-migration-inventory.json
 supabase/.temp/
 playwright-report/
 test-results/
+
+# Native build artifacts and local signing material are not application source.
+*.apk
+*.aab
+*.apks
+*.jks
+*.keystore
+android/local.properties
+android/key.properties
+android/.gradle/
+android/**/build/

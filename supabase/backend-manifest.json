@@ -64,13 +64,13 @@
     },
     {
       "name": "poker-table-v1",
-      "deployed_version": 12,
+      "deployed_version": 15,
       "verify_jwt": true,
       "files": [
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "aac49acbdb11d21f8de02b7d9c41325c6fe4172033a1effcf5b86cb23ee55ef8"
+        "index.ts": "4757dede348339498c77b5e09d2f87e73cbb594a966261ca15d3d196136eb4ab"
       },
       "status": "pending_deployment"
     },
@@ -360,6 +360,38 @@
       ],
       "sha256": {
         "index.ts": "1147a3a4132842fbfb434f88538bcf08f74c232bab66e79cef315488f5a5b836"
+      },
+      "status": "pending_deployment"
+    },
+    {
+      "name": "ig-kyc-v1",
+      "deployed_version": 2,
+      "verify_jwt": true,
+      "files": [
+        "index.ts",
+        "validation.js",
+        "privacy.js",
+        "image-file.js"
+      ],
+      "sha256": {
+        "index.ts": "0035bd9901fabeb0f8df021ed83656d28479549b4b49a23d7f56485df4468125",
+        "validation.js": "f5e488154a7ec6102fbe3ba51f524aaa1229ddf3d031b16bbe20906bebb16105",
+        "privacy.js": "09ee58de80c4d26169af81be76992a2a38ff405bb856f13333b439cff0ed2146",
+        "image-file.js": "d1e888a264afbf78183c1e673cf31a2b868a942b99e3c67ea58f44d07672e7ed"
+      },
+      "status": "pending_deployment"
+    },
+    {
+      "name": "ig-slot-practice-v1",
+      "deployed_version": 3,
+      "verify_jwt": true,
+      "files": [
+        "index.ts",
+        "validation.js"
+      ],
+      "sha256": {
+        "index.ts": "50a0a0d9b2fb99563506ae7703874ba1d0c9cf910462fe40297f0d458ca87d58",
+        "validation.js": "40986b6e00fa41e2779956348260ccbc703b43316687560b274ae3aec5cecfbd"
       },
       "status": "pending_deployment"
     }
@@ -770,8 +802,52 @@
       "sha256": "e86ba19f93adb0c83a2b5e7b29dd312c21ed3f601239a506dbcb1a5e661c0948"
     },
     {
-      "file": "20261022081752_customer_authenticator_mfa.sql",
+      "file": "20261024011225_customer_authenticator_mfa.sql",
       "sha256": "868c975acd9e12eb7f537bcc6f0af7b34df983131efc7ac27ed06261213169ee",
+      "status": "pending_deployment"
+    },
+    {
+      "file": "20261022153018_secure_kyc_intake_review.sql",
+      "sha256": "c0c73ee4a4092b0929f6b1049ebd61e96220a3a48403f1b8a9b1d0a2ebd45b38"
+    },
+    {
+      "file": "20261022154537_imperial_wallet_staging_dual_allocation_slots.sql",
+      "sha256": "61144ea00d21e8b43e7ac5dda5ae789cb900809ba4e1bcd946aa56189c6064d0"
+    },
+    {
+      "file": "20261022154824_lower_staging_treasury_approval_threshold_to_1000.sql",
+      "sha256": "a39bb4958adb8fc7ec9278daf1388174552c7321280193660edd05f19457891e"
+    },
+    {
+      "file": "20261022210709_kyc_profile_lifecycle.sql",
+      "sha256": "92a8ee01467e39ef465745007470f2f2ef4a563ee6aec35654ddb6e249b4b33c",
+      "status": "pending_deployment"
+    },
+    {
+      "file": "20261022212136_kyc_retention_reconciliation.sql",
+      "sha256": "9fd7313f02c7bc619d56389737d2f5be83cd8ffbc68f9de7bd5bb1c7b28a9697",
+      "status": "pending_deployment"
+    },
+    {
+      "file": "20261023164745_kyc_retention_fair_retry.sql",
+      "sha256": "f8cd8f4ef9ceb1dd88d5ed5e1076ed61f9a476b5fa422c4d511e04ada1aecd89",
+      "status": "pending_deployment"
+    },
+    {
+      "file": "20261023174424_poker_social_events_v1.sql",
+      "sha256": "f9fe890fda7b7d7871b6a7e4013ce83af4a7a4c022e0cf8b1b4093d99f2386d7"
+    },
+    {
+      "file": "20261023180147_standalone_slot_practice_v1.sql",
+      "sha256": "1be0fec69c2a2e835f8e9ce9580bef9ab48b849f59151a7ca3cb306babae5c82"
+    },
+    {
+      "file": "20261023181005_activate_standalone_slot_practice.sql",
+      "sha256": "96abdade734899296f7bc503633e361be3f23d6e4bec9d14d8bbd02e2b68a536"
+    },
+    {
+      "file": "20261024005531_preserve_owner_held_game_scope.sql",
+      "sha256": "cfe814902c1e24a052cd2f5dd8357309c01839563ab50cbdc7bf255fa2e21e97",
       "status": "pending_deployment"
     }
   ]

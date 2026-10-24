@@ -1,0 +1,11 @@
+# Private KYC comparison worker
+
+Uses the existing Mini-Imp YuNet/SFace models and dedicated Python environment. It pulls only consented jobs from `ig-kyc-v1`; it has no service-role key, database access, reviewer powers, customer names, or arbitrary URL fetch capability. A 256-bit worker token is stored in a mode-0600 local JSON config and only its SHA-256 hash is stored in `ig_kyc_workers`. Disable that row to revoke access. Never commit the config.
+
+Evidence URLs expire in two minutes. Bytes are hash-checked and processed in memory; embeddings and landmarks are not retained. There is no identity classification threshold or automatic approval. Failed/uncertain comparison routes to manual review. The model weights are checksum-pinned and remain outside Git. Their licensing and documentation are at https://github.com/opencv/opencv_zoo/tree/main/models/face_detection_yunet and https://github.com/opencv/opencv_zoo/tree/main/models/face_recognition_sface .
+
+The worker also deletes expired/cancelled evidence using Storage's API and then scrubs submitted name/date of birth and comparison results. Metadata and decision audit remain. If Mini-Imp is offline, expired evidence is inaccessible to reviewers but physical deletion waits for the worker to resume. Monitor its heartbeat in `ig_kyc_workers.last_seen_at`.
+
+Configuration fields: `anon_key` (public legacy JWT for the function gateway), `worker_token` (secret). Fixed backend: `qonqemhljgxlwpghkxhn`. Run with `--config /absolute/private/config.json --models /absolute/models`. `--once` is suitable for a systemd timer. Use `--check-models` for a network-free model-loading check.
+
+Deployment requires a synthetic end-to-end verification before real customer enrollment. Similarity calibration, document reference catalog validation and an independent liveness process remain distinct from this advisory integration; the reviewer must attest to all required independent checks before approval. External evidence transfers are disabled.

@@ -1,0 +1,210 @@
+name: Android practice debug APK (isolated)
+# Playwright 1.57 and this native toolchain are validated on Ubuntu 24.04.
+# Do not let the floating ubuntu-latest label silently migrate the test OS.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'pages/Login.jsx'
+      - 'pages/**'
+      - 'lib/**'
+      - 'components/**'
+      - 'App.jsx'
+      - 'config/**'
+      - 'index.css'
+      - 'tests/mobile*.test.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.js'
+      - 'capacitor.config.json'
+      - 'android/**'
+      - 'scripts/*mobile*.mjs'
+      - 'scripts/bootstrap-android.mjs'
+      - 'scripts/android-*.mjs'
+      - 'scripts/verify-mobile-apk.py'
+      - 'tests/test_mobile_apk.py'
+      - '.github/workflows/android-practice.yml'
+      - 'docs/MOBILE_ANDROID_IMPLEMENTATION.md'
+permissions:
+  contents: read
+concurrency:
+  group: android-practice-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: false
+jobs:
+  web-regression:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      VITE_SUPABASE_URL: https://qonqemhljgxlwpghkxhn.supabase.co
+      VITE_ENABLE_LEGACY_EDGE_FUNCTIONS: 'false'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Test read-only APK contract verifier
+        run: python3 -B -m unittest discover -s tests -p test_mobile_apk.py
+      - name: Test login syntax and native Auth guard without hosted calls
+        run: node --test tests/mobileBuildRegression.test.mjs tests/mobileClientConfig.test.mjs tests/mobileIsolation.test.mjs tests/mobileSourceState.test.mjs tests/mobileDependencyInventory.test.mjs tests/mobileIdentity.test.mjs tests/mobileAndroidIdentity.test.mjs
+      - name: Run existing application and backend unit/security regressions
+        run: npm test
+      - name: Compile web assets (not a hosted authentication test)
+        run: npm run build
+      - name: Verify responsive Tailwind utilities were bundled
+        run: node scripts/verify-tailwind-bundle.mjs
+  debug-apk:
+    needs: web-regression
+    if: github.repository == 'imperialgames2026/ig-games-repo' && ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'feature/android-capacitor-practice-shell') || (github.event_name == 'workflow_dispatch' && github.ref_name == 'feature/android-capacitor-practice-shell'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    outputs:
+      source_sha: ${{ steps.source.outputs.sha }}
+    env:
+      VITE_SUPABASE_URL: https://qonqemhljgxlwpghkxhn.supabase.co
+      VITE_ENABLE_LEGACY_EDGE_FUNCTIONS: 'false'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Require public practice client configuration
+        shell: bash
+        run: |
+          node scripts/mobile-client-config.mjs
+      - name: Require committed native source
+        run: test -f android/app/build.gradle && test -f android/gradle/wrapper/gradle-wrapper.jar
+      - name: Record exact build source
+        id: source
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Build reviewed bundled assets with exact source metadata
+        run: node scripts/build-mobile-assets.mjs
+      - name: Sync committed Android shell
+        run: npx --no-install cap sync android
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools'
+          log-accepted-android-sdk-licenses: false
+      - name: Install Android SDK
+        run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+      - name: Build and validate debug APK and unsigned release candidates
+        working-directory: android
+        run: bash ./gradlew assembleDebug assembleRelease bundleRelease testDebugUnitTest lintDebug --no-daemon
+      - name: Collect artifacts without production signing
+        shell: bash
+        run: |
+          mkdir -p mobile-artifacts
+          python3 -B scripts/verify-mobile-apk.py android/app/build/outputs/apk/release/app-release-unsigned.apk --source "${{ steps.source.outputs.sha }}" > mobile-artifacts/apk-contract-verification.json
+          cp android/app/build/outputs/apk/debug/app-debug.apk mobile-artifacts/imperial-games-practice-debug.apk
+          cp android/app/build/outputs/apk/release/app-release-unsigned.apk mobile-artifacts/imperial-games-practice-release-unsigned.apk
+          cp android/app/build/outputs/bundle/release/app-release.aab mobile-artifacts/imperial-games-practice-release-unsigned.aab
+          cp dist/release.json dist/mobile-release.json mobile-artifacts/
+          (cd mobile-artifacts && sha256sum *.apk *.aab *.json > SHA256SUMS)
+          printf '%s\n' 'Debug APK: emulator/testing only. Release APK/AAB: unsigned, NOT approved for distribution. See mobile-release.json for outstanding gates.' > mobile-artifacts/README.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: imperial-games-android-${{ steps.source.outputs.sha }}
+          path: mobile-artifacts/
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-validation-${{ steps.source.outputs.sha }}
+          path: android/app/build/reports/
+          if-no-files-found: warn
+          retention-days: 14
+  emulator-smoke:
+    needs: debug-apk
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - device: small-phone
+            api: 35
+            profile: pixel_2
+          - device: large-phone
+            api: 36
+            profile: pixel_7_pro
+          - device: tablet
+            api: 35
+            profile: pixel_c
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.debug-apk.outputs.source_sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/download-artifact@v4
+        with:
+          name: imperial-games-android-${{ needs.debug-apk.outputs.source_sha }}
+          path: mobile-artifacts
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Install and exercise the actual native WebView with pre-launch network isolation
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          SOURCE_SHA: ${{ needs.debug-apk.outputs.source_sha }}
+        with:
+          api-level: ${{ matrix.api }}
+          target: google_apis
+          arch: x86_64
+          profile: ${{ matrix.profile }}
+          disable-animations: true
+          script: |
+            adb install -r mobile-artifacts/imperial-games-practice-debug.apk
+            node scripts/android-emulator-smoke.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-smoke-${{ matrix.device }}-${{ needs.debug-apk.outputs.source_sha }}
+          path: android-evidence/
+          retention-days: 14
+  dependency-inventory:
+    # Collection only. It must never be presented as a passed security gate.
+    # A separate job keeps untracked reports out of the source-provenance check.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Collect exact-lock audit evidence without changing dependencies
+        run: node scripts/mobile-dependency-inventory.mjs "$RUNNER_TEMP/mobile-dependency-audit"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mobile-dependency-inventory-${{ github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/mobile-dependency-audit/
+          if-no-files-found: error
+          retention-days: 14

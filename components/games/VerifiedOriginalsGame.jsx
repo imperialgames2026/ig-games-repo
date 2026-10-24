@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/AuthContext';
 import { supabase } from '@/lib/supabaseClient';
 import { verifyOriginalsRound } from '@/lib/originalsFairness';
+import './originals-cockpit.css';
 
 const CONFIG = {
   coin: { title: 'CoinFlip', icon: '🪙', action: 'Flip coin', description: 'Choose heads or tails, then flip a fair coin.', choices: ['heads','tails'] },
@@ -77,17 +78,17 @@ export default function VerifiedOriginalsGame({ game }) {
     finally { requestLock.current = false; setBusy(false); }
   }
   return (
-    <main className="min-h-screen bg-[#0a0612] px-4 py-8 text-white">
-      <div className="mx-auto max-w-4xl space-y-6">
+    <main className="ig-original-screen min-h-screen bg-[#0a0612] px-4 py-8 text-white">
+      <div className="ig-original-shell mx-auto max-w-4xl space-y-6">
         <Link to="/Games" className="text-sm text-amber-300 hover:underline">← Back to games</Link>
-        <header>
+        <header className="ig-original-header">
           <p className="text-xs font-bold uppercase tracking-[0.25em] text-pink-300">Imperial Originals · Practice</p>
           <h1 className="mt-2 text-4xl font-black">{config.icon} {config.title}</h1>
-          <p className="mt-3 max-w-2xl text-gray-300">{config.description}</p>
-          <p className="mt-3 rounded-xl border border-sky-400/20 bg-sky-950/30 p-3 text-sm text-sky-100">Free practice. Predictions do not charge or award coins, tokens, money or prizes.</p>
+          <p className="ig-original-description mt-3 max-w-2xl text-gray-300">{config.description}</p>
+          <p className="ig-original-notice mt-3 rounded-xl border border-sky-400/20 bg-sky-950/30 p-3 text-sm text-sky-100">Free practice. Predictions do not charge or award coins, tokens, money or prizes.</p>
         </header>
-        <div className="grid gap-5 md:grid-cols-[1fr_1.25fr]">
-          <section className="rounded-2xl border border-white/10 bg-[#191529] p-5">
+        <div className="ig-original-grid grid gap-5 md:grid-cols-[1fr_1.25fr]">
+          <section className="ig-original-controls rounded-2xl border border-white/10 bg-[#191529] p-5">
             <fieldset disabled={busy || readonly || !!pending} className="space-y-5 disabled:opacity-60">
               <legend className="mb-4 text-lg font-bold">Your prediction</legend>
               {config.choices ? <div className="grid grid-cols-2 gap-2">
@@ -109,7 +110,7 @@ export default function VerifiedOriginalsGame({ game }) {
             {pending && !busy && <p className="mt-3 text-xs text-gray-300">Your prediction and seed are saved for this round. Retrying uses the same round.</p>}
             {error && <p role="alert" className="mt-3 rounded-lg bg-red-950/60 p-3 text-red-200">{error}</p>}
           </section>
-          <section aria-label={`${config.title} result`} className="flex min-h-80 flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#211634] to-[#100c1b] p-6">
+          <section aria-label={`${config.title} result`} className="ig-original-stage flex min-h-80 flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#211634] to-[#100c1b] p-6">
             {game === 'wheel' ? <div className="relative mb-6">
               <span className="absolute -top-4 left-1/2 z-10 -translate-x-1/2 text-2xl text-white">▼</span>
               <motion.div key={result?.roundId || 'idle'} animate={{ rotate: result ? 1080 - result.outcome.segment * 18 - 9 : 0 }} transition={{ duration: 1.4, ease: 'easeOut' }}
@@ -126,13 +127,13 @@ export default function VerifiedOriginalsGame({ game }) {
             {result && <><p className={`mt-3 text-lg font-bold ${result.correct ? 'text-emerald-300' : 'text-gray-300'}`}>{result.correct ? 'Prediction correct!' : 'Prediction missed'}</p><p className="mt-2 text-xs text-emerald-200">✓ Fairness proof verified on your device</p></>}
           </section>
         </div>
-        {result && <details className="break-all rounded-xl border border-white/10 bg-[#191529] p-4 text-sm text-gray-300">
+        {result && <details className="ig-original-extra break-all rounded-xl border border-white/10 bg-[#191529] p-4 text-sm text-gray-300">
           <summary className="cursor-pointer font-bold text-white">Round fairness proof</summary>
           <p className="mt-3">Round: {result.roundId}</p><p className="mt-2">SHA-256 commitment: {result.serverSeedHash}</p>
           <p className="mt-2">Revealed server seed: {result.serverSeed}</p><p className="mt-2">Client seed: {result.clientSeed}</p>
           <p className="mt-2">Algorithm: HMAC-SHA256-v3 · Nonce: 0</p>
         </details>}
-        {!!history.length && <section className="rounded-xl border border-white/10 bg-[#191529] p-5"><h2 className="font-bold">Recent rounds</h2>
+        {!!history.length && <section className="ig-original-history rounded-xl border border-white/10 bg-[#191529] p-5"><h2 className="font-bold">Recent rounds</h2>
           <ul className="mt-3 space-y-2">{history.map(round => <li key={round.roundId} className="flex justify-between gap-3 border-b border-white/5 pb-2 text-sm"><span className="capitalize">{resultLabel(game, round.outcome)}</span><span className={round.correct ? 'text-emerald-300' : 'text-gray-400'}>{round.correct ? 'Correct' : 'Missed'} · Verified</span></li>)}</ul>
         </section>}
       </div>
