@@ -82,3 +82,11 @@ in tablelab-visibility-review.yml using a verification ref; existing workflows
 and required gates are unchanged. It runs the permitted application regression
 set, focused tests, build, synthetic lifecycle, actual Unity visibility, and the
 shared multiplayer Unity browser fixture. CI results are recorded in the PR.
+
+## Final batch reconciliation
+
+Main `e1a1d90e6f5f9d7de7291e34a90d994897ee6b45` merges cleanly, but the combined PR72 input fix (`981fcc4beb6e9aec0d9bf3830be2310ca019d9a7`) conflicts in the focused-test command. This draft incorporates that existing commit by merge, retaining both lifecycle and pointer tests. No duplicate input implementation was created. Relative to PR72, only the original eight lifecycle files differ; poker privacy/replay, Crash generation guards and Unity input remain byte-identical.
+
+The scoped CI runner now splits the main node-test command before `&&` and explicitly runs the new replay test command. This preserves the poker/Crash regressions while still excluding the prohibited biometric comparison file. Local validation covers 181 allowed application tests, 38 focused tests, 25 replay tests and build; exact-head CI additionally exercises synthetic lifecycle and actual bundled Unity browser scenarios. Existing broad gates are unchanged.
+
+The previous source `4369aafc3ac34e3d4f24526790f9c69836cfe703` also passed all four local Unity lifecycle scenarios at 1280x1000 on 2026-10-24, changing only the test viewport. That single software-WebGL run used synthetic document visibility and real 35-second waits, not OS backgrounding or Razr testing. It does not certify this reconciled source at that viewport.
