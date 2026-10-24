@@ -1,8 +1,10 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.0";
-const headers={"Content-Type":"application/json"};
+const MANUAL_BATCH_LIMIT=75;
+const headers={"Content-Type":"application/json","Cache-Control":"no-store","Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization, apikey, content-type, x-client-info, x-supabase-api-version","Access-Control-Allow-Methods":"POST, OPTIONS"};
 const reply=(data:unknown,status=200)=>new Response(JSON.stringify(data),{status,headers});
 const hex=(a:Uint8Array)=>Array.from(a,b=>b.toString(16).padStart(2,"0")).join("");
 Deno.serve(async(req)=>{
+ if(req.method==="OPTIONS")return new Response(null,{status:204,headers});
  if(req.method!=="POST")return reply({error:"POST required"},405);
  const token=req.headers.get("Authorization")?.replace(/^Bearer\s+/i,"");
  if(!token)return reply({error:"Authentication required"},401);
@@ -14,9 +16,12 @@ Deno.serve(async(req)=>{
  const {data:role,error:roleError}=await admin.from("user_roles").select("role").eq("user_id",user.id).in("role",["admin","superadmin"]).maybeSingle();
  if(roleError||!role)return reply({error:"Admin permission required"},403);
  const body=await req.json().catch(()=>({}));
- if(body.action!=="generate")return reply({error:"Unknown action"},400);
+ if(!body||typeof body!=="object"||Array.isArray(body)||body.action!=="generate"||Object.keys(body).some(k=>!["action","count"].includes(k)))return reply({error:"Invalid generation request"},400);
+ // Older clients omit count. Every caller is bounded by the server-side cap.
+ const count=Object.hasOwn(body,"count")?body.count:MANUAL_BATCH_LIMIT;
+ if(!Number.isSafeInteger(count)||count<1||count>MANUAL_BATCH_LIMIT)return reply({error:"Choose a whole number from 1 to 75 rounds"},400);
  const batch=crypto.randomUUID(),rows=[];
- for(let i=1;i<=150;i++){
+ for(let i=1;i<=count;i++){
   const bytes=crypto.getRandomValues(new Uint32Array(2));
   const r=(bytes[0]+1)/4294967297;
   const crash=Math.min(12000,Math.max(0,Math.round((0.99/(1-r))*100)/100));
