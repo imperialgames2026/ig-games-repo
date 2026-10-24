@@ -4,6 +4,7 @@ import { Crown, Dices, RotateCw, Users, ShieldCheck } from 'lucide-react';
 import { useMultiplayerPractice } from '@/hooks/useMultiplayerPractice';
 import './craps-casino.css';
 import './game-cockpit.css';
+import MultiplayerUnityTable from '../practice/MultiplayerUnityTable';
 import {validCrapsDropTarget,canDropCrapsChip} from '@/lib/crapsChipDragRules';
 
 
@@ -387,6 +388,8 @@ function MyBetsPanel({ table }) {
 
 export default function MultiplayerPracticeTable({ game }) {
   const [stake,setStake] = useState(5);
+  const [renderer,setRenderer]=useState('unity');
+  const unityStage=useRef(null);
   const [crapsBetTarget,setCrapsBetTarget]=useState(null);
   const [clockNow,setClockNow] = useState(() => Date.now());
   useEffect(() => {
@@ -408,6 +411,7 @@ export default function MultiplayerPracticeTable({ game }) {
   const liveShooter=table?.players?.find(p=>p.shooter)?.active;
   const canClaim=joined && !amShooter && !liveShooter && (game!=='craps'||table?.myJoinMode==='shooter');
   const last=table?.lastResult;
+  const presentSharedRound=()=>{if(renderer==='unity')unityStage.current?.scrollIntoView({behavior:'instant',block:'center'});void runRound();};
   const dragChips=useCrapsChipDrag({
     enabled:game==='craps'&&betEligible,
     blocked:busy,
@@ -441,12 +445,13 @@ export default function MultiplayerPracticeTable({ game }) {
         </div>}
         <div className="ig-cockpit-grid grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
           <div className="ig-cockpit-main space-y-5">
+            <label className="ig-renderer-choice">Table renderer <select aria-label="Table renderer" value={renderer} onChange={e=>setRenderer(e.target.value)}><option value="unity">Unity 3D</option><option value="felt">2D felt · all bet types</option></select></label>
             {loading && !table ? <div role="status" className="rounded-xl border border-white/10 bg-white/5 p-10 text-center">Connecting to the practice table…</div> : null}
             {table && game==='craps'&&<div className="ig-redundant-rack"><CrapsChipRack table={table} stake={stake} setStake={setStake}
               dragHandlers={dragChips.handlers} busy={busy} joined={joined}/></div>}
-            {table && (game==='craps'
+            {table && (renderer==='unity' ? <MultiplayerUnityTable key={game} sceneRef={unityStage} game={game} table={table} canBet={canBet} busy={busy} stake={stake} placeBet={placeBet} onFallback={()=>setRenderer('felt')}/> : game==='craps'
               ? <CrapsFelt table={table} choose={setCrapsBetTarget} selected={crapsBetTarget}
-                  hovered={dragChips.hovered} disabled={busy} canBet={betEligible} canShoot={canShoot} isShooter={amShooter} onShoot={()=>void runRound()} />
+                  hovered={dragChips.hovered} disabled={busy} canBet={betEligible} canShoot={canShoot} isShooter={amShooter} onShoot={presentSharedRound} />
               : <RouletteFelt table={table} choose={target=>void placeBet(target,stake)} disabled={busy} canBet={canBet} />)}
             {table && <section className="ig-round-controls rounded-2xl border border-white/10 bg-[#1b1728] p-5">
               <div className="grid gap-5 md:grid-cols-[1fr_auto]">
@@ -481,7 +486,7 @@ export default function MultiplayerPracticeTable({ game }) {
                     disabled={busy} onClick={()=>void join('shooter')} className="rounded-xl border border-amber-400/60 px-6 py-3 text-sm font-semibold text-amber-200 disabled:opacity-50">Join shooter queue</button>}
                   {game==='craps'&&joined&&table.myJoinMode==='shooter'&&<button type="button"
                     disabled={busy} onClick={()=>void join('action')} className="rounded-xl border border-white/30 px-6 py-3 text-sm text-white/80 disabled:opacity-50">{amShooter?'Pass the dice • stay as bettor':'Leave shooter queue • stay as bettor'}</button>}
-                  {joined && amShooter && <button disabled={!canShoot} onClick={()=>void runRound()}
+                  {joined && amShooter && <button disabled={!canShoot} onClick={presentSharedRound}
                     className="flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-7 py-4 text-lg font-black text-gray-950 disabled:opacity-50">
                     {game==='craps' ? <Dices className="h-5 w-5" /> : <RotateCw className="h-5 w-5" />}
                     {busy ? 'Processing…' : bettingOpen ? 'BETTING OPEN · '+secondsLeft+'s' : game==='craps' ? 'SHOOT THE DICE' : 'SPIN THE WHEEL'}
