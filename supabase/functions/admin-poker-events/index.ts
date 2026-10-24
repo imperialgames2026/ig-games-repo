@@ -10,6 +10,7 @@ Deno.serve(async(req)=>{
  const auth=createClient(url,anon,{auth:{persistSession:false}});
  const {data:{user},error:authError}=await auth.auth.getUser(jwt);
  if(authError||!user)return respond({error:"Invalid session"},401);
+ if(!hasCompletedMfa(user,jwt))return respond({error:'Two-step verification required',code:'mfa_required'},403);
  const admin=createClient(url,secret,{auth:{persistSession:false}});
  const {data:role,error:roleError}=await admin.from("user_roles").select("role").eq("user_id",user.id).eq("role","superadmin").maybeSingle();
  if(roleError||!role)return respond({error:"Superadmin permission required"},403);
@@ -42,3 +43,18 @@ Deno.serve(async(req)=>{
  if(error)return respond({error:"Unable to create draft; request may conflict with an existing ID"},409);
  return respond(data,201);
 });
+
+// BEGIN GENERATED MFA GUARD
+// SERVER ONLY: call exclusively AFTER Auth getUser validates this EXACT token.
+// Never use decoded claims as standalone authentication. Auth supplies factors;
+// user_metadata and request bodies cannot choose whether MFA is required.
+function hasCompletedMfa(user, verifiedAccessToken) {
+  if (!user?.id) return false;
+  if (!user.factors?.some(factor => factor.status === 'verified')) return true;
+  try {
+    const part = verifiedAccessToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const claims = JSON.parse(atob(part.padEnd(Math.ceil(part.length / 4) * 4, '=')));
+    return claims.sub === user.id && claims.aal === 'aal2';
+  } catch { return false; }
+}
+// END GENERATED MFA GUARD
