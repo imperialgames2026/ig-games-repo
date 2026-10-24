@@ -16,7 +16,7 @@ Users can enroll a separate backup authenticator and use it to remove a lost pri
 
 1. Pass offline tests, browser contracts, isolated full SQL replay, transactional MFA authorization tests, and real local Auth/Edge/browser MFA acceptance.
 2. Recheck hosted SQL/function drift and recovery readiness. Confirm TOTP enrollment and verification are enabled for the selected Auth project.
-3. Apply only `customer_authenticator_mfa` SQL and the 31 changed functions. Preserve JWT verification settings. The frontend must not be published ahead of these backend checks. Do not run a broad apply workflow that also changes Auth redirect URLs.
+3. After the PR68 dependency is deployed and verified, apply only the pending MFA SQL identities in manifest order: `20261024011225_customer_authenticator_mfa.sql`, then `20261024185653_mfa_poker_replay_tables.sql`. Deploy the 31 reviewed session-function updates. Preserve JWT verification settings. The frontend must not be published ahead of these backend checks. Do not run a broad apply workflow that also changes Auth redirect URLs.
 4. Read back SQL identity/checksum, restrictive policies and source hashes. Run advisors. Record deployed identities and versions in the manifest before merging the frontend release.
 5. Verify the published exact SHA and the account flow. No hosted accounts, real customer files, billing changes, provider messages or financial operations are needed for isolated acceptance.
 
