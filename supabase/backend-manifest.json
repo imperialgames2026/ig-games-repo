@@ -788,6 +788,10 @@
     {
       "file": "20261023174424_poker_social_events_v1.sql",
       "sha256": "f9fe890fda7b7d7871b6a7e4013ce83af4a7a4c022e0cf8b1b4093d99f2386d7"
+    },
+    {
+      "file": "20261024024944_continuous_practice_roulette.sql",
+      "sha256": "c8c9380c6494c1248267bc68c94ff4e89fd802f3878bd9c787711e7aed58e5a2"
     }
   ]
 }

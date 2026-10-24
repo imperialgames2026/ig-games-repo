@@ -15,6 +15,7 @@ export function useMultiplayerPractice(game) {
 
   const ingest = useCallback((fresh) => {
     if (!alive.current || !fresh || fresh.game !== game) return;
+    if(latest.current&&Number(fresh.revision)===Number(latest.current.revision)&&Date.parse(fresh.serverTime)<Date.parse(latest.current.serverTime))return;
     // Prevent an out-of-order poll from overwriting a more recent action result.
     if (!latest.current || Number(fresh.revision) >= Number(latest.current.revision)) {
       // Relate server clock to the device, so its countdown cannot be cheated by changing local time.
@@ -84,6 +85,15 @@ export function useMultiplayerPractice(game) {
       if (alive.current) setBusy(false);
     }
   }, [busy, isAuthenticated, invoke]);
+
+  // Clock broadcasts are untrusted invalidation hints, never game outcomes.
+  // Authenticated snapshots remain authoritative; polling recovers dropped events.
+  useEffect(()=>{
+    if(game!=='roulette'||!isAuthenticated)return;
+    let lastSignal=0;
+    const channel=supabase.channel('ig-practice-roulette-clock').on('broadcast',{event:'roulette-clock'},()=>{const now=Date.now();if(now-lastSignal<800)return;lastSignal=now;void refresh(true);}).subscribe();
+    return()=>{void supabase.removeChannel(channel);};
+  },[game,isAuthenticated,refresh]);
 
   const placeBet = useCallback((target, units) => action('bet', {
     target, units, requestId: crypto.randomUUID(),

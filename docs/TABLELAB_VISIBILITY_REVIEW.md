@@ -66,3 +66,19 @@ probed without visibility overrides: both foreground and background tabs remaine
 Thus real OS/browser backgrounding and Razr acceptance remain blocked by this
 headless-only environment and must be performed elsewhere without changing these
 permissions. No denied remote access was retried.
+
+## Reconciliation with Unity v3 and continuous multiplayer roulette
+
+Merged main `608cc1e214fab880a5fe9c187380ce4725dca214` into the draft,
+retaining v3 assets, felt hit handling, shared renderer, and continuous server
+roulette. The package script conflict combines both owners' table tests.
+The visibility controller is scoped to local TableLab rounds; it does not pause
+or replace the autonomous multiplayer server clock. No Android diff from main.
+
+Local merged-tree validation: 174 application tests (same explicit biometric
+exclusion), 31 focused table tests, four synthetic visibility browser scenarios,
+and production build passed. Dedicated exact-head Actions validation is provided
+in tablelab-visibility-review.yml using a verification ref; existing workflows
+and required gates are unchanged. It runs the permitted application regression
+set, focused tests, build, synthetic lifecycle, actual Unity visibility, and the
+shared multiplayer Unity browser fixture. CI results are recorded in the PR.

@@ -184,10 +184,10 @@ export default function TableLab() {
   {reduced && <p className="motion-notice">Reduced motion is on. <button onClick={() => setReduced(false)}>Enable full action</button></p>}
   <p className="portrait-tip">Turn your phone sideways for the largest full-table view. Use Zoom to bring the felt closer.</p>
   <div ref={scene} className="action-stage">
-   {renderer === 'unity' ? <><UnityTable key={attempt} game={game} outcome={outcome} reduced={reduced} camera={camera} zoom={zoom} bet={payload} onBet={onTableBet} onStatus={onStatus} onComplete={onComplete} /><p className="renderer-status" role="status">{unityStatus}{unityStatus === 'Unity load failed' && <button onClick={() => {
+   {renderer === 'unity' ? <><UnityTable key={attempt} game={game} outcome={outcome} reduced={reduced} camera={camera} zoom={zoom} onZoomGesture={scale=>setZoom(z=>Math.max(1,Math.min(2.4,z*scale)))} bet={payload} onBet={onTableBet} onStatus={onStatus} onComplete={onComplete} /><p className="renderer-status" role="status">{unityStatus}{unityStatus === 'Unity load failed' && <button onClick={() => {
             setUnityStatus('Unity not loaded');
             setAttempt(a => a + 1);
-          }}>Retry Unity</button>}</p></> : <TableScene game={game} outcome={outcome} busy={busy} reduced={reduced} cameraView={camera} zoom={zoom} bet={payload} onBet={onTableBet} />}
+          }}>Retry Unity</button>}</p></> : <TableScene game={game} outcome={outcome} busy={busy} reduced={reduced} cameraView={camera} zoom={zoom} onZoomGesture={scale=>setZoom(z=>Math.max(1,Math.min(2.4,z*scale)))} bet={payload} onBet={onTableBet} />}
   </div>
   <p className="felt-instructions">{game === 'roulette' ? 'Tap a number, RED, BLACK, GREEN 0, EVEN or ODD on the felt. Red/black/even/odd pay 1:1; a single number, including 0, pays 35:1.' : `PASS LINE · PAYS 1:1. Come-out: 7 or 11 wins; 2, 3 or 12 loses. Otherwise repeat the point before a 7.${point ? ` Current point: ${point}.` : ''}`}</p>
   <footer className="action-dock"><label>Wager amount <input aria-label="Wager amount" inputMode="numeric" type="number" min="1" step="1" value={amount} disabled={busy || !!point} onChange={e => setAmount(e.target.value)} /></label><button className="action" disabled={busy || !total || !table.funded || renderer === 'unity' && !unityReady} onClick={play}>{busy ? 'Action in progress…' : game === 'roulette' ? `Spin · ${total} chips` : `Roll dice · ${point ? 'continue' : total + ' chips'}`}</button><button disabled={!total} onClick={() => {
