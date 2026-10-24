@@ -19,10 +19,10 @@ if (release.reviewed_migration_count !== manifest.migrations.length)
 if (release.held_game_count !== scope.nonMigration.length || scope.nonMigration.length !== 23)
   fail('excluded-game policy mismatch');
 // Mobile may carry reviewed-but-pending source migrations, but it must not silently
-// treat them as hosted/deployed. Current hosted practice baseline remains 104.
+// treat them as hosted/deployed. Hosted reviewed baseline is now 106 after the continuous-roulette migration.
 const pendingMigrations = manifest.migrations.filter(m => m.status === 'pending_deployment');
 const deployedReviewedMigrations = manifest.migrations.length - pendingMigrations.length;
-if (deployedReviewedMigrations !== 105) fail('deployed migration baseline changed; re-review required');
+if (deployedReviewedMigrations !== 106) fail('deployed migration baseline changed; re-review required');
 if (pendingMigrations.length !== 3) fail('pending migration set changed; re-review required');
 const expectedBackend = 'https://qonqemhljgxlwpghkxhn.supabase.co';
 if (release.backend_url !== expectedBackend) fail('unexpected Supabase backend');

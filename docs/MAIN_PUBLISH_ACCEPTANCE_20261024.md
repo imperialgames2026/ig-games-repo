@@ -1,14 +1,14 @@
 # Main-site backend publication acceptance
 
-Release base: `0d32d24a863026e3eff36dec0ea663d3fb9e2ff6`. Selected backend: `qonqemhljgxlwpghkxhn`. The older project is excluded. No customer data import, payment execution, Auth credential change or blanket access grant is part of this release.
+Release base: `608cc1e214fab880a5fe9c187380ce4725dca214`. Selected backend: `qonqemhljgxlwpghkxhn`. The older project is excluded. No customer data import, payment execution, Auth credential change or blanket access grant is part of this release.
 
 ## Reconciled deployment inventory
 
 The published site had 108 packaged migrations while hosted history had 107. These were different sets: three KYC migrations from PR51 were pending, and two slot migrations from another branch were already deployed but absent from main. The missing slot function is also already deployed. This release records those actual sources without importing the slot frontend or reapplying their SQL. The first slot migration uses the exact recorded statement formatting; the branch copy differed in formatting inside function definitions.
 
-All 107 hosted identities match the reconstructed canonical SQL checksums. All 32 function bodies were inspected. Thirty match the recorded implementation (three legacy files differ only by one terminal newline); KYC and the slot release guard are the two planned function updates. Existing JWT modes are preserved, including the separately signed machine webhook.
+At the prior read-only release check, all 107 hosted identities matched the reconstructed canonical SQL checksums. All 32 function bodies were inspected. Thirty match the recorded implementation (three legacy files differ only by one terminal newline); KYC and the slot release guard are the two planned function updates. Existing JWT modes are preserved, including the separately signed machine webhook.
 
-Four pending SQL files are explicit in the manifest: KYC profile lifecycle, retention reconciliation, fair retry, and `20261024005531_preserve_owner_held_game_scope`. The proposed package has 111 migrations and 32 functions. No unknown-history guard is bypassed.
+Four pending SQL files are explicit in the manifest: KYC profile lifecycle, retention reconciliation, fair retry, and `20261024005531_preserve_owner_held_game_scope`. The reconciled package has 112 migrations and 32 functions. Current main contributes the already-recorded `20261024024944_continuous_practice_roulette.sql` identity and checksum from PR70; the differently timestamped proposal is not replayed as a second migration. The four pending SQL files are unchanged. No unknown-history guard is bypassed.
 
 ## Release behavior
 
@@ -29,3 +29,7 @@ Rollout order: recheck hosted drift; apply only the four pending SQL files with 
 This remains a practice release. Authenticator PR40 is being reconciled independently and is not activated here. Hosted Auth configuration, callback allowlists and email delivery require verification; the secure dashboard sign-in was not completed. No password, OTP or credential was requested in chat. Lost-factor recovery operations, approved reward-pool configuration, provider/payment execution and external support/monitoring delivery are not certified by this publication. Existing paused programs are not represented as complete business features.
 
 The final release PR records the immutable tested source, actual deployment versions, public-domain verification and any remaining failed or unrun checks.
+
+## Overlapping slot candidate
+
+PR68 supersedes PR65 for backend release reconciliation: both deployed slot identities and the slot function are retained here, with the recorded SQL formatting and forward held-game guard. PR65 remains a draft preservation branch for its unique frontend prototype; its activation scope conflicts with the documented 23 held routes and must not be merged independently. Do not weaken the exact 20 approved active catalog assertions or activate the 13 held slots to make that older candidate green. Authenticator PR40 should next rebase onto this reconciled PR68 head once its exact-head aggregate checks pass.

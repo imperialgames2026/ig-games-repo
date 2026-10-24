@@ -6,6 +6,9 @@ export default function UnityTable({
   outcome,
   reduced,
   camera,
+  fallbackLabel = "Lightweight 3D",
+  presentationSeconds = 5.05,
+  onZoomGesture,
   onStatus,
   onComplete,
   onBet,
@@ -21,6 +24,7 @@ export default function UnityTable({
       bet,
       onBet,
       onComplete,
+      onZoomGesture,
       zoom
     }),
     sent = useRef(null);
@@ -35,6 +39,7 @@ export default function UnityTable({
     bet,
     onBet,
     onComplete,
+    onZoomGesture,
     zoom
   };
   useEffect(() => {
@@ -62,6 +67,7 @@ export default function UnityTable({
         setReady(true);
         onStatus("Unity ready");
       }
+      if (message.type === 'gesture' && Number.isFinite(message.scale) && message.scale >= .5 && message.scale <= 2) latest.current.onZoomGesture?.(message.scale);
       if (message.type === 'bet' && !latest.current.bet.locked && validSelection(latest.current.game, message.selection)) latest.current.onBet(message.selection);
       if (message.type === 'complete') latest.current.onComplete?.(message.roundId);
       // Completion changes timing only; React owns the immutable outcome and settlement.
@@ -83,15 +89,16 @@ export default function UnityTable({
     send("SetReducedMotion", String(reduced));
     send("CameraView", camera);
     send("SetZoom", String(zoom));
+    send("SetRoundDuration", String(presentationSeconds));
     if (validBet(bet)) send("SetBet", JSON.stringify(bet));
     if (outcome && sent.current !== outcome.roundId && validateOutcome(outcome)) {
       send("PresentOutcome", JSON.stringify(outcome));
       sent.current = outcome.roundId;
     }
-  }, [game, outcome, reduced, camera, ready, bet, zoom]);
+  }, [game, outcome, reduced, camera, ready, bet, zoom, presentationSeconds]);
   return <div className="unity-surface">
       <iframe ref={frame} src="/unity-practice-frame.html" title={`Unity 3D ${game} table`} className="table-scene" />
       {!ready && !error && <p role="status">Loading Unity table… {Math.round(progress * 100)}%</p>}
-      {error && <p role="alert">{error}. Select Lightweight 3D to keep practicing.</p>}
+      {error && <p role="alert">{error}. Select {fallbackLabel} to keep practicing.</p>}
     </div>;
 }

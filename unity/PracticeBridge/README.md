@@ -26,7 +26,7 @@ Cloth artwork is reproducible with `python scripts/generate-practice-cloths.py` 
 
 ## Host and test
 
-Serve the Vite dist directory over HTTPS. Keep the generated runtime assets under `/unity/practice/v2/`; wasm must be served as `application/wasm`. This build deliberately uses uncompressed asset filenames to avoid requiring custom Content-Encoding rules. The host may supply ordinary HTTP transport compression. Rebuild with a new version path before releasing changed immutable assets.
+Serve the Vite dist directory over HTTPS. Keep the generated runtime assets under `/unity/practice/v3/`; wasm must be served as `application/wasm`. This build deliberately uses uncompressed asset filenames to avoid requiring custom Content-Encoding rules. The host may supply ordinary HTTP transport compression. Rebuild with a new version path before releasing changed immutable assets.
 
 ```
 node --test tests/tableLab.test.mjs

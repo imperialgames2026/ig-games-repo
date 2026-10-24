@@ -109,10 +109,10 @@ test("Unity manifest rejects executable assets outside the versioned same-origin
   const manifest = {
     version: 1,
     mode: "practice",
-    loaderUrl: "/unity/practice/v2/Build/WebGL.loader.js",
-    dataUrl: "/unity/practice/v2/Build/WebGL.data",
-    codeUrl: "/unity/practice/v2/Build/WebGL.wasm",
-    frameworkUrl: "/unity/practice/v2/Build/WebGL.framework.js",
+    loaderUrl: "/unity/practice/v3/Build/WebGL.loader.js",
+    dataUrl: "/unity/practice/v3/Build/WebGL.data",
+    codeUrl: "/unity/practice/v3/Build/WebGL.wasm",
+    frameworkUrl: "/unity/practice/v3/Build/WebGL.framework.js",
   };
   assert.equal(
     validateUnityManifest(manifest, "https://imperialgaming.llc")
@@ -121,7 +121,7 @@ test("Unity manifest rejects executable assets outside the versioned same-origin
   );
   for (const loaderUrl of [
     "https://evil.example/loader.js",
-    "/unity/practice/v2/../../bad.js",
+    "/unity/practice/v3/../../bad.js",
     "javascript:alert(1)",
     "/other.js",
   ])
@@ -157,4 +157,14 @@ test('craps pass contract stays reserved across point rolls and repeats after re
 test('felt hit positions match every offered selection including green zero',()=>{
  for(const game of ['roulette','craps'])for(const selection of game==='craps'?['pass']:[...Array.from({length:37},(_,n)=>String(n)),'red','black','even','odd']){const p=betPixel(game,selection);assert.equal(betFromPixel(game,p.x,p.y),selection);}
  assert.equal(validBet({version:1,game:'roulette',locked:false,placements:[{selection:'red',amount:123}]}),true);
+});
+import {selectionAtScreen,betPosition} from '../components/practice/bet-layout.mjs';
+test('screen rays hit the offered felt selections across touch cameras and zoom',()=>{
+ for(const game of ['roulette','craps'])for(const aspect of [.65,1,2])for(const camera of ['table','overhead'])for(const zoom of [1,1.5,2.4]){
+  const z=camera==='overhead'?-.001:-.85,n=Math.hypot(1,z),ny=1/n,nz=z/n,tan=Math.tan(21*Math.PI/180),d=(Math.max(10.7/(2*tan*Math.max(.5,aspect)),(camera==='overhead'?6:4.7)/(2*tan))+1.9)/zoom;
+  for(const s of game==='craps'?['pass']:[...Array.from({length:37},(_,n)=>String(n)),'red','black','even','odd']){
+   const p=betPosition(game,s),y=.02,vy=y-d*ny,vz=p.z-d*nz,depth=vy*(-ny)+vz*(-nz),up=vy*(-nz)+vz*ny,x=.5+p.x/(2*depth*tan*aspect),sy=.5+up/(2*depth*tan);
+   if(x>=0&&x<=1&&sy>=0&&sy<=1)assert.equal(selectionAtScreen(game,x,sy,aspect,camera,zoom),s,[game,s,aspect,camera,zoom].join(':'));
+  }
+ }
 });

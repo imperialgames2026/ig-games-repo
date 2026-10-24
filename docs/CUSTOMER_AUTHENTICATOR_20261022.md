@@ -1,6 +1,6 @@
 # Customer authenticator two-step verification
 
-Reconciled with current main and release candidate `0809f8e148cd602f2959b01b729f2ab5117fb53c` for the owner-selected backend `qonqemhljgxlwpghkxhn`. Older project `icwzqdbibhnrtjahfzsx` is excluded.
+Reconciled with current main and release candidate `8e16f8ed5cd8c47b89cb404480756a43b5161b18` for the owner-selected backend `qonqemhljgxlwpghkxhn`. Older project `icwzqdbibhnrtjahfzsx` is excluded.
 
 Customers can opt in from Profile Settings using a standard TOTP authenticator. Supabase generates factor secrets and validates codes. Imperial Games supplies enrollment, sign-in challenge, backup-factor and removal screens. No Twilio SMS or phone-MFA paid add-on is needed. Existing users are not forced to enroll.
 
@@ -20,7 +20,7 @@ Users can enroll a separate backup authenticator and use it to remove a lost pri
 4. Read back SQL identity/checksum, restrictive policies and source hashes. Run advisors. Record deployed identities and versions in the manifest before merging the frontend release.
 5. Verify the published exact SHA and the account flow. No hosted accounts, real customer files, billing changes, provider messages or financial operations are needed for isolated acceptance.
 
-The still-unapplied MFA migration was regenerated with the CLI as `20261024011225_customer_authenticator_mfa.sql` so its restrictive policies also cover the newer KYC and slot tables during a clean replay. This branch packages 112 migrations and 32 functions. PR68 backend changes remain a dependency; hosted MFA has not been deployed. Deployment status must not be inferred from package assembly or frontend build success.
+The still-unapplied MFA migration was regenerated with the CLI as `20261024011225_customer_authenticator_mfa.sql` so its restrictive policies also cover the newer KYC and slot tables during a clean replay. This branch packages 113 migrations and 32 functions. PR68 backend changes remain a dependency; hosted MFA has not been deployed. Deployment status must not be inferred from package assembly or frontend build success.
 
 ## Supabase storage budget
 
@@ -33,3 +33,7 @@ Read-only inspection confirms `kyc-documents` is private, has no configured file
 ## October 24 reconciliation
 
 Preserves current Unity prototype, profile actions, all KYC privacy protections and the held-slot guard. KYC machine-worker authentication remains separate; customer KYC uses the same generated session guard. All 211 offline application/MFA tests passed locally before the migration was resequenced. Hosted Auth settings and lost-all-factors recovery remain release gates; do not infer activation from this draft.
+
+## Current release reconciliation
+
+The dependency is tested PR68 head `8e16f8ed5cd8c47b89cb404480756a43b5161b18` on main `608cc1e214fab880a5fe9c187380ce4725dca214`. Preserve the recorded roulette identity `20261024024944` and its checksum, the exact 20 approved active catalog entries, 23 held routes, and KYC retention protections. The pending MFA migration identity and bytes are unchanged; roulette adds no new RLS table after it. The aggregate test list includes both MFA and current Unity suites. This draft does not activate MFA, hosted policies, recovery operations or device releases; hosted Auth/callback verification, audited lost-all-factors recovery, and device acceptance remain separate gates.
