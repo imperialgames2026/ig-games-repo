@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "mode": "practice",
+  "sha256": {
+    "WebGL.loader.js": "ab7de00931742c7b7bd1938d341488b615c4b9ff147ee905c7c1c91f4d5840ce",
+    "WebGL.framework.js": "555ba0e05d180f3bb812af4e23a18674841dd06a30f49196f437c02d5e075908",
+    "WebGL.data": "538840a8343c46a2337bc30c77dec440b794f854b451622eb4b0e94bbf50992c",
+    "WebGL.wasm": "5bb0e55032b634a9f733bd84441923990f6530dc9e34e396fe974742955a906b"
+  },
+  "loaderUrl": "/unity/practice/v3/Build/WebGL.loader.js",
+  "frameworkUrl": "/unity/practice/v3/Build/WebGL.framework.js",
+  "dataUrl": "/unity/practice/v3/Build/WebGL.data",
+  "codeUrl": "/unity/practice/v3/Build/WebGL.wasm"
+}

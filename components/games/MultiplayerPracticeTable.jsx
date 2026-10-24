@@ -402,16 +402,20 @@ export default function MultiplayerPracticeTable({ game }) {
   const deadline = Date.parse(table?.bettingClosesAt ?? '');
   const clockOffset = table?.clockOffsetMs ?? 0;
   const remainingMs = Number.isFinite(deadline) ? Math.max(0, deadline - (clockNow - clockOffset)) : 0;
-  const secondsLeft = Math.ceil(remainingMs / 1000);
-  const bettingOpen = !!table?.betsOpen && secondsLeft > 0;
+  const secondsLeft = game==='roulette'&&table?.roundEndsAt?Math.max(0,Math.ceil((Date.parse(table.roundEndsAt)-(clockNow-clockOffset))/1000)):Math.ceil(remainingMs/1000);
+  const bettingOpen = !!table?.betsOpen && remainingMs > 0;
   const betEligible = joined && bettingOpen && user?.role !== 'tester' && !user?.is_excluded && Number(table?.chips||0)>0;
   const canBet = betEligible && Number(table.chips)>=stake;
-  const amShooter = !!(table?.shooterId && user?.id === table.shooterId);
+  const amShooter = game==='craps' && !!(table?.shooterId && user?.id === table.shooterId);
   const canShoot = amShooter && !bettingOpen && !busy;
   const liveShooter=table?.players?.find(p=>p.shooter)?.active;
-  const canClaim=joined && !amShooter && !liveShooter && (game!=='craps'||table?.myJoinMode==='shooter');
+  const canClaim=game==='craps' && joined && !amShooter && !liveShooter && (game!=='craps'||table?.myJoinMode==='shooter');
   const last=table?.lastResult;
   const presentSharedRound=()=>{if(renderer==='unity')unityStage.current?.scrollIntoView({behavior:'instant',block:'center'});void runRound();};
+  const unityLockReason=busy?'Confirming server action…':!joined?'Join this shared table before placing chips.':user?.is_excluded?'Gameplay is disabled for this account.':user?.role==='tester'?'Spectator access: betting is disabled.':!bettingOpen?(game==='roulette'?'Wheel spinning. Betting reopens when it lands.':amShooter?'Betting closed. Start the next round to reopen betting.':'Betting closed. Waiting for the designated '+(game==='craps'?'shooter.':'spinner.')):!canBet?'Your wager exceeds the available practice chips.':'';
+  const unityAction=!joined?()=>void join(game==='craps'?'action':undefined):canShoot?presentSharedRound:canClaim?()=>void claim():null;
+  const unityActionLabel=!joined?'Join table to bet':canShoot?(game==='craps'?'Roll · reopen betting':'Spin · reopen betting'):canClaim?'Take idle '+(game==='craps'?'shooter':'spinner')+' seat':'';
+
   const dragChips=useCrapsChipDrag({
     enabled:game==='craps'&&betEligible,
     blocked:busy,
@@ -438,7 +442,7 @@ export default function MultiplayerPracticeTable({ game }) {
             <p className="ig-round-subtitle mt-1 text-sm text-gray-300">Shared round {table.round} · All players see the same lock time.</p>
           </div>
           <p className="ig-round-clock font-mono text-3xl font-black tabular-nums text-amber-200" aria-label={bettingOpen ? secondsLeft + ' seconds remaining' : 'Betting closed'}>
-            {bettingOpen ? secondsLeft + 's' : 'LOCKED'}
+            {bettingOpen||game==='roulette' ? secondsLeft + 's' : 'LOCKED'}
           </p>
         </div>
         {game==='craps'&&dragChips.notice&&<div aria-live="polite" role="status" className="rounded-xl border border-amber-300/35 bg-amber-300/10 px-4 py-3 text-sm text-amber-100">{dragChips.notice}</div>}
@@ -449,7 +453,7 @@ export default function MultiplayerPracticeTable({ game }) {
             {loading && !table ? <div role="status" className="rounded-xl border border-white/10 bg-white/5 p-10 text-center">Connecting to the practice table…</div> : null}
             {table && game==='craps'&&<div className="ig-redundant-rack"><CrapsChipRack table={table} stake={stake} setStake={setStake}
               dragHandlers={dragChips.handlers} busy={busy} joined={joined}/></div>}
-            {table && (renderer==='unity' ? <MultiplayerUnityTable key={game} sceneRef={unityStage} game={game} table={table} canBet={canBet} busy={busy} stake={stake} placeBet={placeBet} onFallback={()=>setRenderer('felt')}/> : game==='craps'
+            {table && (renderer==='unity' ? <MultiplayerUnityTable key={game} sceneRef={unityStage} presentationSeconds={game==='roulette'&&table?.lastResult?.presentationEndsAt?Math.max(.01,Math.min(3,(Date.parse(table.lastResult.presentationEndsAt)-(clockNow-clockOffset))/1000)):5.05} bettingOpen={bettingOpen} secondsLeft={secondsLeft} lockReason={unityLockReason} tableAction={unityAction} actionLabel={unityActionLabel} wagerControl={<WagerAmountControl stake={stake} setStake={setStake} max={table.chips} disabled={busy||!joined}/>} game={game} table={table} canBet={canBet} busy={busy} stake={stake} placeBet={placeBet} onFallback={()=>setRenderer('felt')}/> : game==='craps'
               ? <CrapsFelt table={table} choose={setCrapsBetTarget} selected={crapsBetTarget}
                   hovered={dragChips.hovered} disabled={busy} canBet={betEligible} canShoot={canShoot} isShooter={amShooter} onShoot={presentSharedRound} />
               : <RouletteFelt table={table} choose={target=>void placeBet(target,stake)} disabled={busy} canBet={canBet} />)}
@@ -493,7 +497,7 @@ export default function MultiplayerPracticeTable({ game }) {
                   </button>}
                   {canClaim && <button onClick={()=>void claim()} disabled={busy}
                     className="rounded-xl bg-amber-400 px-6 py-3 font-black text-gray-950 disabled:opacity-50">Take idle {game==='craps' ? 'shooter' : 'spinner'} seat</button>}
-                  {joined && !amShooter && !canClaim && <p className="rounded-xl border border-white/20 p-3 text-center text-sm text-gray-300">Place side bets and watch the action. The designated {game==='craps' ? 'shooter rolls' : 'spinner spins'} for the whole table.</p>}
+                  {joined && !amShooter && !canClaim && <p className="rounded-xl border border-white/20 p-3 text-center text-sm text-gray-300">Place side bets and watch the action. The designated {game==='craps' ? 'shooter rolls' : 'house wheel runs automatically'} for the whole table.</p>}
                   {joined && <button type="button" disabled={busy} onClick={()=>void leave()} className="rounded-lg border border-red-400/40 px-5 py-2 text-sm font-semibold text-red-200 hover:bg-red-950/30 disabled:opacity-50">Leave table · preserve chips</button>}
                   <button type="button" onClick={()=>void refresh()} className="rounded-lg border border-white/25 px-5 py-2 text-sm text-gray-300 hover:bg-white/10">Refresh table</button>
                 </div>

@@ -49,3 +49,25 @@ export function betFromPixel(game, x, y) {
   return null;
 }
 export const betName = s => s === '0' ? 'green 0' : s === 'pass' ? 'pass line' : s;
+// Inverse of CasinoScene.CameraView: a screen ray hits the felt plane. Keeping
+// input in the frame avoids platform-dependent Unity mouse emulation on touch.
+export function selectionAtScreen(game, x, y, aspect, camera = 'table', zoom = 1.12) {
+  if (!['roulette', 'craps'].includes(game) || ![x, y, aspect, zoom].every(Number.isFinite) || aspect <= 0 || x < 0 || x > 1 || y < 0 || y > 1) return null;
+  const tan = Math.tan(21 * Math.PI / 180),
+    overhead = camera === 'overhead',
+    z = overhead ? -.001 : -.85,
+    n = Math.hypot(1, z),
+    ny = 1 / n,
+    nz = z / n;
+  const distance = (Math.max(10.7 / (2 * tan * Math.max(.5, aspect)), (overhead ? 6 : 4.7) / (2 * tan)) + 1.9) / zoom;
+  const sy = (y * 2 - 1) * tan,
+    dx = (x * 2 - 1) * tan * aspect,
+    dy = -ny - sy * nz,
+    dz = -nz + sy * ny;
+  if (Math.abs(dy) < 1e-6) return null;
+  const t = (.02 - distance * ny) / dy;
+  if (t < 0) return null;
+  const px = t * dx,
+    pz = distance * nz + t * dz;
+  return game === 'roulette' ? betFromPixel(game, ((px - 2.1) / 4.7 + .5) * 2048, (.5 - pz / 3.4) * 1024) : betFromPixel(game, (px / 9.6 + .5) * 2048, (.5 - pz / 4.25) * 1024);
+}

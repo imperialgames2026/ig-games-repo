@@ -13,7 +13,7 @@ public sealed class CasinoScene : MonoBehaviour {
  Transform roulette,craps,wheel,ball; readonly Transform[] dice=new Transform[2];
  readonly Dictionary<string,Transform> wagerMarkers=new Dictionary<string,Transform>();
  readonly Dictionary<string,long> wagerAmounts=new Dictionary<string,long>();
- bool betsLocked;float zoom=1.12f;Vector3 pointerDown;
+ bool betsLocked;float presentationSeconds=5.05f;float zoom=1.12f;Vector3 pointerDown;
  Camera view; Font font; string game="roulette", activeRound=""; bool reduced,paused; Coroutine motion;float lastAspect;string cameraMode="table";
  [DllImport("__Internal")] static extern void ImperialPracticeEvent(string json);
  void Notify(string type,string id="") {
@@ -137,8 +137,8 @@ public sealed class CasinoScene : MonoBehaviour {
  public void Present(string json){var o=JsonUtility.FromJson<PracticeBridge.Outcome>(json);if(motion!=null)StopCoroutine(motion);activeRound=o.roundId;SetGame(o.game);motion=StartCoroutine(Animate(o));}
  Quaternion DieRotation(int face){switch(face){case 2:return Quaternion.Euler(0,0,90);case 3:return Quaternion.Euler(-90,0,0);case 4:return Quaternion.Euler(90,0,0);case 5:return Quaternion.Euler(0,0,-90);case 6:return Quaternion.Euler(180,0,0);default:return Quaternion.identity;}}
  IEnumerator Animate(PracticeBridge.Outcome o){
-  float elapsed=0,duration=reduced?.01f:4.6f;int sample=0;
-  if(!reduced)yield return new WaitForSecondsRealtime(.45f);float from=wheel.localEulerAngles.y;
+  float elapsed=0,delay=reduced?0:Mathf.Min(.45f,Mathf.Max(0,presentationSeconds-.01f)),duration=reduced?.01f:Mathf.Max(.01f,presentationSeconds-delay);int sample=0;
+  if(delay>0)yield return new WaitForSecondsRealtime(delay);float started=Time.realtimeSinceStartup;float from=wheel.localEulerAngles.y;
   int pocket=o.game=="roulette"?Array.IndexOf(Pockets,o.values[0]):0;
   float target=-(pocket+.5f)*360f/37;float delta=Mathf.DeltaAngle(from,target)+1800;
   while(elapsed<duration){if(paused){yield return null;continue;}float t=Mathf.Clamp01(elapsed/duration),e=1-Mathf.Pow(1-t,3);
@@ -149,7 +149,7 @@ public sealed class CasinoScene : MonoBehaviour {
     dice[i].localRotation=DieRotation(o.values[i])*Quaternion.Euler((1-e)*1080,(1-e)*720,(1-e)*360);
    }
    if(sample<3&&t>=sample*.35f){Emit(new VisualEvent{type="motion",roundId=o.roundId,game=o.game,phase="sample",wheelAngle=wheel.localEulerAngles.y,diceX=dice[0].localPosition.x,diceY=dice[0].localPosition.y,diceAngle=dice[0].localEulerAngles.x});sample++;}
-   elapsed+=Mathf.Min(Time.unscaledDeltaTime,.05f);yield return null;
+   elapsed=Time.realtimeSinceStartup-started;yield return null;
   }
   if(o.game=="roulette"){wheel.localRotation=Quaternion.Euler(0,target,0);ball.localPosition=new Vector3(0,.29f,1.32f);}else for(int i=0;i<2;i++){dice[i].localRotation=DieRotation(o.values[i]);dice[i].localPosition=new Vector3(i==0?-.65f:.65f,.3f,.05f+i*.4f);}
   Notify("complete",o.roundId);motion=null;
@@ -186,6 +186,7 @@ public sealed class CasinoScene : MonoBehaviour {
   var remove=new List<string>();foreach(var key in wagerMarkers.Keys)if(!keep.Contains(key))remove.Add(key);foreach(var key in remove){foreach(var f in wagerMarkers[key].GetComponentsInChildren<MeshFilter>())Destroy(f.sharedMesh);Destroy(wagerMarkers[key].gameObject);wagerMarkers.Remove(key);wagerAmounts.Remove(key);}
  }
  IEnumerator PlaceChip(Transform chip,Vector3 target,bool fresh){var from=fresh?new Vector3(3.5f,.2f,-1.9f):chip.localPosition;if(reduced){chip.localPosition=target;yield break;}float elapsed=0;while(elapsed<.45f&&chip){float t=elapsed/.45f;chip.localPosition=Vector3.Lerp(from,target,Mathf.SmoothStep(0,1,t))+Vector3.up*Mathf.Sin(t*Mathf.PI)*.6f;elapsed+=Time.unscaledDeltaTime;yield return null;}if(chip)chip.localPosition=target;}
+ public void SetRoundDuration(string value){float n;if(float.TryParse(value,NumberStyles.Float,CultureInfo.InvariantCulture,out n)&&!float.IsNaN(n)&&!float.IsInfinity(n))presentationSeconds=Mathf.Clamp(n,.01f,8f);}
  public void SetZoom(string value){float n;if(float.TryParse(value,NumberStyles.Float,CultureInfo.InvariantCulture,out n)&&!float.IsNaN(n)&&!float.IsInfinity(n)){zoom=Mathf.Clamp(n,1,2.4f);CameraView(cameraMode);}}
  void SelectAt(Vector3 screen){var ray=view.ScreenPointToRay(screen);var plane=new Plane(Vector3.up,new Vector3(0,.02f,0));float enter;if(!plane.Raycast(ray,out enter))return;var p=ray.GetPoint(enter);float x,y;
   if(game=="roulette"){x=((p.x-2.1f)/4.7f+.5f)*2048;y=(.5f-p.z/3.4f)*1024;}else{x=(p.x/9.6f+.5f)*2048;y=(.5f-p.z/4.25f)*1024;}
