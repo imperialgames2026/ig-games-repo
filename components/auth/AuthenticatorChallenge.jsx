@@ -53,6 +53,7 @@ export default function AuthenticatorChallenge() {
       {error && <p role="alert" className="text-sm text-red-300">{error}</p>}
       {!loading && !factors.length && <button onClick={() => checkAppState()} disabled={busy} className="text-amber-300">Retry account verification</button>}
       <p className="text-sm text-slate-400">Lost your device? Use your backup authenticator. Resetting your password does not remove two-step verification.</p>
+      <p className="text-sm text-slate-400">If every authenticator is unavailable, you cannot complete sign-in here. Account recovery is not available in this release.</p>
       <button onClick={signOut} disabled={busy} className="text-sm text-amber-300">Sign out</button>
     </section>
   </main>;

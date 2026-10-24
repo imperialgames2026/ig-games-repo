@@ -20,7 +20,7 @@ Users can enroll a separate backup authenticator and use it to remove a lost pri
 4. Read back SQL identity/checksum, restrictive policies and source hashes. Run advisors. Record deployed identities and versions in the manifest before merging the frontend release.
 5. Verify the published exact SHA and the account flow. No hosted accounts, real customer files, billing changes, provider messages or financial operations are needed for isolated acceptance.
 
-The still-unapplied MFA migration was regenerated with the CLI as `20261024011225_customer_authenticator_mfa.sql` so its restrictive policies also cover the newer KYC and slot tables during a clean replay. This branch packages 113 migrations and 32 functions. PR68 backend changes remain a dependency; hosted MFA has not been deployed. Deployment status must not be inferred from package assembly or frontend build success.
+The still-unapplied MFA migration was regenerated with the CLI as `20261024011225_customer_authenticator_mfa.sql` so its restrictive policies also cover the newer KYC and slot tables during a clean replay. This branch packages 115 migrations and 32 functions. PR68 backend changes remain a dependency; hosted MFA has not been deployed. Deployment status must not be inferred from package assembly or frontend build success.
 
 ## Supabase storage budget
 
@@ -36,4 +36,27 @@ Preserves current Unity prototype, profile actions, all KYC privacy protections 
 
 ## Current release reconciliation
 
-The dependency is tested PR68 head `8e16f8ed5cd8c47b89cb404480756a43b5161b18` on main `608cc1e214fab880a5fe9c187380ce4725dca214`. Preserve the recorded roulette identity `20261024024944` and its checksum, the exact 20 approved active catalog entries, 23 held routes, and KYC retention protections. The pending MFA migration identity and bytes are unchanged; roulette adds no new RLS table after it. The aggregate test list includes both MFA and current Unity suites. This draft does not activate MFA, hosted policies, recovery operations or device releases; hosted Auth/callback verification, audited lost-all-factors recovery, and device acceptance remain separate gates.
+The current reconciliation incorporates PR68 on main `e1a1d90e6f5f9d7de7291e34a90d994897ee6b45`. Preserve the recorded roulette identity `20261024024944` and its checksum, the exact 20 approved active catalog entries, 23 held routes, and KYC retention protections. The pending MFA migration identity and bytes are unchanged; roulette adds no new RLS table after it; the subsequent poker replay tables receive a forward restrictive-policy migration. The aggregate test list includes both MFA and current Unity suites. This draft does not activate MFA, hosted policies, recovery operations or device releases; hosted Auth/callback verification, audited lost-all-factors recovery, and device acceptance remain separate gates.
+
+## Lost-all-factors acceptance and owner decisions
+
+Existing behavior: password-only and password-recovery sessions for an enrolled account remain AAL1. The website shows the authenticator challenge before Profile, enrollment/removal settings, or the password-update form. Wrong codes cannot remove a verified factor. A valid backup factor can authorize removal of a lost primary; this is factor verification, not all-factors-lost recovery. If no factor is available, this release offers sign-out but no recovery endpoint, support override, recovery codes, or automatic factor deletion. Private support data remains MFA-protected too; do not direct a locked-out customer to a signed-in-only support page as a working recovery route.
+
+Technical acceptance (isolated synthetic users only):
+
+- Verify wrong-code and AAL1 unenrollment rejection without changing the verified factor set.
+- Follow a real local password-recovery link for an enrolled synthetic user. Require AAL1, the existing verified factor, the challenge screen, no password-update/enrollment UI, no profile rows, and denied session Edge and privileged RPC calls. Sign-out must still work.
+- Verify backup-factor enrollment, removal of the primary using the backup, and fresh-code requirements. Existing real TOTP acceptance covers this path.
+- Replay the full package and retain the restrictive MFA policy on every public RLS table and storage.objects. New backend-only poker ledger/step tables get restrictive policies in forward migration `20261024185653_mfa_poker_replay_tables`; no client grants are added, and the original MFA, poker and roulette migration bytes/identities remain unchanged.
+- Inspect selected hosted TOTP settings, callback allowlists and backup/restore availability only after authorized access is restored. Configuration attempt 4 remains HTTP 401; do not infer success from CI or rerun blindly.
+- Review deployment ordering and readback against exact source checksums before any separately authorized hosted activation. Native/device acceptance remains unrun; web smoke does not satisfy it.
+
+Owner decisions required before all-factors-lost recovery can be implemented or offered:
+
+- Name the accountable recovery approver and authorized operators, and decide whether independent approval is required. Define how operator identity/assurance and access are audited.
+- Define identity evidence and account-binding criteria, abuse checks, escalation/rejection conditions, and applicable customer eligibility policy. Neither email/password possession nor a KYC status alone is a recovery authorization.
+- Approve a recovery request intake channel reachable without the locked account, with privacy, retention, access controls, notifications and customer wording. No destination or service is configured by this draft.
+- Specify the authorized factor-removal mechanism, session/token invalidation requirements, re-enrollment and post-recovery verification, notification/cooldown policy, incident escalation and rollback response. Test rejected, replayed, expired, cross-account and interrupted requests before enabling that mechanism.
+- Approve a minimal audit record and access/retention policy: request reference, account binding, operator and independent approval where required, decision/reason, timestamps, authorized action and outcome. Keep OTPs, factor secrets, bearer tokens and raw identity evidence out of ordinary logs.
+
+These decisions are open release gates, not permission for a support bypass. This draft intentionally implements no all-factors-lost recovery mutation.

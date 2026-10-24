@@ -85,3 +85,19 @@ test('canceling setup removes only the pending factor and exposes no setup key a
   await expect(page.getByRole('img',{name:'Authenticator setup QR code'})).toHaveCount(0);
   expect(state.removals).toBe(1);expect(state.verificationCalls).toBe(0);
 });
+
+test('lost-all-factors recovery route offers no password-reset or enrollment bypass',async({page})=>{
+ const state=await fixture(page,{enrolled:true});
+ await page.goto('/ResetPassword');
+ await expect(page.getByRole('heading',{name:'Two-step verification',exact:true})).toBeVisible();
+ await expect(page.getByText('Account recovery is not available in this release.',{exact:false})).toBeVisible();
+ await expect(page.getByRole('heading',{name:'Choose a new password',exact:true})).toHaveCount(0);
+ await expect(page.getByRole('button',{name:'Set up authenticator',exact:true})).toHaveCount(0);
+ expect(state.privateReads).toBe(0);expect(state.removals).toBe(0);
+ await page.getByLabel('Authenticator code',{exact:true}).fill('000000');
+ await page.getByRole('button',{name:'Verify and continue'}).click();
+ await expect(page.getByRole('alert')).toContainText('invalid or expired');
+ expect(state.privateReads).toBe(0);expect(state.removals).toBe(0);
+ await page.getByRole('button',{name:'Sign out',exact:true}).click();
+ await expect(page).toHaveURL(/\/login$/);
+});

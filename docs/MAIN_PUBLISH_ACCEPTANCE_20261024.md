@@ -1,6 +1,6 @@
 # Main-site backend publication acceptance
 
-Release base: `608cc1e214fab880a5fe9c187380ce4725dca214`. Selected backend: `qonqemhljgxlwpghkxhn`. The older project is excluded. No customer data import, payment execution, Auth credential change or blanket access grant is part of this release.
+Release base: `e1a1d90e6f5f9d7de7291e34a90d994897ee6b45`. Selected backend: `qonqemhljgxlwpghkxhn`. The older project is excluded. No customer data import, payment execution, Auth credential change or blanket access grant is part of this release.
 
 ## Reconciled deployment inventory
 
@@ -8,7 +8,7 @@ The published site had 108 packaged migrations while hosted history had 107. The
 
 At the prior read-only release check, all 107 hosted identities matched the reconstructed canonical SQL checksums. All 32 function bodies were inspected. Thirty match the recorded implementation (three legacy files differ only by one terminal newline); KYC and the slot release guard are the two planned function updates. Existing JWT modes are preserved, including the separately signed machine webhook.
 
-Four pending SQL files are explicit in the manifest: KYC profile lifecycle, retention reconciliation, fair retry, and `20261024005531_preserve_owner_held_game_scope`. The reconciled package has 112 migrations and 32 functions. Current main contributes the already-recorded `20261024024944_continuous_practice_roulette.sql` identity and checksum from PR70; the differently timestamped proposal is not replayed as a second migration. The four pending SQL files are unchanged. No unknown-history guard is bypassed.
+Four pending SQL files are explicit in the manifest: KYC profile lifecycle, retention reconciliation, fair retry, and `20261024005531_preserve_owner_held_game_scope`. The reconciled package has 113 migrations and 32 functions. Current main contributes the already-recorded `20261024024944_continuous_practice_roulette.sql` identity and checksum from PR70; the differently timestamped proposal is not replayed as a second migration. The four pending SQL files are unchanged. No unknown-history guard is bypassed.
 
 ## Release behavior
 
@@ -33,3 +33,5 @@ The final release PR records the immutable tested source, actual deployment vers
 ## Overlapping slot candidate
 
 PR68 supersedes PR65 for backend release reconciliation: both deployed slot identities and the slot function are retained here, with the recorded SQL formatting and forward held-game guard. PR65 remains a draft preservation branch for its unique frontend prototype; its activation scope conflicts with the documented 23 held routes and must not be merged independently. Do not weaken the exact 20 approved active catalog assertions or activate the 13 held slots to make that older candidate green. Authenticator PR40 should next rebase onto this reconciled PR68 head once its exact-head aggregate checks pass.
+
+Current-main reconciliation also preserves deployed poker replay identity `20261024183852_committed_poker_replay_and_queue_limits.sql` and its recorded checksum, plus the three updated main function implementations. The new poker ledger remains backend-only with client privileges revoked. Four pending release SQL identities remain unchanged.

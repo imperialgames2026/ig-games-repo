@@ -116,6 +116,21 @@ Deno.serve(async(req)=>{
   }
   const tableId=body.tableId;
   if(typeof tableId!=="string"||!/^[0-9a-f-]{36}$/i.test(tableId))return json({error:"Invalid table ID"},400);
+  // Historical membership survives tournament moves and eliminations. The RPC
+  // checks the frozen hand roster, never a caller-supplied user/seat identifier.
+  if(action==="history"){
+   if(body.before!=null&&(!Number.isSafeInteger(body.before)||body.before<1))return json({error:"Invalid history cursor"},400);
+   const {data,error}=await db.rpc("poker_hand_history_v1",{p_actor:user.id,p_table:tableId,p_before:body.before??null});
+   if(error)return json({error:"Hand history unavailable"},503);
+   return json(data);
+  }
+  if(action==="replay"){
+   if(!Number.isSafeInteger(body.handNo)||body.handNo<1||!Number.isSafeInteger(body.from??0)||(body.from??0)<0||(body.from??0)>2147483647)return json({error:"Invalid replay request"},400);
+   const {data,error}=await db.rpc("poker_hand_replay_v1",{p_actor:user.id,p_table:tableId,p_hand:body.handNo,p_from:body.from??0});
+   if(error)return json({error:"Hand unavailable for this account"},404);
+   if(!data?.complete)return json({error:"Replay is available after the hand finishes"},409);
+   return json(data);
+  }
   if(action==="join"){
    const {data,error}=await db.rpc("poker_join_v1",{p_table:tableId,p_actor:user.id});if(error)throw error;
    return json({seat:data});
@@ -250,8 +265,13 @@ Deno.serve(async(req)=>{
    if(socialError)throw socialError;
    const price={igd:priceConfig?.igd_price??"0.15",ign:priceConfig?.ign_price??null,
     paymentEnabled:priceConfig?.payment_enabled===true,practicePreviewEnabled:priceConfig?.practice_preview_enabled===true};
-   return json({table:publicTable,seats:publicSeats,holeCards:hole?.private_hole??[],socialEvents:socialEvents||[],serverNow:new Date().toISOString(),timebank:price,
-    ...(table.status==="complete"?{revealedSeed:table.seed_secret,verificationHandId:tableId+":"+table.hand_no}: {})});
+   let deckProof=null;
+   if(table.hand_no>0){
+    const {data:proof,error:proofError}=await db.rpc("poker_hand_replay_v1",{p_actor:user.id,p_table:tableId,p_hand:table.hand_no,p_from:2147483647});
+    if(proofError&&proofError.message!=="HAND_NOT_FOUND")throw proofError;
+    if(!proofError)deckProof=proof;
+   }
+   return json({table:publicTable,seats:publicSeats,holeCards:hole?.private_hole??[],socialEvents:socialEvents||[],serverNow:new Date().toISOString(),timebank:price,deckProof});
   }
   return json({error:"Unsupported action"},400);
  }catch(error){const message=error instanceof Error?error.message:"Internal error";return json({error:message},409);}

@@ -52,25 +52,25 @@
     },
     {
       "name": "admin-crash-rounds",
-      "deployed_version": 1,
+      "deployed_version": 2,
       "verify_jwt": true,
       "files": [
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "97d7d1e0e2dc6ca80ba96b986d92a33cc6d20dc2c47036f00ed06b67ea3ef41c"
+        "index.ts": "ae689b46c67863aa7fb56faec4b759595ed4646f601194f6a9712c443492a224"
       },
       "status": "pending_deployment"
     },
     {
       "name": "poker-table-v1",
-      "deployed_version": 15,
+      "deployed_version": 16,
       "verify_jwt": true,
       "files": [
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "4757dede348339498c77b5e09d2f87e73cbb594a966261ca15d3d196136eb4ab"
+        "index.ts": "3dc518ffc07d319e27086ef9305f25ed66099d24112b38ef9c954bb353f5afd5"
       },
       "status": "pending_deployment"
     },
@@ -88,13 +88,13 @@
     },
     {
       "name": "poker-events-v1",
-      "deployed_version": 5,
+      "deployed_version": 6,
       "verify_jwt": true,
       "files": [
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "e5d33e0154f616eef8393f3e74d4d02a89ad31ec669589745942ee00e3003350"
+        "index.ts": "504e717469d2b30ad7f4f5a2ea090af18d70445d4295c1f150d65fece1796c12"
       },
       "status": "pending_deployment"
     },
@@ -853,6 +853,15 @@
     {
       "file": "20261024024944_continuous_practice_roulette.sql",
       "sha256": "c8c9380c6494c1248267bc68c94ff4e89fd802f3878bd9c787711e7aed58e5a2"
+    },
+    {
+      "file": "20261024183852_committed_poker_replay_and_queue_limits.sql",
+      "sha256": "1cbda8f041a5a86622b932208885e5609c99e98867954a7623ece5a7fefecb6b"
+    },
+    {
+      "file": "20261024185653_mfa_poker_replay_tables.sql",
+      "sha256": "700b39adeda84fa2300f5f53340f6348a7202c57204a070afa754f03d5f6e7b8",
+      "status": "pending_deployment"
     }
   ]
 }

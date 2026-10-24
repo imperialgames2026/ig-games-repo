@@ -86,3 +86,39 @@ test('real TOTP enrollment, wrong-code denial, database/Edge/RPC enforcement, ba
   await expect(page.getByRole('button',{name:'Remove Backup device',exact:true})).toBeVisible();
  }finally{expect((await admin.auth.admin.deleteUser(id)).error).toBeNull();}
 });
+
+test('lost-all-factors stays locked after password recovery; AAL1 cannot remove or replace protection',async({page})=>{
+ const email=`mfa-recovery-${randomUUID()}@example.invalid`,password=`Local-${randomUUID()}-aA7!`;
+ const created=await admin.auth.admin.createUser({email,password,email_confirm:true});expect(created.error).toBeNull();
+ const id=created.data.user.id;
+ try{
+  const setup=client();expect((await setup.auth.signInWithPassword({email,password})).error).toBeNull();
+  const enrollment=await setup.auth.mfa.enroll({factorType:'totp',friendlyName:'Unavailable device'});expect(enrollment.error).toBeNull();
+  const factorId=enrollment.data.id;
+  expect((await setup.auth.mfa.challengeAndVerify({factorId,code:totp(enrollment.data.totp.secret)})).error).toBeNull();
+  // From here no valid factor code is used; knowing the password is insufficient.
+  const low=client();expect((await low.auth.signInWithPassword({email,password})).error).toBeNull();
+  expect((await low.auth.mfa.getAuthenticatorAssuranceLevel()).data.currentLevel).toBe('aal1');
+  expect((await low.auth.mfa.unenroll({factorId})).error).toBeTruthy();
+  expect((await low.auth.mfa.challengeAndVerify({factorId,code:totp(enrollment.data.totp.secret,Date.now()-600000)})).error).toBeTruthy();
+  const link=await admin.auth.admin.generateLink({type:'recovery',email,options:{redirectTo:'http://127.0.0.1:4173/ResetPassword'}});expect(link.error).toBeNull();
+  const action=new URL(link.data.properties.action_link);expect(action.origin).toBe(config.API_URL);
+  await page.goto(action.toString(),{waitUntil:'domcontentloaded'});
+  await expect(page.getByRole('heading',{name:'Two-step verification',exact:true})).toBeVisible();
+  await expect(page.getByText('Account recovery is not available in this release.',{exact:false})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Choose a new password',exact:true})).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'Set up authenticator',exact:true})).toHaveCount(0);
+  await expect(page.getByRole('heading',{name:'Profile Settings',exact:true})).toHaveCount(0);
+  const session=await page.evaluate(()=>{const key=Object.keys(localStorage).find(k=>k.startsWith('sb-')&&k.endsWith('-auth-token'));return key?JSON.parse(localStorage.getItem(key)):null;});
+  expect(session?.user?.id).toBe(id);
+  const recovered=client();expect((await recovered.auth.setSession({access_token:session.access_token,refresh_token:session.refresh_token})).error).toBeNull();
+  expect((await recovered.auth.mfa.getAuthenticatorAssuranceLevel()).data.currentLevel).toBe('aal1');
+  const factors=await recovered.auth.mfa.listFactors();expect(factors.error).toBeNull();expect(factors.data.totp.filter(f=>f.status==='verified').map(f=>f.id)).toEqual([factorId]);
+  const profiles=await recovered.from('profiles').select('id').eq('id',id);expect(profiles.error).toBeNull();expect(profiles.data).toEqual([]);
+  expect((await recovered.functions.invoke('ig-support-v1',{body:{action:'mine'}})).error?.context?.status).toBe(403);
+  expect((await recovered.rpc('ign_action',{p_action:'demo_grant',p_operation_id:randomUUID()})).error?.code).toBe('42501');
+  expect((await recovered.auth.mfa.unenroll({factorId})).error).toBeTruthy();
+  await page.getByRole('button',{name:'Sign out',exact:true}).click();
+  await expect(page).toHaveURL(/\/login$/);
+ }finally{expect((await admin.auth.admin.deleteUser(id)).error).toBeNull();}
+});
