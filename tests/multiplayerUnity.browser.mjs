@@ -15,7 +15,6 @@ try{for(const game of ['roulette','craps']){
    if(b.action==='bet'){assert.equal(b.target,game==='craps'?'pass':'red');assert.equal(b.units,5);state={...state,revision:2,chips:995,betsOpen:false,bettingClosesAt:new Date(0).toISOString(),publicBets:[{target:b.target,units:5,count:1}],myBets:[{id:'bet-1',target:b.target,units:5,placedRound:1}]};}
    if(b.action==='spin')throw Error('Client must not spin the house wheel');
    if(b.action==='roll'||(game==='roulette'&&b.action==='state'&&autoReady)){if(game==='craps')assert.equal(b.expectedRound,1);autoReady=false;state={...state,revision:3,round:2,point:game==='craps'?6:0,chips:game==='craps'?995:1005,betsOpen:true,bettingClosesAt:new Date(Date.now()+120000).toISOString(),lastResult:game==='craps'?{game,round:1,dice:[2,4],total:6,pointAfter:6}:{game,round:1,number:3,color:'red'},publicBets:game==='craps'?state.publicBets:[],myBets:game==='craps'?state.myBets:[]};}
-   if(b.action==='bet'&&game==='roulette')autoReady=true;
    data={state:{...state,serverTime:new Date().toISOString()}};
   }
   await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(data)});
@@ -31,6 +30,9 @@ try{for(const game of ['roulette','craps']){
  await page.touchscreen.tap(rect.x+p.x*rect.width,rect.y+(1-p.y)*rect.height);
  await page.getByText('Wager confirmed by server.',{exact:true}).waitFor();
  await page.waitForFunction(()=>window.mpEvents.some(e=>e.type==='betPlacement'&&e.amount===5));
+ // Advance the controlled house clock only after observing the confirmed wager,
+ // so a racing state poll cannot skip this assertion by already settling it.
+ if(game==='roulette')autoReady=true;
  if(game==='craps')await page.getByRole('button',{name:'SHOOT THE DICE',exact:true}).click();else assert.equal(await page.getByRole('button',{name:'SPIN THE WHEEL',exact:true}).count(),0);
  await page.locator('iframe.table-scene').scrollIntoViewIfNeeded();await page.waitForFunction(()=>window.mpEvents.some(e=>e.type==='complete'),{},{timeout:45000});
  const frame=page.frames().find(f=>f.url().includes('unity-practice-frame'));const commands=await frame.evaluate(()=>window.mpCommands.filter(c=>c.command==='PresentOutcome').map(c=>JSON.parse(c.value)));
