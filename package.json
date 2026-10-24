@@ -19,7 +19,9 @@
     "android:sync": "npm run android:assets && cap sync android",
     "android:debug": "npm run android:sync && cd android && ./gradlew assembleDebug",
     "android:release:unsigned": "npm run android:sync && cd android && ./gradlew assembleRelease bundleRelease",
-    "test:tables": "node --test tests/tableLab.test.mjs tests/multiplayerUnity.test.mjs",
+    "test:tables": "node --test tests/tableLab.test.mjs tests/multiplayerUnity.test.mjs tests/tableLabVisibility.test.mjs",
+    "test:tables:unity-visibility": "node tests/tableLab.unity-visibility.browser.mjs",
+    "test:tables:visibility": "node tests/tableLab.visibility.browser.mjs",
     "test:tables:browser": "node tests/tableLab.browser.mjs && node tests/tableLab.unity.browser.mjs",
     "test:multiplayer:unity": "node --test tests/multiplayerUnity.test.mjs && node tests/multiplayerUnity.browser.mjs",
     "unity:install": "node scripts/install-unity-practice-build.mjs"
