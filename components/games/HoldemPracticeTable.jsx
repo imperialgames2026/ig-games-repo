@@ -6,6 +6,9 @@ import PokerPlayerProfile, { PLAYER_EMOTES } from '@/components/poker/PokerPlaye
 import PokerSettingsModal from '@/components/poker/PokerSettingsModal';
 import { usePokerSounds } from '@/components/poker/usePokerSounds';
 import './game-cockpit.css';
+import HandReplay from '@/components/poker/HandReplay';
+import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { verifyPokerSnapshot, rememberDealRoot } from '@/lib/pokerReplayProof';
 import { safePokerAvatar } from '@/lib/pokerAvatar';
 
 // All cards/turns/side pots are managed by poker-table-v1.
@@ -58,7 +61,9 @@ export default function HoldemPracticeTable({variant='holdem'}) {
  const isOmaha=variant==='omaha';
  const {user,isAuthenticated}=useAuth();
  const [params,setParams]=useSearchParams();
- const tableId=params.get('tableId');
+ const tableId=params.get('tableId')?.toLowerCase();
+ const requestGeneration=useRef(0);
+ const [proofStatus,setProofStatus]=useState('');
  const [entry,setEntry]=useState('');
  const [snapshot,setSnapshot]=useState(null);
  const [loading,setLoading]=useState(false);
@@ -99,16 +104,25 @@ export default function HoldemPracticeTable({variant='holdem'}) {
  },[]);
  const fetchState=useCallback(async (quiet=false)=>{
    if(!tableId||!isAuthenticated)return;
+   const generation=requestGeneration.current;
    try {
      const s=await invoke({action:'snapshot',tableId});
-     if(alive.current){last.current=s;setSnapshot(s);if(!quiet)setError('');}
-   }catch(e){if(alive.current&&!quiet)setError(e.message);}
+     let message='This hand began before verified history was enabled.';
+     if(s.deckProof){
+       if(s.deckProof.tableId!==tableId||s.deckProof.handNo!==s.table.handNo)throw Error('Wrong hand proof');
+       await verifyPokerSnapshot(s);
+       try{rememberDealRoot(s.deckProof,window.localStorage);message='Locked deck and visible cards verified.';}
+       catch(e){if(e.message.includes('changed'))throw e;message='Cards verified; browser storage unavailable for comparing earlier observations.';}
+     }
+     if(alive.current&&generation===requestGeneration.current){last.current=s;setSnapshot(s);setProofStatus(message);setError('');}
+   }catch(e){if(alive.current&&generation===requestGeneration.current){setSnapshot(null);last.current=null;setError(e.message);}}
+
  },[tableId,isAuthenticated,invoke]);
  useEffect(()=>{
-   alive.current=true;setSnapshot(null);last.current=null;
+   requestGeneration.current++;alive.current=true;setSnapshot(null);last.current=null;setProofStatus('');
    void fetchState();
    const interval=window.setInterval(()=>void fetchState(true),2500);
-   return ()=>{alive.current=false;clearInterval(interval);};
+   return ()=>{requestGeneration.current++;alive.current=false;clearInterval(interval);};
  },[fetchState]);
  useEffect(()=>{
    const events=snapshot?.socialEvents||[];
@@ -272,11 +286,20 @@ export default function HoldemPracticeTable({variant='holdem'}) {
        <div className="ig-poker-controls rounded-xl border border-white/10 bg-[#1d1727] p-5">
          <div className="flex flex-wrap items-center justify-between gap-4">
            <div><h2 className="text-lg font-black">Table controls</h2>
+             {table?.handNo>0&&<p role="status" className="text-sm text-emerald-200">{proofStatus}</p>}
              <p className="mt-1 text-sm text-gray-300">
                {myTurn?'Your turn · call '+toCall+' practice chips':turn?'Waiting for seat '+(turn.seat_no+1):'Waiting for hand to start'}
              </p>
            </div>
            <div className="flex flex-wrap gap-2">
+             {isAuthenticated&&<Dialog key={tableId}>
+               <DialogTrigger asChild><button type="button" className="rounded-lg border border-amber-300 px-4 py-2 font-bold text-amber-200">Hand history &amp; replay</button></DialogTrigger>
+               <DialogContent className="w-[96vw] max-w-6xl max-h-[90dvh] overflow-y-auto border-slate-700 bg-slate-950 p-4 text-white sm:p-6">
+                 <DialogTitle>Your table ledger</DialogTitle>
+                 <DialogDescription className="text-slate-300">Replay your completed hands and check their locked card records.</DialogDescription>
+                 <HandReplay tableId={tableId} completedHand={table?.status==='complete'?table.handNo:0}/>
+               </DialogContent>
+             </Dialog>}
              {!mySeat&&<button disabled={busy||wrongVariant} onClick={()=>void doAction('join')} className="rounded-lg bg-amber-300 px-5 py-3 font-black text-slate-950">Join open seat</button>}
              {isOwner&&!wrongVariant&&table?.status==='waiting'&&<button disabled={busy||seats.length<2}
                onClick={()=>void doAction('start')} className="rounded-lg bg-amber-300 px-5 py-3 font-black text-slate-950 disabled:opacity-40">Deal hand · 2+ players</button>}
