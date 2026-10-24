@@ -120,6 +120,8 @@ let multi = false,
   pinchDistance = 0;
 inputCanvas.style.touchAction = 'none';
 inputCanvas.addEventListener('pointerdown', e => {
+  // Touch contacts also use button 0; retain all fingers for pinch gestures.
+  if (e.button !== 0) return;
   pointers.set(e.pointerId, {
     x: e.clientX,
     y: e.clientY,
@@ -152,7 +154,7 @@ inputCanvas.addEventListener('pointermove', e => {
 inputCanvas.addEventListener('pointerup', e => {
   const p = pointers.get(e.pointerId);
   pointers.delete(e.pointerId);
-  if (p && !multi && sceneReady && inputBet && !inputBet.locked && Math.hypot(e.clientX - p.startX, e.clientY - p.startY) < 14) {
+  if (e.button === 0 && p && !multi && sceneReady && inputBet && !inputBet.locked && Math.hypot(e.clientX - p.startX, e.clientY - p.startY) < 14) {
     const r = inputCanvas.getBoundingClientRect(),
       s = selectionAtScreen(inputGame, (e.clientX - r.left) / r.width, 1 - (e.clientY - r.top) / r.height, r.width / r.height, inputCamera, inputZoom);
     if (s !== null) post('bet', {
