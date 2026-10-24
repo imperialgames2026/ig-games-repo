@@ -351,6 +351,20 @@
         "image-file.js": "d1e888a264afbf78183c1e673cf31a2b868a942b99e3c67ea58f44d07672e7ed"
       },
       "status": "pending_deployment"
+    },
+    {
+      "name": "ig-slot-practice-v1",
+      "deployed_version": 3,
+      "verify_jwt": true,
+      "files": [
+        "index.ts",
+        "validation.js"
+      ],
+      "sha256": {
+        "index.ts": "bf404ee439e98fc58fdf55b9e642a7a588beb82aa07247cecbf5c8e6c67caeb9",
+        "validation.js": "40986b6e00fa41e2779956348260ccbc703b43316687560b274ae3aec5cecfbd"
+      },
+      "status": "pending_deployment"
     }
   ],
   "migrations": [
@@ -788,6 +802,19 @@
     {
       "file": "20261023174424_poker_social_events_v1.sql",
       "sha256": "f9fe890fda7b7d7871b6a7e4013ce83af4a7a4c022e0cf8b1b4093d99f2386d7"
+    },
+    {
+      "file": "20261023180147_standalone_slot_practice_v1.sql",
+      "sha256": "1be0fec69c2a2e835f8e9ce9580bef9ab48b849f59151a7ca3cb306babae5c82"
+    },
+    {
+      "file": "20261023181005_activate_standalone_slot_practice.sql",
+      "sha256": "96abdade734899296f7bc503633e361be3f23d6e4bec9d14d8bbd02e2b68a536"
+    },
+    {
+      "file": "20261024005531_preserve_owner_held_game_scope.sql",
+      "sha256": "cfe814902c1e24a052cd2f5dd8357309c01839563ab50cbdc7bf255fa2e21e97",
+      "status": "pending_deployment"
     },
     {
       "file": "20261024024944_continuous_practice_roulette.sql",

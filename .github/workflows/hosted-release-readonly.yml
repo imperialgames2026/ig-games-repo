@@ -1,0 +1,26 @@
+name: Hosted release configuration (read only)
+on:
+  workflow_dispatch:
+  push:
+    branches: [release/backend-parity-20261024]
+    paths: ['scripts/verify-hosted-release-config.mjs', 'tests/hostedReleaseConfig.test.mjs', '.github/workflows/hosted-release-readonly.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    if: github.repository == 'imperialgames2026/ig-games-repo' && (github.ref == 'refs/heads/release/backend-parity-20261024' || github.ref == 'refs/heads/main')
+    runs-on: ubuntu-24.04
+    environment: staging
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/hostedReleaseConfig.test.mjs
+      - name: Inspect Auth callbacks, API exposure and backup metadata without changes
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: node scripts/verify-hosted-release-config.mjs
