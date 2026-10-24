@@ -1,5 +1,5 @@
 import { loadUnity } from "./unity-loader.mjs";
-import { validBet } from "./bet-layout.mjs";
+import { selectionAtScreen, validBet } from "./bet-layout.mjs";
 import { validateOutcome } from "./outcomes.mjs";
 let runtime,
   sceneReady = false,
@@ -11,6 +11,11 @@ const post = (type, detail = {}) => {
     ...detail
   }, location.origin);
 };
+// Presentation-only hit testing. The parent and server retain wager authority.
+let inputGame = 'roulette',
+  inputCamera = 'table',
+  inputZoom = 1.12,
+  inputBet = null;
 const controller = new AbortController();
 const timeout = setTimeout(() => {
   controller.abort();
@@ -31,9 +36,6 @@ window.addEventListener("imperial-unity-practice", e => {
     ready();
   }
   if (['motion', 'betPlacement', 'layout'].includes(e.detail.type)) post(e.detail.type, e.detail);
-  if (e.detail.type === 'bet' && typeof e.detail.selection === 'string') post('bet', {
-    selection: e.detail.selection
-  });
   if (e.detail.type === "complete") post("complete", {
     roundId: e.detail.roundId
   });
@@ -62,6 +64,8 @@ window.addEventListener("message", e => {
     }
   } else if (command === "SetZoom") {
     if (!Number.isFinite(Number(value)) || Number(value) < 1 || Number(value) > 2.4) return;
+  } else if (command === "SetRoundDuration") {
+    if (!Number.isFinite(Number(value)) || Number(value) < .01 || Number(value) > 8) return;
   } else if (command === "SetGame") {
     if (!["roulette", "craps"].includes(value)) return;
   } else if (command === "SetReducedMotion") {
@@ -70,6 +74,17 @@ window.addEventListener("message", e => {
     if (!["table", "overhead"].includes(value)) return;
   } else return;
   if (command === "PresentOutcome") document.getElementById("imperial-unity-practice-canvas").focus();
+  if (command === 'SetGame') inputGame = value;
+  if (command === 'CameraView') inputCamera = value;
+  if (command === 'SetZoom') inputZoom = Number(value);
+  if (command === 'SetBet') {
+    inputBet = JSON.parse(value);
+    runtime.SendMessage('PracticeBridge', command, JSON.stringify({
+      ...inputBet,
+      locked: true
+    }));
+    return;
+  }
   runtime.SendMessage("PracticeBridge", command, value);
 });
 loadUnity(document.getElementById("imperial-unity-practice-canvas"), {
@@ -98,4 +113,61 @@ window.addEventListener("pagehide", () => {
   void runtime?.Quit();
 }, {
   once: true
+});
+const inputCanvas = document.getElementById('imperial-unity-practice-canvas'),
+  pointers = new Map();
+let multi = false,
+  pinchDistance = 0;
+inputCanvas.style.touchAction = 'none';
+inputCanvas.addEventListener('pointerdown', e => {
+  pointers.set(e.pointerId, {
+    x: e.clientX,
+    y: e.clientY,
+    startX: e.clientX,
+    startY: e.clientY
+  });
+  if (pointers.size > 1) {
+    multi = true;
+    const [a, b] = [...pointers.values()];
+    pinchDistance = Math.hypot(a.x - b.x, a.y - b.y);
+  }
+});
+inputCanvas.addEventListener('pointermove', e => {
+  const p = pointers.get(e.pointerId);
+  if (!p) return;
+  p.x = e.clientX;
+  p.y = e.clientY;
+  if (pointers.size === 2) {
+    const [a, b] = [...pointers.values()],
+      d = Math.hypot(a.x - b.x, a.y - b.y);
+    if (pinchDistance > 0 && d > 0) {
+      const scale = d / pinchDistance;
+      if (scale >= .5 && scale <= 2) post('gesture', {
+        scale
+      });
+    }
+    pinchDistance = d;
+  }
+});
+inputCanvas.addEventListener('pointerup', e => {
+  const p = pointers.get(e.pointerId);
+  pointers.delete(e.pointerId);
+  if (p && !multi && sceneReady && inputBet && !inputBet.locked && Math.hypot(e.clientX - p.startX, e.clientY - p.startY) < 14) {
+    const r = inputCanvas.getBoundingClientRect(),
+      s = selectionAtScreen(inputGame, (e.clientX - r.left) / r.width, 1 - (e.clientY - r.top) / r.height, r.width / r.height, inputCamera, inputZoom);
+    if (s !== null) post('bet', {
+      selection: s
+    });
+  }
+  if (!pointers.size) {
+    multi = false;
+    pinchDistance = 0;
+  }
+});
+inputCanvas.addEventListener('pointercancel', e => {
+  pointers.delete(e.pointerId);
+  if (!pointers.size) {
+    multi = false;
+    pinchDistance = 0;
+  }
 });
