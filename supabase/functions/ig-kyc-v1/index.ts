@@ -14,10 +14,6 @@ async function body(request:Request){
  const joined=new Uint8Array(size);let at=0;for(const part of chunks){joined.set(part,at);at+=part.length;}
  return validateInput(JSON.parse(new TextDecoder().decode(joined)));
 }
-function mfaSatisfied(user:any,token:string){
- if(!user.factors?.some((f:any)=>f.status==='verified'))return true;
- try{const p=token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');const c=JSON.parse(atob(p.padEnd(Math.ceil(p.length/4)*4,'=')));return c.sub===user.id&&c.aal==='aal2';}catch{return false;}
-}
 Deno.serve(async request=>{
  if(request.method==='OPTIONS')return new Response(null,{status:204,headers});
  if(request.method!=='POST')return reply(405,{error:'POST required'});
@@ -36,7 +32,7 @@ Deno.serve(async request=>{
   const {data:{user},error}=await auth.auth.getUser(token);
   if(error||!user||user.is_anonymous)return reply(401,{error:'Registered account required'});
   // Decoded AAL is read only after Auth has verified this exact bearer token.
-  if(!mfaSatisfied(user,token))return reply(403,{error:'Two-step verification required',code:'mfa_required'});
+  if(!hasCompletedMfa(user,token))return reply(403,{error:'Two-step verification required',code:'mfa_required'});
   actor=user.id;
  }
  async function rpc(action:string,payload:any=input){
@@ -89,3 +85,18 @@ Deno.serve(async request=>{
   return reply(status,{error:status===409?'This submission changed or another submission is open. Refresh and try again.':status===403?'This account cannot perform this identity action.':status===429?'Submission limit reached. Try again tomorrow.':status===422?'Check the submitted details and required review checks.':'Identity request unavailable. Please try again.'});
  }
 });
+
+// BEGIN GENERATED MFA GUARD
+// SERVER ONLY: call exclusively AFTER Auth getUser validates this EXACT token.
+// Never use decoded claims as standalone authentication. Auth supplies factors;
+// user_metadata and request bodies cannot choose whether MFA is required.
+function hasCompletedMfa(user, verifiedAccessToken) {
+  if (!user?.id) return false;
+  if (!user.factors?.some(factor => factor.status === 'verified')) return true;
+  try {
+    const part = verifiedAccessToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const claims = JSON.parse(atob(part.padEnd(Math.ceil(part.length / 4) * 4, '=')));
+    return claims.sub === user.id && claims.aal === 'aal2';
+  } catch { return false; }
+}
+// END GENERATED MFA GUARD

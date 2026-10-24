@@ -11,6 +11,7 @@ Deno.serve(async request=>{
  const token=request.headers.get('authorization')?.match(/^Bearer (\S+)$/i)?.[1];if(!token)return reply(401,{error:'Sign in required'});
  const auth=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
  const {data:{user},error:authError}=await auth.auth.getUser(token);if(authError||!user||user.is_anonymous)return reply(401,{error:'Registered account required'});
+ if(!hasCompletedMfa(user,token))return reply(403,{error:'Two-step verification required',code:'mfa_required'});
  let body:Record<string,unknown>;
  try{const raw=await request.text();if(raw.length>2048)return reply(413,{error:'Request too large'});body=JSON.parse(raw);}catch{return reply(400,{error:'Invalid JSON'});}
  if(!body||typeof body!=='object'||Array.isArray(body)||typeof body.action!=='string'||!Object.hasOwn(fields,body.action)||!['darts','dicezone','hilo','towers'].includes(String(body.game)))return reply(400,{error:'Invalid action or game'});
@@ -25,3 +26,18 @@ Deno.serve(async request=>{
  if(error){const status=({'42501':403,'23505':409,'22023':422,'P0002':404,'54000':429} as Record<string,number>)[error.code]||503;return reply(status,{error:status===409?'Round changed or retry conflicts. Refresh the round.':status===403?'Account ineligible':status===422?'Invalid options or move':'Round unavailable. Retry the same request.'});}
  return reply(200,{state:data});
 });
+
+// BEGIN GENERATED MFA GUARD
+// SERVER ONLY: call exclusively AFTER Auth getUser validates this EXACT token.
+// Never use decoded claims as standalone authentication. Auth supplies factors;
+// user_metadata and request bodies cannot choose whether MFA is required.
+function hasCompletedMfa(user, verifiedAccessToken) {
+  if (!user?.id) return false;
+  if (!user.factors?.some(factor => factor.status === 'verified')) return true;
+  try {
+    const part = verifiedAccessToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const claims = JSON.parse(atob(part.padEnd(Math.ceil(part.length / 4) * 4, '=')));
+    return claims.sub === user.id && claims.aal === 'aal2';
+  } catch { return false; }
+}
+// END GENERATED MFA GUARD

@@ -10,8 +10,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "aec1f640858104ebd1c47e3d8bb76ead20cd6be201c0c90d4819f7b6fe9f4a6c"
-      }
+        "index.ts": "17ee5cfd8fc54ab4b45af0ebca0ecd9faeccaf9cad1bf151fea9cdf725f2c679"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "secure-wallet",
@@ -21,8 +22,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "cd6daf54ba5a3a2d5e43d38f0d69090826dcc88f3da83e561155b238509261e4"
-      }
+        "index.ts": "30daf8cf506ef7ba8ead6c38241155119415f3d69db14fb573aa977fbe5bc4fe"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "provably-fair-demo",
@@ -32,8 +34,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "47f5aed35275fe2a76fd273158ec3fbe8f0d4f43ce997c1c8086f47b9f1953fc"
-      }
+        "index.ts": "bc4a917085fb84fe9f2338a6490f80302f9d033eca2b1bddc46f71907d1ecbb6"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "provably-fair-v2",
@@ -43,8 +46,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "b6ba77034f0c20e6f000c657f562c2a917be922a9de55d10b619cffac94197c8"
-      }
+        "index.ts": "aba0ad84e251d3f81afd8beb3abd375f8db9536b3e8c5b3ce78e6c920028222c"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "admin-crash-rounds",
@@ -54,8 +58,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "14c521eb0d4fd92364a7ebd1ae377dcf99feb77af116a66729333ab097280f1f"
-      }
+        "index.ts": "97d7d1e0e2dc6ca80ba96b986d92a33cc6d20dc2c47036f00ed06b67ea3ef41c"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "poker-table-v1",
@@ -65,8 +70,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "4681da277214319a8a9decbcb5a7d29895de584006ac5e032a2da429c5c79288"
-      }
+        "index.ts": "4757dede348339498c77b5e09d2f87e73cbb594a966261ca15d3d196136eb4ab"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "admin-poker-events",
@@ -76,8 +82,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "4f8c8ba38a3bb605315122e2a4dce907f8f5d6607875618de6912ac3adf0d032"
-      }
+        "index.ts": "4d2452b0a7872a0de35d75268117fa2fe85240def7fdba6650cc653fd62a457f"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "poker-events-v1",
@@ -87,8 +94,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "2682ab4fecbd1eaecb49663210bb12340fe16654d7a7d239389ed313169b9afe"
-      }
+        "index.ts": "e5d33e0154f616eef8393f3e74d4d02a89ad31ec669589745942ee00e3003350"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "legacy-leaderboard-v1",
@@ -98,8 +106,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "5940b4c88e7d9dabded8087aa4d923c368068149eb043c91f4f4bc62dc5755e4"
-      }
+        "index.ts": "7b514729cc4bede9311b1cf86c7f0481ee0ee06d79e1ff72193dede74c7755a9"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "crypto-deposit-preview-v1",
@@ -109,8 +118,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "4a777f7f068ea6f0de2c5af1b9fadf75251ffa889b263cfb68ec262f618d5f85"
-      }
+        "index.ts": "1e5b052c6e12edef825120963073fb9f1e7e7732bb0ec0777f3a816dbf6fcbb9"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "ig-support-v1",
@@ -120,8 +130,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "030840549c130280b5a3c12027b1b5b653a524b75c9aa74237713e2f773dd1da"
-      }
+        "index.ts": "6ad0cb983c2d348285d941ac5736726e7d26063f55a6772afa36c6acc24a3803"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "ig-self-exclusion-v1",
@@ -131,8 +142,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "640031d7a117382e0b8b4e4e9982a2081aeed5af75ec5e07567ddeb2500abfc1"
-      }
+        "index.ts": "02433c2311e27db714208a166da50fa688e693261389659a94e2f427f92b7f2a"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "ig-multiplayer-practice",
@@ -142,8 +154,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "235788a1b653cfa65b7952ab88c1d12664e52bbd60437eb5413d69eced9d6d90"
-      }
+        "index.ts": "2c4505335c86c45c7dbeb6232f7d8a869d2f81c22ffb9bc2adb08e77087eb464"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "ig-shared-event-practice",
@@ -153,8 +166,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "6b35aaeb63bbb23c6146d29fe9b2ec4ee4bf6f9213fb5524e15a5a52a25c6bb6"
-      }
+        "index.ts": "edc5608315df7574dc0ae95410d0a1d892a8fb2b53b033bf80c56a78082b23b0"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "ig-blackjack-practice",
@@ -164,8 +178,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "73e9c00f57f25b377e266d16299efbcacd3ede6bd06903afce1f5abc888a679d"
-      }
+        "index.ts": "b30ef27de5c4e02f170feecb33c11c5ec9b4b7caae302be8eb835b3e62ecba8e"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "ig-poker-tournament-admin",
@@ -175,8 +190,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "78627834da0493d2c1b011c26e9f60e509631d94c0f1da627ff7be23bbf772ff"
-      }
+        "index.ts": "1e35e1c0edeeb2085cc0268c8e48dd3838df7bde91fa434e47bfeb097c810da6"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "ig-poker-tournament-prizes",
@@ -186,8 +202,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "1b641df67972e892776f82cdf804c0df986992da8ffab1f801397b84f0f3172f"
-      }
+        "index.ts": "9adf9c012bd6e921abe15c26cc7264ef8d39ffe9370256efd998af43604d4baf"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "ig-fireblocks-sandbox-admin",
@@ -197,8 +214,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "31a8b0a4b70bb6d968b14ad3f63f3bd6cc55ca295056ecac532e29b10c0a21cf"
-      }
+        "index.ts": "5dcf0d4f295cb811598b9ddac5e9745a6ad7d1d5884901697b21e2c0e9463331"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "ig-fireblocks-sandbox-webhook",
@@ -219,8 +237,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "2c4142d95bbb2d420e8aa89e568f629f3f4347a34dd68ffbc4ef1e953819b5aa"
-      }
+        "index.ts": "fd651ac47810c7c017a22aa6510ddb13376ceb2cd11e20e8aa403c7900e30eb9"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "ign-staking-v1",
@@ -230,8 +249,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "6bbd6e6a2312e6b864727093877adfac4a1938f11152921edadfe34cec7a2aae"
-      }
+        "index.ts": "9a55ea9e9cef4cdbd04277ef1c383dfb98b1e4daf605eefb38955e088baf4bcb"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "ig-support-supervisor",
@@ -242,9 +262,10 @@
         "triage.js"
       ],
       "sha256": {
-        "index.ts": "4a0267d64a100aee467160c9c7c4338cb8561fd40b21a7d1386fddb45f706ae9",
+        "index.ts": "0be556b40f0fd26f0097a3e075a9635d8a4ee24ca75f12f257c28cee9aba51b0",
         "triage.js": "35d0e53e11c5a00ffde4bb34bf31e0e17b55b8a7863dc1d7f3bc208a491bc65b"
-      }
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "ig-crash-v2",
@@ -254,8 +275,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "cad2557c8ab2535a3f63addc5deb59855148fc7a0c04eb124b5d685583342a83"
-      }
+        "index.ts": "49c32e266fd92d383583d093d85dbfe88da4cb895e4aae9db0fd4abae2976a26"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "ig-player-analytics-v1",
@@ -265,8 +287,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "f43016edac68ce37b851f1826616ac890c9b0fd7aff751f73707d10e8a06afe3"
-      }
+        "index.ts": "337c66196c9795f29adcac11f7cfff3d1723620cd6a08d57f112f041e17b3374"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "ig-admin-users-preview-v1",
@@ -276,8 +299,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "e7744b036e5094e3d88d2b04a722042a64c0eba7f20a6383b627fb0f6f6cc19a"
-      }
+        "index.ts": "be217bccfd906f6d3e82b61822c0ec9cc2b654a0e4fdbc5a50d654e632bf5bfa"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "ig-poker-bot-lab",
@@ -287,8 +311,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "9da93daf2b06192c0461192172f966c444478bf2c53c40b2241ce5bf1524f2a5"
-      }
+        "index.ts": "ef4da1c5885eaed5ca22027104fc2ee0e8e9b3f4bbd29cf7f90e746ac8950924"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "ig-originals-practice",
@@ -298,8 +323,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "787ee06b3b229d43901d27996e98d0e8c57426269cf731dc88cb88131de1d159"
-      }
+        "index.ts": "a48123ad575d9c292bfcc52aa8305feb8ecd35545cf7828db78e76cdbaeea595"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "ig-mines-practice",
@@ -309,8 +335,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "af2691403b235c0e4768946d20500d378b8274fbb1f13782cf621bb5e919688c"
-      }
+        "index.ts": "874f3e1aa0149093a30e400d1c45dcba7af886bfee198fdf03dcf486ed642dcc"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "ig-payment-requests",
@@ -320,8 +347,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "54286ed60e759106bb1ebac6495cce7e15707b45257713883f9583761a1e429d"
-      }
+        "index.ts": "cdeedc6afe268570b604e44da511698d4c3a40636ef521b1d2a056ce3aac498c"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "ig-final-practice",
@@ -331,8 +359,9 @@
         "index.ts"
       ],
       "sha256": {
-        "index.ts": "17d3d1a16be829bf76010d06562556e891b4b252b8fedcd68ef7caa87b009dce"
-      }
+        "index.ts": "1147a3a4132842fbfb434f88538bcf08f74c232bab66e79cef315488f5a5b836"
+      },
+      "status": "pending_deployment"
     },
     {
       "name": "ig-kyc-v1",
@@ -345,10 +374,24 @@
         "image-file.js"
       ],
       "sha256": {
-        "index.ts": "a5bee2cb5b3f3f5e3dbc4425109312514a940ca8c5c4a414d9b1ff00afab66bb",
+        "index.ts": "0035bd9901fabeb0f8df021ed83656d28479549b4b49a23d7f56485df4468125",
         "validation.js": "f5e488154a7ec6102fbe3ba51f524aaa1229ddf3d031b16bbe20906bebb16105",
         "privacy.js": "09ee58de80c4d26169af81be76992a2a38ff405bb856f13333b439cff0ed2146",
         "image-file.js": "d1e888a264afbf78183c1e673cf31a2b868a942b99e3c67ea58f44d07672e7ed"
+      },
+      "status": "pending_deployment"
+    },
+    {
+      "name": "ig-slot-practice-v1",
+      "deployed_version": 3,
+      "verify_jwt": true,
+      "files": [
+        "index.ts",
+        "validation.js"
+      ],
+      "sha256": {
+        "index.ts": "50a0a0d9b2fb99563506ae7703874ba1d0c9cf910462fe40297f0d458ca87d58",
+        "validation.js": "40986b6e00fa41e2779956348260ccbc703b43316687560b274ae3aec5cecfbd"
       },
       "status": "pending_deployment"
     }
@@ -759,6 +802,11 @@
       "sha256": "e86ba19f93adb0c83a2b5e7b29dd312c21ed3f601239a506dbcb1a5e661c0948"
     },
     {
+      "file": "20261024011225_customer_authenticator_mfa.sql",
+      "sha256": "868c975acd9e12eb7f537bcc6f0af7b34df983131efc7ac27ed06261213169ee",
+      "status": "pending_deployment"
+    },
+    {
       "file": "20261022153018_secure_kyc_intake_review.sql",
       "sha256": "c0c73ee4a4092b0929f6b1049ebd61e96220a3a48403f1b8a9b1d0a2ebd45b38"
     },
@@ -788,6 +836,19 @@
     {
       "file": "20261023174424_poker_social_events_v1.sql",
       "sha256": "f9fe890fda7b7d7871b6a7e4013ce83af4a7a4c022e0cf8b1b4093d99f2386d7"
+    },
+    {
+      "file": "20261023180147_standalone_slot_practice_v1.sql",
+      "sha256": "1be0fec69c2a2e835f8e9ce9580bef9ab48b849f59151a7ca3cb306babae5c82"
+    },
+    {
+      "file": "20261023181005_activate_standalone_slot_practice.sql",
+      "sha256": "96abdade734899296f7bc503633e361be3f23d6e4bec9d14d8bbd02e2b68a536"
+    },
+    {
+      "file": "20261024005531_preserve_owner_held_game_scope.sql",
+      "sha256": "cfe814902c1e24a052cd2f5dd8357309c01839563ab50cbdc7bf255fa2e21e97",
+      "status": "pending_deployment"
     },
     {
       "file": "20261024024944_continuous_practice_roulette.sql",

@@ -27,6 +27,7 @@ Deno.serve(async (req: Request) => {
   const auth = createClient(url, pub, { auth: { persistSession: false } });
   const { data: { user }, error: authError } = await auth.auth.getUser(token);
   if (authError || !user || user.is_anonymous) return json({ error: "Unauthorized" }, 401);
+ if(!hasCompletedMfa(user,token))return json({error:'Two-step verification required',code:'mfa_required'},403);
   const db = createClient(url, secret, { auth: { persistSession: false } });
   let body: Record<string, unknown>;
   try { body = await req.json(); } catch { return json({ error: "Invalid JSON" }, 400); }
@@ -56,3 +57,18 @@ Deno.serve(async (req: Request) => {
   }
   return json({ error: "Unknown action" }, 400);
 });
+
+// BEGIN GENERATED MFA GUARD
+// SERVER ONLY: call exclusively AFTER Auth getUser validates this EXACT token.
+// Never use decoded claims as standalone authentication. Auth supplies factors;
+// user_metadata and request bodies cannot choose whether MFA is required.
+function hasCompletedMfa(user, verifiedAccessToken) {
+  if (!user?.id) return false;
+  if (!user.factors?.some(factor => factor.status === 'verified')) return true;
+  try {
+    const part = verifiedAccessToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const claims = JSON.parse(atob(part.padEnd(Math.ceil(part.length / 4) * 4, '=')));
+    return claims.sub === user.id && claims.aal === 'aal2';
+  } catch { return false; }
+}
+// END GENERATED MFA GUARD

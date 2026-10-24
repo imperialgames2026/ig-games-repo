@@ -58,7 +58,9 @@ jobs:
           path: test-results/
   payment-browser:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    # Ubuntu's package mirror can spend ten minutes installing Chromium fonts.
+    # Keep the full checks; allow installation to finish before the browser tests.
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
