@@ -35,9 +35,18 @@ async function ready(check) {
  for(let i=0;i<100;i++){try{if(await check())return;}catch{} await setTimeout(300);}
  throw new Error('Local service did not become ready');
 }
+async function fetchWithDeadline(url, options={}) {
+ // A referenced timer keeps Node alive while a cold local Docker endpoint has
+ // no active socket. AbortSignal.timeout uses an unreferenced timer and could
+ // end CI with an unsettled top-level await before readiness was evaluated.
+ const controller=new AbortController();
+ const deadline=globalThis.setTimeout(()=>controller.abort(),10000);
+ try { return await fetch(url,{...options,signal:controller.signal}); }
+ finally { globalThis.clearTimeout(deadline); }
+}
 async function request(origin,path,{token,body,method}={}) {
  assert.equal(new URL(origin).hostname,'127.0.0.1');
- const r=await fetch(origin+path,{method:method || (body ? 'POST':'GET'),headers:{...(token?{Authorization:`Bearer ${token}`} : {}),...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(10000)});
+ const r=await fetchWithDeadline(origin+path,{method:method || (body ? 'POST':'GET'),headers:{...(token?{Authorization:`Bearer ${token}`} : {}),...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{})});
  const text=await r.text(); let data;try{data=JSON.parse(text);}catch{data=text;}
  return {status:r.status,data};
 }
@@ -111,7 +120,7 @@ try {
  writeFileSync(stage+'/local-info.json',JSON.stringify({ANON_KEY:anonKey,SERVICE_ROLE_KEY:serviceKey}),{mode:0o600});
  run(prefix+'-edge',['--network-alias','edge','-e','NO_PROXY=kong,auth,rest,storage,edge,localhost,127.0.0.1','-v',stage+':/probe:ro','supabase/edge-runtime:v1.77.4@sha256:ad45164b7548bf5820ed7be714789c17ac2865edce79a09cfb4c3756c3d365a8','start','--main-service','/probe/application-main','--port','9000']);
  writeFileSync(stage+'/runtime-info.json',JSON.stringify({DB_CONTAINER:db,API_URL:'http://127.0.0.1:54321',ANON_KEY:anonKey,SERVICE_ROLE_KEY:serviceKey,JWT_SECRET:secret}),{mode:0o600});
- await ready(async()=> (await fetch('http://127.0.0.1:54321/functions/v1/health')).status===200);
+ await ready(async()=> (await fetchWithDeadline('http://127.0.0.1:54321/functions/v1/health')).status===200);
  console.log('PASS core local Auth/Storage/PostgREST startup, four KYC migrations, isolated fixture schemas; no full platform replay');
  for(const [script,arg] of [['test-kyc-local-runtime.mjs',stage+'/runtime-info.json'],['test-kyc-edge-resources.mjs','http://127.0.0.1:54321']]){const r=spawnSync(process.execPath,[resolve(root,'scripts',script),arg],{stdio:'inherit',timeout:180000});assert.equal(r.status,0,script);}
 }catch(error){let message=error.message;for(const value of [secret,anonKey,serviceKey])message=message.split(value).join('[local fixture credential]');console.error(message);process.exitCode=1;}finally{for(const name of created.reverse()){try{docker(['rm','-fv',name]);}catch{}}if(net){try{docker(['network','rm',network]);}catch{}}rmSync(stage,{recursive:true,force:true});}
