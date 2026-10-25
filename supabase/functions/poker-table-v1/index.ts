@@ -136,6 +136,13 @@ Deno.serve(async(req)=>{
   }
   const {data:membership,error:memberError}=await db.from("poker_seats_v1").select("seat_no").eq("table_id",tableId).eq("user_id",user.id).maybeSingle();
   if(memberError||!membership)return json({error:"Not seated"},403);
+  if(action==="buyTime"){
+   if(typeof body.requestId!=="string"||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(body.requestId)||!Number.isSafeInteger(body.version)||!["PRACTICE","IGD","IGN"].includes(body.currency))
+    return json({error:"Invalid time extension request"},400);
+   // Practice policy is independent of mutable paid-timebank settings.
+   // Reject before timeout/purchase RPCs; retain free PRACTICE behavior.
+   if(body.currency!=="PRACTICE")return json({error:"FINANCIAL_OPERATIONS_DISABLED"},403);
+  }
   // Expired turns are settled under the same Postgres table-row lock as player actions.
   // This is also safe for concurrent client polls and reloads.
   if(["snapshot","act","buyTime","tick"].includes(action)){
@@ -162,8 +169,6 @@ Deno.serve(async(req)=>{
    return json(data);
   }
   if(action==="buyTime"){
-   if(typeof body.requestId!=="string"||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(body.requestId)||!Number.isSafeInteger(body.version)||!["PRACTICE","IGD","IGN"].includes(body.currency))
-    return json({error:"Invalid time extension request"},400);
    const {data,error}=await db.rpc("poker_buy_time_v1",{p_table:tableId,p_actor:user.id,p_request:body.requestId,p_version:body.version,p_currency:body.currency});
    if(error)throw error;
    return json(data);
