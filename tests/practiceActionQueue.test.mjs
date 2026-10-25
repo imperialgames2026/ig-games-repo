@@ -1,3 +1,4 @@
+import {canConfirmPokerAction,pokerReconciliationReason,pokerRecoveryView} from '../lib/pokerActionRecovery.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -101,16 +102,17 @@ for(const game of ['blackjack','baccarat']){
  });
 }
 
+const pokerAck=body=>({tableId:body.tableId,version:body.version+1,accepted:true,chipsCommitted:body.amount??0,action:body.move,timeout:false});
 const pokerTableId='33333333-3333-4333-8333-333333333333';
-const pokerSource=readFileSync(new URL('../components/games/HoldemPracticeTable.jsx',import.meta.url),'utf8').replace(/^import[^\n]*\n/gm,'').replace('export default function HoldemPracticeTable','function HoldemPracticeTable').split(' const table=snapshot')[0]+' return {doAction};\n}\nHoldemPracticeTable;';
+const pokerSource=readFileSync(new URL('../components/games/HoldemPracticeTable.jsx',import.meta.url),'utf8').replace(/^import[^\n]*\n/gm,'').replace('export default function HoldemPracticeTable','function HoldemPracticeTable').split(' const table=snapshot')[0]+' return {doAction,fetchState,pending:()=>getQueue().peek()};\n}\nHoldemPracticeTable;';
 function pokerHarness({invoke,storage=memory(),tableId=pokerTableId,variant='holdem'}={}){
  const calls=[];
- const component=vm.runInNewContext(pokerSource,{useCallback:fn=>fn,useEffect:()=>{},useRef:current=>({current}),useState:initial=>[typeof initial==='function'?initial():initial,()=>{}],useAuth:()=>({user:{id:'11111111-1111-4111-8111-111111111111'},isAuthenticated:true}),useSearchParams:()=>[new Map([['tableId',tableId]]),()=>{}],usePokerSounds:()=>({}),PLAYER_EMOTES:[],createPracticeActionQueue,window:{sessionStorage:storage,localStorage:memory()},crypto:{randomUUID},supabase:{functions:{invoke:async(_name,{body})=>{calls.push(JSON.parse(JSON.stringify(body)));return invoke?invoke(body,calls.length):{data:body.action==='snapshot'?{table:{id:tableId,version:9},seats:[]}:{accepted:true}};}}},verifyPokerSnapshot:async()=>{},rememberDealRoot:()=>{},Date,Error,Promise,console});
+ const component=vm.runInNewContext(pokerSource,{useCallback:fn=>fn,useEffect:()=>{},useRef:current=>({current}),useState:initial=>[typeof initial==='function'?initial():initial,()=>{}],useAuth:()=>({user:{id:'11111111-1111-4111-8111-111111111111'},isAuthenticated:true}),useSearchParams:()=>[new Map([['tableId',tableId]]),()=>{}],usePokerSounds:()=>({}),PLAYER_EMOTES:[],createPracticeActionQueue,canConfirmPokerAction,pokerReconciliationReason,pokerRecoveryView,window:{sessionStorage:storage,localStorage:memory()},crypto:{randomUUID},supabase:{functions:{invoke:async(_name,{body})=>{calls.push(JSON.parse(JSON.stringify(body)));return invoke?invoke(body,calls.length):{data:body.action==='snapshot'?{table:{id:tableId,version:9},seats:[]}:pokerAck(body)};}}},verifyPokerSnapshot:async()=>{},rememberDealRoot:()=>{},Date,Error,Promise,console});
  return {hook:component({variant}),calls,storage};
 }
 test('Holdem and Omaha actual callbacks retain original action until a validated snapshot succeeds',async()=>{
  for(const variant of ['holdem','omaha']){
-  const lost=pokerHarness({variant,invoke:async body=>body.action==='snapshot'?{error:{message:'Synthetic snapshot outage'}}:{data:{accepted:true}}});
+  const lost=pokerHarness({variant,invoke:async body=>body.action==='snapshot'?{error:{message:'Synthetic snapshot outage'}}:{data:pokerAck(body)}});
   assert.equal(await lost.hook.doAction('act',{move:'raise',amount:20,version:7}),false);
   assert.equal(await lost.hook.doAction('act',{move:'fold',version:8}),false);assert.equal(lost.calls.filter(x=>x.action==='act').length,1);
   const resumed=pokerHarness({variant,storage:lost.storage});assert.equal(await resumed.hook.doAction('act',{},true),true);assert.deepEqual(resumed.calls[0],lost.calls[0]);
@@ -121,7 +123,33 @@ test('poker actual callback blocks duplicate dispatch and retains transport-fail
  const resumed=pokerHarness({storage:h.storage});assert.equal(await resumed.hook.doAction('act',{},true),true);assert.deepEqual(resumed.calls[0],h.calls[0]);
 });
 test('poker pending receipts are table scoped and malformed snapshots never confirm them',async()=>{
- const h=pokerHarness({invoke:async body=>({data:body.action==='snapshot'?{table:{id:'wrong',version:7},seats:[]}:{accepted:true}})});assert.equal(await h.hook.doAction('act',{move:'fold',version:7}),false);
+ const h=pokerHarness({invoke:async body=>({data:body.action==='snapshot'?{table:{id:'wrong',version:7},seats:[]}:pokerAck(body)})});assert.equal(await h.hook.doAction('act',{move:'fold',version:7}),false);
  const other=pokerHarness({storage:h.storage,tableId:'44444444-4444-4444-8444-444444444444'});assert.equal(await other.hook.doAction('act',{},true),false);assert.equal(other.calls.length,0);
  const resumed=pokerHarness({storage:h.storage});assert.equal(await resumed.hook.doAction('act',{},true),true);assert.equal(resumed.calls[0].actionId,h.calls[0].actionId);
+});
+
+for(const [message,reason] of [['LEGACY_RECEIPT_REFRESH_REQUIRED','legacy_receipt'],['RECEIPT_ACTOR_MISMATCH','actor_mismatch'],['RECEIPT_PAYLOAD_MISMATCH','payload_mismatch']]){
+ test('poker '+reason+' survives refresh and remount without rotating or resubmitting its receipt',async()=>{
+  const h=pokerHarness({invoke:async body=>body.action==='act'?{error:{message:'Synthetic Edge error',context:{json:async()=>({error:message})}}}:{data:{table:{id:pokerTableId,version:99},seats:[]}}});
+  assert.equal(await h.hook.doAction('act',{move:'call',version:7}),false);const original=h.calls[0];const pending=h.hook.pending();assert.equal(pending.recovery,reason);
+  const view=pokerRecoveryView(pending,{table:{id:pokerTableId,version:99},seats:[]});assert.equal(view.retryAllowed,false);assert.match(view.message,/cannot establish this request/);
+  const resumed=pokerHarness({storage:h.storage});await resumed.hook.fetchState();assert.equal(await resumed.hook.doAction('act',{},true),false);assert.equal(await resumed.hook.doAction('act',{move:'fold',version:99}),false);
+  assert.equal(resumed.calls.filter(x=>x.action==='act').length,0);assert.equal(resumed.hook.pending().requestId,original.actionId);assert.deepEqual(resumed.hook.pending().params,pending.params);
+ });
+}
+test('poker stale snapshot keeps original request; matched acknowledgement and later snapshot allow a new action',async()=>{
+ const stale=pokerHarness({invoke:async body=>({data:body.action==='snapshot'?{table:{id:pokerTableId,version:7},seats:[]}:pokerAck(body)})});assert.equal(await stale.hook.doAction('act',{move:'call',version:7}),false);const original=stale.calls[0];
+ let latest=9;const resumed=pokerHarness({storage:stale.storage,invoke:async body=>{if(body.action==='snapshot')return {data:{table:{id:pokerTableId,version:latest},seats:[]}};const ack=pokerAck(body);latest=Math.max(latest,ack.version);return {data:ack};}});
+ assert.equal(await resumed.hook.doAction('act',{},true),true);assert.deepEqual(resumed.calls[0],original);assert.equal(resumed.hook.pending(),null);
+ assert.equal(await resumed.hook.doAction('act',{move:'check',version:9}),true);const actions=resumed.calls.filter(x=>x.action==='act');assert.equal(actions.length,2);assert.notEqual(actions[0].actionId,actions[1].actionId);
+});
+test('poker recovery refuses malformed acknowledgements and cannot infer outcome from unrelated history',()=>{
+ const pending={action:'pokerAct',params:{tableId:pokerTableId,version:7,move:'call',amount:0},requestId:randomUUID(),uncertain:true};const ack=pokerAck({tableId:pokerTableId,version:7,move:'call',amount:0});const snapshot={table:{id:pokerTableId,version:8},seats:[]};
+ for(const bad of [{...ack,accepted:false},{...ack,tableId:'wrong'},{...ack,version:7},{...ack,action:'fold'},{...ack,timeout:true},{...ack,chipsCommitted:-1}])assert.equal(canConfirmPokerAction(pending,bad,snapshot),false);
+ assert.equal(canConfirmPokerAction(pending,null,{...snapshot,history:[{move:'call',chipsCommitted:0}]}),false);assert.equal(canConfirmPokerAction({...pending,recovery:'legacy_receipt'},ack,snapshot),false);
+});
+test('poker reconciliation records cannot be cleared by a later generic rejection',()=>{
+ const storage=memory();const q=queue(storage);const request=q.prepare('pokerAct',{tableId:pokerTableId,version:7,move:'call',amount:0});q.requireReconciliation(request.requestId,'legacy_receipt');
+ assert.throws(()=>q.confirm(request.requestId),/reconciliation/);q.failed(request.requestId,{definitiveRejection:true});assert.equal(q.peek().requestId,request.requestId);assert.equal(queue(storage).peek().recovery,'legacy_receipt');
+ const source=readFileSync(new URL('../components/games/HoldemPracticeTable.jsx',import.meta.url),'utf8');assert.ok(source.indexOf('aria-label="Poker action recovery"')<source.indexOf('{!tableId && <section'));assert.match(source,/recovery\.retryAllowed&&<button/);assert.match(source,/const actionsPaused=busy\|\|!!pendingAction/);
 });

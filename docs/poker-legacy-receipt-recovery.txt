@@ -1,0 +1,23 @@
+Poker legacy receipt recovery — source-only review
+
+Scope
+Preserve actor/table-scoped original request UUID, table, version, move and requested amount. No SQL, hosted operation or new endpoint is implemented here. Proposed server binding SQL remains excluded from migrations/manifest/release set.
+
+Available evidence
+Current snapshot returns table version/seats. Completed-hand history returns hand number/time/root. Canonical replay includes move/seat/chips committed/timeout, but not the action UUID or original requested amount. Backend receipt rows are not client-readable. Version advancement, a matching visible move, changed chips, or an apparently completed hand cannot establish the outcome of this particular pending UUID. Snapshot requests retain their existing server clock/timeout behavior; no real request was executed by these source tests.
+
+Client states
+1. Unconfirmed transport/state response: retain original payload and UUID in session storage; new actions at this table stay paused. Explicit retry sends the exact original request.
+2. Ordinary original-request acknowledgement: check accepted=true, matching table/action, next version, server timeout=false and valid chips-committed shape; require a validated snapshot at least as new as that acknowledgement. Only then clear this ordinary pending receipt. This is a client consistency check, not proof that current SQL validates replay actor/payload. That independent backend gap remains a release blocker.
+3. LEGACY_RECEIPT_REFRESH_REQUIRED: persist legacy reconciliation state. An updated snapshot is displayed but never treated as proof of the UUID's outcome. Do not resubmit or rotate the action ID.
+4. RECEIPT_ACTOR_MISMATCH or RECEIPT_PAYLOAD_MISMATCH: persist the corresponding reconciliation state; no action retry or new action at this table. These messages are proposed server contract cases, exercised synthetically; proposed SQL is not applied.
+5. Reconciliation survives disconnect/remount. Show a recovery panel even without a usable snapshot: request reference, refresh table view, contact support. The panel has no dismiss/clear/force-success/new-ID control. Refresh or unrelated hand history cannot clear it.
+
+Minimum missing server contract for automatic legacy resolution
+An owner-authenticated, membership-checked receipt-resolution operation must correlate the authenticated actor, table and action UUID to a durable outcome. A positive outcome needs authoritative recorded action/result and original request payload when actually retained; requested amount must not be guessed from chips committed. If original legacy input is unrecoverable, return explicit unresolved legacy status, or supply a separately reviewed owner-authorized reconciliation disposition with an auditable resolution reference and well-defined permission to proceed. A negative disposition must be durable and serialized against any still-in-flight original execution; a point-in-time missing row is insufficient proof of nonexecution. Define freshness/version binding to a snapshot and preserve receipt/history. Do not expose other actors' receipts, cards, seeds or credentials. No client endpoint or automatic acceptance of such future data is invented here.
+
+Before proposed SQL integration
+Review its legacy behavior with the client states above, agree the missing resolution contract/manual policy, then test real Auth/HTTP and independent sessions on an explicitly permitted isolated backend. Current in-process tests cannot establish that acceptance.
+
+Focused verification
+25 synthetic queue/component callback tests cover ordinary exact retry, legacy/actor/payload rejection, remount, preserved request ID and full payload, blocked new actions, stale/malformed snapshot, malformed acknowledgement, and successful ordinary confirmation before new action. 18 existing Poker source tests, scoped helper lint, JSX parse and diff checks pass. No listener, VM, Docker, customer records or financial action used.

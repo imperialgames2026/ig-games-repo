@@ -11,6 +11,7 @@ import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } 
 import { verifyPokerSnapshot, rememberDealRoot } from '@/lib/pokerReplayProof';
 import { safePokerAvatar } from '@/lib/pokerAvatar';
 import {createPracticeActionQueue} from '@/lib/practiceActionQueue';
+import {canConfirmPokerAction,pokerReconciliationReason,pokerRecoveryView} from '@/lib/pokerActionRecovery';
 
 // All cards/turns/side pots are managed by poker-table-v1.
 // No local card shuffle, pot assignment, bankroll or wallet access.
@@ -190,7 +191,7 @@ export default function HoldemPracticeTable({variant='holdem'}) {
        request=queue.prepare('pokerAct',saved?saved.params:{tableId,version:fields.version,move:fields.move,amount:fields.amount??0});
        setPendingAction(request);body={action,...request.params,actionId:request.requestId};
      }
-     await invoke(body);
+     const acknowledgement=await invoke(body);
      if(action==='act'){
        const move=fields.move==='allin'?'all_in':fields.move;
        if(pokerSettings.gameSound){
@@ -205,13 +206,17 @@ export default function HoldemPracticeTable({variant='holdem'}) {
      }
      const confirmed=await fetchState();
      if(request){
-       if(!confirmed)throw Error('Poker action could not be confirmed by a table snapshot. Retry its original request.');
+       if(!canConfirmPokerAction(request,acknowledgement,confirmed))throw Error('Poker action could not be confirmed by its acknowledgement and table snapshot. Retry its original request.');
        queue.confirm(request.requestId);
        if(alive.current&&epoch===requestGeneration.current)setPendingAction(queue.peek());
      }
      return true;
    }catch(e){
-     if(request){try{queue.failed(request.requestId);}catch{/* Preserve original receipt. */}}
+     if(request){
+       const reason=pokerReconciliationReason(e.message);
+       try{if(reason)queue.requireReconciliation(request.requestId,reason);else queue.failed(request.requestId);}catch{/* Preserve original receipt. */}
+       if(reason)await fetchState();
+     }
      if(alive.current&&epoch===requestGeneration.current){if(queue)setPendingAction(queue.peek());setError(e.message);}return false;
    }finally{dispatchLock.current=false;if(alive.current&&epoch===requestGeneration.current)setBusy(false);}
  },[getQueue,isAuthenticated,user?.id,tableId,invoke,setParams,fetchState,pokerSettings.gameSound,pokerSettings.actionVoice,sounds]);
@@ -226,6 +231,8 @@ export default function HoldemPracticeTable({variant='holdem'}) {
  const isOwner=table?.ownerId===user?.id;
  const rank=Math.max(0,Number(raise)||0);
  const skin=POKER_SKINS[pokerSettings.tableColor]||POKER_SKINS.green;
+ const recovery=pokerRecoveryView(pendingAction,snapshot);
+ const actionsPaused=busy||!!pendingAction;
  const cardBack=CARD_BACKS[Number(pokerSettings.cardBack)||0]||CARD_BACKS[0];
  return <main className={(tableId?'ig-poker-screen ':'')+"min-h-screen bg-[#0a0612] px-4 py-8 text-white"}>
    <div className="ig-poker-shell mx-auto max-w-6xl space-y-5">
@@ -240,10 +247,17 @@ export default function HoldemPracticeTable({variant='holdem'}) {
      <p className="ig-poker-practice rounded-xl border border-sky-300/20 bg-sky-950/30 p-4 text-sm text-sky-100">
        Multiplayer {isOmaha?'Omaha with four private cards, exactly two private and three community cards at showdown':'Texas Hold’em with two private cards'}; shared board, forced blinds and server-authoritative turns. Only nonredeemable 1,000-chip practice stacks. No deposits, prizes or payouts. Planned fees (not active): 1% of each participating player's ante at hand start, plus 2% of the final pot after ante fees. Whole practice-chip fees round down; winners split the net pot.
      </p>
+     {recovery&&<section aria-label="Poker action recovery" className="rounded-xl border border-amber-300/40 bg-amber-950/30 p-4 text-amber-100">
+       <h2 className="font-bold">{recovery.title}</h2><p role="status" className="mt-2 text-sm">{recovery.message}</p>
+       <p className="mt-2 break-all text-xs">Request reference: {recovery.reference}</p>
+       <div className="mt-3 flex flex-wrap gap-4"><button disabled={busy} onClick={()=>void fetchState()} className="underline">Refresh table view</button>
+       {recovery.retryAllowed&&<button disabled={busy} onClick={()=>void doAction('act',{},true)} className="underline">Retry original poker action</button>}
+       <Link to="/Support" className="underline">Contact support</Link></div>
+     </section>}
      {!tableId && <section className="mx-auto max-w-xl rounded-xl border border-white/10 bg-[#1d1727] p-6">
        <h1 className="text-3xl font-black">{isOmaha?'Omaha':'Hold’em'} table lobby</h1>
        <p className="mt-3 text-sm text-gray-300">Create a private practice table, then share its link. Friends can join using the same table ID.</p>
-       <button type="button" disabled={busy||!isAuthenticated} onClick={()=>void doAction('create')}
+       <button type="button" disabled={actionsPaused||!isAuthenticated} onClick={()=>void doAction('create')}
          className="mt-5 w-full rounded-lg bg-amber-400 p-3 font-black text-slate-950 disabled:opacity-50">Create {isOmaha?'six-seat Omaha':'eight-seat Hold’em'} table</button>
        <label className="mt-5 block text-sm">Or enter a table ID
          <input value={entry} onChange={e=>setEntry(e.target.value.trim())}
@@ -323,39 +337,38 @@ export default function HoldemPracticeTable({variant='holdem'}) {
                  <HandReplay tableId={tableId} completedHand={table?.status==='complete'?table.handNo:0}/>
                </DialogContent>
              </Dialog>}
-             {!mySeat&&<button disabled={busy||wrongVariant} onClick={()=>void doAction('join')} className="rounded-lg bg-amber-300 px-5 py-3 font-black text-slate-950">Join open seat</button>}
-             {isOwner&&!wrongVariant&&table?.status==='waiting'&&<button disabled={busy||seats.length<2}
+             {!mySeat&&<button disabled={actionsPaused||wrongVariant} onClick={()=>void doAction('join')} className="rounded-lg bg-amber-300 px-5 py-3 font-black text-slate-950">Join open seat</button>}
+             {isOwner&&!wrongVariant&&table?.status==='waiting'&&<button disabled={actionsPaused||seats.length<2}
                onClick={()=>void doAction('start')} className="rounded-lg bg-amber-300 px-5 py-3 font-black text-slate-950 disabled:opacity-40">Deal hand · 2+ players</button>}
-             {!wrongVariant&&table?.status==='showdown'&&table?.street!=='river'&&<button disabled={busy}
+             {!wrongVariant&&table?.status==='showdown'&&table?.street!=='river'&&<button disabled={actionsPaused}
                onClick={()=>void doAction('advance')} className="rounded-lg bg-amber-300 px-5 py-3 font-black text-slate-950">Deal next street</button>}
-             {!wrongVariant&&table?.status==='showdown'&&table?.street==='river'&&<button disabled={busy}
+             {!wrongVariant&&table?.status==='showdown'&&table?.street==='river'&&<button disabled={actionsPaused}
                onClick={()=>void doAction('settle')} className="rounded-lg bg-amber-300 px-5 py-3 font-black text-slate-950">Resolve showdown on server</button>}
              <button type="button" onClick={()=>void fetchState()} className="rounded-lg border border-white/30 px-5 py-2">Refresh</button>
            </div>
          </div>
          {myTurn&&<div className="mt-4 rounded-xl border border-white/20 p-4">
            <div className="flex flex-wrap gap-2">
-             <button disabled={busy} onClick={()=>void doAction('act',{move:'fold',version:table.version})}
+             <button disabled={actionsPaused} onClick={()=>void doAction('act',{move:'fold',version:table.version})}
                className="rounded-lg border border-red-300 px-4 py-2 text-red-200">Fold</button>
-             {toCall===0?<button disabled={busy} onClick={()=>void doAction('act',{move:'check',version:table.version})} className="rounded-lg border border-white/30 px-4 py-2">Check</button>
-               :<button disabled={busy} onClick={()=>void doAction('act',{move:'call',version:table.version})} className="rounded-lg bg-green-700 px-4 py-2 font-bold">Call {toCall}</button>}
-             <button disabled={busy} onClick={()=>void doAction('act',{move:'allin',version:table.version})}
+             {toCall===0?<button disabled={actionsPaused} onClick={()=>void doAction('act',{move:'check',version:table.version})} className="rounded-lg border border-white/30 px-4 py-2">Check</button>
+               :<button disabled={actionsPaused} onClick={()=>void doAction('act',{move:'call',version:table.version})} className="rounded-lg bg-green-700 px-4 py-2 font-bold">Call {toCall}</button>}
+             <button disabled={actionsPaused} onClick={()=>void doAction('act',{move:'allin',version:table.version})}
                className="rounded-lg border border-amber-300 px-4 py-2 text-amber-200">All in</button>
            </div>
            <div className="mt-3 flex flex-wrap items-center gap-2">
              <span className="text-sm font-semibold">Bet / raise to</span>
-             <button type="button" disabled={busy||rank<=1} onClick={()=>setRaise(String(Math.max(1,Math.floor(rank/2))))}
+             <button type="button" disabled={actionsPaused||rank<=1} onClick={()=>setRaise(String(Math.max(1,Math.floor(rank/2))))}
                className="rounded-lg border border-white/25 px-3 py-2 font-black disabled:opacity-35" aria-label="Halve bet">÷2</button>
              <input type="number" inputMode="numeric" min="1" step="1" value={raise} onChange={e=>setRaise(e.target.value)}
                className="w-24 rounded-lg border border-white/30 bg-[#0d0915] p-2 text-center font-black" aria-label="Bet or raise amount" />
-             <button type="button" disabled={busy||!Number.isSafeInteger(rank)||rank<=0} onClick={()=>setRaise(String(rank*2))}
+             <button type="button" disabled={actionsPaused||!Number.isSafeInteger(rank)||rank<=0} onClick={()=>setRaise(String(rank*2))}
                className="rounded-lg border border-white/25 px-3 py-2 font-black disabled:opacity-35" aria-label="Double bet">×2</button>
-             <button disabled={busy||!Number.isSafeInteger(rank)||rank<=0}
+             <button disabled={actionsPaused||!Number.isSafeInteger(rank)||rank<=0}
                onClick={()=>void doAction('act',{move:Number(table.currentBet)>0?'raise':'bet',amount:rank,version:table.version})}
                className="rounded-lg border border-amber-300 px-4 py-2 font-bold text-amber-200">Confirm {Number(table.currentBet)>0?'raise':'bet'}</button>
            </div>
          </div>}
-         {pendingAction&&<p role="status" className="mt-4 text-amber-200">A poker action needs confirmation. <button disabled={busy} onClick={()=>void doAction('act',{},true)} className="underline">Retry original poker action</button></p>}
          {error&&<p role="alert" className="mt-4 rounded-lg bg-red-950 p-3 text-red-200">{error}</p>}
          {loading&&<p role="status" className="mt-2 text-gray-400">Contacting poker table…</p>}
        </div>
