@@ -8,6 +8,7 @@ import {verifyPracticeDice,calculatePracticeDice,sha256Hex} from '../lib/practic
 import {rememberCrashCommitment,verifyCrashRound} from '../lib/crashFairness.js';
 import {observeRound} from '../lib/observedRound.js';
 import {finalCard,towerLayout} from '../lib/finalPracticeFairness.js';
+import {saveDeviceProof} from '../lib/deviceProofStorage.js';
 let db,actors;const fixtures={},q=async(sql,args=[])=>(await db.query(sql,args)).rows;
 const storage=()=>{const map=new Map();return {getItem:k=>map.get(k)||null,setItem:(k,v)=>map.set(k,v)};};
 const copy=x=>structuredClone(x);
@@ -125,6 +126,12 @@ describe('committed table games, real PostgreSQL pgcrypto and independent browse
  });
 });
 describe('four reported fairness regressions',()=>{
+ it('bounds device witnesses without deleting another game or the latest active round',()=>{
+  const map=new Map(),store={getItem:k=>map.get(k)||null,setItem:(k,v)=>map.set(k,v),removeItem:k=>map.delete(k)};
+  saveDeviceProof(store,'other-game:1',{round:1},'other-game',2);
+  for(let i=1;i<=5;i++)saveDeviceProof(store,'crash:'+i,{round:i},'crash',2);
+  expect(map.has('crash:1')).toBe(false);expect(map.has('crash:4')).toBe(true);expect(map.has('crash:5')).toBe(true);expect(map.has('other-game:1')).toBe(true);
+ });
  it('generates canonical Crash commitments at both SQL numeric boundaries',async()=>{
   for(const bytes of ['00000000','ffffffff']){
    await db.exec(`create or replace function extensions.gen_random_bytes(integer) returns bytea language sql volatile as 'select case when $1=4 then decode(''${bytes}'',''hex'') else decode(repeat(''ab'',32),''hex'') end';delete from ig_crash_v2_queue;select ig_crash_v2_fill_queue();`);

@@ -21,6 +21,8 @@ Interpret the first four bytes as unsigned big-endian. Reject samples outside `f
 - Craps: sample steps 0 and 1 with bound 6 and add one. Verify dice, total and point transition, including the point observed before the roll.
 - Roulette: sample step 0 with bound 37; zero is green. The existing house clock and settlement rules remain in place. The seed is withheld during the spinning presentation and released when that round settles.
 
+The browser keeps up to 256 device witnesses per game, separately from the server ledger, to prevent browser storage filling during long sessions. Clearing or expiring a witness removes the original-lock comparison for that device; it never retroactively certifies a round.
+
 The browser pins game/round commitments before accepting snapshots. A changed pin, observed card, seat plan, point or displayed result fails closed. A mathematically consistent proof without a pre-deal device pin is explicitly labeled as unwitnessed consistency, not as proof of the original lock. A matching proof cannot independently establish that an operator did not choose a seed before publishing it.
 
 The migration does not invent deterministic proofs for legacy Blackjack hands already playing or Roulette results already selected. Those rounds finish with their previous rules; the next round creates the first new commitment. Existing stakes, chips, request receipts, turn deadlines and role checks are preserved. No financial wallet or currency logic changes.
@@ -42,3 +44,7 @@ For every future PvP game, record accepted commands, actor/turn, version, timest
 `npm test` includes real PostgreSQL/pgcrypto protocol tests via PGlite, mixed interleaved games, hidden-seed checks, independent Node HMAC comparisons, tampering/role tests, legacy hand transitions, Crash formatting boundaries and all four reproduced regressions.
 
 `npm run test:fairness:browser` creates proofs from that isolated database and exercises the actual four table screens at desktop/mobile sizes. It verifies device pins, seed/outcome checks, reload recovery, rejected proofs and honest unwitnessed-history wording. The controlled browser API is a test fixture, not a hosted authentication test. The release pipeline separately replays the complete database and runs real local Auth/API/browser integration tests before deployment.
+
+## Hosted release checks (2026-10-25)
+
+Migration `20261025060513_table_game_fairness_and_verification` was applied only after the complete release CI passed. Source readback matched all 15 tested function bodies. The rollback-only hosted QA passed 16 independent Python HMAC vectors across all four game contexts, hidden/revealed seed checks, immutable commitment checks and client-access denial. No fixture rows remain. Current live rounds retain private seeds. Four completed hosted house-clock Roulette proofs were independently reconstructed in Node after deployment. Security advisors reported no warning/error findings; the new private table intentionally denies direct client access through RLS and explicit privilege revocation.

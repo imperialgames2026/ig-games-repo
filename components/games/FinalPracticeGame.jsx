@@ -4,6 +4,7 @@ import {useAuth} from '@/lib/AuthContext';
 import {supabase} from '@/lib/supabaseClient';
 import {verifyFinalRound,dartTables} from '@/lib/finalPracticeFairness';
 import {observeRound} from '@/lib/observedRound';
+import {saveDeviceProof} from '@/lib/deviceProofStorage';
 import './originals-cockpit.css';
 const names={darts:'Darts',dicezone:'Dice Zone',hilo:'HiLo',towers:'Towers'};
 const ranks=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
@@ -30,7 +31,7 @@ export default function FinalPracticeGame({game}){
   if(state.phase!=='ended'&&(Object.hasOwn(state,'serverSeed')||Object.hasOwn(state,'layout')))throw Error('Future outcome privacy check failed.');
   if(state.phase==='ended'&&!await verifyFinalRound(known,state))throw Error('The fairness proof did not match. Round rejected.');
   known=await observeRound(known,state,game,request);
-  localStorage.setItem(proofKey(state.roundId),JSON.stringify(known));setRound(state);
+  saveDeviceProof(localStorage,proofKey(state.roundId),known,`imperial-final-proof:${user?.id}:${game}`);setRound(state);
  }
  useEffect(()=>{let alive=true;(async()=>{try{const state=await call({action:'current'});if(alive)await accept(state);}catch(e){if(alive)setError(e.message);}finally{if(alive)setBusy(false);}})();return()=>{alive=false;};},[user?.id,game]);
  async function mutate(body){

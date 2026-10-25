@@ -4,6 +4,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { supabase } from '@/lib/supabaseClient';
 import { verifyMinesRound } from '@/lib/minesFairness';
 import { observeRound } from '@/lib/observedRound';
+import { saveDeviceProof } from '@/lib/deviceProofStorage';
 import './originals-cockpit.css';
 
 export default function VerifiedMinesGame() {
@@ -31,7 +32,7 @@ export default function VerifiedMinesGame() {
   return raw ? JSON.parse(raw) : null;
  }
  function persistCommitment(commitment) {
-  localStorage.setItem(commitmentKey(commitment.roundId),JSON.stringify(commitment));
+  saveDeviceProof(localStorage,commitmentKey(commitment.roundId),commitment,`imperial-mines-proof:${user?.id}`);
  }
  async function accept(state,request) {
   if (!state) { setRound(null); return; }
