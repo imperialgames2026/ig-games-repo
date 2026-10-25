@@ -76,6 +76,11 @@ export default function Home() {
               built for desktop and mobile.
             </p>
 
+            <Link to="/FairnessManifesto" className="mt-6 flex items-start gap-3 rounded-xl border border-emerald-300/25 bg-emerald-950/25 p-4 text-left transition hover:border-emerald-300/60">
+              <ShieldCheck aria-hidden="true" className="mt-0.5 h-6 w-6 shrink-0 text-emerald-300"/>
+              <span className="min-w-0"><strong className="block font-bold text-emerald-200">Your security and fair play are our #1 priority.</strong><span className="mt-1 block text-sm text-slate-300">Every player. Every hand. Every time.</span><span className="mt-2 block text-sm font-semibold text-emerald-300 underline">See how we protect and verify your poker hands</span></span>
+            </Link>
+
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
               <Link to="/Games" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-pink-500 to-fuchsia-600 px-6 py-3 font-black text-white shadow-lg shadow-pink-950/40 transition hover:brightness-110">
                 <Gamepad2 className="h-5 w-5" /> Browse Games <ArrowRight className="h-4 w-4" />
