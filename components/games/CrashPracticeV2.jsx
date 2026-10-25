@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { requireSupabase } from '@/lib/supabaseClient';
+import {rememberCrashCommitment,verifyCrashRound} from '@/lib/crashFairness';
 import './game-cockpit.css';
 
 const options = [{ value: 'red', label: 'Red · 0–1.99× · 1.97×' },{value:'green',label:'Green · 2–9.99× · 2×'},{value:'yellow',label:'Yellow · 10×+ · 10×'}];
@@ -30,6 +31,7 @@ export default function CrashPracticeV2({ initialMode = 'crash' }) {
     if(data?.error) throw new Error(data.error);
     if(data?.state) {
       if(data.state.practiceOnly!==true||data.state.realMoneyEnabled!==false)throw new Error('Unexpected game currency configuration');
+      rememberCrashCommitment(data.state);
       offset.current=new Date(data.state.serverTime).getTime()-Date.now();
       if(alive.current)setSnap(data.state);
     }
@@ -77,10 +79,11 @@ export default function CrashPracticeV2({ initialMode = 'crash' }) {
     finally{setBusy(false);}
   }
   async function verify(p){
-    const code=`${p.serverSeed}:${Number(p.crashPoint).toFixed(2)}:${p.durationMs}`;
-    const bytes=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(code)));
-    const digest=Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');
-    setVerified(digest===p.commitment?`Round #${p.round} matches the original preflight commitment`:'Commitment mismatch — report to support');
+    try {
+      const result=await verifyCrashRound(p);
+      setVerified(result.preflightVerified ? `Round #${p.round} matches the preflight commitment saved on this device` :
+        `Round #${p.round}: revealed hash is consistent. The preflight commitment was not observed on this device, so the original lock cannot be verified.`);
+    } catch(error) { setVerified(error.message); }
   }
   const vertices=Array.from({length:61},(_,i)=>{
     const time=Math.max(0,now-(snap?new Date(snap.startedAt).getTime():0))*i/60;

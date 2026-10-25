@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { supabase } from '@/lib/supabaseClient';
 import { verifyMinesRound } from '@/lib/minesFairness';
+import { observeRound } from '@/lib/observedRound';
+import { saveDeviceProof } from '@/lib/deviceProofStorage';
 import './originals-cockpit.css';
 
 export default function VerifiedMinesGame() {
@@ -30,9 +32,9 @@ export default function VerifiedMinesGame() {
   return raw ? JSON.parse(raw) : null;
  }
  function persistCommitment(commitment) {
-  localStorage.setItem(commitmentKey(commitment.roundId),JSON.stringify(commitment));
+  saveDeviceProof(localStorage,commitmentKey(commitment.roundId),commitment,`imperial-mines-proof:${user?.id}`);
  }
- async function accept(state) {
+ async function accept(state,request) {
   if (!state) { setRound(null); return; }
   let known = savedCommitment(state.roundId);
   if (!known) {
@@ -49,6 +51,7 @@ export default function VerifiedMinesGame() {
   }
   if (state.phase === 'ended' && !await verifyMinesRound(known,state)) throw new Error('Board proof did not match. This result was not accepted.');
   if (state.phase !== 'ended' && (Object.hasOwn(state,'serverSeed') || Object.hasOwn(state,'mines'))) throw new Error('Active board privacy check failed.');
+  known = await observeRound(known,state,'mines',request);
   persistCommitment(known);
   setRound(state);
  }
@@ -73,6 +76,8 @@ export default function VerifiedMinesGame() {
    }
    localStorage.setItem(key,JSON.stringify(body)); setPending(body);
    const state = await invoke(body);
+   if (body.action==='commit' && (state.roundId!==body.roundId || state.mineCount!==body.mineCount)) throw Error('Submitted round or mine count changed');
+   await accept(state,body);
    const latest = await invoke({ action: 'state', roundId: state.roundId });
    await accept(latest);
    localStorage.removeItem(key); setPending(null);

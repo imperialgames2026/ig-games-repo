@@ -1,3 +1,4 @@
+import TableFairnessPanel from './TableFairnessPanel';
 import React,{useEffect,useState} from 'react';
 import { Link } from 'react-router-dom';
 import { useBlackjackPractice } from '@/hooks/useBlackjackPractice';
@@ -46,6 +47,7 @@ export default function BlackjackPracticeTable() {
  const last=state?.lastResult;
  return <main className="ig-game-screen ig-blackjack-screen min-h-screen bg-[#0a0612] px-3 py-8 text-white sm:px-6">
   <div className="ig-blackjack-shell mx-auto max-w-7xl space-y-5">
+   {error&&!state&&<p role="alert" className="rounded-lg bg-red-950 p-3 text-red-200">{error}</p>}
    <div className="ig-cockpit-topbar flex flex-wrap justify-between gap-2">
     <Link to="/Games" className="font-semibold text-amber-300 hover:underline">← Game lobby</Link>
     <span className="rounded-full border border-amber-300/40 bg-amber-300/10 px-4 py-1 text-xs font-black uppercase tracking-wider text-amber-200">Seven-seat shared practice table</span>
@@ -139,6 +141,7 @@ export default function BlackjackPracticeTable() {
      {loading&&!state&&<p role="status" className="rounded-lg bg-white/10 p-8 text-center">Connecting to Blackjack table…</p>}
     </div>
     <aside className="ig-blackjack-rail space-y-5">
+     <TableFairnessPanel state={state} game="blackjack"/>
      <section className="rounded-xl border border-white/10 bg-[#1b1727] p-5">
       <h2 className="flex items-center gap-2 text-lg font-black"><Users className="h-5 w-5 text-amber-200"/>Seated players ({players.length}/7)</h2>
       {players.map(p=><div key={p.id} className="mt-2 flex items-center justify-between rounded-lg bg-white/5 px-3 py-2 text-sm">

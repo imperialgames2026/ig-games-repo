@@ -3,6 +3,8 @@ import {Link} from 'react-router-dom';
 import {useAuth} from '@/lib/AuthContext';
 import {supabase} from '@/lib/supabaseClient';
 import {verifyFinalRound,dartTables} from '@/lib/finalPracticeFairness';
+import {observeRound} from '@/lib/observedRound';
+import {saveDeviceProof} from '@/lib/deviceProofStorage';
 import './originals-cockpit.css';
 const names={darts:'Darts',dicezone:'Dice Zone',hilo:'HiLo',towers:'Towers'};
 const ranks=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
@@ -19,7 +21,7 @@ export default function FinalPracticeGame({game}){
   const {data,error}=await supabase.functions.invoke('ig-final-practice',{body:{...body,game}});
   if(error||!data||data.error||!Object.hasOwn(data,'state')){let message=data?.error||'Round unavailable. Retry the same request.';try{message=(await error?.context?.json())?.error||message;}catch{}throw Error(message);}return data.state;
  }
- async function accept(state,expectedId){
+ async function accept(state,expectedId,request){
   if(!state){setRound(null);return;}
   if(state.game!==game||state.algorithm!=='hmac-sha256-final-v1'||state.practiceOnly!==true||!['committed','active','ended'].includes(state.phase)||!Number.isInteger(state.version)||state.version<0||state.version>51||!Array.isArray(state.history)||!/^[0-9a-f]{64}$/.test(state.serverSeedHash)||expectedId&&state.roundId!==expectedId)throw Error('Invalid round response');
   let known=read(state.roundId);
@@ -28,7 +30,8 @@ export default function FinalPracticeGame({game}){
   if(state.phase!=='committed'&&(!known.clientSeed||known.clientSeed!==state.clientSeed))throw Error('The submitted client seed changed or is missing. Round rejected.');
   if(state.phase!=='ended'&&(Object.hasOwn(state,'serverSeed')||Object.hasOwn(state,'layout')))throw Error('Future outcome privacy check failed.');
   if(state.phase==='ended'&&!await verifyFinalRound(known,state))throw Error('The fairness proof did not match. Round rejected.');
-  localStorage.setItem(proofKey(state.roundId),JSON.stringify(known));setRound(state);
+  known=await observeRound(known,state,game,request);
+  saveDeviceProof(localStorage,proofKey(state.roundId),known,`imperial-final-proof:${user?.id}:${game}`);setRound(state);
  }
  useEffect(()=>{let alive=true;(async()=>{try{const state=await call({action:'current'});if(alive)await accept(state);}catch(e){if(alive)setError(e.message);}finally{if(alive)setBusy(false);}})();return()=>{alive=false;};},[user?.id,game]);
  async function mutate(body){
@@ -40,7 +43,7 @@ export default function FinalPracticeGame({game}){
    if(body.action==='commit'){
     if(state.roundId!==body.roundId||!sameOptions(body.options,state.options))throw Error('Submitted options changed');
     await accept(state,body.roundId);
-   }
+   }else await accept(state,body.roundId,body);
    await accept(await call({action:'current'}),body.roundId);
    localStorage.removeItem(key);setPending(null);
   }catch(e){setRound(null);setError(e.message);}finally{lock.current=false;setBusy(false);}

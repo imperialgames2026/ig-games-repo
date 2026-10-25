@@ -53,6 +53,8 @@ jobs:
         run: npx playwright test --config playwright.migration.config.mjs
       - name: Verify three poker tables, isolated replays and delayed responses
         run: npm run test:poker:multitable
+      - name: Verify table proofs, device pins and rejected tampering on desktop and mobile
+        run: npm run test:fairness:browser
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

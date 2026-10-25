@@ -796,6 +796,10 @@
     {
       "file": "20261024183852_committed_poker_replay_and_queue_limits.sql",
       "sha256": "1cbda8f041a5a86622b932208885e5609c99e98867954a7623ece5a7fefecb6b"
+    },
+    {
+      "file": "20261025060513_table_game_fairness_and_verification.sql",
+      "sha256": "20b2b3e10b461f16cbf26596c1116d08a3f29710f4acd2012330cc80121064b8"
     }
   ]
 }
