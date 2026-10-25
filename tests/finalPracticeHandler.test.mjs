@@ -13,10 +13,8 @@ function setup({ anonymous = false, code = null } = {}) {
   { createClient: () => client,Response,JSON,Deno: { env: { get: k => k === 'SUPABASE_URL' ? 'https://qonqemhljgxlwpghkxhn.supabase.co' : 'fixture-key' },serve: fn => handler = fn } });
  return { calls,request: body => handler(new Request('https://fixture.invalid',{ method: 'POST',headers: { authorization: 'Bearer fixture' },body: JSON.stringify(body) })) };
 }
-test('final game handler binds actor, game, move and retry key',async()=>{
- const h=setup();const response=await h.request({action:'move',game:'hilo',roundId:id,requestId:id,version:1,choice:'same'});
- assert.equal(response.status,200);assert.equal(h.calls[0].name,'ig_final_practice');
- assert.equal(h.calls[0].args.p_actor,id);assert.equal(h.calls[0].args.p_choice,'same');assert.equal(h.calls[0].args.p_version,1);
+test('parked instant Originals cannot mutate rounds for a verified identity',async()=>{
+ const h=setup();assert.equal((await h.request({action:'move',game:'hilo',roundId:id,requestId:id,version:1,choice:'same'})).status,403);assert.equal(h.calls.length,0);
 });
 test('final game handler rejects caller outcomes, money, invalid choices and anonymous identities',async()=>{
  const base={action:'commit',game:'darts',roundId:id,options:{difficulty:'easy'}};

@@ -4,8 +4,8 @@ import {readFileSync} from 'node:fs';
 import {approvedCatalogRoute} from '../lib/approvedPracticeGames.js';
 const source=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 
-test('approved catalog routes override legacy slug guesses for Crash and Originals', () => {
- for (const [slug,route] of [['crash','/PlayCrash'],['coin-flip','/PlayCoinFlip'],['hashdice','/PlayHashDice'],['omaha','/PlayOmaha']]) {
+test('approved catalog routes use the reviewed active practice table entries', () => {
+ for (const [slug,route] of [['crash','/PlayCrash'],['poker','/PlayPoker'],['roulette','/PlayRoulette'],['omaha','/PlayOmaha']]) {
   assert.equal(approvedCatalogRoute({slug,route,game_type:'internal',practice_only:true,real_wagers_enabled:false}),route);
  }
 });
@@ -15,7 +15,7 @@ test('catalog route selection rejects foreign URLs, mismatched games and nonprac
   assert.equal(approvedCatalogRoute({...game,...patch}),null);
  }
 });
-test('verified originals use fixed mobile cockpit layouts instead of page-scroll gameplay',()=>{
+test('parked Originals source layouts remain intact for their separate review',()=>{
  const files=['components/games/VerifiedOriginalsGame.jsx','components/games/VerifiedMinesGame.jsx','components/games/FinalPracticeGame.jsx','pages/PlayDice.jsx'];
  for(const name of files){
   const text=source(name);

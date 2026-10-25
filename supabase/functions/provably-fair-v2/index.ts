@@ -1,4 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
+// Source release policy; browser input and environment cannot enable parked gameplay.
+const practiceRelease = { gameplayEnabled: false };
 const enc = new TextEncoder();
 const hex = (b: Uint8Array) => Array.from(b,x=>x.toString(16).padStart(2,"0")).join("");
 const HEADERS={"content-type":"application/json","cache-control":"no-store",
@@ -48,6 +50,7 @@ Deno.serve(async(req)=>{
     })),
   });
  }
+ if (!practiceRelease.gameplayEnabled) return respond({error:"Originals are parked for this practice release",code:"GAME_PARKED"},403);
  if(roleRow?.role==="tester")return respond({error:"Read-only tester account"},403);
  if(input.action==="commit"){
   if(!["dice","coin","number"].includes(String(input.game)))return respond({error:"Invalid game"},400);

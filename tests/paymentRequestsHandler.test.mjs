@@ -28,10 +28,8 @@ test('client identity injection and imprecise or nonpositive amounts never reach
   const h=setup();assert.equal((await h.request(body)).status,400);assert.equal(h.calls.length,0);
  }
 });
-test('payment SQL receives the authenticated actor, unchanged replay UUID and exact decimal string',async()=>{
- const h=setup();assert.equal((await h.request(valid)).status,200);assert.equal(h.calls.length,1);
- assert.equal(h.calls[0].name,'payment_prepare');assert.equal(h.calls[0].args.p_user,'actor');
- assert.equal(h.calls[0].args.p_request,requestId);assert.equal(h.calls[0].args.p_amount,'0.01');
+test('new deposit and withdrawal preparation is denied before payment SQL',async()=>{
+ for(const body of [valid,{...valid,kind:'withdrawal',destination:'synthetic-destination'}]){const h=setup();assert.equal((await h.request(body)).status,403);assert.equal(h.calls.length,0);}
 });
 test('payment cancellation is owner-scoped and hides requests belonging to someone else',async()=>{
  const h=setup();assert.equal((await h.request({action:'cancel',id:requestId})).status,404);

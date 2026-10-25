@@ -12,12 +12,12 @@ const games = [
 ];
 
 const originals=[['PlayDarts','Darts'],['PlayDiceZone','Dice Zone'],['PlayHiLo','HiLo'],['PlayRocket','Rocket'],['PlayTowers','Towers'],['PlayDice','Practice Dice'],['PlayCoinFlip','Coin Flip'],['PlayHashDice','Hash Dice'],['PlayLimbo','Limbo'],['PlayPlinko','Plinko'],['PlayWheel','Wheel'],['PlayMines','Mines']];
-test('verified Originals are discoverable in the public game library', async ({page})=>{
+test('parked Originals are not playable from the public game library', async ({page})=>{
  await page.goto('/Games',{waitUntil:'domcontentloaded'});
- const library=page.getByRole('region',{name:'Verified Originals practice games'});
- for(const [route,label] of originals) await expect(library.locator(`a[href="/${route}"]`).filter({hasText:label})).toBeVisible();
+ await expect(page.getByRole('heading',{name:'Slots, Originals and Mines are parked'})).toBeVisible();
+ for(const [route] of originals) await expect(page.locator(`a[href="/${route}"]`)).toHaveCount(0);
 });
-for(const [route,label] of originals) test(label+' requires sign-in from its public library entry',async({page})=>{
+for(const [route,label] of originals) test(label+' stays behind the signed-out route guard',async({page})=>{
  await page.goto('/'+route,{waitUntil:'domcontentloaded'});
  await expect(page).toHaveURL(/\/login(?:\?.*)?$/i);
  await expect(page.getByRole('heading',{name:'Welcome back'})).toBeVisible();

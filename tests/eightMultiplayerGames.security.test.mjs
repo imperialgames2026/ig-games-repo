@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import {activePracticeGameRoutes} from '../lib/practiceReleasePolicy.js';
 
 const file = p => readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const app=file('App.jsx'), lobby=file('pages/Games.jsx');
@@ -15,10 +16,11 @@ const expected={
 test('requested eight games have staging-only authorized multiplayer routes',()=>{
   for(const [name,engine] of Object.entries(expected)){
     const page=file('pages/'+name+'.jsx');
-    assert.ok(app.includes("'"+name+"'"),name+' not allowlisted');
+    assert.ok(activePracticeGameRoutes.includes(name),name+' not allowlisted');
     assert.ok(page.includes(engine),name+' not wired to new engine');
     assert.doesNotMatch(page, /base44|Transaction\.create|UserWallet\.update|WalletDisplay/);
   }
+  assert.match(app,/new Set\(activePracticeGameRoutes\)/);
   for(const name of ['PlayPoker','PlayOmaha','PlayBlackjack','PlayBaccarat','PlayCraps','PlayRoulette','PlayCrash','PlayTrenball'])
     assert.ok(lobby.includes("createPageUrl('"+name+"')"),name+' missing in lobby');
 });

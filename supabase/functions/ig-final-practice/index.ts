@@ -1,4 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.57.4';
+// Source release policy; browser input and environment cannot enable parked gameplay.
+const practiceRelease = { gameplayEnabled: false };
 const headers={'Content-Type':'application/json','Cache-Control':'no-store','Access-Control-Allow-Origin':'*','Access-Control-Allow-Methods':'POST, OPTIONS','Access-Control-Allow-Headers':'authorization,apikey,content-type,x-client-info,x-supabase-api-version'};
 const reply=(status:number,value:unknown)=>new Response(JSON.stringify(value),{status,headers});
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -20,6 +22,7 @@ Deno.serve(async request=>{
  if(body.action==='commit'&&(!body.options||typeof body.options!=='object'||Array.isArray(body.options)))return reply(400,{error:'Invalid options'});
  if(body.action==='start'&&(typeof body.clientSeed!=='string'||!body.clientSeed.length||body.clientSeed.length>128))return reply(400,{error:'Invalid client seed'});
  if(body.action==='move'&&(typeof body.choice!=='string'||!(body.game==='towers'?['0','1','2']:body.game==='hilo'?['higherOrSame','lowerOrSame','same']:[]).includes(body.choice)))return reply(400,{error:'Invalid move'});
+ if (!practiceRelease.gameplayEnabled) return reply(403, { error: 'Originals are parked for this practice release', code: 'GAME_PARKED' });
  const db=createClient(url,secret,{auth:{persistSession:false,autoRefreshToken:false}});
  const {data,error}=await db.rpc('ig_final_practice',{p_actor:user.id,p_action:body.action,p_game:body.game,p_round:body.roundId??null,p_request:body.requestId??null,p_version:body.version??null,p_options:body.options??null,p_client:body.clientSeed??null,p_choice:body.choice??null});
  if(error){const status=({'42501':403,'23505':409,'22023':422,'P0002':404,'54000':429} as Record<string,number>)[error.code]||503;return reply(status,{error:status===409?'Round changed or retry conflicts. Refresh the round.':status===403?'Account ineligible':status===422?'Invalid options or move':'Round unavailable. Retry the same request.'});}

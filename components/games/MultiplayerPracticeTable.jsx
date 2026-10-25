@@ -397,7 +397,7 @@ export default function MultiplayerPracticeTable({ game }) {
     const timer = window.setInterval(() => setClockNow(Date.now()), 250);
     return () => window.clearInterval(timer);
   }, []);
-  const {table, loading, busy, error, user, isAuthenticated, refresh, join, leave, claim, placeBet, runRound, refill} = useMultiplayerPractice(game);
+  const {table, loading, busy, error, user, isAuthenticated, refresh, join, leave, claim, placeBet, runRound, refill,pendingAction,retryPending} = useMultiplayerPractice(game);
   const joined = !!table?.joined;
   // The server is authoritative; the client clock is only for an accurate visual countdown.
   const deadline = Date.parse(table?.bettingClosesAt ?? '');
@@ -510,7 +510,11 @@ export default function MultiplayerPracticeTable({ game }) {
               {!isAuthenticated && <Link to="/login" className="mt-4 block text-sm text-amber-300 underline">Sign in to join this table</Link>}
               {user?.role==='tester' && <p className="mt-3 text-sm text-amber-200">Tester access is read-only; you may watch but cannot place chips or shoot.</p>}
               {user?.is_excluded && <p className="mt-3 text-sm text-red-300">Account exclusion disables gameplay.</p>}
-              {error && <p role="alert" className="mt-3 rounded-xl bg-red-950/70 p-3 text-sm text-red-200">{error}</p>}
+            {error && <p role="alert" className="mt-3 rounded-xl bg-red-950/70 p-3 text-sm text-red-200">{error}</p>}
+            {pendingAction&&<div role="status" className="mt-3 rounded-xl border border-amber-300/40 bg-amber-950/50 p-3 text-sm text-amber-100">
+              <p>A practice action is awaiting confirmation. Retry its original request before starting another action.</p>
+              <button type="button" disabled={busy} onClick={()=>void retryPending()} className="mt-2 rounded-lg border border-amber-300 px-3 py-2 font-bold disabled:opacity-50">Retry pending practice action</button>
+            </div>}
             </section>}
           </div>
           <aside className="ig-cockpit-rail space-y-5">

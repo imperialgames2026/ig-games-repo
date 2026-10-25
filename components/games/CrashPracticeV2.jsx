@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { requireSupabase } from '@/lib/supabaseClient';
 import {rememberCrashCommitment,verifyCrashRound} from '@/lib/crashFairness';
+import {useAuth} from '@/lib/AuthContext';
+import {createPracticeActionQueue} from '@/lib/practiceActionQueue';
 import './game-cockpit.css';
 
 const options = [{ value: 'red', label: 'Red · 0–1.99× · 1.97×' },{value:'green',label:'Green · 2–9.99× · 2×'},{value:'yellow',label:'Yellow · 10×+ · 10×'}];
@@ -9,6 +11,15 @@ const curve = t => Math.min(12000,Math.round((Math.exp(Math.log(12001)*Math.min(
 const fmt = n => Number(n ?? 0).toLocaleString('en-US',{maximumFractionDigits:2});
 
 export default function CrashPracticeV2({ initialMode = 'crash' }) {
+  const {user,isAuthenticated}=useAuth();
+  const [pendingAction,setPendingAction]=useState(null);
+  const dispatchLock=useRef(false),queueRef=useRef(null);
+  const getQueue=useCallback(()=>{
+    if(!user?.id||!isAuthenticated)throw Error('Sign in before using practice chips.');
+    const key=`ig.practice.pending.v1:crash-v2:${user.id}`;
+    if(queueRef.current?.key!==key)queueRef.current={key,queue:createPracticeActionQueue({storage:window.sessionStorage,key,makeId:()=>crypto.randomUUID()})};
+    return queueRef.current.queue;
+  },[user?.id,isAuthenticated]);
   const [mode,setMode] = useState(initialMode);
   const [snap,setSnap] = useState(null);
   const [amount,setAmount] = useState(10);
@@ -26,7 +37,9 @@ export default function CrashPracticeV2({ initialMode = 'crash' }) {
     if(error) {
       let explanation=error.message;
       if(error.context?.json) { const detail=await error.context.json().catch(()=>null); explanation=detail?.error||explanation; }
-      throw new Error(explanation);
+      const failure=new Error(explanation);
+      failure.definitiveRejection=[400,401,403,404,409,422].includes(error.context?.status);
+      throw failure;
     }
     if(data?.error) throw new Error(data.error);
     if(data?.state) {
@@ -49,6 +62,10 @@ export default function CrashPracticeV2({ initialMode = 'crash' }) {
     const poll=window.setInterval(()=>void reload(),700);
     return()=>{alive.current=false;window.clearInterval(tick);window.clearInterval(poll);};
   },[reload]);
+  useEffect(()=>{
+    if(!isAuthenticated){setPendingAction(null);return;}
+    try{setPendingAction(getQueue().peek());}catch(error){setStatus(error.message);}
+  },[getQueue,isAuthenticated]);
   const now=clock+offset.current;
   const ms=Math.max(0,(snap ? new Date(snap.bettingEndsAt).getTime():0)-now);
   const live=snap?.phase==='live';
@@ -56,27 +73,38 @@ export default function CrashPracticeV2({ initialMode = 'crash' }) {
   const own=snap?.myBets?.filter(b=>b.round===snap.round)??[];
   const manual=own.find(b=>b.mode==='crash_manual'&&b.status==='active');
   const writable=snap?.joined===true;
-  async function act(action){
-    if(busy||!snap)return;
-    setBusy(true);setStatus('');
+  async function act(action,retry=false){
+    if(dispatchLock.current||!snap)return;
+    dispatchLock.current=true;setBusy(true);setStatus('');
+    let queue,request;
     try{
-      let body={action};
-      if(action==='bet'){
-        if(!Number.isSafeInteger(amount)||amount<1||amount>100)throw new Error('Choose 1 to 100 practice chips');
+      queue=getQueue();let body={action};
+      if(retry){
+        request=queue.peek();if(!request)throw Error('No pending practice action.');
+      }else if(action==='bet'){
         const selected=mode==='crash'?(auto?'crash_auto':'crash_manual'):'tren_'+color;
-        body={action,round:snap.round,requestId:crypto.randomUUID(),mode:selected,target:selected==='crash_auto'?target:null,units:amount};
-      }
-      if(action==='cashout'){
-        if(!manual)throw new Error('No active manual Crash bet');
-        body={action,round:snap.round,requestId:crypto.randomUUID(),betId:manual.id};
+        request=queue.prepare('crashBet',{round:snap.round,mode:selected,target:selected==='crash_auto'?target:null,units:amount});
+      }else if(action==='cashout'){
+        if(!manual)throw Error('No active manual Crash bet');
+        request=queue.prepare('cashout',{round:snap.round,betId:manual.id});
+      }else if(queue.peek())throw Error('Confirm the pending practice action before changing the table.');
+      if(request){
+        setPendingAction(request);
+        body={action:request.action==='crashBet'?'bet':'cashout',...request.params,requestId:request.requestId};
       }
       const data=await call(body);
-      if(action==='bet')setStatus('Practice bet accepted');
-      if(action==='cashout')setStatus('Cashed out at '+Number(data.action.cashoutX).toFixed(2)+'× · '+fmt(data.action.paidUnits)+' practice chips returned');
-      if(action==='refill')setStatus('Practice chips refilled');
+      if(request){
+        if(!data?.state)throw Error('Practice action returned no verifiable table state. Retry its original request.');
+        queue.confirm(request.requestId);setPendingAction(queue.peek());
+      }
+      setStatus(body.action==='bet'?'Practice bet accepted':body.action==='cashout'?'Practice cashout confirmed':body.action==='refill'?'Practice chips refilled':'Practice table updated');
       await reload();
-    }catch(error){setStatus(error.message);await reload();}
-    finally{setBusy(false);}
+    }catch(error){
+      if(request){try{queue.failed(request.requestId,{definitiveRejection:error.definitiveRejection===true});}catch{/* Retain original receipt in memory. */}}
+      if(queue)setPendingAction(queue.peek());
+      if(alive.current)setStatus(error.message);
+      await reload();
+    }finally{dispatchLock.current=false;if(alive.current)setBusy(false);}
   }
   async function verify(p){
     try {
@@ -140,6 +168,7 @@ export default function CrashPracticeV2({ initialMode = 'crash' }) {
                 {snap.chips<10&&<button disabled={busy} onClick={()=>void act('refill')} className="rounded-xl bg-gray-700 px-4 py-3">Free practice refill</button>}
               </div>
             </div>}
+            {pendingAction&&<p role="status" className="text-amber-200 text-sm mt-4">A practice action needs confirmation. <button disabled={busy} onClick={()=>void act('',true)} className="underline">Retry original practice action</button></p>}
             {status&&<p role="status" className="text-amber-200 text-sm mt-4">{status}</p>}
           </div>
         </div>

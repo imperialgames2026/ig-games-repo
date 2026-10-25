@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.57.4';
 
+const practiceRelease = { walletOperationsEnabled: false };
 const url = Deno.env.get('SUPABASE_URL') || '';
 const publishable = Deno.env.get('SUPABASE_ANON_KEY') || Deno.env.get('SUPABASE_PUBLISHABLE_KEY') || '';
 const secret = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
@@ -36,6 +37,7 @@ Deno.serve(async (req: Request) => {
   ]);
   if (profile.error || role.error) return reply(503,{error:'Account verification unavailable'});
   if (profile.data?.is_excluded !== false || role.data?.role !== 'player') return reply(403,{error:'Account ineligible'});
+  if (!practiceRelease.walletOperationsEnabled) return reply(403,{error:'Wallet value operations are disabled for practice play',code:'FINANCIAL_OPERATIONS_DISABLED'});
   const {data,error} = await service.rpc('secure_wallet_operation',{
     p_actor:user.id,p_operation:operation,p_kind:kind,p_amount:amount,
     p_target:kind === 'transfer' ? input.recipient_id : null,

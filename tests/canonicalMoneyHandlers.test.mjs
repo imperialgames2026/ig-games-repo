@@ -22,10 +22,10 @@ function setup(name, { role = 'player', profileRole = 'superadmin', excluded = f
 }
 const transfer = { kind: 'transfer', operation_id: id, amount: 10, recipient_id: '22222222-2222-4222-8222-222222222222' };
 const admin = { action: 'exclude', request_id: id, target_id: id, reason: 'Fixture reason for exclusion' };
-test('wallet uses canonical role despite stale privileged profile', async () => {
+test('practice release denies wallet value mutations after canonical account checks', async () => {
   const permitted = setup('secure-wallet');
-  assert.equal((await permitted.request(transfer)).status, 200);
-  assert.equal(permitted.calls[0].args.p_actor, id);
+  assert.equal((await permitted.request(transfer)).status, 403);
+  assert.equal(permitted.calls.length, 0);
   for (const options of [{ role: 'tester' }, { role: null }, { excluded: true }, { anonymous: true }, { roleError: { message: 'offline' } }]) {
     const h = setup('secure-wallet', options);
     assert.ok([401,403,503].includes((await h.request(transfer)).status));

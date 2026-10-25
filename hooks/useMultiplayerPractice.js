@@ -2,6 +2,7 @@ import {acceptTableFairness} from '@/lib/tableFairness';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
+import {createPracticeActionQueue} from '@/lib/practiceActionQueue';
 
 // Shared game state lives in Supabase, never in a browser-controlled wallet.
 // Poll for table updates while present; all mutations are transactional server RPCs.
@@ -11,9 +12,23 @@ export function useMultiplayerPractice(game) {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [pendingAction,setPendingAction]=useState(null);
   const alive = useRef(true);
   const generation = useRef(0);
   const latest = useRef(null);
+  const actionLock=useRef(false),queueRef=useRef(null);
+  const getQueue=useCallback(()=>{
+    const key=`ig.practice.pending.v1:${game}:${user?.id}`;
+    if(!queueRef.current||queueRef.current.key!==key){
+      queueRef.current={key,queue:createPracticeActionQueue({storage:window.sessionStorage,key,makeId:()=>crypto.randomUUID()})};
+    }
+    return queueRef.current.queue;
+  },[game,user?.id]);
+
+  useEffect(()=>{
+    if(!isAuthenticated){setPendingAction(null);return;}
+    try{setPendingAction(getQueue().peek());}catch(e){setError(e.message);}
+  },[getQueue,isAuthenticated]);
 
   const ingest = useCallback(async (fresh,epoch) => {
     if (!alive.current || epoch!==generation.current || !fresh || fresh.game !== game) return;
@@ -36,7 +51,11 @@ export function useMultiplayerPractice(game) {
     const { data, error: networkError } = await supabase.functions.invoke('ig-multiplayer-practice', {
       body: { game, action, ...args },
     });
-    if (networkError) throw new Error('Cannot reach the practice table. Refresh before retrying an action.');
+    if (networkError) {
+      const failure=new Error('Practice action could not be confirmed. Refresh and retry its original request.');
+      failure.definitiveRejection=[400,401,403,404,409,422].includes(networkError.context?.status);
+      throw failure;
+    }
     if (!data || data.error) throw new Error(data?.error || 'Practice table returned an invalid response');
     if(epoch===generation.current)await ingest(data.state,epoch);
     return data;
@@ -63,6 +82,7 @@ export function useMultiplayerPractice(game) {
     latest.current = null;
     setTable(null);
     setLoading(true);
+    setBusy(false);
     void refresh();
     const polling = window.setInterval(() => { void refresh(true); }, 3000);
     const heartbeat = window.setInterval(() => {
@@ -75,22 +95,37 @@ export function useMultiplayerPractice(game) {
       window.clearInterval(polling);
       window.clearInterval(heartbeat);
     };
-  }, [game, refresh, invoke]); // Table is retained server-side across refreshes.
+  }, [game, user?.id, refresh, invoke]); // Table is retained server-side across refreshes.
 
   const action = useCallback(async (name, args = {}) => {
-    if (busy || !isAuthenticated) return false;
+    if (actionLock.current || !isAuthenticated || !user?.id) return false;
+    const epoch=generation.current;
+    actionLock.current=true;
     setBusy(true);
     setError('');
+    let queue,request;
     try {
-      await invoke(name, args);
+      queue=getQueue();
+      if(['bet','roll','refill'].includes(name)){
+        request=queue.prepare(name,args);setPendingAction(request);
+      }else if(queue.peek())throw Error('Confirm the pending practice action before changing the table.');
+      const response=await invoke(name,request?{...request.params,requestId:request.requestId}:args);
+      if(request&&(!response.state||response.state.game!==game))throw Error('Practice action returned no verifiable table state. Retry its original request.');
+      if(request)queue.confirm(request.requestId);
+      if(alive.current&&epoch===generation.current)setPendingAction(queue.peek());
       return true;
     } catch (e) {
-      if (alive.current) setError(e.message);
+      if(request){
+        try{queue.failed(request.requestId,{definitiveRejection:e.definitiveRejection===true});}catch{ /* Keep the original receipt in memory if storage is unavailable. */ }
+      }
+      if(queue&&alive.current&&epoch===generation.current)setPendingAction(queue.peek());
+      if (alive.current&&epoch===generation.current) setError(e.message);
       return false;
     } finally {
-      if (alive.current) setBusy(false);
+      actionLock.current=false;
+      if (alive.current&&epoch===generation.current) setBusy(false);
     }
-  }, [busy, isAuthenticated, invoke]);
+  }, [game, getQueue, isAuthenticated, invoke, user?.id]);
 
   // Clock broadcasts are untrusted invalidation hints, never game outcomes.
   // Authenticated snapshots remain authoritative; polling recovers dropped events.
@@ -102,19 +137,20 @@ export function useMultiplayerPractice(game) {
   },[game,isAuthenticated,refresh]);
 
   const placeBet = useCallback((target, units) => action('bet', {
-    target, units, requestId: crypto.randomUUID(),
+    target, units,
   }), [action]);
   const runRound = useCallback(() => {
-    if (!table) return Promise.resolve(false);
-    return action(game === 'craps' ? 'roll' : 'spin', {
-      requestId: crypto.randomUUID(), expectedRound: table.round,
+    if (!table||game!=='craps') return Promise.resolve(false);
+    return action('roll', {
+      expectedRound: table.round,
     });
   }, [action, game, table]);
 
   return {
-    table, loading, busy, error, user, isAuthenticated,
+    table, loading, busy, error, user, isAuthenticated,pendingAction,
+    retryPending:()=>{try{const saved=getQueue().peek();return saved?action(saved.action,saved.params):Promise.resolve(false);}catch(e){setError(e.message);return Promise.resolve(false);}},
     refresh, join: (mode) => action('join', mode && game==='craps' ? {mode} : {}),
-    refill: () => action('refill', {requestId: crypto.randomUUID()}),
+    refill: () => action('refill'),
     leave: () => action('leave'),
     claim: () => action('claim'), placeBet, runRound,
   };

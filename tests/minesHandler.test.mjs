@@ -13,10 +13,8 @@ function setup({ anonymous = false, code = null } = {}) {
   { createClient: () => client,Response,JSON,Deno: { env: { get: k => k === 'SUPABASE_URL' ? 'https://qonqemhljgxlwpghkxhn.supabase.co' : 'fixture-key' },serve: fn => handler = fn } });
  return { calls,request: body => handler(new Request('https://fixture.invalid',{ method: 'POST',headers: { authorization: 'Bearer fixture' },body: JSON.stringify(body) })) };
 }
-test('Mines binds actor, version, tile and retry key to a verified account', async () => {
- const h = setup();
- assert.equal((await h.request({ action: 'pick',roundId: id,requestId: id,version: 2,cell: 24 })).status,200);
- assert.deepEqual(JSON.parse(JSON.stringify(h.calls[0].args)),{ p_actor: id,p_action: 'pick',p_round: id,p_request: id,p_version: 2,p_cell: 24,p_mine_count: null,p_client_seed: null });
+test('parked Mines cannot mutate a round for a verified account',async()=>{
+ const h=setup();assert.equal((await h.request({action:'pick',roundId:id,requestId:id,version:2,cell:24})).status,403);assert.equal(h.calls.length,0);
 });
 test('Mines rejects forged boards, monetary fields, anonymous accounts and out-of-range moves', async () => {
  const base = { action: 'commit',roundId: id,mineCount: 3 };
@@ -27,8 +25,6 @@ test('Mines rejects forged boards, monetary fields, anonymous accounts and out-o
  }
  const h = setup({ anonymous: true }); assert.equal((await h.request(base)).status,401); assert.equal(h.calls.length,0);
 });
-test('Mines preserves server permission, conflict and missing-round errors', async () => {
- for (const [code,status] of [['42501',403],['23505',409],['P0002',404]]) {
-  assert.equal((await setup({ code }).request({ action: 'state',roundId: id })).status,status);
- }
+test('parked Mines never invokes permission, conflict or missing-round RPCs',async()=>{
+ for(const code of ['42501','23505','P0002']){const h=setup({code});assert.equal((await h.request({action:'state',roundId:id})).status,403);assert.equal(h.calls.length,0);}
 });

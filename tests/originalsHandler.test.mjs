@@ -13,12 +13,8 @@ function setup({ anonymous = false, code = null } = {}) {
     { createClient: () => client, Response, JSON, Deno: { env: { get: k => k === 'SUPABASE_URL' ? 'https://qonqemhljgxlwpghkxhn.supabase.co' : 'fixture-key' }, serve: fn => handler = fn } });
   return { calls, request: body => handler(new Request('https://fixture.invalid', { method: 'POST', headers: { authorization: 'Bearer fixture' }, body: JSON.stringify(body) })) };
 }
-test('originals handler binds actor to verified identity and preserves round ID', async () => {
-  const h = setup();
-  assert.equal((await h.request({ action: 'commit', game: 'coin', requestId: id })).status, 200);
-  assert.equal(h.calls[0].args.p_actor, id);
-  assert.equal(h.calls[0].args.p_round, id);
-  assert.equal(h.calls[0].args.p_client_seed, null);
+test('parked Originals cannot create a round for a verified account', async () => {
+ const h=setup();assert.equal((await h.request({action:'commit',game:'coin',requestId:id})).status,403);assert.equal(h.calls.length,0);
 });
 test('originals handler rejects forged outcomes, monetary fields, malformed JSON objects and anonymous sessions', async () => {
   for (const body of [null, [], { action: 'commit', game: 'coin', requestId: id, amount: 1 },
@@ -28,8 +24,6 @@ test('originals handler rejects forged outcomes, monetary fields, malformed JSON
   }
   const h = setup({ anonymous: true }); assert.equal((await h.request({ action: 'history', game: 'coin' })).status, 401); assert.equal(h.calls.length, 0);
 });
-test('originals handler preserves conflict, authorization and rate-limit errors', async () => {
-  for (const [code, expected] of [['23505',409],['42501',403],['54000',429]]) {
-    assert.equal((await setup({ code }).request({ action: 'commit', game: 'coin', requestId: id })).status, expected);
-  }
+test('parked Originals never invoke unavailable mutation RPCs',async()=>{
+ for(const code of ['23505','42501','54000']){const h=setup({code});assert.equal((await h.request({action:'commit',game:'coin',requestId:id})).status,403);assert.equal(h.calls.length,0);}
 });

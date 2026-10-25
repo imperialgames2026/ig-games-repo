@@ -1,4 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.57.4';
+// Source release policy; browser input and environment cannot enable parked gameplay.
+const practiceRelease = { gameplayEnabled: false };
 const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'authorization, apikey, content-type, x-client-info, x-supabase-api-version' };
 const reply = (status: number, value: unknown) => new Response(JSON.stringify(value), { status, headers });
@@ -29,6 +31,7 @@ Deno.serve(async (request: Request) => {
  if (body.action === 'commit' && (!Number.isInteger(body.mineCount) || Number(body.mineCount) < 1 || Number(body.mineCount) > 24)) return reply(400, { error: 'Choose 1 to 24 mines' });
  if (body.action === 'start' && (typeof body.clientSeed !== 'string' || body.clientSeed.length < 1 || body.clientSeed.length > 128)) return reply(400, { error: 'Invalid client seed' });
  if (body.action === 'pick' && (!Number.isInteger(body.cell) || Number(body.cell) < 0 || Number(body.cell) > 24)) return reply(400, { error: 'Invalid tile' });
+ if (!practiceRelease.gameplayEnabled) return reply(403, { error: 'Mines is parked for this practice release', code: 'GAME_PARKED' });
  const db = createClient(url,secret,{ auth: { persistSession: false, autoRefreshToken: false } });
  const { data, error } = await db.rpc('ig_mines_practice', { p_actor: user.id, p_action: body.action,
   p_round: body.roundId ?? null, p_request: body.requestId ?? null, p_version: body.version ?? null,

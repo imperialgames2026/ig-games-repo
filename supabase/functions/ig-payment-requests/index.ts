@@ -1,4 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.57.4';
+const practiceRelease = { paymentPreparationEnabled: false };
 export const headers = {
  'Content-Type':'application/json','Cache-Control':'no-store',
  'Access-Control-Allow-Origin':'*',
@@ -59,6 +60,7 @@ Deno.serve(async req=>{
     typeof body.asset!=='string'||typeof body.network!=='string'||
     (body.kind==='withdrawal'&&(typeof body.destination!=='string'||body.destination.trim().length<8||body.destination.trim().length>256)))
    throw new HttpError(400,'Invalid payment request');
+  if (!practiceRelease.paymentPreparationEnabled)throw new HttpError(403,'Deposits and withdrawals are disabled for practice play');
   const {data,error}=await db.rpc('payment_prepare',{p_user:user.id,p_request:body.requestId,p_kind:body.kind,p_asset:body.asset,
    p_network:body.network,p_amount:body.amount,p_destination:body.kind==='withdrawal'?body.destination.trim():null});
   if(error)throw error;

@@ -1,4 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
+// Source release policy; browser input and environment cannot enable parked gameplay.
+const practiceRelease = { gameplayEnabled: false };
 const encoder = new TextEncoder();
 const hex = (bytes: Uint8Array) => Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
@@ -27,6 +29,7 @@ Deno.serve(async (req: Request) => {
   const auth = createClient(url, pub, { auth: { persistSession: false } });
   const { data: { user }, error: authError } = await auth.auth.getUser(token);
   if (authError || !user || user.is_anonymous) return json({ error: "Unauthorized" }, 401);
+  if (!practiceRelease.gameplayEnabled) return json({error:"Originals are parked for this practice release",code:"GAME_PARKED"},403);
   const db = createClient(url, secret, { auth: { persistSession: false } });
   let body: Record<string, unknown>;
   try { body = await req.json(); } catch { return json({ error: "Invalid JSON" }, 400); }

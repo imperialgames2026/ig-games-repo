@@ -1,4 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.57.4';
+// Source release policy; browser input and environment cannot enable parked gameplay.
+const practiceRelease = { gameplayEnabled: false };
 
 const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store',
   'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -31,6 +33,7 @@ Deno.serve(async (request: Request) => {
   if (body.action !== 'history' && (typeof round !== 'string' || !uuid.test(round))) return json(400, { error: 'Invalid round ID' });
   if (body.action === 'reveal' && (typeof body.clientSeed !== 'string' || body.clientSeed.length < 1 || body.clientSeed.length > 128))
     return json(400, { error: 'Client seed must have 1 to 128 characters' });
+  if (!practiceRelease.gameplayEnabled) return json(403, { error: 'Originals are parked for this practice release', code: 'GAME_PARKED' });
   const db = createClient(url, secret, { auth: { persistSession: false, autoRefreshToken: false } });
   const { data, error } = await db.rpc('ig_originals_practice', {
     p_actor: user.id, p_action: body.action, p_game: body.game, p_round: round ?? null, p_client_seed: body.clientSeed ?? null,
