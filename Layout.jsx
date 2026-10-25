@@ -22,6 +22,7 @@ import BottomTabBar from '@/components/mobile/BottomTabBar';
 import MobileHeader from '@/components/mobile/MobileHeader';
 import AnnouncementBanner from '@/components/casino/AnnouncementBanner';
 import PageTransition from '@/components/mobile/PageTransition';
+import { AdaptiveGameViewport } from '@/lib/imperialViewport';
 
 function useMediaQuery(query) {
   const [matches, setMatches] = useState(false);
@@ -78,7 +79,7 @@ export default function Layout({ children, currentPageName }) {
   const isPlayPage = currentPageName?.startsWith('Play');
 
   if (isPlayPage) {
-    return <>{children}</>;
+    return <AdaptiveGameViewport>{children}</AdaptiveGameViewport>;
   }
 
   return (

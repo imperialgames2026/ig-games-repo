@@ -76,6 +76,19 @@ try {
   checkpoint('bundled_home');
   await page.getByRole('heading', { name: 'IMPERIAL GAMES', exact: true }).waitFor();
   assert.equal(await page.evaluate(() => window.Capacitor?.isNativePlatform?.()), true);
+  report.adaptive_viewport = await page.evaluate(() => ({
+    native: document.documentElement.dataset.igNative,
+    device_class: document.documentElement.dataset.igDeviceClass,
+    orientation: document.documentElement.dataset.igOrientation,
+    ui_scale: Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ig-ui-scale')) || 1,
+    game_scale: Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ig-game-scale')) || 1,
+    viewport_width: document.documentElement.clientWidth,
+    scroll_width: document.documentElement.scrollWidth,
+  }));
+  assert.equal(report.adaptive_viewport.native, 'true');
+  assert.ok(report.adaptive_viewport.ui_scale >= 0.8 && report.adaptive_viewport.ui_scale <= 1);
+  assert.ok(report.adaptive_viewport.game_scale >= 0.68 && report.adaptive_viewport.game_scale <= 1);
+  assert.ok(report.adaptive_viewport.scroll_width <= report.adaptive_viewport.viewport_width);
   report.results.push('cold launch renders bundled Imperial Games home in a real Capacitor WebView');
   await page.screenshot({ path: 'android-evidence/home.png', fullPage: true });
   const metadata = await page.evaluate(async () => {

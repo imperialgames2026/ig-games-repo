@@ -66,17 +66,17 @@ export default function Games() {
         <div className="absolute inset-0 bg-gradient-to-br from-green-900/30 via-transparent to-blue-900/20" />
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-green-600/20 rounded-full blur-3xl" />
         
-        <div className="relative max-w-7xl mx-auto px-4 py-16">
+        <div className="relative max-w-7xl mx-auto px-3 py-8 sm:px-4 sm:py-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-center"
           >
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-green-400 to-emerald-500 shadow-lg shadow-green-500/30 mb-6">
-              <Gamepad2 className="w-10 h-10 text-white" />
+            <div className="inline-flex items-center justify-center w-14 h-14 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-green-400 to-emerald-500 shadow-lg shadow-green-500/30 mb-3 sm:mb-6">
+              <Gamepad2 className="w-7 h-7 sm:w-10 sm:h-10 text-white" />
             </div>
-            <h1 className="text-4xl font-black text-white mb-4">Game Library</h1>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+            <h1 className="text-3xl sm:text-4xl font-black text-white mb-2 sm:mb-4">Game Library</h1>
+            <p className="text-base sm:text-xl text-gray-400 max-w-2xl mx-auto">
               Explore our collection of exciting casino games. Play responsibly and have fun!
             </p>
           </motion.div>
@@ -84,80 +84,80 @@ export default function Games() {
       </div>
 
       {/* Games */}
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <section aria-label="Available multiplayer practice tables" className="mb-10 rounded-2xl border border-amber-400/20 bg-[#181525] p-5 sm:p-7">
-          <div className="mb-5">
+      <div className="max-w-7xl mx-auto px-3 py-6 pb-28 sm:px-4 sm:py-12 md:pb-12">
+        <section aria-label="Available multiplayer practice tables" className="mb-6 sm:mb-10 rounded-2xl border border-amber-400/20 bg-[#181525] p-3 sm:p-7">
+          <div className="mb-3 sm:mb-5">
             <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-300">Staging · Multiplayer practice</p>
-            <h2 className="mt-2 text-2xl font-black text-white">Join a live casino-style table</h2>
-            <p className="mt-2 text-sm text-gray-300">Play beside other signed-in users using imaginary practice chips only. No cryptocurrency, paid wagers, transfers, redemptions or cash prizes.</p>
+            <h2 className="mt-1 sm:mt-2 text-xl sm:text-2xl font-black text-white">Join a live casino-style table</h2>
+            <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm leading-5 text-gray-300">Play beside other signed-in users using imaginary practice chips only. No cryptocurrency, paid wagers, transfers, redemptions or cash prizes.</p>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-2 sm:gap-4">
             <Link to={createPageUrl('PlayCraps')}
-              className="rounded-xl border border-emerald-400/30 bg-gradient-to-br from-emerald-950 to-[#123429] p-5 text-white transition hover:border-amber-300">
-              <div className="text-4xl">🎲</div>
-              <h3 className="mt-2 text-xl font-black">Multiplayer Craps</h3>
-              <p className="mt-2 text-sm text-gray-300">Take the shooter's turn or join the action with Pass Line, Field, Any Seven and Place Number practice bets.</p>
-              <p className="mt-4 text-sm font-bold text-amber-200">Enter craps table →</p>
+              className="rounded-xl border border-emerald-400/30 bg-gradient-to-br from-emerald-950 to-[#123429] p-3 sm:p-5 text-white transition hover:border-amber-300">
+              <div className="text-2xl sm:text-4xl">🎲</div>
+              <h3 className="mt-1 text-sm sm:mt-2 sm:text-xl font-black">Multiplayer Craps</h3>
+              <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm leading-5 text-gray-300">Take the shooter's turn or join the action with Pass Line, Field, Any Seven and Place Number practice bets.</p>
+              <p className="mt-2 sm:mt-4 text-xs sm:text-sm font-bold text-amber-200">Enter craps table →</p>
             </Link>
             <Link to={createPageUrl('PlayRoulette')}
-              className="rounded-xl border border-red-400/30 bg-gradient-to-br from-red-950 to-[#2c1a1a] p-5 text-white transition hover:border-amber-300">
-              <div className="text-4xl">🎡</div>
-              <h3 className="mt-2 text-xl font-black">Multiplayer Roulette</h3>
-              <p className="mt-2 text-sm text-gray-300">Join a shared single-zero table, cover your numbers or outside selections, and watch a communal spin.</p>
-              <p className="mt-4 text-sm font-bold text-amber-200">Enter roulette table →</p>
+              className="rounded-xl border border-red-400/30 bg-gradient-to-br from-red-950 to-[#2c1a1a] p-3 sm:p-5 text-white transition hover:border-amber-300">
+              <div className="text-2xl sm:text-4xl">🎡</div>
+              <h3 className="mt-1 text-sm sm:mt-2 sm:text-xl font-black">Multiplayer Roulette</h3>
+              <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm leading-5 text-gray-300">Join a shared single-zero table, cover your numbers or outside selections, and watch a communal spin.</p>
+              <p className="mt-2 sm:mt-4 text-xs sm:text-sm font-bold text-amber-200">Enter roulette table →</p>
             </Link>
             <Link to={createPageUrl('PlayBaccarat')}
-              className="rounded-xl border border-blue-400/30 bg-gradient-to-br from-blue-950 to-[#152d3b] p-5 text-white hover:border-amber-300">
-              <div className="text-4xl">🃏</div>
-              <h3 className="mt-2 text-xl font-black">Multiplayer Baccarat</h3>
-              <p className="mt-2 text-sm text-gray-300">One communal 8-deck hand. Place Player, Banker or Tie practice chips before the deal.</p>
-              <p className="mt-4 text-sm font-bold text-amber-200">Enter Baccarat table →</p>
+              className="rounded-xl border border-blue-400/30 bg-gradient-to-br from-blue-950 to-[#152d3b] p-3 sm:p-5 text-white hover:border-amber-300">
+              <div className="text-2xl sm:text-4xl">🃏</div>
+              <h3 className="mt-1 text-sm sm:mt-2 sm:text-xl font-black">Multiplayer Baccarat</h3>
+              <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm leading-5 text-gray-300">One communal 8-deck hand. Place Player, Banker or Tie practice chips before the deal.</p>
+              <p className="mt-2 sm:mt-4 text-xs sm:text-sm font-bold text-amber-200">Enter Baccarat table →</p>
             </Link>
             <Link to={createPageUrl('PlayCrash')}
-              className="rounded-xl border border-pink-400/30 bg-gradient-to-br from-purple-950 to-[#2d1b3d] p-5 text-white hover:border-amber-300">
-              <div className="text-4xl">📈</div>
-              <h3 className="mt-2 text-xl font-black">Multiplayer Crash</h3>
-              <p className="mt-2 text-sm text-gray-300">Watch a shared multiplier and bet on a preset server-side automatic cashout threshold.</p>
-              <p className="mt-4 text-sm font-bold text-amber-200">Enter Crash table →</p>
+              className="rounded-xl border border-pink-400/30 bg-gradient-to-br from-purple-950 to-[#2d1b3d] p-3 sm:p-5 text-white hover:border-amber-300">
+              <div className="text-2xl sm:text-4xl">📈</div>
+              <h3 className="mt-1 text-sm sm:mt-2 sm:text-xl font-black">Multiplayer Crash</h3>
+              <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm leading-5 text-gray-300">Watch a shared multiplier and bet on a preset server-side automatic cashout threshold.</p>
+              <p className="mt-2 sm:mt-4 text-xs sm:text-sm font-bold text-amber-200">Enter Crash table →</p>
             </Link>
             <Link to={createPageUrl('PlayTrenball')}
-              className="rounded-xl border border-amber-400/30 bg-gradient-to-br from-amber-950 to-[#39300f] p-5 text-white hover:border-amber-300">
-              <div className="text-4xl">🌙</div>
-              <h3 className="mt-2 text-xl font-black">Multiplayer Trenball</h3>
-              <p className="mt-2 text-sm text-gray-300">Red, Green or Moon predictions on the same live Crash round.</p>
-              <p className="mt-4 text-sm font-bold text-amber-200">Enter Trenball table →</p>
+              className="rounded-xl border border-amber-400/30 bg-gradient-to-br from-amber-950 to-[#39300f] p-3 sm:p-5 text-white hover:border-amber-300">
+              <div className="text-2xl sm:text-4xl">🌙</div>
+              <h3 className="mt-1 text-sm sm:mt-2 sm:text-xl font-black">Multiplayer Trenball</h3>
+              <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm leading-5 text-gray-300">Red, Green or Moon predictions on the same live Crash round.</p>
+              <p className="mt-2 sm:mt-4 text-xs sm:text-sm font-bold text-amber-200">Enter Trenball table →</p>
             </Link>
             <Link to={createPageUrl('PlayBlackjack')}
-              className="rounded-xl border border-amber-400/30 bg-gradient-to-br from-emerald-950 to-[#35271b] p-5 text-white hover:border-amber-300">
-              <div className="text-4xl">♠️</div>
-              <h3 className="mt-2 text-xl font-black">Multiplayer Blackjack</h3>
-              <p className="mt-2 text-sm text-gray-300">Seven shared seats, a server-controlled six-deck dealer, Hit / Stand, and Perfect Pairs practice side bets.</p>
-              <p className="mt-4 text-sm font-bold text-amber-200">Enter Blackjack table →</p>
+              className="rounded-xl border border-amber-400/30 bg-gradient-to-br from-emerald-950 to-[#35271b] p-3 sm:p-5 text-white hover:border-amber-300">
+              <div className="text-2xl sm:text-4xl">♠️</div>
+              <h3 className="mt-1 text-sm sm:mt-2 sm:text-xl font-black">Multiplayer Blackjack</h3>
+              <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm leading-5 text-gray-300">Seven shared seats, a server-controlled six-deck dealer, Hit / Stand, and Perfect Pairs practice side bets.</p>
+              <p className="mt-2 sm:mt-4 text-xs sm:text-sm font-bold text-amber-200">Enter Blackjack table →</p>
             </Link>
             <Link to={createPageUrl('PlayPoker')}
-              className="rounded-xl border border-amber-400/30 bg-gradient-to-br from-slate-900 to-[#272145] p-5 text-white hover:border-amber-300">
-              <div className="text-4xl">♣️</div>
-              <h3 className="mt-2 text-xl font-black">Texas Hold’em Poker</h3>
-              <p className="mt-2 text-sm text-gray-300">Create a six-seat table with blinds, two private hole cards, shared streets and player-driven practice betting.</p>
-              <p className="mt-4 text-sm font-bold text-amber-200">Create Hold’em table →</p>
+              className="rounded-xl border border-amber-400/30 bg-gradient-to-br from-slate-900 to-[#272145] p-3 sm:p-5 text-white hover:border-amber-300">
+              <div className="text-2xl sm:text-4xl">♣️</div>
+              <h3 className="mt-1 text-sm sm:mt-2 sm:text-xl font-black">Texas Hold’em Poker</h3>
+              <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm leading-5 text-gray-300">Create a six-seat table with blinds, two private hole cards, shared streets and player-driven practice betting.</p>
+              <p className="mt-2 sm:mt-4 text-xs sm:text-sm font-bold text-amber-200">Create Hold’em table →</p>
             </Link>
             <Link to={createPageUrl('PlayOmaha')}
-              className="rounded-xl border border-amber-400/30 bg-gradient-to-br from-blue-950 to-[#293421] p-5 text-white hover:border-amber-300">
-              <div className="text-4xl">♦️</div>
-              <h3 className="mt-2 text-xl font-black">Omaha Poker</h3>
-              <p className="mt-2 text-sm text-gray-300">Four hole cards per player. Server-controlled showdowns must use exactly two private cards and three community cards.</p>
-              <p className="mt-4 text-sm font-bold text-amber-200">Create Omaha table →</p>
+              className="rounded-xl border border-amber-400/30 bg-gradient-to-br from-blue-950 to-[#293421] p-3 sm:p-5 text-white hover:border-amber-300">
+              <div className="text-2xl sm:text-4xl">♦️</div>
+              <h3 className="mt-1 text-sm sm:mt-2 sm:text-xl font-black">Omaha Poker</h3>
+              <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm leading-5 text-gray-300">Four hole cards per player. Server-controlled showdowns must use exactly two private cards and three community cards.</p>
+              <p className="mt-2 sm:mt-4 text-xs sm:text-sm font-bold text-amber-200">Create Omaha table →</p>
             </Link>
           </div>
         </section>
-        <section aria-label="Verified Originals practice games" className="mb-10 rounded-2xl border border-violet-400/20 bg-[#181525] p-5 sm:p-7">
-          <h2 className="text-2xl font-black text-white">Verified Originals</h2>
-          <p className="mt-2 text-sm text-gray-300">Free practice rounds with server commitments and proofs you can verify on your device. No money, tokens or prizes.</p>
-          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <section aria-label="Verified Originals practice games" className="mb-6 sm:mb-10 rounded-2xl border border-violet-400/20 bg-[#181525] p-3 sm:p-7">
+          <h2 className="text-xl sm:text-2xl font-black text-white">Verified Originals</h2>
+          <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm leading-5 text-gray-300">Free practice rounds with server commitments and proofs you can verify on your device. No money, tokens or prizes.</p>
+          <div className="mt-3 sm:mt-5 grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-3">
             {approvedPracticeGames.filter(game => ['provably-fair-v2','ig-originals-practice','ig-mines-practice','ig-final-practice'].includes(game.backend) || game.slug==='rocket').map(game =>
-              <Link key={game.slug} to={game.route} className="rounded-xl border border-violet-400/25 bg-violet-950/30 p-5 text-white hover:border-amber-300">
-                <span aria-hidden="true" className="text-3xl">{game.icon}</span><h3 className="mt-2 text-xl font-bold">{game.name}</h3>
-                <p className="mt-2 text-sm text-gray-300">{game.description}</p><p className="mt-4 text-sm font-bold text-amber-200">Play free practice →</p>
+              <Link key={game.slug} to={game.route} className="rounded-xl border border-violet-400/25 bg-violet-950/30 p-3 sm:p-5 text-white hover:border-amber-300">
+                <span aria-hidden="true" className="text-2xl sm:text-3xl">{game.icon}</span><h3 className="mt-1 text-sm sm:mt-2 sm:text-xl font-bold">{game.name}</h3>
+                <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm leading-5 text-gray-300">{game.description}</p><p className="mt-2 sm:mt-4 text-xs sm:text-sm font-bold text-amber-200">Play free practice →</p>
               </Link>)}
           </div>
         </section>
