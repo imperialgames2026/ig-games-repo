@@ -51,6 +51,8 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Exercise profile and game UI with controlled API contracts
         run: npx playwright test --config playwright.migration.config.mjs
+      - name: Verify three poker tables, isolated replays and delayed responses
+        run: npm run test:poker:multitable
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

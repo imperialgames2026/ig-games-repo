@@ -58,6 +58,61 @@ beforeAll(async()=>{
 afterAll(async()=>{await db?.close();});
 
 describe('committed poker deals and private hand ledger',()=>{
+  it('keeps six interleaved tables and three successive hands isolated, including mixed variants',async()=>{
+    const roster=(await query('insert into auth.users select gen_random_uuid() from generate_series(1,8) returning id')).map(r=>r.id);
+    const tables=await Promise.all(Array.from({length:6},async(_,i)=>{
+      const variant=i%2?'omaha':'holdem',count=variant==='omaha'?6:8;
+      const [{id}]=await query(`select ${variant==='omaha'?'poker_create_omaha_v1':'poker_create_v1'}($1,1000) id`,[roster[0]]);
+      for(const user of roster.slice(1,count))await query('select poker_join_v1($1,$2)',[id,user]);
+      return {id,variant,count,proofs:[]};
+    }));
+    const pinned=new Map(),storage={getItem:k=>pinned.get(k),setItem:(k,v)=>pinned.set(k,v)};
+    const roots=new Set(),cardHashes=new Set();
+    for(let hand=1;hand<=3;hand++){
+      await Promise.all(tables.map(async(table)=>{
+        // Identical test seeds deliberately exercise the table/hand domain binding.
+        const seed='synthetic-shared-seed-multitable';
+        const {deck,commitment}=await shuffleCommittedDeck(seed,`${table.id}:${hand}`);table.expectedDeck=deck;
+        await query(`select ${table.variant==='omaha'?'poker_start_omaha_v1':'poker_start_v2'}($1::uuid,$2::uuid,$3::jsonb,$4,$5,$6::int)`,[table.id,roster[0],JSON.stringify(deck),commitment,seed,hand]);
+        const [{proof}]=await query('select poker_hand_replay_v1($1,$2,$3::int,0) proof',[roster[1],table.id,hand]);
+        expect(await verifyDealProof(proof)).toBe(true);expect(rememberDealRoot(proof,storage)).toBe(false);
+        expect(roots.has(proof.root)).toBe(false);roots.add(proof.root);
+        proof.cardHashes.forEach(hash=>{expect(cardHashes.has(hash)).toBe(false);cardHashes.add(hash);});
+        table.liveProof=proof;
+      }));
+      // All six hands are open together; independent finish loops issue overlapping requests.
+      await Promise.all(tables.map((t,i)=>finish(t.id,i%2===0)));
+      await Promise.all(tables.map(async table=>{
+        const [{proof}]=await query('select poker_hand_replay_v1($1,$2,$3::int,0) proof',[roster[1],table.id,hand]);
+        const frames=await verifyReplay(proof);expect(rememberDealRoot(proof,storage)).toBe(true);
+        expect(proof.root).toBe(table.liveProof.root);expect(frames.every(f=>f.tableId===table.id&&f.handNo===hand)).toBe(true);
+        expect(proof.openings.every(o=>o.card.rank===table.expectedDeck[o.position].rank&&o.card.suit===table.expectedDeck[o.position].suit)).toBe(true);
+        const [{deck}]=await query('select private_deck deck from poker_tables_v1 where id=$1',[table.id]);expect(deck).toEqual(table.expectedDeck);
+        for(const seat of frames.at(-1).seats.filter(s=>s.folded&&s.seatNo!==proof.mySeat)){
+          const slots=proof.dealAssignments.find(a=>a.seatNo===seat.seatNo).holePositions;
+          expect(proof.openings.some(o=>slots.includes(o.position))).toBe(false);
+        }
+        table.proofs.push(proof);
+      }));
+    }
+    for(const table of tables){
+      const [{history}]=await query('select poker_hand_history_v1($1,$2,null) history',[roster[1],table.id]);
+      expect(history.hands.map(h=>h.handNo)).toEqual([3,2,1]);
+      for(const proof of table.proofs){
+        const [{archived}]=await query('select poker_hand_replay_v1($1,$2,$3::int,0) archived',[roster[1],table.id,proof.handNo]);
+        expect(archived).toEqual(proof);expect(await verifyReplay(archived)).toHaveLength(proof.lastStep+1);
+      }
+    }
+    const a=tables[0].proofs[0],b=tables[2].proofs[0],next=tables[0].proofs[1];
+    await expect(verifyReplay({...a,openings:b.openings})).rejects.toThrow();
+    await expect(verifyReplay({...a,steps:[a.steps[0],b.steps[1],...a.steps.slice(2)]})).rejects.toThrow();
+    await expect(verifyReplay({...a,openings:next.openings})).rejects.toThrow();
+    await expect(verifyReplay({...a,tableId:b.tableId})).rejects.toThrow();
+    const head=JSON.parse(a.head.canonical);
+    await expect(verifyPokerSnapshot({deckProof:b,table:{id:a.tableId,handNo:a.handNo,version:head.version,board:head.board},holeCards:[]})).rejects.toThrow('Wrong hand proof');
+    expect(roots.size).toBe(18);expect(cardHashes.size).toBe(18*52);
+    if(process.env.POKER_MULTITABLE_FIXTURE)writeFileSync(process.env.POKER_MULTITABLE_FIXTURE,JSON.stringify(tables.map(({id,variant,proofs})=>({id,variant,proofs}))));
+  },30000);
   it('tops automatic Crash queues up to 25 only below five, keeping queued commitments',async()=>{
     await db.exec(`create table ig_crash_v2_runtime(singleton int primary key);insert into ig_crash_v2_runtime values(1);
       create table ig_crash_v2_queue(id bigint generated always as identity primary key,seed_secret text,crash_point numeric,duration_ms int,commitment text,status text default 'queued');`);

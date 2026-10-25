@@ -4,6 +4,7 @@ import { ShieldCheck, RefreshCw, CheckCircle, XCircle } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import { requireSupabase } from '@/lib/supabaseClient';
 import { verifyFairRound } from '@/lib/fairness';
+import { Link } from 'react-router-dom';
 
 /**
  * The original Base44 SSRCR page asserted that every historical casino game
@@ -68,6 +69,12 @@ export default function ProvablyFair() {
         from the same client seed and nonce. A verified result means the calculation matches
         the stored outcome.
       </p>
+      <section aria-labelledby="poker-verification-guide" className="mb-8 rounded-2xl border border-emerald-400/20 bg-emerald-950/20 p-5">
+        <p className="mb-3 font-bold text-emerald-200">Your security and fair play are our #1 priority. Every player. Every hand. Every time.</p>
+        <h2 id="poker-verification-guide" className="text-xl font-bold">SSRCR™ poker: locked decks, private cards and hand replay</h2>
+        <p className="mt-3 leading-relaxed text-slate-300">Hold’em and Omaha lock card commitments and dealing positions before the first hole card is assigned. Open <strong>Hand history &amp; replay</strong> in the table controls to check a completed hand. Your own cards remain visible; opponents’ folded cards stay private. Poker uses visible-card reveal secrets instead of publishing the full shuffle seed.</p>
+        <Link to="/FairnessManifesto#poker-verification" className="mt-4 inline-block font-semibold text-emerald-300 underline">How SSRCR protects your poker hand—and what you can verify</Link>
+      </section>
       <section className="rounded-2xl border border-white/10 bg-[#1A1528] p-5">
         <div className="flex justify-between items-center gap-3 flex-wrap mb-5">
           <h2 className="text-xl font-bold">Your revealed practice rounds</h2>
