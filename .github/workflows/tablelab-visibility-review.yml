@@ -1,0 +1,48 @@
+name: TableLab visibility review
+# Dedicated draft validation; existing workflows and gates are unchanged.
+on:
+  create:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lifecycle-and-shared-renderer:
+    if: startsWith(github.ref, 'refs/heads/verify/tablelab-visible-rounds-')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Application regressions without biometric comparison tests
+        run: |
+          node --input-type=module - <<'JS'
+          import {readFileSync} from 'node:fs';
+          import {spawnSync} from 'node:child_process';
+          const args=JSON.parse(readFileSync('package.json')).scripts.test.split(' && ')[0].split(' ').slice(1).filter(x=>x!=='tests/kycValidation.test.mjs');
+          const result=spawnSync(process.execPath,args,{stdio:'inherit'});
+          process.exit(result.status ?? 1);
+          JS
+      - run: npm run test:replay
+      - run: npm run test:tables
+      - run: npm run build
+        env:
+          VITE_SUPABASE_URL: https://qonqemhljgxlwpghkxhn.supabase.co
+          VITE_SUPABASE_ANON_KEY: fixture-public-key
+          VITE_ENABLE_LEGACY_EDGE_FUNCTIONS: 'false'
+      - run: npx playwright install --with-deps chromium
+      - name: Synthetic lifecycle and actual bundled Unity checks
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4193 > /tmp/tablelab-preview.log 2>&1 &
+          node --input-type=module -e "for(let i=0;i<60;i++){try{if((await fetch('http://127.0.0.1:4193')).ok)process.exit(0)}catch{}await new Promise(r=>setTimeout(r,500))}process.exit(1)"
+          export LAB_URL=http://127.0.0.1:4193/practice-lab.html
+          export LAB_CHROME="$(node --input-type=module -e "import {chromium} from '@playwright/test';console.log(chromium.executablePath())")"
+          npm run test:tables:visibility
+          npm run test:tables:unity-visibility
+          LAB_URL=http://127.0.0.1:4193 npm run test:multiplayer:unity
