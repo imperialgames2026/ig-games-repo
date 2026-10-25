@@ -44,7 +44,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '>=22.23.4 <23'
           cache: npm
       - run: npm ci
       - name: Test read-only APK contract verifier
@@ -74,7 +74,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '>=22.23.4 <23'
           cache: npm
       - name: Install locked dependencies
         run: npm ci
@@ -153,7 +153,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '>=22.23.4 <23'
           cache: npm
       - run: npm ci
       - uses: actions/setup-java@v5
@@ -200,7 +200,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '>=22.23.4 <23'
       - name: Collect exact-lock audit evidence without changing dependencies
         run: node scripts/mobile-dependency-inventory.mjs "$RUNNER_TEMP/mobile-dependency-audit"
       - uses: actions/upload-artifact@v6

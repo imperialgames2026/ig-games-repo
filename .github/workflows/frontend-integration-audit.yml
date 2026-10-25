@@ -41,7 +41,7 @@ jobs:
           path: frontend-integration-audit.json
       - uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '>=22.23.4 <23'
       - run: npm ci --no-audit --no-fund
       - run: node --test tests/legacyBackendGuard.test.mjs
       - run: npm run build

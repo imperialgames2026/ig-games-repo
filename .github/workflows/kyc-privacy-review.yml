@@ -18,7 +18,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '>=22.23.4 <23'
           cache: npm
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - run: node --test tests/kycPrivacy.test.mjs tests/backendPackaging.test.mjs
@@ -42,7 +42,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '>=22.23.4 <23'
           cache: npm
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - uses: supabase/setup-cli@v3.0.1

@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: '>=22.23.4 <23'
       - name: Assemble only reviewed Supabase sources
         run: node scripts/prepare-reviewed-backend.mjs "$RUNNER_TEMP/imperial-backend"
       - name: Preserve reviewable backend package
@@ -40,7 +40,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: '>=22.23.4 <23'
       - uses: actions/download-artifact@v7
         with:
           name: imperial-reviewed-staging-backend
