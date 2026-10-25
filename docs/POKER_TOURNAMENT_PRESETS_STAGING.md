@@ -11,7 +11,9 @@
 - Node security tests in CI, rollback-only SQL test in staging, server JWT role validation and RLS.
 
 ## What this is **not**
-This is a **Superadmin staging preset creator**, not a 30-table live tournament launcher. Existing `poker_event_*` procedures include six-seat assumptions and require further work for 7–8 seat assignments, balancing across up to 30 tables, synchronized blind levels, elimination verification and hand-by-hand hand-history audits. Until that work and multi-user end-to-end tests are complete, presets remain `draft` and there is no activate/start tournament button.
+This is a **Superadmin staging preset creator**, not a production tournament launcher. The staging lifecycle supports publishing a free practice event, accepting registrations, and initial event seating for supported table sizes. Production use still requires multi-user end-to-end testing and further work on synchronized blind levels, robust multi-table balancing, elimination verification, and hand-by-hand hand-history audits.
+
+Published zero-buy-in PRACTICE events are visible at `/PokerTournaments`. Players can review the event configuration and register into a practice-only pool; an administrator starts the event and the existing event engine assigns registered entries to tables. Seated players can open their assigned table from the tournament details. This flow does not request or approve a wallet transaction. Late registration into a running event is not supported; running-event seating and wait-pool operations remain disabled until synchronized tournament seating is implemented and tested.
 
 The poker hand-settlement routine does **not** currently deduct rake. Configure rake by currency as a proposed policy only; financial chip collection, prizes, real-money buy-ins, crypto, tournament fees, rake distribution and redemptions remain disabled pending eligibility, regulatory and independent custody approval.
 

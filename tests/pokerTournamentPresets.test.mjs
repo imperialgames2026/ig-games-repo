@@ -52,3 +52,13 @@ test('only zero-price practice preset can create tournament draft events',()=>{
  assert.match(api,/ig_poker_create_event_from_preset/);
  assert.match(ui,/Create draft event/);
 });
+
+test('numeric preset fields remain clearable while editing and normalize on save',()=>{
+ assert.match(ui,/change\('tableCount',e\.target\.value\)/);
+ assert.match(ui,/change\('initialStack',e\.target\.value\)/);
+ assert.match(ui,/change\('blindLevels',\[\{\.\.\.form\.blindLevels\[0\],small:e\.target\.value\}\]\)/);
+ assert.match(ui,/change\('rakePercent',e\.target\.value\)/);
+ assert.match(ui,/rakeBps:Math\.round\(numberValue\(rakePercent\)\*100\)/);
+ assert.match(ui,/config:numberConfig\(form\)/);
+ assert.doesNotMatch(ui,/change\('tableCount',Number\(e\.target\.value\)\)/);
+});
