@@ -2,6 +2,7 @@
 // Reject stale or non-practice bundles before syncing to the Android shell.
 // This is a release guard, not a substitute for Auth, CI, and emulator testing.
 import { readFileSync, existsSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 
 function fail(message) { console.error('Mobile bundle rejected: ' + message); process.exit(1); }
@@ -18,12 +19,18 @@ if (release.reviewed_migration_count !== manifest.migrations.length)
   fail('backend migration manifest mismatch');
 if (release.held_game_count !== scope.nonMigration.length || scope.nonMigration.length !== 23)
   fail('excluded-game policy mismatch');
-// Mobile may carry reviewed-but-pending source migrations, but it must not silently
-// treat them as hosted/deployed. Hosted reviewed baseline is now 106 after the continuous-roulette migration.
+// Source inventory is not a hosted migration count. The installed v7 inventory
+// (69960cca) is unchanged; only the two reviewed replay/fairness files were added.
+// Read-only hosted history 2026-10-25 confirms those versions present and the exact
+// three KYC versions absent. This does not certify deployed SQL bytes/runtime.
+// Pin every file/hash/status so a same-count replacement cannot bypass re-review.
+const migrationInventoryHash = createHash('sha256').update(JSON.stringify(manifest.migrations)).digest('hex');
+if (migrationInventoryHash !== '3ef204b9bf91cc1107559a29b3491fc2d39cbed8679b6aba02de14a27e6eded6')
+  fail('reviewed migration inventory changed; re-review required');
 const pendingMigrations = manifest.migrations.filter(m => m.status === 'pending_deployment');
-const deployedReviewedMigrations = manifest.migrations.length - pendingMigrations.length;
-if (deployedReviewedMigrations !== 106) fail('deployed migration baseline changed; re-review required');
-if (pendingMigrations.length !== 3) fail('pending migration set changed; re-review required');
+const recordedReviewedMigrations = manifest.migrations.length - pendingMigrations.length;
+if (recordedReviewedMigrations !== 108 || pendingMigrations.length !== 3)
+  fail('reviewed migration classification changed; re-review required');
 const expectedBackend = 'https://qonqemhljgxlwpghkxhn.supabase.co';
 if (release.backend_url !== expectedBackend) fail('unexpected Supabase backend');
 if (!process.env.MOBILE_ISOLATED_AUTH_REVIEWED)

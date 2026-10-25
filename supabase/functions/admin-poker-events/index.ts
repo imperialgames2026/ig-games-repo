@@ -37,7 +37,7 @@ Deno.serve(async(req)=>{
  if(format==="scheduled_mtt"&&(typeof startAt!=="string"||!Number.isFinite(Date.parse(startAt))||Date.parse(startAt)<=Date.now()))return respond({error:"Scheduled start must be in the future"},400);
  if(!Array.isArray(levels)||levels.length<1||levels.length>100||!levels.every((l:any,i:number)=>l&&l.level===i+1&&integer(l.smallBlind,1,100000000)&&integer(l.bigBlind,2,200000000)&&l.bigBlind>=2*l.smallBlind&&integer(l.ante,0,100000000)&&integer(l.durationSeconds,60,7200)))
   return respond({error:"Invalid blind schedule"},400);
- const safeConfig={maxPlayers,seatsPerTable,startingStack,smallBlind,bigBlind,levels:levels.map((l:any)=>({level:l.level,smallBlind:l.smallBlind,bigBlind:l.bigBlind,ante:l.ante,durationSeconds:l.durationSeconds})), ...(format==="scheduled_mtt"?{startAt:new Date(startAt).toISOString()}:{}), ...(format==="ring"?{buyInMin,buyInMax}:{}),practiceOnly:true,realValueEnabled:false};
+ const safeConfig={maxPlayers,seatsPerTable,startingStack,smallBlind,bigBlind,levels:levels.map((l:any)=>({level:l.level,smallBlind:l.smallBlind,bigBlind:l.bigBlind,ante:l.ante,durationSeconds:l.durationSeconds})), ...(format==="scheduled_mtt"?{startAt:new Date(startAt).toISOString()}:{}), ...(format==="ring"?{buyInMin,buyInMax}:{}),practiceOnly:true,realValueEnabled:false,buyInUnits:0};
  const {data,error}=await admin.rpc("poker_event_create_v1",{p_actor:user.id,p_request:requestId,p_name:name.trim(),p_format:format,p_config:safeConfig});
  if(error)return respond({error:"Unable to create draft; request may conflict with an existing ID"},409);
  return respond(data,201);
