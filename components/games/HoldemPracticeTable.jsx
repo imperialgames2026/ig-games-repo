@@ -10,6 +10,7 @@ import HandReplay from '@/components/poker/HandReplay';
 import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { verifyPokerSnapshot, rememberDealRoot } from '@/lib/pokerReplayProof';
 import { safePokerAvatar } from '@/lib/pokerAvatar';
+import {createPracticeActionQueue} from '@/lib/practiceActionQueue';
 
 // All cards/turns/side pots are managed by poker-table-v1.
 // No local card shuffle, pot assignment, bankroll or wallet access.
@@ -83,7 +84,18 @@ export default function HoldemPracticeTable({variant='holdem'}) {
    catch{return DEFAULT_POKER_SETTINGS;}
  });
  const sounds=usePokerSounds();
- const requestRef=useRef(null);
+ const [pendingAction,setPendingAction]=useState(null);
+ const dispatchLock=useRef(false),queueRef=useRef(null);
+ const getQueue=useCallback(()=>{
+   if(!user?.id||!uuid.test(tableId||''))throw Error('An authenticated poker table is required.');
+   const key=`ig.practice.pending.v1:poker:${user.id}:${tableId}`;
+   if(queueRef.current?.key!==key)queueRef.current={key,queue:createPracticeActionQueue({storage:window.sessionStorage,key,makeId:()=>crypto.randomUUID()})};
+   return queueRef.current.queue;
+ },[user?.id,tableId]);
+ useEffect(()=>{
+   if(!isAuthenticated||!tableId){setPendingAction(null);return;}
+   try{setPendingAction(getQueue().peek());}catch(e){setError(e.message);}
+ },[getQueue,isAuthenticated,tableId]);
  const lastSocialRef=useRef(null);
  const socialTimerRef=useRef(null);
  const last=useRef(null);
@@ -107,6 +119,7 @@ export default function HoldemPracticeTable({variant='holdem'}) {
    const generation=requestGeneration.current;
    try {
      const s=await invoke({action:'snapshot',tableId});
+     if(s.table?.id!==tableId||!Number.isSafeInteger(s.table.version)||!Array.isArray(s.seats))throw Error('Poker returned no verifiable table snapshot.');
      let message='This hand began before verified history was enabled.';
      if(s.deckProof){
        if(s.deckProof.tableId!==tableId||s.deckProof.handNo!==s.table.handNo)throw Error('Wrong hand proof');
@@ -114,10 +127,11 @@ export default function HoldemPracticeTable({variant='holdem'}) {
        try{rememberDealRoot(s.deckProof,window.localStorage);message='Locked deck and visible cards verified.';}
        catch(e){if(e.message.includes('changed'))throw e;message='Cards verified; browser storage unavailable for comparing earlier observations.';}
      }
-     if(alive.current&&generation===requestGeneration.current){last.current=s;setSnapshot(s);setProofStatus(message);setError('');}
-   }catch(e){if(alive.current&&generation===requestGeneration.current){setSnapshot(null);last.current=null;setError(e.message);}}
+     if(alive.current&&generation===requestGeneration.current){last.current=s;setSnapshot(s);setProofStatus(message);setError('');return s;}
+     return null;
+   }catch(e){if(alive.current&&generation===requestGeneration.current){setSnapshot(null);last.current=null;setError(e.message);}return null;}
 
- },[tableId,isAuthenticated,invoke]);
+ },[tableId,user?.id,isAuthenticated,invoke]);
  useEffect(()=>{
    requestGeneration.current++;alive.current=true;setSnapshot(null);last.current=null;setProofStatus('');
    void fetchState();
@@ -154,10 +168,13 @@ export default function HoldemPracticeTable({variant='holdem'}) {
    await invoke({action:'sendSocial',tableId,targetUserId:targetPlayerId,actionId});
    await fetchState(true);
  },[tableId,invoke,fetchState]);
- const doAction=useCallback(async(action,fields={})=>{
-   if(busy||!isAuthenticated)return;
-   setBusy(true);setError('');
+ const doAction=useCallback(async(action,fields={},retry=false)=>{
+   if(dispatchLock.current||!isAuthenticated||!user?.id)return false;
+   dispatchLock.current=true;const epoch=requestGeneration.current;
+   setBusy(true);setError('');let queue,request;
    try{
+     if(action!=='create')queue=getQueue();
+     if(queue?.peek()&&action!=='act')throw Error('Confirm the pending poker action before changing the table.');
      if(action==='create') {
        const r=await invoke({action:'create',variant});
        if(!uuid.test(r.tableId))throw new Error('Invalid returned table');
@@ -166,13 +183,12 @@ export default function HoldemPracticeTable({variant='holdem'}) {
      if(action==='join') {
        await invoke({action,tableId});await fetchState();return;
      }
-     const body={action,tableId,...fields};
+     let body={action,tableId,...fields};
      if(action==='act') {
-       const fingerprint=JSON.stringify(body);
-       const request=requestRef.current?.fingerprint===fingerprint
-         ?requestRef.current.id:crypto.randomUUID();
-       requestRef.current={fingerprint,id:request};
-       body.actionId=request;
+       const saved=retry?queue.peek():null;
+       if(retry&&!saved)throw Error('No pending poker action.');
+       request=queue.prepare('pokerAct',saved?saved.params:{tableId,version:fields.version,move:fields.move,amount:fields.amount??0});
+       setPendingAction(request);body={action,...request.params,actionId:request.requestId};
      }
      await invoke(body);
      if(action==='act'){
@@ -187,11 +203,18 @@ export default function HoldemPracticeTable({variant='holdem'}) {
        }
        announcePokerAction(move,pokerSettings.actionVoice);
      }
-     requestRef.current=null;
-     await fetchState();
-   }catch(e){if(alive.current)setError(e.message);}
-   finally{if(alive.current)setBusy(false);}
- },[busy,isAuthenticated,tableId,invoke,setParams,fetchState,pokerSettings.gameSound,pokerSettings.actionVoice,sounds]);
+     const confirmed=await fetchState();
+     if(request){
+       if(!confirmed)throw Error('Poker action could not be confirmed by a table snapshot. Retry its original request.');
+       queue.confirm(request.requestId);
+       if(alive.current&&epoch===requestGeneration.current)setPendingAction(queue.peek());
+     }
+     return true;
+   }catch(e){
+     if(request){try{queue.failed(request.requestId);}catch{/* Preserve original receipt. */}}
+     if(alive.current&&epoch===requestGeneration.current){if(queue)setPendingAction(queue.peek());setError(e.message);}return false;
+   }finally{dispatchLock.current=false;if(alive.current&&epoch===requestGeneration.current)setBusy(false);}
+ },[getQueue,isAuthenticated,user?.id,tableId,invoke,setParams,fetchState,pokerSettings.gameSound,pokerSettings.actionVoice,sounds]);
 
  const table=snapshot?.table;
  const seats=snapshot?.seats||[];
@@ -332,6 +355,7 @@ export default function HoldemPracticeTable({variant='holdem'}) {
                className="rounded-lg border border-amber-300 px-4 py-2 font-bold text-amber-200">Confirm {Number(table.currentBet)>0?'raise':'bet'}</button>
            </div>
          </div>}
+         {pendingAction&&<p role="status" className="mt-4 text-amber-200">A poker action needs confirmation. <button disabled={busy} onClick={()=>void doAction('act',{},true)} className="underline">Retry original poker action</button></p>}
          {error&&<p role="alert" className="mt-4 rounded-lg bg-red-950 p-3 text-red-200">{error}</p>}
          {loading&&<p role="status" className="mt-2 text-gray-400">Contacting poker table…</p>}
        </div>

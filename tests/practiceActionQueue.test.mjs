@@ -100,3 +100,28 @@ for(const game of ['blackjack','baccarat']){
   const resumed=cardHarness({game,storage:h.storage});assert.equal(await resumed.hook.retryPending(),true);assert.deepEqual(resumed.calls[0],h.calls[0]);
  });
 }
+
+const pokerTableId='33333333-3333-4333-8333-333333333333';
+const pokerSource=readFileSync(new URL('../components/games/HoldemPracticeTable.jsx',import.meta.url),'utf8').replace(/^import[^\n]*\n/gm,'').replace('export default function HoldemPracticeTable','function HoldemPracticeTable').split(' const table=snapshot')[0]+' return {doAction};\n}\nHoldemPracticeTable;';
+function pokerHarness({invoke,storage=memory(),tableId=pokerTableId,variant='holdem'}={}){
+ const calls=[];
+ const component=vm.runInNewContext(pokerSource,{useCallback:fn=>fn,useEffect:()=>{},useRef:current=>({current}),useState:initial=>[typeof initial==='function'?initial():initial,()=>{}],useAuth:()=>({user:{id:'11111111-1111-4111-8111-111111111111'},isAuthenticated:true}),useSearchParams:()=>[new Map([['tableId',tableId]]),()=>{}],usePokerSounds:()=>({}),PLAYER_EMOTES:[],createPracticeActionQueue,window:{sessionStorage:storage,localStorage:memory()},crypto:{randomUUID},supabase:{functions:{invoke:async(_name,{body})=>{calls.push(JSON.parse(JSON.stringify(body)));return invoke?invoke(body,calls.length):{data:body.action==='snapshot'?{table:{id:tableId,version:9},seats:[]}:{accepted:true}};}}},verifyPokerSnapshot:async()=>{},rememberDealRoot:()=>{},Date,Error,Promise,console});
+ return {hook:component({variant}),calls,storage};
+}
+test('Holdem and Omaha actual callbacks retain original action until a validated snapshot succeeds',async()=>{
+ for(const variant of ['holdem','omaha']){
+  const lost=pokerHarness({variant,invoke:async body=>body.action==='snapshot'?{error:{message:'Synthetic snapshot outage'}}:{data:{accepted:true}}});
+  assert.equal(await lost.hook.doAction('act',{move:'raise',amount:20,version:7}),false);
+  assert.equal(await lost.hook.doAction('act',{move:'fold',version:8}),false);assert.equal(lost.calls.filter(x=>x.action==='act').length,1);
+  const resumed=pokerHarness({variant,storage:lost.storage});assert.equal(await resumed.hook.doAction('act',{},true),true);assert.deepEqual(resumed.calls[0],lost.calls[0]);
+ }
+});
+test('poker actual callback blocks duplicate dispatch and retains transport-failed request across remount',async()=>{
+ let finish;const h=pokerHarness({invoke:()=>new Promise(resolve=>finish=resolve)});const first=h.hook.doAction('act',{move:'call',version:7});assert.equal(await h.hook.doAction('act',{move:'call',version:7}),false);assert.equal(h.calls.length,1);finish({error:{message:'Synthetic transport failure'}});assert.equal(await first,false);
+ const resumed=pokerHarness({storage:h.storage});assert.equal(await resumed.hook.doAction('act',{},true),true);assert.deepEqual(resumed.calls[0],h.calls[0]);
+});
+test('poker pending receipts are table scoped and malformed snapshots never confirm them',async()=>{
+ const h=pokerHarness({invoke:async body=>({data:body.action==='snapshot'?{table:{id:'wrong',version:7},seats:[]}:{accepted:true}})});assert.equal(await h.hook.doAction('act',{move:'fold',version:7}),false);
+ const other=pokerHarness({storage:h.storage,tableId:'44444444-4444-4444-8444-444444444444'});assert.equal(await other.hook.doAction('act',{},true),false);assert.equal(other.calls.length,0);
+ const resumed=pokerHarness({storage:h.storage});assert.equal(await resumed.hook.doAction('act',{},true),true);assert.equal(resumed.calls[0].actionId,h.calls[0].actionId);
+});
