@@ -38,11 +38,11 @@ jobs:
       VITE_SUPABASE_URL: https://qonqemhljgxlwpghkxhn.supabase.co
       VITE_ENABLE_LEGACY_EDGE_FUNCTIONS: 'false'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: '22'
           cache: npm
@@ -68,11 +68,11 @@ jobs:
       VITE_SUPABASE_URL: https://qonqemhljgxlwpghkxhn.supabase.co
       VITE_ENABLE_LEGACY_EDGE_FUNCTIONS: 'false'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: '22'
           cache: npm
@@ -91,12 +91,14 @@ jobs:
         run: node scripts/build-mobile-assets.mjs
       - name: Sync committed Android shell
         run: npx --no-install cap sync android
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
-      - uses: android-actions/setup-android@v3
+      - uses: android-actions/setup-android@v4
         with:
+          # Preserve the v3 command-line tools while updating the action runtime.
+          cmdline-tools-version: 12266719
           packages: 'platform-tools'
           log-accepted-android-sdk-licenses: false
       - name: Install Android SDK
@@ -115,12 +117,12 @@ jobs:
           cp dist/release.json dist/mobile-release.json mobile-artifacts/
           (cd mobile-artifacts && sha256sum *.apk *.aab *.json > SHA256SUMS)
           printf '%s\n' 'Debug APK: emulator/testing only. Release APK/AAB: unsigned, NOT approved for distribution. See mobile-release.json for outstanding gates.' > mobile-artifacts/README.txt
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: imperial-games-android-${{ steps.source.outputs.sha }}
           path: mobile-artifacts/
           retention-days: 14
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
           name: android-validation-${{ steps.source.outputs.sha }}
@@ -145,20 +147,20 @@ jobs:
             api: 35
             profile: pixel_c
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.debug-apk.outputs.source_sha }}
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: '22'
           cache: npm
       - run: npm ci
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: imperial-games-android-${{ needs.debug-apk.outputs.source_sha }}
           path: mobile-artifacts
@@ -180,7 +182,7 @@ jobs:
           script: |
             adb install -r mobile-artifacts/imperial-games-practice-debug.apk
             node scripts/android-emulator-smoke.mjs
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
           name: native-smoke-${{ matrix.device }}-${{ needs.debug-apk.outputs.source_sha }}
@@ -192,16 +194,16 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: '22'
       - name: Collect exact-lock audit evidence without changing dependencies
         run: node scripts/mobile-dependency-inventory.mjs "$RUNNER_TEMP/mobile-dependency-audit"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
           name: mobile-dependency-inventory-${{ github.event.pull_request.head.sha || github.sha }}

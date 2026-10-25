@@ -15,14 +15,14 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
       - name: Assemble only reviewed Supabase sources
         run: node scripts/prepare-reviewed-backend.mjs "$RUNNER_TEMP/imperial-backend"
       - name: Preserve reviewable backend package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: imperial-reviewed-staging-backend
           path: ${{ runner.temp }}/imperial-backend/
@@ -37,15 +37,15 @@ jobs:
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: imperial-reviewed-staging-backend
           path: ${{ runner.temp }}/imperial-backend
-      - uses: supabase/setup-cli@v1
+      - uses: supabase/setup-cli@v3.0.1
         with:
           version: 2.121.0
       - name: Reconcile exact hosted history without database passwords

@@ -17,8 +17,8 @@ jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
       - name: Generate machine-readable audit
@@ -35,11 +35,11 @@ jobs:
           assert d['original_source_files'] >= 285
           assert not d['missing_active_source_files'], d['missing_active_source_files']
           PY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: frontend-integration-audit
           path: frontend-integration-audit.json
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: '22'
       - run: npm ci --no-audit --no-fund
