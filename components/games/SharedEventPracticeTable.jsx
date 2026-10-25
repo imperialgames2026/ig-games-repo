@@ -1,3 +1,4 @@
+import TableFairnessPanel from './TableFairnessPanel';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSharedEventPractice } from '@/hooks/useSharedEventPractice';
@@ -188,5 +189,5 @@ export default function SharedEventPracticeTable({mode='crash'}) {
         </aside>
       </div>
     </div>
-  </main>;
+  {error&&!table&&<p role="alert" className="mx-auto max-w-7xl rounded-lg bg-red-950 p-3 text-red-200">{error}</p>}<div className="mx-auto max-w-7xl mt-5"><TableFairnessPanel state={table} game={game}/></div></main>;
 }

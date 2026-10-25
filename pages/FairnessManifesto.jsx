@@ -42,6 +42,14 @@ export default function FairnessManifesto() {
         </ol>
       </section>
 
+      <section id="other-game-verification" className="space-y-4 rounded-2xl border border-emerald-400/20 bg-emerald-950/20 p-6 sm:p-8">
+        <h2 className="text-2xl font-black">Check the other practice games too</h2>
+        <p className="leading-relaxed text-slate-300">Blackjack, Baccarat, Craps and Roulette publish a game-and-round-specific seed commitment before new cards or results are generated. The seed stays hidden during play. Once a recorded round finishes, open <strong className="text-white">Verify the fairness</strong> at the table, select a completed round and choose <strong className="text-white">Verify selected round</strong>. Your device reconstructs the six-deck Blackjack shuffle, eight-deck Baccarat draw, two Craps dice or single-zero Roulette result. Blackjack checks also reproduce the recorded main-hand and Perfect Pairs returns.</p>
+        <p className="leading-relaxed text-slate-300">The browser saves commitments and visible cards on your device. It rejects a changed commitment or a result that contradicts those observations. HiLo, Mines and Towers also preserve the cards and moves already shown, and compare responses with the choices you submitted. Dice binds its verification to your chosen client seed.</p>
+        <p className="leading-relaxed text-slate-300">Crash, Rocket and Trenball share a locked round. Their verifier compares the revealed outcome with the preflight hash saved on your device. It checks that the committed result stayed unchanged; it does not derive a random crash point from the revealed seed.</p>
+        <p className="leading-relaxed text-slate-300">A new device, cleared browser storage or a visit after play began may leave you without the original commitment. The screen says when it can only check the revealed calculation. Earlier rounds are not retroactively certified. The table proof selector shows the most recent twelve recorded rounds; poker has its separate participant-only hand history and replay.</p>
+      </section>
+
       <section className="space-y-4 rounded-2xl border border-sky-400/20 bg-sky-950/20 p-6 sm:p-8">
         <h2 className="text-2xl font-black">What verification proves</h2>
         <p className="leading-relaxed text-slate-300">A verified hand means the disclosed cards, their destinations and the complete recorded action sequence agree with the hand’s commitment. A previously observed commitment gives you an additional comparison against the record you saw earlier. Your history remains tied to your participation in that hand, including after a tournament table move or elimination.</p>

@@ -1,3 +1,4 @@
+import {acceptTableFairness} from '@/lib/tableFairness';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
@@ -11,10 +12,13 @@ export function useMultiplayerPractice(game) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const alive = useRef(true);
+  const generation = useRef(0);
   const latest = useRef(null);
 
-  const ingest = useCallback((fresh) => {
-    if (!alive.current || !fresh || fresh.game !== game) return;
+  const ingest = useCallback(async (fresh,epoch) => {
+    if (!alive.current || epoch!==generation.current || !fresh || fresh.game !== game) return;
+    fresh = await acceptTableFairness(fresh,game);
+    if(!alive.current||epoch!==generation.current)return;
     if(latest.current&&Number(fresh.revision)===Number(latest.current.revision)&&Date.parse(fresh.serverTime)<Date.parse(latest.current.serverTime))return;
     // Prevent an out-of-order poll from overwriting a more recent action result.
     if (!latest.current || Number(fresh.revision) >= Number(latest.current.revision)) {
@@ -28,12 +32,13 @@ export function useMultiplayerPractice(game) {
   }, [game]);
 
   const invoke = useCallback(async (action, args = {}) => {
+    const epoch=generation.current;
     const { data, error: networkError } = await supabase.functions.invoke('ig-multiplayer-practice', {
       body: { game, action, ...args },
     });
     if (networkError) throw new Error('Cannot reach the practice table. Refresh before retrying an action.');
     if (!data || data.error) throw new Error(data?.error || 'Practice table returned an invalid response');
-    ingest(data.state);
+    if(epoch===generation.current)await ingest(data.state,epoch);
     return data;
   }, [game, ingest]);
 
@@ -46,14 +51,15 @@ export function useMultiplayerPractice(game) {
       await invoke('state');
       if (!quiet && alive.current) setError('');
     } catch (e) {
-      if (!quiet && alive.current) setError(e.message);
+      if (alive.current && (!quiet || e.name==='FairnessError')) setError(e.message);
+      if(e.name==='FairnessError' && alive.current)setTable(null);
     } finally {
       if (alive.current) setLoading(false);
     }
   }, [invoke, isAuthenticated]);
 
   useEffect(() => {
-    alive.current = true;
+    alive.current = true;generation.current++;
     latest.current = null;
     setTable(null);
     setLoading(true);
@@ -65,7 +71,7 @@ export function useMultiplayerPractice(game) {
       }
     }, 25000);
     return () => {
-      alive.current = false;
+      alive.current = false;generation.current++;
       window.clearInterval(polling);
       window.clearInterval(heartbeat);
     };

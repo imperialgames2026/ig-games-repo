@@ -1,3 +1,4 @@
+import TableFairnessPanel from './TableFairnessPanel';
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Crown, Dices, RotateCw, Users, ShieldCheck } from 'lucide-react';
@@ -521,8 +522,8 @@ export default function MultiplayerPracticeTable({ game }) {
               <h2 className="text-lg font-black">How this table works</h2>
               {game==='craps'
                 ? <p className="mt-2 text-sm leading-6 text-gray-300">The shooter rolls for everyone. A 7 on the come-out does not pass the dice. When a point is established, repeat it to make the point, or roll a 7 to seven-out and rotate the shooter. Players may place Field and Any Seven side bets on the next roll, or Place Number bets while a point is active.</p>
-                : <p className="mt-2 text-sm leading-6 text-gray-300">Everyone can place inside and outside practice bets on the same table. The designated spinner resolves all open selections in one European single-zero spin. After the result, a new round opens automatically.</p>}
-              <p className="mt-2 text-xs text-yellow-200/80">Betting locks after a 12-second window; the server enforces the deadline. Refreshes approximately every 3 seconds. Rules and bet calculations are for staging demonstration, not approved real-money settlement. No independent randomness certification has been completed.</p>
+                : <p className="mt-2 text-sm leading-6 text-gray-300">Everyone can place inside and outside practice bets on the same table. The house clock resolves all open selections in one European single-zero spin. After the result, a new round opens automatically.</p>}
+              <p className="mt-2 text-xs text-yellow-200/80">{game==='roulette'?'Betting is open for 27 seconds in each 30-second house round.':'Betting locks after a 12-second window.'} The server enforces the deadline. Refreshes approximately every 3 seconds. Rules and bet calculations are for staging demonstration, not approved real-money settlement. No independent randomness certification has been completed.</p>
             </section>
           </aside>
         </div>
@@ -531,6 +532,6 @@ export default function MultiplayerPracticeTable({ game }) {
         aria-hidden="true" style={{left:dragChips.drag.x,top:dragChips.drag.y}}>
         {dragChips.drag.amount}
       </div>}
-    </main>
+    {error&&!table&&<p role="alert" className="mx-auto max-w-7xl rounded-lg bg-red-950 p-3 text-red-200">{error}</p>}<div className="mx-auto max-w-7xl mt-5"><TableFairnessPanel state={table} game={game}/></div></main>
   );
 }

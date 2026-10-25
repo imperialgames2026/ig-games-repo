@@ -38,11 +38,11 @@ test('verified practice reveal rejects modified outcome, nonce and server seed',
     outcome: await calculatePracticeDice(serverSeed, clientSeed, nonce),
     algorithm: 'hmac-sha256-v2',
   };
-  assert.equal(await verifyPracticeDice(commit, reveal), true);
+  assert.equal(await verifyPracticeDice(commit, reveal, clientSeed), true);
   assert.equal(await verifyPracticeDice(commit, {
     ...reveal, outcome: { ...reveal.outcome, sum: reveal.outcome.sum + 1 },
-  }), false);
-  assert.equal(await verifyPracticeDice(commit, {...reveal, nonce: 1}), false);
-  assert.equal(await verifyPracticeDice(commit, {...reveal, serverSeed: 'wrong'}), false);
-  assert.equal(await verifyPracticeDice(commit, {...reveal, roundId: 'round-2'}), false);
+  }, clientSeed), false);
+  assert.equal(await verifyPracticeDice(commit, {...reveal, nonce: 1}, clientSeed), false);
+  assert.equal(await verifyPracticeDice(commit, {...reveal, serverSeed: 'wrong'}, clientSeed), false);
+  assert.equal(await verifyPracticeDice(commit, {...reveal, roundId: 'round-2'}, clientSeed), false);
 });

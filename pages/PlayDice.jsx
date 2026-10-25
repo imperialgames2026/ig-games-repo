@@ -41,7 +41,7 @@ export default function PlayDice() {
       const commitment = await invoke({ action: 'commit', game: 'dice' });
       if (commitment.phase !== 'committed' || !commitment.id) throw new Error('Commitment was not issued');
       const revealed = await invoke({ action: 'reveal', roundId: commitment.id, clientSeed: seed });
-      const verified = await verifyPracticeDice(commitment, revealed);
+      const verified = await verifyPracticeDice(commitment, revealed, seed);
       if (!verified) throw new Error('Fairness proof failed. Round not accepted.');
       const decision = DECISIONS.find(d => d.id === guess);
       const record = {

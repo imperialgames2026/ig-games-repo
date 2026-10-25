@@ -23,8 +23,9 @@
     "test:tables:browser": "node tests/tableLab.browser.mjs && node tests/tableLab.unity.browser.mjs",
     "test:multiplayer:unity": "node --test tests/multiplayerUnity.test.mjs && node tests/multiplayerUnity.browser.mjs",
     "unity:install": "node scripts/install-unity-practice-build.mjs",
-    "test:replay": "vitest run tests/poker-hand-ledger.test.js tests/crash-manual-generation.test.js",
-    "test:poker:multitable": "node tests/pokerMultiTable.browser.mjs"
+    "test:replay": "vitest run tests/poker-hand-ledger.test.js tests/crash-manual-generation.test.js tests/table-fairness.test.js",
+    "test:poker:multitable": "node tests/pokerMultiTable.browser.mjs",
+    "test:fairness:browser": "node tests/tableFairness.browser.mjs"
   },
   "dependencies": {
     "@capacitor/android": "8.5.3",

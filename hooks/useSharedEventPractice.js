@@ -1,3 +1,4 @@
+import {acceptTableFairness} from '@/lib/tableFairness';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
@@ -10,11 +11,14 @@ export function useSharedEventPractice(game) {
   const [busy,setBusy] = useState(false);
   const [error,setError] = useState('');
   const live = useRef(true);
+  const generation = useRef(0);
   const state = useRef(null);
   const pending = useRef(null);
 
-  const receive = useCallback(next => {
-    if (!live.current || !next || next.game!==game) return;
+  const receive = useCallback(async (next,epoch) => {
+    if (!live.current || epoch!==generation.current || !next || next.game!==game) return;
+    if(game==='baccarat')next = await acceptTableFairness(next,game);
+    if(!live.current||epoch!==generation.current)return;
     if (!state.current || Number(next.revision)>=Number(state.current.revision)) {
       const receivedAt = Date.now();
       const serverTime = Date.parse(next.serverTime);
@@ -23,12 +27,13 @@ export function useSharedEventPractice(game) {
     }
   },[game]);
   const invoke = useCallback(async (action, values={}) => {
+    const epoch=generation.current;
     const {data,error:networkError}=await supabase.functions.invoke('ig-shared-event-practice',{
       body:{game,action,...values},
     });
     if(networkError)throw new Error('Table is unreachable. Refresh and review pending bets.');
     if(!data || data.error)throw new Error(data?.error || 'Invalid game response');
-    receive(data.state);
+    if(epoch===generation.current)await receive(data.state,epoch);
     return data;
   },[game,receive]);
 
@@ -38,18 +43,18 @@ export function useSharedEventPractice(game) {
       return;
     }
     try{await invoke('state');if(!quiet && live.current)setError('');}
-    catch(e){if(!quiet && live.current)setError(e.message);}
+    catch(e){if(live.current&&(!quiet||e.name==='FairnessError'))setError(e.message);if(e.name==='FairnessError'&&live.current)setTable(null);}
     finally{if(live.current)setLoading(false);}
   },[invoke,isAuthenticated]);
 
   useEffect(()=>{
-    live.current=true;state.current=null;setLoading(true);setTable(null);
+    live.current=true;generation.current++;state.current=null;setLoading(true);setTable(null);
     void refresh();
     const poll=window.setInterval(()=>{void refresh(true);},3000);
     const keepalive=window.setInterval(()=>{
       if(state.current?.joined)void invoke('join').catch(()=>{});
     },25000);
-    return ()=>{live.current=false;clearInterval(poll);clearInterval(keepalive);};
+    return ()=>{live.current=false;generation.current++;clearInterval(poll);clearInterval(keepalive);};
   },[game,refresh,invoke]);
 
   const execute = useCallback(async (action,values={})=>{
