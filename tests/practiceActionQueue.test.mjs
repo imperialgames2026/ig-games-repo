@@ -73,3 +73,30 @@ test('actual Crash cashout callback blocks duplicate dispatch and retains receip
  const first=h.hook.act('cashout');await h.hook.act('cashout');assert.equal(h.calls.length,1);finish({data:{action:{}}});await first;
  const resumed=crashHarness({storage:h.storage,invoke:async()=>({data:{state:crashState}})});await resumed.hook.act('',true);assert.deepEqual(resumed.calls[0],h.calls[0]);
 });
+
+function cardHarness({game,invoke,storage=memory(),round=7}){
+ const file=game==='blackjack'?'useBlackjackPractice':'useSharedEventPractice';
+ const raw=readFileSync(new URL('../hooks/'+file+'.js',import.meta.url),'utf8').replace(/^import[^\n]*\n/gm,'').replace('export function '+file,'function '+file);
+ const calls=[];let refIndex=0;
+ const hook=vm.runInNewContext(raw+'\n'+file+';',{useCallback:fn=>fn,useEffect:()=>{},useRef:current=>({current:refIndex++===2?{game,round}:current}),useState:initial=>[initial,()=>{}],useAuth:()=>({user:{id:'11111111-1111-4111-8111-111111111111'},isAuthenticated:true}),createPracticeActionQueue,window:{sessionStorage:storage},crypto:{randomUUID},acceptTableFairness:async x=>x,supabase:{functions:{invoke:async(_name,{body})=>{calls.push(JSON.parse(JSON.stringify(body)));return invoke?invoke(body,calls.length):{data:{state:{game,round,revision:1,serverTime:'2026-10-25T12:00:00Z'}}};}}},Date,Error,Promise,console});
+ return {hook:hook(game),calls,storage};
+}
+for(const game of ['blackjack','baccarat']){
+ test(game+' actual hook keeps wager receipt across reload and blocks replacing an uncertain wager',async()=>{
+  const target=game==='blackjack'?'main':'banker';
+  const lost=cardHarness({game,invoke:async()=>({error:{context:{status:503}}})});
+  assert.equal(await lost.hook.bet(target,10),false);assert.equal(await lost.hook.bet(target,20),false);assert.equal(lost.calls.length,1);
+  const resumed=cardHarness({game,storage:lost.storage,round:9});assert.equal(await resumed.hook.retryPending(),true);assert.deepEqual(resumed.calls[0],lost.calls[0]);
+ });
+ test(game+' actual hook preserves original control round and receipt despite a later round',async()=>{
+  const lost=cardHarness({game,invoke:async()=>({error:{context:{status:503}}})});
+  const run=h=>game==='blackjack'?h.action('resolve'):h.resolve();
+  assert.equal(await run(lost.hook),false);assert.equal(lost.calls[0].expectedRound,7);
+  const resumed=cardHarness({game,storage:lost.storage,round:9});assert.equal(await resumed.hook.retryPending(),true);assert.deepEqual(resumed.calls[0],lost.calls[0]);
+ });
+ test(game+' actual hook blocks duplicate dispatch and keeps receipt after empty accepted state',async()=>{
+  let finish;const h=cardHarness({game,invoke:()=>new Promise(resolve=>finish=resolve)});const target=game==='blackjack'?'main':'player';
+  const first=h.hook.bet(target,10);assert.equal(await h.hook.bet(target,10),false);assert.equal(h.calls.length,1);finish({data:{state:null}});assert.equal(await first,false);
+  const resumed=cardHarness({game,storage:h.storage});assert.equal(await resumed.hook.retryPending(),true);assert.deepEqual(resumed.calls[0],h.calls[0]);
+ });
+}

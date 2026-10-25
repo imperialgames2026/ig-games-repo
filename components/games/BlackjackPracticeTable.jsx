@@ -28,7 +28,7 @@ function WagerAmount({value,setValue,max=100,disabled=false}){
 }
 
 export default function BlackjackPracticeTable() {
- const {user,isAuthenticated,state,loading,busy,error,refresh,join,leave,claim,bet,action}=useBlackjackPractice();
+ const {user,isAuthenticated,state,loading,busy,error,refresh,join,leave,claim,bet,action,pendingAction,retryPending}=useBlackjackPractice();
  const [chip,setChip]=useState(5);
  const [now,setNow]=useState(()=>Date.now());
  useEffect(()=>{const id=setInterval(()=>setNow(Date.now()),250);return ()=>clearInterval(id);},[]);
@@ -135,6 +135,7 @@ export default function BlackjackPracticeTable() {
         <button onClick={()=>void refresh()} className="rounded-lg border border-white/25 px-5 py-2">Refresh</button>
        </div>
       </div>
+      {pendingAction&&<p role="status" className="mt-4 text-amber-200">A practice action needs confirmation. <button disabled={busy} onClick={()=>void retryPending()} className="underline">Retry original practice action</button></p>}
       {error&&<p role="alert" className="mt-4 rounded-lg bg-red-950 p-3 text-red-200">{error}</p>}
       {!isAuthenticated&&<Link to="/login" className="mt-4 inline-block text-yellow-300 underline">Sign in to join</Link>}
      </div>}

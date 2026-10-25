@@ -81,7 +81,7 @@ function Results({game,last}) {
 
 export default function SharedEventPracticeTable({mode='crash'}) {
   const game=mode==='baccarat'?'baccarat':'crash';
-  const {table,user,loading,busy,error,isAuthenticated,refresh,join,leave,claim,bet,resolve}=useSharedEventPractice(game);
+  const {table,user,loading,busy,error,isAuthenticated,refresh,join,leave,claim,bet,resolve,pendingAction,retryPending}=useSharedEventPractice(game);
   const [stake,setStake]=useState(5);
   const [now,setNow]=useState(()=>Date.now());
   useEffect(()=>{
@@ -160,6 +160,7 @@ export default function SharedEventPracticeTable({mode='crash'}) {
                 <button type="button" onClick={()=>void refresh()} className="rounded-lg border border-white/25 px-5 py-2 text-sm">Refresh</button>
               </div>
             </div>
+            {pendingAction&&<p role="status" className="mt-3 text-amber-200">A practice action needs confirmation. <button disabled={busy} onClick={()=>void retryPending()} className="underline">Retry original practice action</button></p>}
             {error&&<p role="alert" className="mt-3 rounded-lg bg-red-950/70 p-3 text-sm text-red-200">{error}</p>}
             {!isAuthenticated&&<Link className="mt-3 block text-yellow-300 underline" to="/login">Sign in to participate</Link>}
           </div>}

@@ -2,6 +2,7 @@ import {acceptTableFairness} from '@/lib/tableFairness';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
+import {createPracticeActionQueue} from '@/lib/practiceActionQueue';
 
 // Crash and Trenball are different betting layouts on exactly ONE shared crash room.
 export function useSharedEventPractice(game) {
@@ -13,7 +14,18 @@ export function useSharedEventPractice(game) {
   const live = useRef(true);
   const generation = useRef(0);
   const state = useRef(null);
-  const pending = useRef(null);
+  const pending = useRef(null); // Legacy layouts remain unchanged outside Baccarat.
+  const [pendingAction,setPendingAction]=useState(null);
+  const dispatchLock=useRef(false),queueRef=useRef(null);
+  const getQueue=useCallback(()=>{
+    const key=`ig.practice.pending.v1:baccarat:${user?.id}`;
+    if(queueRef.current?.key!==key)queueRef.current={key,queue:createPracticeActionQueue({storage:window.sessionStorage,key,makeId:()=>crypto.randomUUID()})};
+    return queueRef.current.queue;
+  },[user?.id]);
+  useEffect(()=>{
+    if(game!=='baccarat'||!isAuthenticated){setPendingAction(null);return;}
+    try{setPendingAction(getQueue().peek());}catch(e){setError(e.message);}
+  },[game,getQueue,isAuthenticated]);
 
   const receive = useCallback(async (next,epoch) => {
     if (!live.current || epoch!==generation.current || !next || next.game!==game) return;
@@ -31,7 +43,7 @@ export function useSharedEventPractice(game) {
     const {data,error:networkError}=await supabase.functions.invoke('ig-shared-event-practice',{
       body:{game,action,...values},
     });
-    if(networkError)throw new Error('Table is unreachable. Refresh and review pending bets.');
+    if(networkError){const failure=new Error('Table is unreachable. Retry its original practice request.');failure.definitiveRejection=[400,401,403,404,409,422].includes(networkError.context?.status);throw failure;}
     if(!data || data.error)throw new Error(data?.error || 'Invalid game response');
     if(epoch===generation.current)await receive(data.state,epoch);
     return data;
@@ -55,9 +67,9 @@ export function useSharedEventPractice(game) {
       if(state.current?.joined)void invoke('join').catch(()=>{});
     },25000);
     return ()=>{live.current=false;generation.current++;clearInterval(poll);clearInterval(keepalive);};
-  },[game,refresh,invoke]);
+  },[game,user?.id,refresh,invoke]);
 
-  const execute = useCallback(async (action,values={})=>{
+  const executeLegacy = useCallback(async (action,values={})=>{
     if(busy || !isAuthenticated)return false;
     setBusy(true);setError('');
     try {
@@ -77,8 +89,33 @@ export function useSharedEventPractice(game) {
     } finally{if(live.current)setBusy(false);}
   },[busy,isAuthenticated,invoke]);
 
+  const execute=useCallback(async(action,values={},restored=null)=>{
+    if(game!=='baccarat')return executeLegacy(action,values);
+    if(dispatchLock.current||!isAuthenticated||!user?.id)return false;
+    dispatchLock.current=true;const epoch=generation.current;
+    setBusy(true);setError('');let queue,request;
+    try{
+      queue=getQueue();
+      if(restored)request=queue.prepare(restored.action,restored.params);
+      else if(action==='bet')request=queue.prepare('baccaratBet',values);
+      else if(action==='resolve')request=queue.prepare('baccarat_resolve',values);
+      else if(queue.peek())throw Error('Confirm the pending practice action before changing the table.');
+      if(request)setPendingAction(request);
+      const data=await invoke(request?(request.action==='baccaratBet'?'bet':'resolve'):action,request?{...request.params,requestId:request.requestId}:values);
+      if(request){
+        if(!data.state||data.state.game!=='baccarat')throw Error('Baccarat returned no verifiable table state. Retry its original request.');
+        queue.confirm(request.requestId);
+      }
+      if(live.current&&epoch===generation.current)setPendingAction(queue.peek());return true;
+    }catch(e){
+      if(request){try{queue.failed(request.requestId,{definitiveRejection:e.definitiveRejection===true});}catch{/* Preserve original receipt. */}}
+      if(live.current&&epoch===generation.current){if(queue)setPendingAction(queue.peek());setError(e.message);}return false;
+    }finally{dispatchLock.current=false;if(live.current&&epoch===generation.current)setBusy(false);}
+  },[game,executeLegacy,getQueue,isAuthenticated,invoke,user?.id]);
+  const retryPending=()=>{try{const saved=getQueue().peek();return saved?execute('',{},saved):Promise.resolve(false);}catch(e){setError(e.message);return Promise.resolve(false);}};
+
   return {
-    user,table,loading,busy,error,isAuthenticated,refresh,
+    user,table,loading,busy,error,isAuthenticated,refresh,pendingAction,retryPending,
     join:()=>execute('join'),leave:()=>execute('leave'),claim:()=>execute('claim'),
     bet:(target,units)=>execute('bet',{target,units}),
     resolve:()=>state.current?execute('resolve',{expectedRound:state.current.round}):Promise.resolve(false),
