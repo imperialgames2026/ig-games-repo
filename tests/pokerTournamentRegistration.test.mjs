@@ -32,9 +32,15 @@ test('players can free-register to the pre-start pool and open a table after sea
 
 test('superadmins can publish draft events and start registration events',()=>{
  assert.match(adminApi,/input\.action==="publish"\|\|input\.action==="start"/);
+ assert.match(adminApi,/Access-Control-Allow-Headers.*x-client-info,x-supabase-api-version/);
  assert.match(adminApi,/poker_event_publish_v1/);
  assert.match(adminApi,/poker_event_start_v1/);
  assert.match(adminPage,/Publish to tournaments/);
  assert.match(adminPage,/Start and seat players/);
  assert.match(lobby,/to="\/PokerTournaments"/);
+});
+
+test('player tournament functions accept Supabase browser preflight headers',()=>{
+ assert.match(playerApi,/access-control-allow-methods.*POST, OPTIONS/);
+ assert.match(playerApi,/access-control-allow-headers.*x-client-info,x-supabase-api-version/);
 });

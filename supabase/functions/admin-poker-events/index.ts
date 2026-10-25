@@ -1,5 +1,5 @@
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.57.0";
-const respond=(data:unknown,status=200)=>new Response(JSON.stringify(data),{status,headers:{"Content-Type":"application/json","Cache-Control":"no-store","Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization,apikey,content-type"}});
+const respond=(data:unknown,status=200)=>new Response(JSON.stringify(data),{status,headers:{"Content-Type":"application/json","Cache-Control":"no-store","Access-Control-Allow-Origin":"*","Access-Control-Allow-Methods":"POST, OPTIONS","Access-Control-Allow-Headers":"authorization,apikey,content-type,x-client-info,x-supabase-api-version"}});
 const integer=(n:unknown,min:number,max:number)=>typeof n==="number"&&Number.isSafeInteger(n)&&n>=min&&n<=max;
 Deno.serve(async(req)=>{
  if(req.method==="OPTIONS")return respond({});
