@@ -1,0 +1,64 @@
+2026-10-26 READ-ONLY hosted Slots review; no invocation or hosted mutation.
+Project:qonqemhljgxlwpghkxhn. List32ACTIVEfunctions vs source manifest31.
+Exactly one outside manifest:ig-slot-practice-v1,v3,verify_jwt=true.
+Observed bundle ezbr_sha256:
+d5e54e26e7c6309df654669de9cb891b6340973ec4aafd1a77a4fb43568a6848
+Plain index.ts SHA256:
+bf8cb968e8dcfc2425e03a3815c41b3b6cdc25239550ad8b6f53c7380c5c0a5c
+Plain validation.js SHA256:
+40986b6e00fa41e2779956348260ccbc703b43316687560b274ae3aec5cecfbd
+Bundle hash is NOT plaintext file hash. Raw source/provenance retrieved via
+get_edge_function; snapshot copies remain byte-identical to returned contents.
+Original hosted source is evidence only, not an approved slot release.
+
+Source-exposed HTTP entrypoint:/functions/v1/ig-slot-practice-v1 POST
+- OPTIONS204; GET/other methods405.
+- Exact stagingURL, envkeys, nonanonymous getUser, profile.is_excluded=false,
+  role player/admin/superadmin required; tester denied. No parked switch exists.
+- action state UPSERTS account then reads chips: state is NOT read-only.
+- refill calls public.ig_slot_practice_refill_v1(actor).
+- spin validates13catalog games/stake/lines, owner-scoped prior receipt, then
+  RNG/evaluation and public.ig_slot_practice_spin_v1. No gameplay invoked.
+- Response practiceOnly:true,realMoneyEnabled:false; these labels do not park it.
+ACTIVE inventory+source prove exposed configured route, not actual network/
+JWT/runtime success. No request was sent to the gameplay endpoint.
+
+Read-only pg_proc confirms both slot RPCs SECURITY DEFINER, search_path
+public,pg_temp; ACL{postgres=X/postgres,service_role=X/postgres}. Neither has
+parked policy. Refill initializes account and restores10000 below100; spin
+mutates separate slot accounts/spins with practice-only numeric checks and
+receipt handling. No financial wallet/conversion path identified in these2RPCs.
+Read-only pg_class/policy metadata:accounts/spins RLSenabled, no policies,
+ACLpostgres/service_role only; no anon/authenticated grant. Therefore ordinary
+player REST/RPC access is not an alternate exposed path; trusted service code
+can still call RPCs. No data rows were read. These facts are not permission
+recommendations and no SQL guards/settings were applied.
+
+Smallest reviewed candidate:review/slots-parked/index.ts is exact fetched
+handler plus fixed SLOTS_PARKED=true and403GAME_PARKED after existing staging/
+Auth/role/exclusion/JSONchecks, before ALL slot table/RNG/RPC paths (inclstate).
+No caller/env/config toggle. Unknown actions also fail parked; original data/
+game branches untouched and unreachable while policy holds. This is code
+parking, not gameplay activation or development. Safe preflight retained;
+there is no existing pure history action to preserve in this handler.
+
+Candidate remains review-only, separate from ledger/resolver/seat proposals.
+Source manifest and observed deployedversion metadata unchanged. Future source
+owner must explicitly reconcile this previously-untracked function, retaining
+verify_jwt=true/observedv3 and recording exact desired guarded file hashes in
+reviewed packaging (or separate parked-function inventory supported by tool).
+Do not silently add original live gameplay snapshot to active release catalog.
+Candidate imports original validation.js; evidence copy is deliberately named
+hosted-validation.js in review folder, so it is NOT a deployable function folder.
+Any approved canonical packaging must preserve dependency bytes or independently
+review a smaller deny-only implementation. No publish/deploy authorized here.
+
+Validation:node tests/slotParkedReview.test.mjs;4pass0fail (~80ms).
+Actual candidate handler in-process with synthetic Auth/database; RNG,slot table
+access and any RPC throw if reached.12eligible role/action combinations deny;
+missing/invalid/anonymous Auth,excluded,tester/unknown role,lookupfailure,
+wrongproject,malformed/oversizedJSON all preserve denial; OPTIONS/GET preserved.
+Exactdiff test proves only guard additions vs preserved fetched source.
+No actual AuthHTTP, hostedguarddeployment or SQLservicebypass proof claimed.
+Releaseblocker stays OPEN until selected hosted enforcement is approved/applied
+and actual isolated AuthHTTP denial verified. No VM/listener/security change.

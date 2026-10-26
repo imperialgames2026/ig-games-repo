@@ -1,0 +1,18 @@
+2026-10-26 — independent Slots parking review — SOURCE ONLY
+
+Verified c138f26 patch SHA2568b4dbad09d127e00d2fca3a3cc1ff6d32b5bf81a25c65b2b9c69ab6c20e68486. Hosted plaintext evidence matches index SHA256bf8cb968e8dcfc2425e03a3815c41b3b6cdc25239550ad8b6f53c7380c5c0a5c and validation SHA25640986b6e00fa41e2779956348260ccbc703b43316687560b274ae3aec5cecfbd. Observed bundle SHA is different in meaning and is kept separately. Provenance records v3 ACTIVE and verify_jwt=true. No hosted action invoked.
+
+Guard review
+Candidate differs from preserved fetched handler by fixed SLOTS_PARKED=true plus immediate403 GAME_PARKED after staging/Auth/eligibility/role and JSON-object validation. This precedes state UPSERT, refill/spin RPCs, RNG and all slot-data access. No caller/env override, gameplay implementation or economics fix. Original hosted source is evidence only, not an approved live release.
+
+Independent checks
+Six in-process tests pass: existing Auth/role/JSON/staging/preflight guards preserved, eligible roles cannot reach state/refill/spin/unknown actions, forbidden slot-data/RPC/RNG stubs would fail tests, caller cannot unpark, and observed-versus-desired hash/inventory assertions hold. These are synthetic/mocked-Auth tests, not actual JWT/HTTP/hosted denial proof.
+
+Packaging boundary
+Active manifest stays byte-identical with31 functions; observed hosted inventory has32. The extra function is accounted for ONLY in review/slots-parked/review-manifest.json, not active deployment metadata. Guarded candidate desired index hash34d5ebe50c04f59cc5e8ac76503cc3c48e00f4e889a4fea9ef0f61a4b56925da is not claimed deployed. verify_jwt remains true in observed and desired-review fields; observed version remains3.
+
+Safe review publication
+Only docs, review/slots-parked evidence/candidate/inventory and its dedicated synthetic test may be added to the existing integration branch. No production import, active catalog/function/manifest/workflow/deployment-script change, SQL, or bundled artifact. The folder deliberately lacks imported validation.js; dependency evidence is hosted-validation.js. Thus direct folder deployment is not possible without another explicit packaging change. No source should copy hosted-index.ts into an active handler. Existing prepare-reviewed-backend uses only active manifest allowlist and cannot package this review folder.
+
+Rollout remains blocked
+Select approved canonical deny-only or preserved-dependency packaging, explicitly reconcile previously untracked slug with verify_jwt=true/observedv3 and exact desired hashes, obtain selected hosted rollout approval, and prove actual Auth/HTTP denial before declaring Slots parked. Trusted service-only SQL RPCs remain outside this source guard; their operational caller policy still needs reviewed enforcement. No deployment or hosted writes performed.

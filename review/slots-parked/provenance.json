@@ -1,0 +1,11 @@
+{
+  "project": "qonqemhljgxlwpghkxhn",
+  "date": "2026-10-26",
+  "slug": "ig-slot-practice-v1",
+  "version": 3,
+  "status": "ACTIVE",
+  "verify_jwt": true,
+  "ezbr_sha256": "d5e54e26e7c6309df654669de9cb891b6340973ec4aafd1a77a4fb43568a6848",
+  "entrypoint": "/tmp/user_fn_qonqemhljgxlwpghkxhn_feded80f-68e2-449b-bc00-2ccc7d29dddc_3/source/index.ts",
+  "scope": "Read-only retrieval; source guard candidate only, not deployed or in release manifest"
+}

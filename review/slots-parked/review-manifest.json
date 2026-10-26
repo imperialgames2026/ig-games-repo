@@ -1,0 +1,41 @@
+{
+  "reviewOnly": true,
+  "deployable": false,
+  "slug": "ig-slot-practice-v1",
+  "source": "review/slots-parked/index.ts",
+  "observed": {
+    "project_ref": "qonqemhljgxlwpghkxhn",
+    "date": "2026-10-26",
+    "status": "ACTIVE",
+    "version": 3,
+    "verify_jwt": true,
+    "bundle_sha256": "d5e54e26e7c6309df654669de9cb891b6340973ec4aafd1a77a4fb43568a6848",
+    "plaintext_sha256": {
+      "index.ts": "bf8cb968e8dcfc2425e03a3815c41b3b6cdc25239550ad8b6f53c7380c5c0a5c",
+      "validation.js": "40986b6e00fa41e2779956348260ccbc703b43316687560b274ae3aec5cecfbd"
+    },
+    "inventory_function_count": 32
+  },
+  "desiredReviewOnly": {
+    "policy": "SLOTS_PARKED=true",
+    "verify_jwt": true,
+    "candidate_index_sha256": "34d5ebe50c04f59cc5e8ac76503cc3c48e00f4e889a4fea9ef0f61a4b56925da",
+    "dependency_sha256": {
+      "validation.js": "40986b6e00fa41e2779956348260ccbc703b43316687560b274ae3aec5cecfbd"
+    },
+    "dependency_evidence_path": "hosted-validation.js",
+    "dependency_import_available": false,
+    "deployed": false
+  },
+  "activeSourceManifest": {
+    "function_count": 31,
+    "contains_slug": false,
+    "modified": false
+  },
+  "blockers": [
+    "Review candidate is intentionally missing import validation.js and is not a deployable folder",
+    "No active manifest/deployment wiring",
+    "Hosted enforcement unchanged and still open",
+    "Actual isolated Auth/HTTP denial and selected rollout approval pending"
+  ]
+}
