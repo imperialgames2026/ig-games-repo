@@ -1,0 +1,31 @@
+REVIEW ONLY — 2026-10-26 — not wired, deployed, or runtime verified
+
+Purpose
+Prepare a minimal response contract for an owner-authenticated lookup of an already durable, NEW fully bound poker receipt. Backend owner retains SQL/Edge implementation ownership. This client draft never starts a listener, calls an endpoint, changes SQL, clears pending storage, or generates a request ID. Existing published behavior remains unchanged.
+
+Response shape under review
+protocol: ig.poker.receipt-resolution.v1
+actorId: authenticated owner of durable receipt, not a caller-editable profile claim
+tableId and actionId: exact pending table and original UUID
+resolutionId: existing actionId, a stable durable reference scoped by actor/table; no random token or extra resolution table
+request: exact version/move/requested amount/systemTimeout=false as originally stored
+outcome: committed only
+finality: durable=true, serialized=true, originalExecutionSealed=true
+snapshotVersion: table version read under the same table-row lock as receipt lookup
+receipt: accepted=true, exact table/action/next version/timeout=false, nonnegative safe integer chipsCommitted
+
+No negative-resolution API
+Not found, pending, conflict, legacy/null original payload, malformed data, wrong actor or mismatched inputs cannot authorize new play. No absence-based inference and no requested-amount backfill from paid chips. A future durable negative/tombstone or manual legacy policy requires separate design/review; this draft intentionally rejects even a structurally complete rejected response.
+
+Snapshot and historical owners
+A separate already-validated snapshot can be used when its table matches and its version is at least the same-transaction marker and the client's highest observed version. It need not have identical version, because other actions may advance the table between lookup and snapshot. The bound committed receipt, not snapshot/history alone, is the outcome evidence.
+A moved/eliminated owner may own a historical receipt without permission to read the current table. Receipt lookup must authorize durable receipt.actor_id rather than require a current seat; it must not expose other players' snapshots/cards. After a fully matching committed proof, missing/stale/unreadable snapshot produces committed evidence with canResume=false. This can support a future historical read-only status, but does not grant a seat or new play.
+
+Legacy/conflict reconciliation
+An existing legacy_receipt, actor_mismatch or payload_mismatch flag remains unresolved even if a later response echoes the requested inputs. Newly echoed client data is not original durable evidence. Current production pending receipts are never cleared by this unwired draft. An explicit owner-authorized legacy disposition policy and auditable server contract are still absent.
+
+Trust and rollout gates
+The decoder validates response shape/correlation; booleans do not prove the server really serialized lookup with original execution. Backend source review and synthetic SQL tests must establish those invariants, and real Auth/HTTP/independent-session acceptance must establish deployment behavior. No production code imports this review module. Do not integrate/wire or deploy until backend proposal, privacy/authorization boundaries, stale-result behavior, manual legacy handling and acceptance tests are reviewed together.
+
+Lightweight tests
+Nine direct Node tests cover correlated exact committed receipt, immutable input, finality failures, negative/missing/legacy outcomes, crossactor/table/UUID/input mismatch, malformed/stale versus later snapshot, malformed receipt/protocol/unsafe integers, disconnect/remount, no production import/side effects, and historical owner proof without snapshot or other-player data. These are pure synthetic contract tests, not real Auth/HTTP/database acceptance.
