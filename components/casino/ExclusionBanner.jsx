@@ -26,8 +26,8 @@ export default function ExclusionBanner() {
         </Link>
         <p className="mt-6 text-sm text-gray-500">
           If you believe this is an error, contact{' '}
-          <a href="mailto:support@imperialhouse.online" className="text-pink-400 hover:text-pink-300">
-            support@imperialhouse.online
+          <a href="mailto:support@imperialgaming.llc" className="text-pink-400 hover:text-pink-300">
+            support@imperialgaming.llc
           </a>
         </p>
       </div>

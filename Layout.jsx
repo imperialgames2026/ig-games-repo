@@ -533,7 +533,7 @@ export default function Layout({ children, currentPageName }) {
                 <p>imperialgaming.llc is owned and operated by IMPERIAL GAMING LLC also known as Imperial Gaming</p>
                 <p>State Tax Registration number: 10-228399686F-001 | License number for Imperial Gaming LLC: 38-228399686F-001</p>
                 <p>Registered address: 391 Brook Dr. Hot Springs, Virginia 24445 U.S.A.</p>
-                <p>Support: <a href="mailto:support@imperialgaming.llc" className="text-pink-400 hover:text-pink-300">support@imperialgaming.llc</a> | Admin: <a href="mailto:admin@imperialhouse.online" className="text-pink-400 hover:text-pink-300">admin@imperialhouse.online</a></p>
+                <p>Support: <a href="mailto:support@imperialgaming.llc" className="text-pink-400 hover:text-pink-300">support@imperialgaming.llc</a> | Admin: <a href="mailto:admin@imperialgaming.llc" className="text-pink-400 hover:text-pink-300">admin@imperialgaming.llc</a></p>
                 <p className="mt-3 text-gray-600 dark:text-gray-400 italic">
                   No purchase necessary to play or enter sweepstakes. Games and sweepstakes are void where prohibited by law. For detailed rules see{' '}
                   <Link to={createPageUrl('TermsOfService')} className="text-pink-400 hover:text-pink-300">

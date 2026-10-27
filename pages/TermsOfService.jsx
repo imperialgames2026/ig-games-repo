@@ -29,7 +29,7 @@ export default function TermsOfService() {
             <div className="p-4 bg-pink-500/10 border border-pink-500/30 rounded-xl">
               <p className="text-sm font-bold text-pink-300 mb-2">IMPORTANT NOTICE</p>
               <p className="text-xs text-pink-200">
-                The Platform is provided by Imperial House Gaming LLC, a company duly incorporated under Virginia law, 
+                The Platform is provided by Imperial Gaming LLC, a company duly incorporated under Virginia law, 
                 with the register number VA262385288 and registered office at 391 Brook Dr. Hot Springs, Virginia 24445 U.S.A. 
                 (hereinafter "Imperial Gaming", "we", "us" or "our").
               </p>
@@ -358,7 +358,7 @@ export default function TermsOfService() {
                 pursue any class, group or representative claim.
               </p>
               <p className="mb-3">
-                Before filing any claim, you agree to contact us at <a href="mailto:support@imperialhouse.online" className="text-pink-400 hover:text-pink-300">support@imperialhouse.online</a> to try to resolve the issue.
+                Before filing any claim, you agree to contact us at <a href="mailto:support@imperialgaming.llc" className="text-pink-400 hover:text-pink-300">support@imperialgaming.llc</a> to try to resolve the issue.
               </p>
             </section>
 
@@ -385,9 +385,9 @@ export default function TermsOfService() {
               
               <p className="mb-2">For questions about these Terms of Service, please contact us:</p>
               <ul className="list-none space-y-1">
-                <li><strong>Email:</strong> <a href="mailto:support@imperialhouse.online" className="text-pink-400 hover:text-pink-300">support@imperialhouse.online</a></li>
+                <li><strong>Email:</strong> <a href="mailto:support@imperialgaming.llc" className="text-pink-400 hover:text-pink-300">support@imperialgaming.llc</a></li>
                 <li><strong>Address:</strong> 391 Brook Dr. Hot Springs, Virginia 24445 U.S.A.</li>
-                <li><strong>Company:</strong> Imperial House Gaming LLC</li>
+                <li><strong>Company:</strong> Imperial Gaming LLC</li>
                 <li><strong>Registration:</strong> VA262385288</li>
               </ul>
             </section>

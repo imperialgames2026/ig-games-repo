@@ -27,7 +27,7 @@ export default function PrivacyPolicy() {
             <p className="text-xs text-gray-400">Last Updated: February 7, 2026</p>
 
             <p>
-              This Privacy Policy governs the manner in which Imperial House Gaming LLC (hereinafter "Imperial Gaming", "We", "us", or "our"), 
+              This Privacy Policy governs the manner in which Imperial Gaming LLC (hereinafter "Imperial Gaming", "We", "us", or "our"), 
               collects, use, maintain and disclose information collected from customers of its website imperialgaming.llc. This Privacy Policy
               applies to imperialgaming.llc and all products and services offered through imperialgaming.llc.
             </p>
@@ -43,8 +43,8 @@ export default function PrivacyPolicy() {
             <section>
               <h2 className="text-xl font-bold text-white mb-3">2. Data Controller</h2>
               <p>
-                Imperial House Gaming LLC is a company incorporated under the laws of Virginia, with the register number VA262385288 and 
-                registered office at 391 Brook Dr. Hot Springs, Virginia 24445 U.S.A. Imperial House Gaming LLC is responsible for processing 
+                Imperial Gaming LLC is a company incorporated under the laws of Virginia, with the register number VA262385288 and 
+                registered office at 391 Brook Dr. Hot Springs, Virginia 24445 U.S.A. Imperial Gaming LLC is responsible for processing 
                 the data collected from you using the website imperialgaming.llc.
               </p>
             </section>

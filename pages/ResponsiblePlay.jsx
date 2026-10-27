@@ -92,8 +92,8 @@ export default function ResponsiblePlay() {
               <h2 className="text-xl font-bold text-white mb-3">5. Additional Help</h2>
               <p>
                 In the case of needed help please contact our support team at{' '}
-                <a href="mailto:support@imperialhouse.online" className="text-pink-400 hover:text-pink-300">
-                  support@imperialhouse.online
+                <a href="mailto:support@imperialgaming.llc" className="text-pink-400 hover:text-pink-300">
+                  support@imperialgaming.llc
                 </a>{' '}
                 or on our live chat system and one of our agents will be able to give you the details of associations and help phone 
                 numbers available in your country.
@@ -196,7 +196,7 @@ export default function ResponsiblePlay() {
                 If you or someone you know is struggling with gaming-related issues, help is available.
               </p>
               <div className="space-y-1 text-xs text-green-200">
-                 <p>Contact our support team: <a href="mailto:support@imperialhouse.online" className="text-pink-400 hover:text-pink-300">support@imperialhouse.online</a></p>
+                 <p>Contact our support team: <a href="mailto:support@imperialgaming.llc" className="text-pink-400 hover:text-pink-300">support@imperialgaming.llc</a></p>
                  <p>National Problem Gaming Helpline: 1-800-522-4700</p>
                  <p>Visit: <a href="https://www.ncpgambling.org" target="_blank" rel="noopener noreferrer" className="text-pink-400 hover:text-pink-300">www.ncpgambling.org</a></p>
                </div>
