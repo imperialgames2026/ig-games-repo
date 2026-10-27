@@ -27,6 +27,10 @@ try{for(const game of ['roulette','craps']){
  const selection=game==='craps'?'pass':'red';
  await page.waitForFunction(g=>window.mpEvents.some(e=>e.type==='layout'&&e.game===g),game);
  const p=await page.evaluate(({game,selection})=>window.mpEvents.filter(e=>e.type==='layout'&&e.game===game).at(-1).spots.find(s=>s.selection===selection),{game,selection}),rect=await page.locator('iframe.table-scene').boundingBox();
+ for(const button of ['right','middle'])await page.mouse.click(rect.x+p.x*rect.width,rect.y+(1-p.y)*rect.height,{button});
+ await page.waitForTimeout(300);
+ assert.equal(requests.filter(r=>r.action==='bet').length,0,'secondary mouse buttons must not request a wager');
+ assert.equal(await page.evaluate(()=>window.mpEvents.filter(e=>e.type==='bet').length),0,'secondary buttons must not emit a bet');
  await page.touchscreen.tap(rect.x+p.x*rect.width,rect.y+(1-p.y)*rect.height);
  await page.getByText('Wager confirmed by server.',{exact:true}).waitFor();
  await page.waitForFunction(()=>window.mpEvents.some(e=>e.type==='betPlacement'&&e.amount===5));
