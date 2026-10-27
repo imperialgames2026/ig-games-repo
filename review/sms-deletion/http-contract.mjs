@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
 const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
-export async function consentDeletionHttp({origin,run,anon,service,db,ownedFixtures,control}) {
+export async function consentDeletionHttp({origin,run,anon,service,db,ownedFixtures,control,record=()=>{}}) {
  if(process.env.IG_SYNTHETIC_STACK_APPROVED!=='1'||origin!=='http://127.0.0.1:54321'||!/^[a-f0-9]{32}$/.test(run))throw Error('Approved local synthetic deletion only');
  assert.equal(ownedFixtures.length,4);assert.equal(new Set(ownedFixtures.map(x=>x.id)).size,4);assert.equal(new Set(ownedFixtures.map(x=>x.kind)).size,4);
  assert.match(control.id,UUID);assert.equal(control.email,`player-a-sms-${run}@example.invalid`);
@@ -42,7 +42,7 @@ export async function consentDeletionHttp({origin,run,anon,service,db,ownedFixtu
    }finally{await db.sql('drop trigger synthetic_http_failure on ig_sms_consent.events;drop function ig_sms_consent.synthetic_http_failure();');}
   }
   const deleted=await adminDelete(actor,soft);assert.equal(deleted.status,200,'Actual local GoTrue deletion must succeed');
-  const after=await state(actor.id);assert.equal(after.events,0);assert.equal(after.current,0);assert.equal(after.actorExists,soft);assert.equal(after.deleted,soft);
+  const after=await state(actor.id);record('sms-deletion-http-case-'+index,{phase:'after-delete',actorId:actor.id,soft,authDeleteStatus:deleted.status,after,failureEvidence});assert.equal(after.events,0);assert.equal(after.current,0);assert.equal(after.actorExists,soft,'Hard/soft Auth existence must match requested deletion mode');assert.equal(after.deleted,soft,'Soft deletion must set canonical deleted_at');
   const oldAccess=await request('/auth/v1/user',actor.token);assert.ok([401,403,404].includes(oldAccess.status),'Deleted actor old access must not resolve a user');
   const oldRefresh=await request('/auth/v1/token?grant_type=refresh_token',anon,{method:'POST',body:{refresh_token:actor.refreshToken}});assert.ok([400,401,403].includes(oldRefresh.status),'Deleted actor refresh must not create a session');
   const oldConsent=await consent(actor,{action:'status'},[401,403]);
