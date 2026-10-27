@@ -86,7 +86,7 @@ export default function Login() {
           try {
             await createSmsConsentClient(body=>supabase.functions.invoke('sms-consent',{body})).save({action:'grant',phone:normalizeSmsPhone(smsPhone),affirmative:true,policyVersion:SMS_CONSENT_VERSION});
             navigate(returnTo,{replace:true});
-          } catch { setMessage('Your email account was created, but SMS consent was not confirmed. No SMS is enabled. Review SMS preferences after signing in.'); }
+          } catch { navigate('/SmsConsent?registration=consent-unconfirmed',{replace:true}); }
           setSmsPhone('');setSmsConsent(false);
         } else if (data.session) navigate(returnTo, { replace: true });
         else {

@@ -7,6 +7,9 @@ create table ig_sms_consent.events (
  actor_id uuid not null references auth.users(id), request_id uuid not null,
  purpose text not null check(purpose='transactional_account'),
  policy_version text not null check(policy_version='2026-10-27.v1'),
+ collection_method text not null default 'authenticated_account_form' check(collection_method='authenticated_account_form'),
+ disclosure_sha256 text not null default '56cd1f6986ee6eaaaf150c3e8c5feaeae459b2c3113dc83ff01151083ef1808b' check(disclosure_sha256='56cd1f6986ee6eaaaf150c3e8c5feaeae459b2c3113dc83ff01151083ef1808b'),
+ expected_revision bigint check(expected_revision between 0 and 9007199254740990),
  requested_policy_version text,
  action text not null check(action in ('grant','revoke','change_number')),
  phone text, affirmative boolean not null,
@@ -19,6 +22,7 @@ create table ig_sms_consent.current_state (
  actor_id uuid primary key references auth.users(id),
  purpose text not null check(purpose='transactional_account'),
  policy_version text not null check(policy_version='2026-10-27.v1'),
+ revision bigint not null check(revision between 1 and 9007199254740991),
  status text not null check(status in ('granted','revoked')),
  phone text, event_id uuid not null references ig_sms_consent.events(id),
  recorded_at timestamptz not null,
@@ -36,12 +40,13 @@ for each statement execute function ig_sms_consent.reject_event_mutation();
 
 -- Privileged atomic audit write: definer deliberately avoids direct service table grants.
 -- Fixed postgres owner, fully qualified references, empty path and service-only execute.
-create function public.practice_sms_consent_v1(p_actor uuid,p_request_id uuid,p_action text,p_phone text,p_policy_version text)
+create function public.practice_sms_consent_v1(p_actor uuid,p_request_id uuid,p_action text,p_phone text,p_policy_version text,p_expected_revision bigint)
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare e ig_sms_consent.events%rowtype; s ig_sms_consent.current_state%rowtype; phone text;
 begin
  if p_actor is null or p_request_id is null or p_action is null or p_action not in ('grant','revoke','change_number')
- or (p_action='grant' and p_policy_version is distinct from '2026-10-27.v1') then
+ or (p_action='grant' and (p_policy_version is distinct from '2026-10-27.v1' or p_expected_revision is null or p_expected_revision<0 or p_expected_revision>9007199254740990))
+ or (p_action<>'grant' and p_expected_revision is not null) then
  raise exception 'INVALID_CONSENT_REQUEST' using errcode='22023'; end if;
  phone:=pg_catalog.btrim(p_phone);
  if (p_action in ('revoke','change_number') and p_phone is not null) or
@@ -57,25 +62,31 @@ begin
  select * into e from ig_sms_consent.events where actor_id=p_actor and request_id=p_request_id;
  if found then
   if e.action is distinct from p_action or e.phone is distinct from phone
+  or e.expected_revision is distinct from p_expected_revision
   or e.requested_policy_version is distinct from p_policy_version or e.purpose<>'transactional_account'
   or e.affirmative is distinct from (p_action='grant') then
    raise exception 'CONSENT_REQUEST_CONFLICT' using errcode='23505'; end if;
  else
-  insert into ig_sms_consent.events(actor_id,request_id,purpose,policy_version,requested_policy_version,action,phone,affirmative)
-   values(p_actor,p_request_id,'transactional_account','2026-10-27.v1',p_policy_version,p_action,phone,p_action='grant') returning * into e;
-  insert into ig_sms_consent.current_state(actor_id,purpose,policy_version,status,phone,event_id,recorded_at)
-   values(p_actor,'transactional_account','2026-10-27.v1',case when p_action='grant' then 'granted' else 'revoked' end,
+  select * into s from ig_sms_consent.current_state where actor_id=p_actor;
+  if p_action='grant' and p_expected_revision<>coalesce(s.revision,0) then
+   raise exception 'CONSENT_REVISION_CONFLICT' using errcode='23505'; end if;
+  if coalesce(s.revision,0)>=9007199254740991 then
+   raise exception 'CONSENT_REVISION_EXHAUSTED' using errcode='22003'; end if;
+  insert into ig_sms_consent.events(actor_id,request_id,purpose,policy_version,requested_policy_version,expected_revision,action,phone,affirmative)
+   values(p_actor,p_request_id,'transactional_account','2026-10-27.v1',p_policy_version,p_expected_revision,p_action,phone,p_action='grant') returning * into e;
+  insert into ig_sms_consent.current_state(actor_id,purpose,policy_version,revision,status,phone,event_id,recorded_at)
+   values(p_actor,'transactional_account','2026-10-27.v1',coalesce(s.revision,0)+1,case when p_action='grant' then 'granted' else 'revoked' end,
     case when p_action='grant' then phone else null end,e.id,e.recorded_at)
-  on conflict(actor_id) do update set policy_version=excluded.policy_version,status=excluded.status,
+  on conflict(actor_id) do update set policy_version=excluded.policy_version,revision=excluded.revision,status=excluded.status,
    phone=excluded.phone,event_id=excluded.event_id,recorded_at=excluded.recorded_at;
  end if;
  select * into s from ig_sms_consent.current_state where actor_id=p_actor;
  return pg_catalog.jsonb_build_object('requestId',p_request_id,'eventId',e.id,'action',e.action,
- 'policyVersion',s.policy_version,'status',s.status,'recordedAt',e.recorded_at,'deliveryEnabled',false);
+ 'policyVersion',s.policy_version,'revision',s.revision,'status',s.status,'recordedAt',e.recorded_at,'deliveryEnabled',false);
 end $$;
-alter function public.practice_sms_consent_v1(uuid,uuid,text,text,text) owner to postgres;
-revoke all on function public.practice_sms_consent_v1(uuid,uuid,text,text,text) from public,anon,authenticated;
-grant execute on function public.practice_sms_consent_v1(uuid,uuid,text,text,text) to service_role;
+alter function public.practice_sms_consent_v1(uuid,uuid,text,text,text,bigint) owner to postgres;
+revoke all on function public.practice_sms_consent_v1(uuid,uuid,text,text,text,bigint) from public,anon,authenticated;
+grant execute on function public.practice_sms_consent_v1(uuid,uuid,text,text,text,bigint) to service_role;
 create function public.practice_sms_consent_status_v1(p_actor uuid) returns jsonb
 language plpgsql security definer set search_path='' as $$
 declare s ig_sms_consent.current_state%rowtype;
@@ -83,7 +94,7 @@ begin
  if p_actor is null or not exists(select 1 from auth.users where id=p_actor) then
  raise exception 'CONSENT_NOT_AUTHORIZED' using errcode='42501'; end if;
  select * into s from ig_sms_consent.current_state where actor_id=p_actor;
- return pg_catalog.jsonb_build_object('status',coalesce(s.status,'not_recorded'),'policyVersion',s.policy_version,
+ return pg_catalog.jsonb_build_object('status',coalesce(s.status,'not_recorded'),'revision',coalesce(s.revision,0),'policyVersion',s.policy_version,
  'recordedAt',s.recorded_at,'phoneVerified',false,'deliveryEnabled',false);
 end $$;
 alter function public.practice_sms_consent_status_v1(uuid) owner to postgres;
