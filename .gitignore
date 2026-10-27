@@ -20,3 +20,8 @@ android/local.properties
 android/key.properties
 android/.gradle/
 android/**/build/
+
+# Local synthetic harness artifacts (never source publication).
+/node_modules
+/review/practice-stack/staged/
+/review/practice-stack/reviewed-app-bootstrap-fixed-formats.sql

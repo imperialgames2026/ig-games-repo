@@ -1,4 +1,4 @@
-export const functions = Object.freeze(['poker-table-v1','poker-events-v1','admin-poker-events','ig-blackjack-practice','ig-multiplayer-practice','ig-shared-event-practice','ig-crash-v2','ig-poker-tournament-admin','poker-receipt-resolution']);
+export const functions = Object.freeze(['poker-table-v1','poker-events-v1','admin-poker-events','ig-blackjack-practice','ig-multiplayer-practice','ig-shared-event-practice','ig-crash-v2','ig-poker-tournament-admin','poker-receipt-resolution','sms-consent']);
 export function route(raw, method) {
  if(!['GET','POST','PATCH','DELETE','OPTIONS'].includes(method))return null;
  if(typeof raw!=='string'||!raw.startsWith('/')||raw.startsWith('//')||/[\\\x00-\x20]/.test(raw)||/%(?:2e|2f|5c)/i.test(raw))return null;
@@ -12,7 +12,7 @@ export function route(raw, method) {
  }return null;
 }
 export function fixturePlan(run,phase="browser"){
- if(!["browser","lifecycle","payout","tournament","protocol","showdown"].includes(phase))throw Error("invalid phase");
+ if(!["browser","lifecycle","payout","tournament","protocol","showdown","sms"].includes(phase))throw Error("invalid phase");
  if(!/^[a-f0-9]{32}$/.test(run))throw Error('invalid run');
  const aliases=phase==='showdown'?[...Array.from({length:18},(_,i)=>'player-'+String(i+1).padStart(2,'0')),'admin']:phase==='tournament'?['player-a','player-b','player-c','player-d','player-e','player-f','player-g','player-h','player-i','excluded','tester','admin']:['player-a','player-b','excluded','tester','admin'];
  return aliases.map(kind=>({kind,phase,email:`${kind}-${phase}-${run}@example.invalid`,metadata:{full_name:`Synthetic ${kind}`},canonicalRole:kind==='admin'?'superadmin':kind==='tester'?'tester':'player',excluded:kind==='excluded'}));

@@ -12,7 +12,7 @@ const here=dirname(fileURLToPath(import.meta.url));
 export function assertFunctionInventory(entries){if(!Array.isArray(entries)||JSON.stringify(entries.map(x=>x.slug).sort())!==JSON.stringify([...allowedFunctions].sort()))throw Error('exact unique handler allowlist required');}
 export function validateRunConfig(c){
  if(!c||!/^[a-f0-9]{32}$/.test(c.run))throw Error('invalid run');
- if(c.testSlice!==undefined&&!['full','seating','formats','protocol','showdown','extended'].includes(c.testSlice))throw Error('unsupported acceptance slice');
+ if(c.testSlice!==undefined&&!['full','seating','formats','protocol','showdown','extended','sms'].includes(c.testSlice))throw Error('unsupported acceptance slice');
  const expected=runtimePlan(c.run);if(c.stage!==expected.stage)throw Error('exact fresh stage required');
  if(c.approved!==true||c.offlineReviewComplete!==true)throw Error('explicit reviewed runtime approval missing');
  if(!c.sourceStage||!realpathSync(c.sourceStage).startsWith(here+'/staged/'))throw Error('reviewed source stage required');
@@ -66,6 +66,7 @@ export async function execute(c){
   await wait(()=>docker(['exec',db,'psql','-h','127.0.0.1','-U','postgres','-X','-At','-c',"select to_regclass('auth.sessions') is not null and to_regprocedure('auth.jwt()') is not null;"]).trim()==='t');
   sql(readFileSync(resolve(here,'assert-auth-platform.sql'),'utf8'));
   sql(readFileSync(c.bootstrap,'utf8'));
+  if(c.testSlice==='sms'){const consentSql=readFileSync(resolve(projectRoot,'supabase/proposals/practice-sms-consent.sql'));if(createHash('sha256').update(consentSql).digest('hex')!=='e37cc16a0880c7dc92f094129d5843f316f23111d34727892bc8a583e1d9a181')throw Error('Reviewed consent SQL drift');sql('begin;'+consentSql.toString()+'commit;');}
   const rest=create('rest',['--network',privateId,'--network-alias','rest','--memory','256m','--cpus','.5',...env({PGRST_DB_URI:'postgres://authenticator@db:5432/postgres',PGRST_DB_SCHEMAS:'public',PGRST_DB_ANON_ROLE:'anon',PGRST_JWT_SECRET:secret}),image('postgrest/postgrest:')]);start(rest);
   writeFileSync(resolve(c.stage,'local-info.json'),JSON.stringify({API_INTERNAL_URL:'http://kong:8000',ANON_KEY:anon,SERVICE_ROLE_KEY:service}),{mode:0o600});
   const edge=create('edge',['--network',privateId,'--network-alias','edge','--memory','768m','--cpus','1','-v',c.sourceStage+':/probe:ro','-v',resolve(c.stage,'local-info.json')+':/run/ig-synthetic/local-info.json:ro',...env({IG_SYNTHETIC_STACK_APPROVED:'1'}),image('supabase/edge-runtime:'),'start','--main-service','/probe/application-main','--port','9000']);start(edge);

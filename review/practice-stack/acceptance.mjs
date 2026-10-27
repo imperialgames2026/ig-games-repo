@@ -1,3 +1,4 @@
+import {smsAcceptance} from './sms-acceptance.mjs';
 import assert from 'node:assert/strict';import {randomUUID,randomBytes} from 'node:crypto';
 import {payoutExtension} from './payout-extension/phases.mjs';
 import {createManualCashoutAttempt} from './payout-extension/attempt.mjs';
@@ -26,7 +27,8 @@ export async function acceptance({run,anon,service,browser,sql,db,record=()=>{},
  const call=async(user,slug,body,expected=200)=>{
   const r=await fetch(origin+'/functions/v1/'+slug,{method:'POST',headers:{apikey:anon,'content-type':'application/json',...(user?{authorization:'Bearer '+user.token}:{})},body:JSON.stringify(body),signal:AbortSignal.timeout(15000)});assert.equal(r.status,expected,`${slug} ${body.action}`);return r.json();
  };
- if(!['full','seating','formats','protocol','showdown','extended'].includes(slice))throw Error('unsupported acceptance slice');
+ if(!['full','seating','formats','protocol','showdown','extended','sms'].includes(slice))throw Error('unsupported acceptance slice');
+ if(slice==='sms'){const users=await provision('sms');return smsAcceptance({run,users,call,db,browser,record,anon,origin});}
  if(['protocol','showdown','extended'].includes(slice)){
   let protocol=null,showdown=null;
   if(slice!=='showdown'){const users=await provision('protocol');protocol=await protocolAcceptance({run,users,call,db,browser,record});record('protocol',protocol);}
