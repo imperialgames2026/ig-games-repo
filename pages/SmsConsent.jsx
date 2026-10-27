@@ -2,14 +2,14 @@ import React,{useEffect,useRef,useState} from 'react';
 import {Link,useLocation} from 'react-router-dom';
 import {useAuth} from '@/lib/AuthContext';
 import {supabase} from '@/lib/supabaseClient';
-import {createSmsConsentClient} from '@/lib/smsConsentClient';
+import {createSmsConsentClient,createActorBoundSmsInvoker} from '@/lib/smsConsentClient';
 import {SMS_CONSENT_VERSION,normalizeSmsPhone} from '@/lib/smsConsentPolicy.mjs';
 import SmsConsentFields from '@/components/auth/SmsConsentFields';
 export default function SmsConsent(){
  const {user,isLoadingAuth}=useAuth();const location=useLocation();
  const [phone,setPhone]=useState(''),[consent,setConsent]=useState(false),[busy,setBusy]=useState(false),[status,setStatus]=useState(null),[message,setMessage]=useState('');
  const client=useRef(null),lock=useRef(false),epoch=useRef(0);
- if(!client.current||client.current.actor!==user?.id){client.current={actor:user?.id,api:createSmsConsentClient(body=>supabase.functions.invoke('sms-consent',{body}))};epoch.current++;}
+ if(!client.current||client.current.actor!==user?.id){client.current={actor:user?.id,api:createSmsConsentClient(createActorBoundSmsInvoker(supabase,user?.id))};epoch.current++;}
  const api=client.current.api;
  useEffect(()=>{setPhone('');setConsent(false);setStatus(null);setMessage('');let mounted=true;const n=++epoch.current;if(user?.id&&!isLoadingAuth)api.status().then(s=>{if(mounted&&epoch.current===n)setStatus(s);}).catch(e=>{if(mounted&&epoch.current===n)setMessage(e.message);});return()=>{mounted=false;};},[user?.id,isLoadingAuth]);
  async function save(action){if(lock.current||isLoadingAuth||!user?.id)return;const n=++epoch.current;lock.current=true;setBusy(true);setMessage('');try{

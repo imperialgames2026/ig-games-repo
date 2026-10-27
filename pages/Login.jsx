@@ -5,7 +5,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { safeReturnPath } from '@/lib/authFlow';
 import SmsConsentFields from '@/components/auth/SmsConsentFields';
 import { SMS_CONSENT_VERSION, normalizeSmsPhone } from '@/lib/smsConsentPolicy.mjs';
-import { createSmsConsentClient } from '@/lib/smsConsentClient';
+import { createSmsConsentClient, createActorBoundSmsInvoker } from '@/lib/smsConsentClient';
 
 const modes = {
   signin: ['Welcome back', 'Sign in to continue to your account.', 'Sign in'],
@@ -84,7 +84,7 @@ export default function Login() {
         setPassword(''); setConfirm('');
         if (data.session && smsConsent) {
           try {
-            await createSmsConsentClient(body=>supabase.functions.invoke('sms-consent',{body})).save({action:'grant',phone:normalizeSmsPhone(smsPhone),affirmative:true,policyVersion:SMS_CONSENT_VERSION});
+            await createSmsConsentClient(createActorBoundSmsInvoker(supabase,data.user?.id)).save({action:'grant',phone:normalizeSmsPhone(smsPhone),affirmative:true,policyVersion:SMS_CONSENT_VERSION});
             navigate(returnTo,{replace:true});
           } catch { navigate('/SmsConsent?registration=consent-unconfirmed',{replace:true}); }
           setSmsPhone('');setSmsConsent(false);
