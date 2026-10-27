@@ -45,7 +45,7 @@ Deno.serve(async(request:Request)=>{
  if(request.method==="OPTIONS")return new Response(null,{status:204,headers});
  if(request.method!=="POST")return reply(405,{error:"POST only"});
  const url=Deno.env.get("SUPABASE_URL"),key=Deno.env.get("SUPABASE_ANON_KEY"),secret=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
- if(url!=="https://"+STAGING+".supabase.co"||!key||!secret)return reply(503,{error:"Staging-only configuration service"});
+ if((url!=="https://"+STAGING+".supabase.co"&&!(Deno.env.get("IG_LOCAL_PRACTICE")==="true"&&url==="http://kong:8000"))||!key||!secret)return reply(503,{error:"Staging-only configuration service"});
  const token=request.headers.get("authorization")?.match(/^Bearer (\S+)$/i)?.[1];
  if(!token)return reply(401,{error:"Sign-in required"});
  const auth=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});

@@ -37,8 +37,10 @@ Observed local evidence is bounded: eight game journeys, accounting/races,
 selected payout branches, free tournament seating, and fixed 2/4/6/8/9 formats.
 This is not full accounting/fairness or a release gate pass. Native SQL controller
 fixtures and clock adjustments are reported explicitly; cron/Realtime are not
-verified by those fixtures. Rare payout branches, full tournament elimination,
-admin preset creation and resolver HTTP require additional acceptance. Public
+verified by those fixtures. Rare payout branches and full tournament elimination require additional acceptance.
+The protocol slice adds admin preset and review-only resolver routes to the same
+local worker/gateway without changing services, images, ports or resource caps.
+It preserves real Auth and canonical role checks; no hosted resolver is wired. Public
 refund/cancellation APIs are unsupported. Hosted Slots parking remains open.
 
 See `fixed-formats-gates.md`. No main merge, hosted rollout or Android release

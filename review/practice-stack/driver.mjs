@@ -12,7 +12,7 @@ const here=dirname(fileURLToPath(import.meta.url));
 export function assertFunctionInventory(entries){if(!Array.isArray(entries)||JSON.stringify(entries.map(x=>x.slug).sort())!==JSON.stringify([...allowedFunctions].sort()))throw Error('exact unique handler allowlist required');}
 export function validateRunConfig(c){
  if(!c||!/^[a-f0-9]{32}$/.test(c.run))throw Error('invalid run');
- if(c.testSlice!==undefined&&!['full','seating','formats'].includes(c.testSlice))throw Error('unsupported acceptance slice');
+ if(c.testSlice!==undefined&&!['full','seating','formats','protocol','showdown','extended'].includes(c.testSlice))throw Error('unsupported acceptance slice');
  const expected=runtimePlan(c.run);if(c.stage!==expected.stage)throw Error('exact fresh stage required');
  if(c.approved!==true||c.offlineReviewComplete!==true)throw Error('explicit reviewed runtime approval missing');
  if(!c.sourceStage||!realpathSync(c.sourceStage).startsWith(here+'/staged/'))throw Error('reviewed source stage required');
@@ -29,7 +29,7 @@ export function validateRunConfig(c){
  const helperFiles=['application-main/index.ts','gateway.mjs','policy.mjs'];
  if(JSON.stringify((manifests.helpers??[]).map(x=>x.file).sort())!==JSON.stringify([...helperFiles].sort()))throw Error('exact helper inventory required');
  for(const h of manifests.helpers){const bytes=readFileSync(resolve(c.sourceStage,h.file));if(createHash('sha256').update(bytes).digest('hex')!==h.sha256)throw Error('helper drift');const original=h.file==='application-main/index.ts'?'main.ts':h.file;if(createHash('sha256').update(readFileSync(resolve(here,original))).digest('hex')!==h.sha256)throw Error('helper differs from reviewed source');}
- if(manifests.functions.length!==7||manifests.functions.some(x=>x.runtimeDependencyCacheVerified!==true||!Array.isArray(x.exactExternalImports)||x.exactExternalImports.length!==0))throw Error('exact dependency bundles not ready');
+ if(manifests.functions.length!==allowedFunctions.length||manifests.functions.some(x=>x.runtimeDependencyCacheVerified!==true||!Array.isArray(x.exactExternalImports)||x.exactExternalImports.length!==0))throw Error('exact dependency bundles not ready');
  for(const f of manifests.functions){if(!/^[a-z0-9-]+$/.test(f.slug))throw Error('invalid bundle slug');const bytes=readFileSync(resolve(c.sourceStage,'functions',f.slug,'index.js'));if(createHash('sha256').update(bytes).digest('hex')!==f.bundleSha256)throw Error('bundle drift');}
  if(!/^sha256:[a-f0-9]{64}$/.test(c.databaseImage??''))throw Error('local built database image identity required');
  return expected;

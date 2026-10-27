@@ -1,5 +1,5 @@
 // Isolated Edge main service only. Never stage this into a hosted function.
-const allowed=new Set(['poker-table-v1','poker-events-v1','admin-poker-events','ig-blackjack-practice','ig-multiplayer-practice','ig-shared-event-practice','ig-crash-v2']);
+const allowed=new Set(['poker-table-v1','poker-events-v1','admin-poker-events','ig-blackjack-practice','ig-multiplayer-practice','ig-shared-event-practice','ig-crash-v2','ig-poker-tournament-admin','poker-receipt-resolution']);
 if(Deno.env.get('IG_SYNTHETIC_STACK_APPROVED')!=='1')throw Error('startup approval interlock missing');
 const c=JSON.parse(await Deno.readTextFile('/run/ig-synthetic/local-info.json'));
 if(c.API_INTERNAL_URL!=='http://kong:8000')throw Error('nonlocal API');

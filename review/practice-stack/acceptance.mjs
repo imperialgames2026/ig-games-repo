@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';import {randomUUID,randomBytes} from 'node:crypto';
 import {payoutExtension} from './payout-extension/phases.mjs';
 import {createManualCashoutAttempt} from './payout-extension/attempt.mjs';
+import {tournamentShowdown} from '../tournament-showdown/phase.mjs';
+import {protocolAcceptance} from './protocol-acceptance.mjs';
 import {fixedCapacityAcceptance} from './fixed-capacity-acceptance.mjs';
 import {tournamentSeating} from './tournament-seating.mjs';
 import {settlementAcceptance} from './accounting-lifecycle/settlement.mjs';
@@ -24,7 +26,13 @@ export async function acceptance({run,anon,service,browser,sql,db,record=()=>{},
  const call=async(user,slug,body,expected=200)=>{
   const r=await fetch(origin+'/functions/v1/'+slug,{method:'POST',headers:{apikey:anon,'content-type':'application/json',...(user?{authorization:'Bearer '+user.token}:{})},body:JSON.stringify(body),signal:AbortSignal.timeout(15000)});assert.equal(r.status,expected,`${slug} ${body.action}`);return r.json();
  };
- if(!['full','seating','formats'].includes(slice))throw Error('unsupported acceptance slice');
+ if(!['full','seating','formats','protocol','showdown','extended'].includes(slice))throw Error('unsupported acceptance slice');
+ if(['protocol','showdown','extended'].includes(slice)){
+  let protocol=null,showdown=null;
+  if(slice!=='showdown'){const users=await provision('protocol');protocol=await protocolAcceptance({run,users,call,db,browser,record});record('protocol',protocol);}
+  if(slice!=='protocol'){const users=await provision('showdown');showdown=await tournamentShowdown({run,users,call,db,maxCycles:3,record});}
+  const ledger=JSON.parse(await db.sql("select json_build_object('components',count(*),'inconsistent',count(*)filter(where not consistent),'liveUnits',coalesce(sum(balance),0),'journalUnits',coalesce(sum(journal_balance),0)) from ig_practice_audit.reconciliation"));assert.equal(Number(ledger.inconsistent),0);assert.equal(Number(ledger.liveUnits),Number(ledger.journalUnits));record('final-reconciliation',ledger);return {slice,protocol,showdown,ledger,releaseReady:false};
+ }
  if(['seating','formats'].includes(slice)){
   const users=await provision('tournament');
   const seating=slice==='seating'?await tournamentSeating({run,users,call,db,browser,record}):null;if(seating)record('tournament-seating',seating);

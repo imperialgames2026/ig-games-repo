@@ -1,0 +1,92 @@
+{
+  "reviewOnly": true,
+  "executed": false,
+  "phase": "showdown",
+  "players": [
+    {
+      "kind": "player-01",
+      "canonicalRole": "player"
+    },
+    {
+      "kind": "player-02",
+      "canonicalRole": "player"
+    },
+    {
+      "kind": "player-03",
+      "canonicalRole": "player"
+    },
+    {
+      "kind": "player-04",
+      "canonicalRole": "player"
+    },
+    {
+      "kind": "player-05",
+      "canonicalRole": "player"
+    },
+    {
+      "kind": "player-06",
+      "canonicalRole": "player"
+    },
+    {
+      "kind": "player-07",
+      "canonicalRole": "player"
+    },
+    {
+      "kind": "player-08",
+      "canonicalRole": "player"
+    },
+    {
+      "kind": "player-09",
+      "canonicalRole": "player"
+    },
+    {
+      "kind": "player-10",
+      "canonicalRole": "player"
+    },
+    {
+      "kind": "player-11",
+      "canonicalRole": "player"
+    },
+    {
+      "kind": "player-12",
+      "canonicalRole": "player"
+    },
+    {
+      "kind": "player-13",
+      "canonicalRole": "player"
+    },
+    {
+      "kind": "player-14",
+      "canonicalRole": "player"
+    },
+    {
+      "kind": "player-15",
+      "canonicalRole": "player"
+    },
+    {
+      "kind": "player-16",
+      "canonicalRole": "player"
+    },
+    {
+      "kind": "player-17",
+      "canonicalRole": "player"
+    },
+    {
+      "kind": "player-18",
+      "canonicalRole": "player"
+    }
+  ],
+  "operator": {
+    "kind": "admin",
+    "canonicalRole": "superadmin"
+  },
+  "identityCreation": "same approved local GoTrue admin HTTP, new captured UUIDs; no SQL insert into auth.users",
+  "initialPracticeAssets": "none assigned at signup; native event seating grants1000 per entrant",
+  "configuredCapacity": 9,
+  "format": "scheduled_mtt",
+  "tableCount": 2,
+  "maxPlayers": 18,
+  "maxCycles": 3,
+  "additionalImagesServicesPorts": 0,
+  "dataOverrides": false
+}
