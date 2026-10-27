@@ -16,7 +16,7 @@ export default function ProtectedRoute({ children, roles }) {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  if (user.is_excluded && location.pathname !== '/Support' && location.pathname !== '/ResponsiblePlay') {
+  if (user.is_excluded && location.pathname !== '/Support' && location.pathname !== '/ResponsiblePlay' && location.pathname !== '/SmsConsent') {
     return <main role="alert" className="p-8">Your account is excluded. <a href="/Support">Contact support</a>.</main>;
   }
 

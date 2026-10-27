@@ -1,0 +1,13 @@
+# Optional SMS consent — source review candidate
+
+No SMS service is enabled. This directory is not in the backend deployment manifest; the SQL remains an unapplied proposal. The UI reports unavailable/unconfirmed preferences when that API is absent. Email account creation still works. No texts, phone verification, Twilio configuration or business eligibility claims are made.
+
+Disclosure version `2026-10-27.v1`, transactional account-security only. Consent checkbox starts unchecked and is reset on number/mode/account changes. No number/consent is stored in Auth metadata or browser persistence. Without an authenticated confirmed session, signup records no consent and explains how to finish after email confirmation. On authenticated signup, a failed optional consent write does not undo/fail the email account.
+
+The review Edge handler authenticates with actual getUser, derives actor only from that result and calls the service-only consent RPC. Provider actions always fail closed with zero SQL/send calls. SQL uses narrowly scoped postgres-owned SECURITY DEFINER/empty search_path and private immutable events/current state; no client/service table writes. A row lock serializes each actor. Exact request replay returns the original receipt with CURRENT authorization status, so an old grant retry cannot restore a revoked grant. Withdrawal and number invalidation are clear-only; they do not require new phone/disclosure consent and remain accessible for excluded authenticated owners.
+
+A failed grant retains its exact in-memory UUID/payload; changed grants are blocked until resolved, but explicit withdrawal can supersede it. Page status reads use a generation guard; clients are scoped to canonical identity. Remount never automatically sends or grants consent. Consent does not prove control of the number; future delivery would require separate verified canonical number matching, current consent, eligibility/provider approval, and suppression/revocation enforcement.
+
+Tests distinguish pure policy/client/actual-handler-with-mocked-Auth, synthetic single-backend PGlite SQL, and browser with intercepted responses. None proves deployed Auth/HTTP, real concurrency, live opt-in proof, or actual SMS delivery. The browser suite sends no external requests except intercepted fixtures. Existing authored Terms/Privacy remain unchanged by this consent candidate.
+
+Open gates: independent review, actual isolated Auth/HTTP consent tests, retention/account deletion policy (FK prevents hard deletion), reviewed deployment packaging and explicit schema/function rollout, Twilio eligibility, and verified live page/enrollment evidence. Never submit synthetic screenshots as real enrollment proof.
