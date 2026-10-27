@@ -1,7 +1,7 @@
 export const functions = Object.freeze(['poker-table-v1','poker-events-v1','admin-poker-events','ig-blackjack-practice','ig-multiplayer-practice','ig-shared-event-practice','ig-crash-v2','ig-poker-tournament-admin','poker-receipt-resolution','sms-consent']);
 export function route(raw, method) {
  if(!['GET','POST','PATCH','DELETE','OPTIONS'].includes(method))return null;
- if(typeof raw!=='string'||!raw.startsWith('/')||raw.startsWith('//')||/[\\\x00-\x20]/.test(raw)||/%(?:2e|2f|5c)/i.test(raw))return null;
+ if(typeof raw!=='string'||!raw.startsWith('/')||raw.startsWith('//')||/[\\\x00-\x20]/.test(raw)||/%(?:2e|2f|5c)/i.test(raw.split('?')[0]))return null;
  const u=new URL(raw,'http://gateway.invalid');
  if(u.pathname.split('/').includes('..')||raw.includes('/../'))return null;
  for(const [prefix,host,port]of[['/auth/v1/','auth',9999],['/rest/v1/','rest',3000],['/functions/v1/','edge',9000]]){
