@@ -1,0 +1,26 @@
+{
+  "purpose": "consent-only release; no game or provider changes",
+  "baseMain": "080d8a984fa9012a226129bb42e07411eeb7bf3e",
+  "project_ref": "qonqemhljgxlwpghkxhn",
+  "project_name": "imperial-games-staging",
+  "sql": {
+    "file": "supabase/proposals/practice-sms-consent.sql",
+    "sha256": "e37cc16a0880c7dc92f094129d5843f316f23111d34727892bc8a583e1d9a181",
+    "applied": false,
+    "requires_action_time_approval": true
+  },
+  "functions": [
+    {
+      "name": "sms-consent",
+      "verify_jwt": true,
+      "status": "not_deployed",
+      "sha256": {
+        "index.ts": "548dc99b8c03e17d6ddaae4bc17fde8b402a4db876819b2bfe3c377af4712950",
+        "policy.mjs": "a6438d96ae1b352981e7e6f079b022281152be1c40a63b3ebc3801fe6091c38e"
+      }
+    }
+  ],
+  "sms_delivery_enabled": false,
+  "realtime_included": false,
+  "global_deployment_workflow_permitted": false
+}

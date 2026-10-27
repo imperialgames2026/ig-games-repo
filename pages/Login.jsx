@@ -3,6 +3,9 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 import { safeReturnPath } from '@/lib/authFlow';
+import SmsConsentFields from '@/components/auth/SmsConsentFields';
+import { SMS_CONSENT_VERSION, normalizeSmsPhone } from '@/lib/smsConsentPolicy.mjs';
+import { createSmsConsentClient, createActorBoundSmsInvoker } from '@/lib/smsConsentClient';
 
 const modes = {
   signin: ['Welcome back', 'Sign in to continue to your account.', 'Sign in'],
@@ -12,7 +15,7 @@ const modes = {
 };
 
 export default function Login() {
-  const { isAuthenticated, isLoadingAuth, authLinkError, clearAuthLinkError, logout } = useAuth();
+  const { user, isAuthenticated, isLoadingAuth, authLinkError, clearAuthLinkError, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [mode, setMode] = useState(() => {
@@ -23,6 +26,8 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [fullName, setFullName] = useState('');
+  const [smsPhone, setSmsPhone] = useState('');
+  const [smsConsent, setSmsConsent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -38,10 +43,13 @@ export default function Login() {
     return () => clearTimeout(timer);
   }, [cooldown]);
 
+  useEffect(()=>{setSmsPhone('');setSmsConsent(false);},[user?.id]);
+
   if (!isLoadingAuth && isAuthenticated && mode === 'signin' && !authLinkError) return <Navigate to={returnTo} replace />;
 
   function changeMode(next) {
     if (submitting.current) return;
+    setSmsPhone('');setSmsConsent(false);
     setMode(next); setError(''); setMessage(''); setPassword(''); setConfirm('');
     clearAuthLinkError();
     requestAnimationFrame(() => heading.current?.focus());
@@ -74,10 +82,17 @@ export default function Login() {
           options: { data: { full_name: fullName.trim() }, emailRedirectTo: window.location.origin } });
         if (authError) throw authError;
         setPassword(''); setConfirm('');
-        if (data.session) navigate(returnTo, { replace: true });
+        if (data.session && smsConsent) {
+          try {
+            await createSmsConsentClient(createActorBoundSmsInvoker(supabase,data.user?.id)).save({action:'grant',phone:normalizeSmsPhone(smsPhone),affirmative:true,policyVersion:SMS_CONSENT_VERSION});
+            navigate(returnTo,{replace:true});
+          } catch { navigate('/SmsConsent?registration=consent-unconfirmed',{replace:true}); }
+          setSmsPhone('');setSmsConsent(false);
+        } else if (data.session) navigate(returnTo, { replace: true });
         else {
           setMode('confirmation'); setCooldown(60);
-          setMessage('Check your email to confirm your address. If you already have an account, sign in or reset your password.');
+          setMessage('Check your email to confirm your address. If you already have an account, sign in or reset your password.' + (smsConsent ? ' SMS consent has not been recorded. After confirmation, sign in and review SMS preferences; no texts are enabled.' : ''));
+          setSmsPhone('');setSmsConsent(false);
         }
       } else {
         const { error: authError } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
@@ -122,6 +137,7 @@ export default function Login() {
             <label className="block text-sm">Email<input type="email" autoComplete="email" autoCapitalize="none" spellCheck={false} value={email} onChange={e => setEmail(e.target.value)} required maxLength={254} className="mt-1 w-full rounded-lg border border-white/15 bg-slate-950 px-3 py-3 text-white outline-none focus:border-amber-400" /></label>
             {!emailOnly && <label className="block text-sm">Password<input type="password" autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} minLength={mode === 'signup' ? 8 : undefined} value={password} onChange={e => setPassword(e.target.value)} required className="mt-1 w-full rounded-lg border border-white/15 bg-slate-950 px-3 py-3 text-white outline-none focus:border-amber-400" /></label>}
             {mode === 'signup' && <label className="block text-sm">Confirm password<input type="password" autoComplete="new-password" minLength={8} value={confirm} onChange={e => setConfirm(e.target.value)} required className="mt-1 w-full rounded-lg border border-white/15 bg-slate-950 px-3 py-3 text-white outline-none focus:border-amber-400" /></label>}
+            {mode === 'signup' && <SmsConsentFields phone={smsPhone} onPhone={setSmsPhone} consent={smsConsent} onConsent={setSmsConsent} />}
             {error && <p role="alert" className="rounded-lg bg-red-950/60 p-3 text-sm text-red-200">{error}</p>}
             {message && <p role="status" className="rounded-lg bg-emerald-950/60 p-3 text-sm text-emerald-200">{message}</p>}
             <button type="submit" disabled={busy || (emailOnly && cooldown > 0)} className="w-full rounded-lg bg-amber-400 px-4 py-3 font-semibold text-slate-950 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-60">{busy ? 'Please wait…' : modes[mode][2]}</button>
@@ -130,6 +146,7 @@ export default function Login() {
         </form>
         {mode !== 'recovery' && <button type="button" disabled={busy} className="mt-4 block text-sm text-amber-300" onClick={() => changeMode('recovery')}>Forgot password?</button>}
         {mode === 'signin' && <button type="button" disabled={busy} className="mt-3 block text-sm text-amber-300" onClick={() => changeMode('confirmation')}>Resend confirmation email</button>}
+        <Link to="/SmsConsent" className="mt-4 block text-sm text-amber-300">Review SMS preferences after signing in</Link>
         <p className="mt-6 text-center text-sm text-slate-400">{mode === 'signin' ? "Don't have an account?" : 'Already have an account?'}{' '}<button type="button" disabled={busy} onClick={() => changeMode(mode === 'signin' ? 'signup' : 'signin')} className="font-semibold text-amber-400 hover:text-amber-300">{mode === 'signin' ? 'Create one' : 'Sign in'}</button></p>
       </section>
     </main>
