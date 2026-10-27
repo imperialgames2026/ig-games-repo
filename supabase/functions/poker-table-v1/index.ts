@@ -1,6 +1,7 @@
 import {createClient} from "npm:@supabase/supabase-js@2.57.4";
 type C={rank:number;suit:"c"|"d"|"h"|"s"};
 const json=(v:unknown,status=200)=>new Response(JSON.stringify(v),{status,headers:{"Content-Type":"application/json","Cache-Control":"no-store","Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization, apikey, content-type, x-client-info, x-supabase-api-version","Access-Control-Allow-Methods":"POST, OPTIONS"}});
+const PUBLIC_RECEIPT_ERRORS=new Set(["LEGACY_RECEIPT_REFRESH_REQUIRED","RECEIPT_ACTOR_MISMATCH","RECEIPT_PAYLOAD_MISMATCH"]);
 const hex=(x:Uint8Array)=>Array.from(x,b=>b.toString(16).padStart(2,"0")).join("");
 const score5=(hand:C[]):number[]=>{
  const ranks=hand.map(c=>c.rank).sort((a,b)=>b-a),count=new Map<number,number>();
@@ -72,7 +73,7 @@ const bestOmaha=(hole:C[],board:C[]):number[]=>{
   return highest;
 };
 
-function awards(seats:{seat_no:number;committed:number;folded:boolean;private_hole:C[]}[],board:C[],button:number,variant:string){
+function awards(seats:{seat_no:number;committed:number;folded:boolean;private_hole:C[]}[],board:C[],button:number,variant:string,seatCapacity:number){
  const scores=new Map<number,number[]>();for(const seat of seats)if(!seat.folded)scores.set(seat.seat_no,variant==='omaha'?bestOmaha(seat.private_hole,board):best([...seat.private_hole,...board]));
  const levels=[...new Set(seats.map(s=>s.committed).filter(n=>n>0))].sort((a,b)=>a-b),out:{seat:number;chips:number}[]=[];
  let previous=0;
@@ -82,7 +83,7 @@ function awards(seats:{seat_no:number;committed:number;folded:boolean;private_ho
   if(!eligible.length)throw Error("No eligible pot winner");
   let top=scores.get(eligible[0].seat_no)!;
   for(const s of eligible)if(compare(scores.get(s.seat_no)!,top)>0)top=scores.get(s.seat_no)!;
-  const winners=eligible.filter(s=>compare(scores.get(s.seat_no)!,top)===0).sort((a,b)=>((a.seat_no-button-1+8)%8)-((b.seat_no-button-1+8)%8));
+  const winners=eligible.filter(s=>compare(scores.get(s.seat_no)!,top)===0).sort((a,b)=>((a.seat_no-button-1+seatCapacity)%seatCapacity)-((b.seat_no-button-1+seatCapacity)%seatCapacity));
   const share=Math.floor(pot/winners.length),remainder=pot%winners.length;
   winners.forEach((s,i)=>out.push({seat:s.seat_no,chips:share+(i<remainder?1:0)}));
  }
@@ -109,9 +110,10 @@ Deno.serve(async(req)=>{
   if(action==="create"){
    const variant=body.variant??"holdem";
    if(!["holdem","omaha"].includes(variant))return json({error:"Unsupported poker variant"},400);
-   const {data,error}=await db.rpc(variant==="omaha"?"poker_create_omaha_v1":"poker_create_v1",
-     {p_owner:user.id,p_stack:1000});if(error)throw error;
-   return json({tableId:data,variant,practiceOnly:true});
+   const seatCapacity=body.seatCapacity??(variant==="omaha"?6:8);
+   if(!Number.isInteger(seatCapacity)||(variant==="omaha"?seatCapacity!==6:![2,4,6,8,9].includes(seatCapacity)))return json({error:"Unsupported poker table format"},400);
+   const {data,error}=await db.rpc("poker_create_capacity_v1",{p_owner:user.id,p_variant:variant,p_capacity:seatCapacity});if(error)throw error;
+   return json({tableId:data,variant,seatCapacity,practiceOnly:true});
   }
   const tableId=body.tableId;
   if(typeof tableId!=="string"||!/^[0-9a-f-]{36}$/i.test(tableId))return json({error:"Invalid table ID"},400);
@@ -185,7 +187,7 @@ Deno.serve(async(req)=>{
    if(table.status!=="showdown"||table.street!=="river"||!Array.isArray(table.board)||table.board.length!==5)return json({error:"Hand not ready"},409);
    const {data:seats,error:seatsError}=await db.from("poker_seats_v1").select("seat_no,committed,folded,private_hole").eq("table_id",tableId).order("seat_no");
    if(seatsError)throw seatsError;
-   const payout=awards(seats,table.board,table.button,table.variant);
+   const payout=awards(seats,table.board,table.button,table.variant,table.seat_capacity??(table.variant==="omaha"?6:8));
    const {data,error}=await db.rpc("poker_settle_v1",{p_table:tableId,p_version:table.version,p_awards:payout});if(error)throw error;
    return json({result:data,awards:payout});
   }
@@ -259,7 +261,7 @@ Deno.serve(async(req)=>{
     return {...seat,displayName:profile?.display_name||"Imperial Player",avatarUrl:profile?.profile_picture||null};
    });
    const {data:hole}=await db.from("poker_seats_v1").select("private_hole").eq("table_id",tableId).eq("user_id",user.id).single();
-   const publicTable={id:table.id,variant:table.variant,status:table.status,version:table.version,button:table.button,turnIndex:table.turn_index,street:table.street,board:table.board,smallBlind:table.small_blind,bigBlind:table.big_blind,currentBet:table.current_bet,minRaise:table.min_raise,deckCommitment:table.deck_commitment,handNo:table.hand_no,eventId:table.event_id,ownerId:table.owner_id,
+   const publicTable={id:table.id,variant:table.variant,seatCapacity:table.seat_capacity??(table.variant==="omaha"?6:8),status:table.status,version:table.version,button:table.button,turnIndex:table.turn_index,street:table.street,board:table.board,smallBlind:table.small_blind,bigBlind:table.big_blind,currentBet:table.current_bet,minRaise:table.min_raise,deckCommitment:table.deck_commitment,handNo:table.hand_no,eventId:table.event_id,ownerId:table.owner_id,
     turnStartedAt:table.turn_started_at,turnDeadlineAt:table.turn_deadline_at,
     turnExtensionUsed:table.turn_extension_used};
    const [{data:priceConfig},{data:socialEvents,error:socialError}]=await Promise.all([
@@ -278,5 +280,9 @@ Deno.serve(async(req)=>{
    return json({table:publicTable,seats:publicSeats,holeCards:hole?.private_hole??[],socialEvents:socialEvents||[],serverNow:new Date().toISOString(),timebank:price,deckProof});
   }
   return json({error:"Unsupported action"},400);
- }catch(error){const message=error instanceof Error?error.message:"Internal error";return json({error:message},409);}
+ }catch(error){
+  const receiptMessage=error&&typeof error==="object"&&"message" in error?error.message:null;
+  const message=typeof receiptMessage==="string"&&PUBLIC_RECEIPT_ERRORS.has(receiptMessage)?receiptMessage:error instanceof Error?error.message:"Internal error";
+  return json({error:message},409);
+ }
 });

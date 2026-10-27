@@ -1,0 +1,121 @@
+{
+  "sourcePack": "Existing Imperial_Table_Games_Pack authored NLHE assets; original files unchanged",
+  "formats": [
+    {
+      "capacity": 2,
+      "files": [
+        {
+          "file": "NLHE_2.glb",
+          "sha256": "2702bc6560b2c72b3fa7faf37dfac2dc793f079962e6fa3b667825e428d3691e",
+          "bytes": 1439652
+        },
+        {
+          "file": "NLHE_2.png",
+          "sha256": "4f35dab80f3d39450dc65eb3722e3d7695ab33ccaa2396e67afd2cb01b8f3f71",
+          "bytes": 812944
+        }
+      ],
+      "anchors": [
+        "Seat_00",
+        "Seat_01"
+      ]
+    },
+    {
+      "capacity": 4,
+      "files": [
+        {
+          "file": "NLHE_4.glb",
+          "sha256": "3ab9832a4e928f0f1fbc2426002496336f76cbd84422ad72a3f6b213d463eb51",
+          "bytes": 2491176
+        },
+        {
+          "file": "NLHE_4.png",
+          "sha256": "8d8e367a68f7c09583856dc8263e68fcfd9457dcf105087a3723957dd6cfbac4",
+          "bytes": 841330
+        }
+      ],
+      "anchors": [
+        "Seat_00",
+        "Seat_01",
+        "Seat_02",
+        "Seat_03"
+      ]
+    },
+    {
+      "capacity": 6,
+      "files": [
+        {
+          "file": "NLHE_6.glb",
+          "sha256": "dd4b1dc97f265ab84e469dbe8d696f8558faba36c06a1eecea8030c7e14924d5",
+          "bytes": 3605156
+        },
+        {
+          "file": "NLHE_6.png",
+          "sha256": "c64f26c98f698e59450d00ae2fa9a676d7208d2edd8ba8352d000ca57f3e5887",
+          "bytes": 867714
+        }
+      ],
+      "anchors": [
+        "Seat_00",
+        "Seat_01",
+        "Seat_02",
+        "Seat_03",
+        "Seat_04",
+        "Seat_05"
+      ]
+    },
+    {
+      "capacity": 8,
+      "files": [
+        {
+          "file": "NLHE_8.glb",
+          "sha256": "c69317a91743eb5f5d797cf9f4380c332b4c34413f18ae41c54aadf8f0517f6c",
+          "bytes": 4712688
+        },
+        {
+          "file": "NLHE_8.png",
+          "sha256": "d9575e669cb639dab55a94577d946f3a2d48994c7608cbf833936571d5da3603",
+          "bytes": 871442
+        }
+      ],
+      "anchors": [
+        "Seat_00",
+        "Seat_01",
+        "Seat_02",
+        "Seat_03",
+        "Seat_04",
+        "Seat_05",
+        "Seat_06",
+        "Seat_07"
+      ]
+    },
+    {
+      "capacity": 9,
+      "files": [
+        {
+          "file": "NLHE_9.glb",
+          "sha256": "da88d5b5315c583001d63c8f66217f6a4b049716b24d5854691a4bb6884e08f0",
+          "bytes": 5253620
+        },
+        {
+          "file": "NLHE_9.png",
+          "sha256": "6722d6f82c1d04ff765c5eef35620c666954e7088749ce2215a572184cb02c15",
+          "bytes": 867000
+        }
+      ],
+      "anchors": [
+        "Seat_00",
+        "Seat_01",
+        "Seat_02",
+        "Seat_03",
+        "Seat_04",
+        "Seat_05",
+        "Seat_06",
+        "Seat_07",
+        "Seat_08"
+      ]
+    }
+  ],
+  "excludedFormat": 7,
+  "geometryRegenerated": false
+}

@@ -1,0 +1,45 @@
+2026-10-25: unapplied poker receipt binding review
+
+Confirmed with existing permitted synthetic SQL fixture:
+Original poker_action_v3 looks up (table_id,action_id) and returns result before
+checking actor, version or turn. A second seated member reusing the known ID,
+changed version, move and amount receives the original successful response.
+It does not execute a second action or change the journal/chips. Returned fields
+are tableId,version,accepted,chipsCommitted,action,timeout; no hole cards, seeds,
+customer data or private replay contents appear in this result. UUID discovery
+was not assessed; it is not an authorization boundary.
+Edge login and current table-membership checks remain present. Edge act also
+runs timeout processing before RPC; that separate intended clock mutation is
+outside the receipt guarantee. This SQL proof is not a real Auth/HTTP exploit.
+
+Separate proposal: supabase/proposals/practice-poker-receipt-binding.sql
+Adds nullable request_payload on existing receipt rows and binds new receipts
+to actor plus original version/action/amount/systemTimeout. Table and actionID
+remain the existing primary key. Inputs are stored as received by SQL; omitted
+Edge amount is already normalized to0 and timeout is server-controlled false.
+No public RPC, permissions, RLS, security mode, financial feature or parked game
+is added. pg_get_functiondef exact-snippet checks fail closed on source drift;
+CREATE OR REPLACE preserves identity, ACL and existing journal context config.
+
+Legacy receipts: original requested amount is not recoverable from paid chips
+(call/allin/raise semantics differ), so no guessed backfill. Other actor42501;
+owner legacy retry23505 LEGACY_RECEIPT_REFRESH_REQUIRED. No second execution.
+Owner must refresh snapshot; receipt remains in history. This deliberately
+changes legacy retry availability and requires coordinated client handling.
+New exact retries return original result; actor mismatch42501, any changed
+version/move/amount/timeout23505, with no new ledger row. Existing Edge catch
+maps errors409, so this proposal needs no handler edit to prevent mutation;
+future explicit HTTP error mapping can improve UX and needs separate tests.
+Client must never rotate action ID automatically after these errors.
+
+Validation: node tests/practiceTokenJournal.test.mjs;19pass0fail (~3.2seconds).
+Checks original vulnerability, legacy fail-closed handling, exact new retry,
+crossactor and each payload mismatch, unchanged function ACL/security/config,
+no duplicate ledger entries and2000chip conservation. Single PGlite backend,
+synthetic only. No independent-session race, real Auth/HTTP, deployment or
+hosted schema-byte verification claimed. Production rollout remains blocked.
+
+Rollout prerequisite: review actual function source/ACL and existing receipt
+schema on chosen isolated test target, rehearse proposal in one transaction,
+verify client legacy-conflict snapshot flow and real session concurrency, then
+request separately approved rollout. Proposal not in manifest/migration queue.

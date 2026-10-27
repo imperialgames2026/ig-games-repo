@@ -6,6 +6,8 @@ import PokerPlayerProfile, { PLAYER_EMOTES } from '@/components/poker/PokerPlaye
 import PokerSettingsModal from '@/components/poker/PokerSettingsModal';
 import { usePokerSounds } from '@/components/poker/usePokerSounds';
 import './game-cockpit.css';
+import ApprovedPokerTableScene from '@/components/poker/ApprovedPokerTableScene';
+import {POKER_FORMATS,pokerCapacity} from '@/lib/pokerFormats';
 import HandReplay from '@/components/poker/HandReplay';
 import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { verifyPokerSnapshot, rememberDealRoot } from '@/lib/pokerReplayProof';
@@ -61,6 +63,8 @@ function announcePokerAction(move,mode){
 }
 export default function HoldemPracticeTable({variant='holdem'}) {
  const isOmaha=variant==='omaha';
+ const [selectedCapacity,setSelectedCapacity]=useState(isOmaha?6:8);
+ const [modelAnchors,setModelAnchors]=useState([]);
  const {user,isAuthenticated}=useAuth();
  const [params,setParams]=useSearchParams();
  const tableId=params.get('tableId')?.toLowerCase();
@@ -177,7 +181,7 @@ export default function HoldemPracticeTable({variant='holdem'}) {
      if(action!=='create')queue=getQueue();
      if(queue?.peek()&&action!=='act')throw Error('Confirm the pending poker action before changing the table.');
      if(action==='create') {
-       const r=await invoke({action:'create',variant});
+       const r=await invoke({action:'create',variant,seatCapacity:isOmaha?6:selectedCapacity});
        if(!uuid.test(r.tableId))throw new Error('Invalid returned table');
        setParams({tableId:r.tableId});return;
      }
@@ -219,10 +223,13 @@ export default function HoldemPracticeTable({variant='holdem'}) {
      }
      if(alive.current&&epoch===requestGeneration.current){if(queue)setPendingAction(queue.peek());setError(e.message);}return false;
    }finally{dispatchLock.current=false;if(alive.current&&epoch===requestGeneration.current)setBusy(false);}
- },[getQueue,isAuthenticated,user?.id,tableId,invoke,setParams,fetchState,pokerSettings.gameSound,pokerSettings.actionVoice,sounds]);
+ },[getQueue,isAuthenticated,user?.id,tableId,invoke,setParams,fetchState,pokerSettings.gameSound,pokerSettings.actionVoice,sounds,variant,isOmaha,selectedCapacity]);
 
  const table=snapshot?.table;
  const seats=snapshot?.seats||[];
+ const capacity=table?pokerCapacity(table,variant):null;
+ const invalidCapacity=!!table&&capacity===null;
+ const anchored=!isOmaha&&capacity!==null&&modelAnchors.length===capacity;
  const turn=seats.find(s=>s.seat_no===table?.turnIndex);
  const mySeat=seats.find(s=>s.user_id===user?.id);
  const toCall=mySeat?Math.max(0,Number(table?.currentBet||0)-Number(mySeat.street_bet||0)):0;
@@ -232,14 +239,14 @@ export default function HoldemPracticeTable({variant='holdem'}) {
  const rank=Math.max(0,Number(raise)||0);
  const skin=POKER_SKINS[pokerSettings.tableColor]||POKER_SKINS.green;
  const recovery=pokerRecoveryView(pendingAction,snapshot);
- const actionsPaused=busy||!!pendingAction;
+ const actionsPaused=busy||!!pendingAction||invalidCapacity;
  const cardBack=CARD_BACKS[Number(pokerSettings.cardBack)||0]||CARD_BACKS[0];
  return <main className={(tableId?'ig-poker-screen ':'')+"min-h-screen bg-[#0a0612] px-4 py-8 text-white"}>
    <div className="ig-poker-shell mx-auto max-w-6xl space-y-5">
      <div className="ig-poker-header flex flex-wrap items-center justify-between gap-2">
        <div className="flex flex-wrap gap-4"><Link to="/Games" className="text-amber-300 hover:underline">← Games</Link><Link to="/PokerBotLab" className="text-amber-300 hover:underline">AI Poker Lab</Link><Link to="/PastPlayedHands" className="text-amber-300 hover:underline">Past Played Hands</Link><Link to="/ImperialMembership" className="text-amber-300 hover:underline">3-Bet Membership</Link>{!isOmaha&&<Link to="/PokerMultiTable" className="font-bold text-amber-300 underline">+ Add table · Open up to 3</Link>}</div>
        <div className="flex items-center gap-2">
-         <span className="rounded-full border border-amber-300/40 bg-amber-300/10 px-4 py-1 text-xs font-bold uppercase tracking-widest text-amber-200">Practice {isOmaha?'Omaha · 6 seats':'Hold’em · 8 seats'}</span>
+         <span className="rounded-full border border-amber-300/40 bg-amber-300/10 px-4 py-1 text-xs font-bold uppercase tracking-widest text-amber-200">Practice {isOmaha?'Omaha · 6 seats':tableId&&!capacity?'Hold’em · format awaiting confirmation':`Hold’em · ${capacity??selectedCapacity} seats`}</span>
          <button type="button" onClick={()=>setSettingsOpen(true)} className="rounded-full border border-white/25 bg-black/20 px-3 py-1 text-xs font-bold text-white hover:border-amber-300">⚙ Table</button>
        </div>
        {table?.eventId&&<Link to={"/PokerTournamentPrizes?eventId="+encodeURIComponent(table.eventId)} className="text-sm font-semibold text-amber-300 underline">Tournament prize ladder</Link>}
@@ -257,8 +264,9 @@ export default function HoldemPracticeTable({variant='holdem'}) {
      {!tableId && <section className="mx-auto max-w-xl rounded-xl border border-white/10 bg-[#1d1727] p-6">
        <h1 className="text-3xl font-black">{isOmaha?'Omaha':'Hold’em'} table lobby</h1>
        <p className="mt-3 text-sm text-gray-300">Create a private practice table, then share its link. Friends can join using the same table ID.</p>
+       {!isOmaha&&<fieldset className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3"><legend className="mb-2 text-sm">Choose a table format</legend>{POKER_FORMATS.map(format=><button type="button" key={format.capacity} aria-pressed={selectedCapacity===format.capacity} onClick={()=>setSelectedCapacity(format.capacity)} className={"overflow-hidden rounded-lg border p-2 "+(selectedCapacity===format.capacity?'border-amber-300':'border-white/20')}><img src={format.preview} alt="" className="h-24 w-full object-contain"/><span>{format.label}</span></button>)}</fieldset>}
        <button type="button" disabled={actionsPaused||!isAuthenticated} onClick={()=>void doAction('create')}
-         className="mt-5 w-full rounded-lg bg-amber-400 p-3 font-black text-slate-950 disabled:opacity-50">Create {isOmaha?'six-seat Omaha':'eight-seat Hold’em'} table</button>
+         className="mt-5 w-full rounded-lg bg-amber-400 p-3 font-black text-slate-950 disabled:opacity-50">Create {isOmaha?'six-seat Omaha':`${selectedCapacity}-seat Hold’em`} table</button>
        <label className="mt-5 block text-sm">Or enter a table ID
          <input value={entry} onChange={e=>setEntry(e.target.value.trim())}
            className="mt-2 w-full rounded-lg border border-white/20 bg-[#0d0915] p-3 text-white" placeholder="UUID table code" />
@@ -278,9 +286,11 @@ export default function HoldemPracticeTable({variant='holdem'}) {
          </div>
          <p className="mt-2 text-gray-400">Hand #{table?.handNo??0} · {table?.status||'Not yet joined'} · {table?.street||'Preflop'} · Version {table?.version??'—'}</p>
        </div>
-       <div className="ig-poker-felt-shell rounded-[3rem] border-[12px] border-[#67452a] p-4 shadow-2xl sm:p-8" style={{background:skin.rail}}>
-         <div className="ig-poker-stage rounded-[2.5rem] border-2 border-amber-200/60 text-center" style={{background:skin.felt}}>
+       {invalidCapacity&&<p role="alert">This table format requires administrator review. Table actions are paused.</p>}
+       <div className={(isOmaha?'':'ig-approved-poker ')+"ig-poker-felt-shell rounded-[3rem] border-[12px] border-[#67452a] p-4 shadow-2xl sm:p-8"} style={isOmaha?{background:skin.rail}:undefined}>
+         <div className="ig-poker-stage rounded-[2.5rem] border-2 border-amber-200/60 text-center" style={isOmaha?{background:skin.felt}:undefined}>
            <div className="ig-poker-table-area">
+           {!isOmaha&&capacity&&<div className="ig-approved-model"><ApprovedPokerTableScene capacity={capacity} onAnchors={setModelAnchors}/></div>}
            <div className="ig-poker-board-center">
              <h1 className="text-3xl font-black italic">{isOmaha?'OMAHA':'TEXAS HOLD’EM'}</h1>
              <p className="mt-1 text-sm text-amber-200">SB {table?.smallBlind??'—'} · BB {table?.bigBlind??'—'} · Hand #{table?.handNo??0}</p>
@@ -291,10 +301,11 @@ export default function HoldemPracticeTable({variant='holdem'}) {
              </div>
              <p className="mt-2 text-sm font-black text-amber-100">POT {seats.reduce((sum,s)=>sum+Number(s.committed||0),0).toLocaleString()}</p>
            </div>
-           <div className="ig-poker-seat-ring">
-             {Array.from({length:isOmaha?6:8},(_,number)=>{
+           <div className={"ig-poker-seat-ring "+(!isOmaha&&!anchored?"ig-poker-seat-grid":"")}>
+             {Array.from({length:capacity??0},(_,number)=>{
                const s=seats.find(x=>x.seat_no===number);
-               const [left,top]=SEAT_POSITIONS[isOmaha?6:8][number];
+               const anchor=modelAnchors.find(a=>a.seatIndex===number);
+               const [left,top]=isOmaha?SEAT_POSITIONS[6][number]:anchored&&anchor?[`${anchor.x}%`,`${anchor.y}%`]:[undefined,undefined];
                const seatClass='ig-poker-seat relative rounded-xl border p-2 text-left text-xs shadow-lg '+(s?.seat_no===turn?.seat_no?'border-amber-300 bg-amber-200/20 ring-2 ring-amber-300/30':'border-white/30 bg-[#0b241d]/90');
                if(!s)return <div key={number} style={{left,top}} className={seatClass}>
                  <div className="truncate font-black">Seat {number+1}</div><div className="ig-seat-detail mt-1 text-gray-300">Open seat</div>
@@ -314,7 +325,7 @@ export default function HoldemPracticeTable({variant='holdem'}) {
              })}
            </div>
            </div>
-           {mySeat&&<div className="ig-poker-hole-center rounded-xl border-2 border-amber-300 bg-black/55 px-3 py-2">
+           {mySeat&&snapshot?.holeCards?.length>0&&<div className="ig-poker-hole-center rounded-xl border-2 border-amber-300 bg-black/55 px-3 py-2">
              <div className="flex justify-center gap-2">{(snapshot?.holeCards||[]).map((c,i)=><span key={i}
                className={'ig-hole-card flex h-20 w-14 items-center justify-center rounded-lg bg-white text-xl font-black '+cardColor(c,pokerSettings.cardPattern)}>{cardText(c)}</span>)}</div>
            </div>}
@@ -338,7 +349,7 @@ export default function HoldemPracticeTable({variant='holdem'}) {
                </DialogContent>
              </Dialog>}
              {!mySeat&&<button disabled={actionsPaused||wrongVariant} onClick={()=>void doAction('join')} className="rounded-lg bg-amber-300 px-5 py-3 font-black text-slate-950">Join open seat</button>}
-             {isOwner&&!wrongVariant&&table?.status==='waiting'&&<button disabled={actionsPaused||seats.length<2}
+             {isOwner&&!wrongVariant&&['waiting','complete'].includes(table?.status)&&<button disabled={actionsPaused||seats.length<2}
                onClick={()=>void doAction('start')} className="rounded-lg bg-amber-300 px-5 py-3 font-black text-slate-950 disabled:opacity-40">Deal hand · 2+ players</button>}
              {!wrongVariant&&table?.status==='showdown'&&table?.street!=='river'&&<button disabled={actionsPaused}
                onClick={()=>void doAction('advance')} className="rounded-lg bg-amber-300 px-5 py-3 font-black text-slate-950">Deal next street</button>}

@@ -109,7 +109,7 @@ describe('committed poker deals and private hand ledger',()=>{
     await expect(verifyReplay({...a,openings:next.openings})).rejects.toThrow();
     await expect(verifyReplay({...a,tableId:b.tableId})).rejects.toThrow();
     const head=JSON.parse(a.head.canonical);
-    await expect(verifyPokerSnapshot({deckProof:b,table:{id:a.tableId,handNo:a.handNo,version:head.version,board:head.board},holeCards:[]})).rejects.toThrow('Wrong hand proof');
+    await expect(verifyPokerSnapshot({deckProof:b,seats:await query('select seat_no from poker_seats_v1 where table_id=$1',[a.tableId]),table:{variant:tables[0].variant,id:a.tableId,handNo:a.handNo,version:head.version,board:head.board},holeCards:[]})).rejects.toThrow('Wrong hand proof');
     expect(roots.size).toBe(18);expect(cardHashes.size).toBe(18*52);
     if(process.env.POKER_MULTITABLE_FIXTURE)writeFileSync(process.env.POKER_MULTITABLE_FIXTURE,JSON.stringify(tables.map(({id,variant,proofs})=>({id,variant,proofs}))));
   },30000);
@@ -127,7 +127,7 @@ describe('committed poker deals and private hand ledger',()=>{
   });
   it('checks displayed hole cards against the commitment and rejects mixed snapshot versions',async()=>{
     const id=await createHand();const proof=await replay(id);const head=JSON.parse(proof.head.canonical);
-    const snapshot={deckProof:proof,table:{id,handNo:1,version:head.version,board:[]},holeCards:proof.myPositions.map(p=>proof.openings.find(o=>o.position===p).card)};
+    const snapshot={deckProof:proof,seats:await query('select seat_no from poker_seats_v1 where table_id=$1',[id]),table:{variant:'holdem',id,handNo:1,version:head.version,board:[]},holeCards:proof.myPositions.map(p=>proof.openings.find(o=>o.position===p).card)};
     expect(await verifyPokerSnapshot(snapshot)).toBe(true);
     const swapped=structuredClone(snapshot);swapped.holeCards[0]={rank:99,suit:'c'};
     await expect(verifyPokerSnapshot(swapped)).rejects.toThrow('Visible cards');

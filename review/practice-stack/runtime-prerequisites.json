@@ -1,0 +1,32 @@
+{
+  "readyToStart": false,
+  "noRuntimePerformed": true,
+  "orderedPhases": [
+    "Review exact source snapshot and all staged dependency hashes; finalize Auth-compatible app closure",
+    "Explicit approval for pinned image/dependency acquisition, local database image build, and isolated runtime",
+    "Acquire pinned images and exact JS2.57.0/2.57.4 dependencies into dedicated cache; no silent latest replacement",
+    "Regenerate fully self-contained handler bundles and verify no external imports before internal-network execution",
+    "Prove no foreign resource/name collision; create tracked private networks and tmpfs PG under finite limits",
+    "Assert fresh exclusively-owned DB, apply platform-init.sql, start real GoTrue migrations then assert-auth-platform.sql",
+    "Apply reviewed app-only closure then selected source migrations and explicit test-only proposals, no cron workers",
+    "Create synthetic identities through Auth HTTP only; grant fixture roles through reviewed DB fixture setup",
+    "Run REST/JWT isolation probes, Edge browser eight-game/tournament assertions, independent-session SQL races and ledger conservation",
+    "Record sanitized terminal outcomes and image/source/config hashes; clean exact tracked resources on success or failure"
+  ],
+  "prohibited": [
+    "hosted URLs or customer data",
+    "broad prune",
+    "host networking",
+    "socket mounts",
+    "privileged containers",
+    "host DB port",
+    "VM",
+    "production changes",
+    "automatic acceptance when a test is skipped"
+  ],
+  "blockingDependencies": [
+    "exactJS dependency cache acquisition absent; staged imports retained so driver rejectsstartup",
+    "final independent review and runtimeapproval",
+    "actualruntime unexecuted; positive manualCrash/allpayoutbranches/fullAuthtournamentseating/Realtime remain uncovered"
+  ]
+}

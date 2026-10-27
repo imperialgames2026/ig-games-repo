@@ -1,0 +1,54 @@
+2026-10-26 REVIEW ONLY: no deployed endpoint, SQL migration or frontend wire.
+Candidate depends on separately reviewed receipt binding proposal ffffe28.
+Files: supabase/proposals/practice-poker-receipt-resolution.sql and
+review/poker-receipt-resolution/index.ts. Deliberately absent from manifest.
+
+Request exact tableId/actionId/version/move/amount. Actor never accepted in body:
+Edge validates nonanonymous Auth and server-derives actor. SQL is SECURITY
+INVOKER, empty search_path, service_role execute only; checks profiles eligibility
+and canonical role. Raw end-user RPC denied. No caller claims or user_metadata.
+Postgres locks same table row as action execution, reads durable receipt and
+requires receipt.actor_id=actor plus exact stored original payload. Correlation
+also checks before/after version, action, paidchips and complete stored result.
+No receipt mutation, timeout tick, financial operation or journal post occurs.
+
+Committed-only response matches UI draft: protocol ig.poker.receipt-resolution.v1,
+actorId/tableId/actionId, request version/move/amount/systemTimeout:false,
+outcome committed, resolutionId=actionId (stable existing table-scoped UUID),
+finality durable/serialized/originalExecutionSealed true, snapshotVersion=locked
+current table version, receipt=stored result. No extra resolutionUUID schema.
+Finality means same durable unique receipt seals repeat execution of this key
+under approved action code; it does NOT imply a durable negative tombstone or
+proof against trusted database owner tampering/restores/deletion. No crypto
+signature claimed; trust requires authentic deployed server+TLS/Auth, not JSON.
+Missing table/receipt returns not_found; legacy nullpayload legacy_unknown;
+changed payload/inconsistent stored receipt conflict. NONE are negative proof.
+Never automatically rotate key or infer rejection from absence/version.
+Other actor403; generic service failure or empty RPC result503; malformed400.
+No cards/seeds or other-player receipt information returned.
+
+Historical ownership: current seat is NOT required. Synthetic owner receipt
+still resolves after deleting its seat, emulating movement/elimination while
+frozen historical ownership remains; other player still denied. Existing full
+snapshot route requires current membership, so moved owners may have committed
+proof but no readable old-table snapshot. UI draft intentionally returns
+committed/canResume:false in that case. No new snapshot/privacy entitlement,
+manual legacy disposition, negative resolver or tombstone API is invented.
+
+Validation: node tests/practiceTokenJournal.test.mjs,20pass0fail (~4seconds).
+Includes6/7/8seat tests plus real SQL binding/resolution checks and in-process
+proposed handler to SQL with mocked Auth. Covers original replay bug, legacy,
+missing, conflicts, stable resolution ID, ownership after seat removal, other
+actor, excluded account, client-role raw RPC denial, forged body actor, invalid
+UUID/version/move/amount, missing/invalid/anonymous Auth, failed/empty RPC and
+ledger consistency. Native role security settings preserved. NO independent
+sessions/actual JWT/REST/Edge deployment/browser proof.
+
+Smallest next steps: independent source review of exact binding+resolver code;
+reconcile selected base to latest shared b0bf44a5 and reviewed UI draft; validate
+advisors/schema/ACL on isolated synthetic target, then obtain explicit approved
+non-VM runtime with >=2realDBconnections and actual Auth/REST/Edge/browser
+access. Rehearse locking races(resolve vs original action), transaction rollback,
+legacy/manual support flow and moved player handling. Separate approval for any
+target SQL/function rollout; never replay unrelated pendingKYC/Slots migrations.
+No secrets/security changes/hosted writes permitted by this source review.

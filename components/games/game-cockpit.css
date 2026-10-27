@@ -330,3 +330,33 @@ body:has(.ig-roulette-board-wrap) { touch-action:pan-x pan-y pinch-zoom; }
 .ig-multiplayer-unity.ig-unity-expanded,.ig-multiplayer-unity:fullscreen{position:fixed;inset:0;z-index:1000;width:100vw;height:100dvh;padding:6px;overflow:hidden;border-radius:0;background:#080f17}.ig-unity-expanded .ig-unity-toolbar{height:44px}.ig-unity-expanded .table-scene{height:calc(100dvh - 56px)}.ig-unity-expanded>p{display:none}.ig-unity-expanded .ig-shared-dock>strong{width:auto}.ig-unity-expanded .ig-shared-dock{bottom:8px}.ig-unity-expanded .ig-shared-dock>span{display:none}
 
 .ig-rotate-hint{display:none}@media(orientation:portrait){.ig-unity-expanded .ig-rotate-hint{display:inline;font-size:12px;color:#f8d8e9}}
+
+/* Original capacity-specific NLHE models; fallback seats remain an accessible grid. */
+.ig-approved-poker.ig-poker-felt-shell { height:auto; border:0 !important; padding:0 !important; border-radius:0 !important; background:transparent; }
+.ig-approved-poker .ig-poker-stage { height:auto; overflow:visible; padding:0 !important; border:0; border-radius:0 !important; background:transparent; min-height:560px; }
+.ig-approved-poker .ig-poker-table-area { min-height:560px; flex:none; }
+.ig-approved-model { position:absolute; top:0; left:0; height:560px; width:100%; }
+.ig-approved-poker .ig-poker-seat-grid { position:relative; display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:.5rem; padding:560px .5rem .5rem; }
+.ig-approved-poker .ig-poker-seat-grid .ig-poker-seat { position:relative; left:auto; top:auto; transform:none; width:auto; }
+.ig-approved-poker .ig-poker-board-center { top:240px; z-index:1; pointer-events:none; }
+.ig-approved-poker .ig-poker-hole-center { z-index:2; }
+
+/* Format assets and fallback roster must remain reachable on short screens. */
+.ig-poker-screen:has(.ig-approved-poker) { height:auto; min-height:calc(100dvh - 64px) !important; overflow:visible; }
+.ig-poker-shell:has(.ig-approved-poker),.ig-poker-live:has(.ig-approved-poker) { height:auto; overflow:visible; display:block; }
+.ig-poker-live:has(.ig-approved-poker) > * { margin-bottom:1rem; }
+@media (max-width:640px) {
+  /* Narrow screens use a roster below the unchanged model, not overlapping HUDs. */
+  .ig-approved-poker .ig-poker-seat-ring { position:relative; inset:auto; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.5rem; padding:560px .5rem .5rem; }
+  .ig-approved-poker .ig-poker-seat-ring .ig-poker-seat { position:relative; left:auto !important; top:auto !important; transform:none; width:auto; min-width:0; transition-property:background-color,border-color,color,box-shadow; }
+}
+@media (max-width:640px) {
+  /* Keep the original model unobscured; card state and roster get their own rows. */
+  .ig-approved-poker .ig-poker-stage { min-height:0; }
+  .ig-approved-poker .ig-poker-table-area { display:flex; flex-direction:column; min-height:0; }
+  .ig-approved-poker .ig-approved-model { position:relative; inset:auto; order:1; flex:none; height:clamp(180px,60vw,300px); }
+  .ig-approved-poker .ig-poker-board-center { position:static; inset:auto; order:0; transform:none; width:100%; padding:.5rem; }
+  .ig-approved-poker .ig-poker-seat-ring { position:static; order:2; padding:.5rem; }
+  /* This route scrolls as a whole; the wallet summary must not cover its content. */
+  body:has(.ig-approved-poker) [aria-label="Player wallet toolbar"] { position:relative; top:auto; }
+}

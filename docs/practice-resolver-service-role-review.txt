@@ -1,0 +1,26 @@
+2026-10-26 follow-up to independent reviewer:service_role invoker path.
+Read-only hosted metadata qonqemhljgxlwpghkxhn confirms:
+service_role rolsuper=false,rolbypassrls=true; public schema USAGE=true;
+SELECT=true and UPDATE=true on public.profiles,user_roles,poker_tables_v1,
+poker_actions_v1. FOR UPDATE lock requires UPDATE privilege as well as SELECT.
+No records or candidate functions invoked hosted; no hosted grants/role changes.
+Raw nonsecret evidence ../hosted-resolver-role-privileges-oct26.json.
+
+Original minimal PGlite fixture had no Supabase service defaults and role lacks
+BYPASSRLS:explicit service_role invocation correctly fails42501 there. This
+explains why prior postgres success was not service-role execution proof.
+New test models ONLY required observed existing privileges in a rolled-back
+synthetic transaction:USAGE public,SELECT4tables,UPDATE poker_tables_v1,
+service_role BYPASSRLS. Assert current_user=service_role and rolsuper=false;
+exact committed resolution succeeds,not_found stays unresolved and crossactor
+fails42501. Savepoint handles expected denial without aborting the model txn.
+ROLLBACK restores original table ACLs and role.bypassrls=false, asserted.
+These fixture grants are NOT part of SQL candidate or proposed hosted changes.
+No SECURITY DEFINER workaround or added rollout grant is needed based on this
+metadata; actual target privilege readback remains a rollout prerequisite.
+
+node tests/practiceTokenJournal.test.mjs:20pass0fail,3.8seconds.
+First fixture run exposed test transaction-abort after expected crossactor
+error; corrected to use savepoint and rollback before resetting role. Final
+run passed all20. Existing synthetic SQL/handler limitations remain:single
+PGlite backend,mocked Auth,no real signedJWT/REST/Edge/browser/concurrency.

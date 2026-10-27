@@ -1,0 +1,228 @@
+{
+  "reviewOnly": true,
+  "authCreation": "real local GoTrue admin HTTP; capture returned UUID, no direct auth.users insert",
+  "identityAliases": [
+    "player-a",
+    "player-b",
+    "excluded",
+    "tester",
+    "admin"
+  ],
+  "credentialHandling": "ephemeral runtime only; no values in descriptor",
+  "roleProvisioning": "fixed player signup trigger; approved local operator sets canonical tester/superadmin/excluded, never user metadata",
+  "bindings": {
+    "$tableId": "created table response",
+    "$requestId": "stable UUID retained per semantic action",
+    "$round": "authoritative returned round",
+    "$version": "authoritative current version"
+  },
+  "engines": [
+    {
+      "game": "Holdem",
+      "handler": "poker-table-v1",
+      "actors": [
+        "player-a",
+        "player-b"
+      ],
+      "requests": [
+        {
+          "action": "create",
+          "variant": "holdem"
+        },
+        {
+          "action": "join",
+          "tableId": "$tableId"
+        },
+        {
+          "action": "snapshot",
+          "tableId": "$tableId"
+        },
+        {
+          "action": "start",
+          "tableId": "$tableId"
+        },
+        {
+          "action": "act",
+          "tableId": "$tableId",
+          "actionId": "$requestId",
+          "version": "$version",
+          "move": "fold",
+          "amount": 0
+        }
+      ],
+      "requires": "owner starts, actual turn actor acts; refresh actual state; retry same original input"
+    },
+    {
+      "game": "Omaha",
+      "handler": "poker-table-v1",
+      "actors": [
+        "player-a",
+        "player-b"
+      ],
+      "requests": [
+        {
+          "action": "create",
+          "variant": "omaha"
+        },
+        {
+          "action": "join",
+          "tableId": "$tableId"
+        },
+        {
+          "action": "snapshot",
+          "tableId": "$tableId"
+        },
+        {
+          "action": "start",
+          "tableId": "$tableId"
+        },
+        {
+          "action": "act",
+          "tableId": "$tableId",
+          "actionId": "$requestId",
+          "version": "$version",
+          "move": "fold",
+          "amount": 0
+        }
+      ],
+      "requires": "owner starts, actual turn actor acts; refresh actual state; retry same original input"
+    },
+    {
+      "game": "Blackjack",
+      "handler": "ig-blackjack-practice",
+      "requests": [
+        {
+          "action": "join"
+        },
+        {
+          "action": "state"
+        },
+        {
+          "action": "bet",
+          "requestId": "$requestId",
+          "units": 1,
+          "target": "main"
+        }
+      ],
+      "requires": "server betting window; actual controller deal and actual turn stand; resolver expectedRound from state"
+    },
+    {
+      "game": "Baccarat",
+      "handler": "ig-shared-event-practice",
+      "requests": [
+        {
+          "game": "baccarat",
+          "action": "join"
+        },
+        {
+          "game": "baccarat",
+          "action": "state"
+        },
+        {
+          "game": "baccarat",
+          "action": "bet",
+          "requestId": "$requestId",
+          "target": "player",
+          "units": 1
+        }
+      ],
+      "requires": "actual controller resolve after authoritative betting close; expectedRound from state"
+    },
+    {
+      "game": "Craps",
+      "handler": "ig-multiplayer-practice",
+      "requests": [
+        {
+          "game": "craps",
+          "action": "join",
+          "mode": "action"
+        },
+        {
+          "game": "craps",
+          "action": "state"
+        },
+        {
+          "game": "craps",
+          "action": "bet",
+          "requestId": "$requestId",
+          "target": "field",
+          "units": 1
+        }
+      ],
+      "requires": "Craps shooter/control path distinct; Roulette house tick, never player spin"
+    },
+    {
+      "game": "Roulette",
+      "handler": "ig-multiplayer-practice",
+      "requests": [
+        {
+          "game": "roulette",
+          "action": "join"
+        },
+        {
+          "game": "roulette",
+          "action": "state"
+        },
+        {
+          "game": "roulette",
+          "action": "bet",
+          "requestId": "$requestId",
+          "target": "red",
+          "units": 1
+        }
+      ],
+      "requires": "Craps shooter/control path distinct; Roulette house tick, never player spin"
+    },
+    {
+      "game": "Crash",
+      "handler": "ig-crash-v2",
+      "requests": [
+        {
+          "action": "join"
+        },
+        {
+          "action": "state"
+        },
+        {
+          "action": "bet",
+          "round": "$round",
+          "requestId": "$requestId",
+          "mode": "crash_auto",
+          "target": 2,
+          "units": 1
+        }
+      ],
+      "requires": "shared native runtime/pool; authoritative tick/time, no mocked payouts; Trenball shares Crash service"
+    },
+    {
+      "game": "Trenball",
+      "handler": "ig-crash-v2",
+      "requests": [
+        {
+          "action": "join"
+        },
+        {
+          "action": "state"
+        },
+        {
+          "action": "bet",
+          "round": "$round",
+          "requestId": "$requestId",
+          "mode": "tren_red",
+          "target": null,
+          "units": 1
+        }
+      ],
+      "requires": "shared native runtime/pool; authoritative tick/time, no mocked payouts; Trenball shares Crash service"
+    }
+  ],
+  "requiredDenials": [
+    "signed-out/invalid/anonymous Auth",
+    "excluded/tester mutate",
+    "cross-owner REST profiles/roles",
+    "forged actor fields",
+    "receipt mismatch/no duplicate charge",
+    "financial IGD/IGN timebank",
+    "Slots/Originals/Mines remain unavailable"
+  ]
+}

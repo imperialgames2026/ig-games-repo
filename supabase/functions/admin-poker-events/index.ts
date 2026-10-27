@@ -30,14 +30,16 @@ Deno.serve(async(req)=>{
  if(typeof name!=="string"||name.trim().length<3||name.length>90||!["scheduled_mtt","sit_and_go","ring"].includes(format)||typeof config!=="object"||!config||Array.isArray(config)||typeof requestId!=="string"||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestId))
   return respond({error:"Invalid configuration"},400);
  const {maxPlayers,seatsPerTable,startingStack,smallBlind,bigBlind,levels,startAt,buyInMin,buyInMax}=config;
- if(!integer(maxPlayers,2,10000)||!integer(seatsPerTable,2,6)||maxPlayers<seatsPerTable&&format==="scheduled_mtt"||!integer(startingStack,100,1000000)||!integer(smallBlind,1,100000)||!integer(bigBlind,2,200000)||bigBlind<smallBlind*2)
+ if(!integer(maxPlayers,2,10000)||!([2,4,6,8,9].includes(seatsPerTable))||maxPlayers<seatsPerTable&&format==="scheduled_mtt"||!integer(startingStack,100,1000000)||!integer(smallBlind,1,100000)||!integer(bigBlind,2,200000)||bigBlind<smallBlind*2)
   return respond({error:"Invalid seats, chips or blinds"},400);
- if(format==="sit_and_go"&&(maxPlayers!==seatsPerTable||maxPlayers>6))return respond({error:"Single-table Sit & Go must fill a single table"},400);
+ if(format==="sit_and_go"&&(maxPlayers!==seatsPerTable||maxPlayers>9))return respond({error:"Single-table Sit & Go must fill a single table"},400);
  if(format==="ring"&&(maxPlayers>6||!integer(buyInMin,bigBlind*20,1000000)||!integer(buyInMax,buyInMin,1000000)))return respond({error:"Invalid ring buy-in limits"},400);
  if(format==="scheduled_mtt"&&(typeof startAt!=="string"||!Number.isFinite(Date.parse(startAt))||Date.parse(startAt)<=Date.now()))return respond({error:"Scheduled start must be in the future"},400);
  if(!Array.isArray(levels)||levels.length<1||levels.length>100||!levels.every((l:any,i:number)=>l&&l.level===i+1&&integer(l.smallBlind,1,100000000)&&integer(l.bigBlind,2,200000000)&&l.bigBlind>=2*l.smallBlind&&integer(l.ante,0,100000000)&&integer(l.durationSeconds,60,7200)))
   return respond({error:"Invalid blind schedule"},400);
- const safeConfig={maxPlayers,seatsPerTable,startingStack,smallBlind,bigBlind,levels:levels.map((l:any)=>({level:l.level,smallBlind:l.smallBlind,bigBlind:l.bigBlind,ante:l.ante,durationSeconds:l.durationSeconds})), ...(format==="scheduled_mtt"?{startAt:new Date(startAt).toISOString()}:{}), ...(format==="ring"?{buyInMin,buyInMax}:{}),practiceOnly:true,realValueEnabled:false,buyInUnits:0};
+ const tableCount=Math.ceil(maxPlayers/seatsPerTable);
+ if(!integer(tableCount,1,30))return respond({error:"Invalid table count"},400);
+ const safeConfig={maxPlayers,seatsPerTable,tableCount,startingStack,smallBlind,bigBlind,levels:levels.map((l:any)=>({level:l.level,smallBlind:l.smallBlind,bigBlind:l.bigBlind,ante:l.ante,durationSeconds:l.durationSeconds})), ...(format==="scheduled_mtt"?{startAt:new Date(startAt).toISOString()}:{}), ...(format==="ring"?{buyInMin,buyInMax}:{}),practiceOnly:true,realValueEnabled:false,buyInUnits:0};
  const {data,error}=await admin.rpc("poker_event_create_v1",{p_actor:user.id,p_request:requestId,p_name:name.trim(),p_format:format,p_config:safeConfig});
  if(error)return respond({error:"Unable to create draft; request may conflict with an existing ID"},409);
  return respond(data,201);

@@ -99,6 +99,7 @@ Deno.serve(async(request:Request)=>{
  }
  if(input.action!=="save"||!input.config||typeof input.config!=="object")return reply(400,{error:"Invalid action"});
  if(input.id!==undefined&&(typeof input.id!=="string"||!/^[0-9a-f-]{36}$/i.test(input.id)))return reply(400,{error:"Invalid preset ID"});
+ if(!["holdem","omaha"].includes(input.config.variant)||!Number.isInteger(input.config.seatsPerTable)||(input.config.variant==="omaha"?input.config.seatsPerTable!==6:![2,4,6,8,9].includes(input.config.seatsPerTable)))return reply(400,{error:"Unsupported poker table format"});
  const {data,error}=await db.rpc("ig_poker_tournament_preset_save",{p_actor:user.id,p_config:input.config,p_id:input.id??null});
  if(error)return reply(400,{error:error.message.slice(0,200)});
  return reply(200,{preset:data});

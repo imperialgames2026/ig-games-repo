@@ -1,0 +1,11 @@
+{
+ "metadataOnly":true,
+ "packagesDownloaded":false,
+ "registry":"https://registry.npmjs.org",
+ "packages":[
+ {"name":"@supabase/supabase-js","version":"2.57.0","tarball":"https://registry.npmjs.org/@supabase/supabase-js/-/supabase-js-2.57.0.tgz","integrity":"sha512-h9ttcL0MY4h+cGqZl95F/RuqccuRBjHU9B7Qqvw0Da+pPK2sUlU1/UdvyqUGj37UsnSphr9pdGfeXjesYkBcyA==","dependencies":{"@supabase/auth-js":"2.71.1","@supabase/node-fetch":"2.6.15","@supabase/storage-js":"^2.10.4","@supabase/realtime-js":"2.15.4","@supabase/functions-js":"2.4.5","@supabase/postgrest-js":"1.21.3"}},
+ {"name":"@supabase/supabase-js","version":"2.57.4","tarball":"https://registry.npmjs.org/@supabase/supabase-js/-/supabase-js-2.57.4.tgz","integrity":"sha512-LcbTzFhHYdwfQ7TRPfol0z04rLEyHabpGYANME6wkQ/kLtKNmI+Vy+WEM8HxeOZAtByUFxoUTTLwhXmrh+CcVw==","dependencies":{"@supabase/auth-js":"2.71.1","@supabase/node-fetch":"2.6.15","@supabase/storage-js":"2.12.1","@supabase/realtime-js":"2.15.5","@supabase/functions-js":"2.4.6","@supabase/postgrest-js":"1.21.4"}}
+ ],
+ "acquisitionBoundary":"After explicit approval only: dedicated temporary dependency cache, lock exact transitive versions/integrities, verify tarballs, no lifecycle scripts, no global/owner project installation. Regenerate self-contained bundles from exact approved cache; reject remaining imports.",
+ "remainingReview":"2.57.0 contains a storage-js range; transitive dependency lock and CDN-vs-package differential must be reviewed rather than silently resolved to current installed2.118.0. Current source stage preserves original external imports and cannot start."
+}

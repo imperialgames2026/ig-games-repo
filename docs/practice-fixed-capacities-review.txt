@@ -1,0 +1,101 @@
+2026-10-27 REVIEW ONLY: new user formats2/headsup,4,6,8,9; no configured7.
+Seven occupants are legal in8/9. Omaha remains configured6/fourcards per
+existing independent mode rules. Prior eight-seat/runtime evidence stays prior.
+
+Exact public contract agreed with source owner:
+- poker_tables_v1.seat_capacity integer stores configured capacity, not count.
+- Input seatCapacity; snapshot seatCapacity. Omitted legacy defaultHoldem8/
+  Omaha6 preserved by metadata trigger, never implicitly changed to9.
+- New service-only SECURITY INVOKER RPC poker_create_capacity_v1(p_owner uuid,
+  p_variant text,p_capacity integer) RETURNS uuid. Edge must derive owner from
+  validated Auth and enforce its existing canonical role/eligibility guards.
+  RPC also checks canonical eligible player/admin/superadmin; testers denied.
+  Calls original factories (1000 nonredeemable chips), then fixes capacity.
+- NLHE configured sizes IN(2,4,6,8,9); Omaha6. All other configured sizes reject.
+
+New supabase/proposals/practice-poker-fixed-capacities.sql SUPERSEDES old
+practice-tournament-eight-seat-entries.sql; do not rewrite recorded migrations.
+Reviewed install order in ONE approved synthetic transaction:
+39recorded game sources -> ledger hooks -> NEW fixed capacities proposal ->
+receipt binding -> committed receipt resolver. RealAuth closure includes its
+social/archive/analytics prerequisites as before. Replace old8proposal entry
+in a NEW reviewed stage manifest, refresh hashes and trusted bootstrap constant;
+do not relabel/mutate the preserved old aebc1874 artifact or08bd evidence.
+
+Proposal metadata changes:
+- Existing plain Holdem tables infer old8, Omaha6; tournament tables use their
+  stored allowed configured seatsPerTable. Existing unsupported7/missingformat
+  event or preset aborts preflight: explicit review, no silent7→8 conversion or
+  row deletion. This is a rollout prerequisite, not a hosted data read/write.
+- Table finite variant/capacity CHECK; event finite configured capacity CHECK;
+  global seat and event-entry finite indices0..8; preset finite format CHECK.
+- New BEFOREINSERT capacity initializer derives event capacity/defaults, and
+  locks later capacity changes once hands/other occupants exist. Seat trigger
+  rejects seat index>=actual selected table capacity (incl Omaha6).
+- Join/start/dealt-count integrity guard/replay commit layout/advance/action
+  clockwise order use per-table capacity. No deck/seed/receipt/journal handler
+  replacement. Exact pg_get_functiondef fragment counts abort on source drift.
+- Tournament start finite set, explicit nonnull tableCount1..30 and capacity
+  consistency; old missing-tableCount nullable bypass closes. Sync consolidates
+  at actual configured capacity, not old clamped6..8. Table count allocator
+  still respects native minimum2players/table and maximum30tables.
+- Preset save finite set, preserves Omaha6 and all original role/money/rake/
+  eligibility gates. No money endpoint, token conversion, parked game or role
+  grant is enabled. Existing function OIDs/ACL/security/config (incl journal
+  context) preserved; new private trigger schema/function access revoked.
+
+Tests actually run: node tests/pokerFixedCapacities.test.mjs ->9pass0fail,
+about3seconds in one synthetic PGlite backend. Not actual AuthHTTP/concurrency.
+- Unsupported existing seven-format preflight atomically aborts, value remains7,
+  no capacity column or partial patch left; synthetic fixture then removed.
+- All fixed sizes create/join/full reject/start/fold, conserved n*1000; headsup
+  blind indices0/1; invalid0/1/3/5/7/10 and excluded/client callers denied.
+- Legacy Holdem8; Omaha6 join/full/four private card proof and6000 conservation.
+- Seven occupied at configured8and9 start, dealt_count7 and7000 preserved.
+- Nine-player proof9dealassignments; postflop firstactor1 and boardoffset19..21;
+ 10natural hands rotate button0..8..0 and conserve9000 on each completed hand.
+- Nine-seat forced journal failure rolls back hand/deal ledger/blinds/source
+  balances, leaves waiting hand0 and9000, no audit rows lost/added.
+- Preset finite choices/superadmin checks; invalid7 and missingtableCount start
+  abort without tables/extra journal rows.
+- Two-table tournament starts/retries for2/4/6/8/9, then explicit completed-hand
+  stack fixtures consolidate to selected n survivors at one table, seat n-1,
+  total2*n*1000; seat outside selected table and eventseat9 reject. All native
+  components reconcile. Synthetic distribution is not a played elimination.
+First run exposed only a test assertion targeting a now-empty source table
+post-consolidation; corrected to query actual surviving target before denial.
+
+Source owner owns matching Edge validation/desired hashes, preset/admin fields,
+JS odd-chip order and existing visual format assets. No UI/assets edited here.
+Distinct2/4/9 art/design not established by SQL; do not invent replacements.
+No seven format should appear, but seven occupancy must remain available.
+
+Remaining: independent review + exact new stage hash/pin, actual AuthHTTP
+creation/registration/seating for selected formats, nine-player multi-session
+and odd-chip/showdown/fairness checks, current preset creator outside previous
+seven-handler acceptance allowlist, supported mode/asset scope and approved
+selected hosted rollout. No hosted migrations/deployment/new runtime here.
+
+Follow-up event-entry/privilege review:
+Added private SECURITY INVOKER enforce_event_entry BEFORE INSERT/UPDATE trigger.
+Registered/eliminated unassigned NULL table+seat remains valid; seated NULL,
+half-null or assigned nonseated status rejects. Assigned table must belong to
+same event, seat must be0..actual table capacity-1, and actual poker_seats row
+must match table/user/seat. This guards entry metadata as well as actual seats.
+No new grants or SECURITY DEFINER helper; existing private revocation includes
+new helper. Native start inserts actual seat before assigning entry;
+consolidation inserts target/deletes source before entry update; elimination
+clears assignment before deleting seat. Those transitions still pass.
+
+Follow-up tests:10pass0fail,3.79seconds single PGlite backend. Added all fixed
+sizes entryseat-1/capacity, foreign event/table, different player/seat, half-null,
+seated-unassigned and assigned-registered denial; rejected updates add no ledger
+rows. Actual elimination NULL pairs and relocated exact seat associations pass.
+Successful service-role fixture explicitly models already-reviewed isolated
+stack defaults (public table grants, schema usage, BYPASSRLS) inside a rolled-
+back transaction. current_user=service_role creates9/joins9/starts hand and
+creates/publishes/registers/starts a2-seat event through private triggers;
+private schema USAGE=false, all helper EXECUTE=false and each direct helper
+call fails42501. Savepoints contain expected denials. Fixture rollback restores
+original public table ACL and role BYPASSRLS=false. No permission change added
+to proposal or applied to hosting; actual signed Auth/native9 proof pending.

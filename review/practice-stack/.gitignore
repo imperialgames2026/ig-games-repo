@@ -1,0 +1,3 @@
+staged/
+__pycache__/
+reviewed-app-bootstrap*.sql

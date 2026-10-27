@@ -1,0 +1,226 @@
+{
+  "reviewOnly": true,
+  "runtimeExecuted": false,
+  "stageOrder": [
+    "reviewed platform roles+canonical JWT claim helpers",
+    "pinned real GoTrue migrations",
+    "app-schema.sql",
+    "selected39 source SQL in exact manifest order; suppress cron scheduling",
+    "exact archive DDL prefix + recorded analytics/social prerequisites; no financial/coaching tables",
+    "after-game-schema.sql",
+    "separately selected unapplied ledger/seat/binding/resolver proposals",
+    "create actual synthetic users via local GoTrue admin API; never direct SQL INSERT auth.users",
+    "set canonical tester/admin/excluded via approved local fixture operator only"
+  ],
+  "selectedGameSources": [
+    {
+      "path": "supabase/deployed-migrations/20261017232433_multiplayer_practice_tables.sql",
+      "sha256": "59712f2ef47c0d5be028cca9a87f6f9b56d02bd5513f6c3c2d49b2f120a44064"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261017233048_fix_multiplayer_practice_role_variable.sql",
+      "sha256": "b02c7a569a050e8cb7cee2d2a406ec5e2736ac02eab6b0a69e326908ae2d23b6"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261017235658_multiplayer_betting_windows_and_seats.sql",
+      "sha256": "49685419a64fb02c9ef543d801ae847acef19a2b43218d14631cd7bae0e22951"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261017235945_multiplayer_idle_seat_reclamation.sql",
+      "sha256": "dffe1df583288039a6c31bc0f5d178902f26417c876be05b5190bc93c29ce83c"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261018001302_crash_trenball_baccarat_practice.sql",
+      "sha256": "bf63c38b3e86e7c43e64133787bd45e29d7ea8f19832a001fc20c6b625d2db84"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261018001426_extended_practice_rng.sql",
+      "sha256": "985c1cce1d66d789bcb8c45b66bdce1fc17e6ddbe01e2cff13ff437babe25afe"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261018002322_multiplayer_blackjack_practice.sql",
+      "sha256": "775765ab8a9bb06732a5b8a883b8e561a24bfb4e12990c040c68e7bf5065ee10"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261018003419_blackjack_idempotency_payload_guard.sql",
+      "sha256": "74415870a92a2ba04a18f36e203c08063ae7bd849c8f606c797867babfe11bc1"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261018004052_blackjack_turn_timeouts.sql",
+      "sha256": "38bec36a14ddf8be81cd0a1518d8032d3bd19c133746c89b9cf3b69d6516e6df"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261018114021_craps_practice_chip_refill.sql",
+      "sha256": "6faf9519c310a3d4140ee70550d18167fd69fa455930223acbcbab780facaed7"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261018114323_craps_shooter_queue.sql",
+      "sha256": "c75f7e70098a4c26d68a15a26c3fcd2023409eabcd47959fad36fc9b734537b5"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261018114728_craps_fifo_claim.sql",
+      "sha256": "23d5d6425fe14a826c1780cba0e99453042a99c6947f4cfc9cc1796cb06abf4a"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261018234308_crash_trenball_server_timed_practice_v2.sql",
+      "sha256": "050d8fe76dfdbe1c52adf767457f90fa822efca7185cf5b764b2ccbf4aa67278"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261018234437_crash_v2_fix_secure_random_schema.sql",
+      "sha256": "d814547d1e4b5a42a9d25f29182b0d4477262e0d2263f96d5b355ed607f981d5"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261018235239_crash_v2_prevent_early_auto_cashout_beyond_committed_result.sql",
+      "sha256": "66577157d326bd8531014fa492dc5f4137b59e96e690b61b2e19253d538a109b"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261024024944_continuous_practice_roulette.sql",
+      "sha256": "c8c9380c6494c1248267bc68c94ff4e89fd802f3878bd9c787711e7aed58e5a2"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261017120139_poker_transactional_freeplay_v1.sql",
+      "sha256": "6e497025ad5a761ae909491cb99801a2cc911f840fbcbcf502df738c46c3d86e"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261017120212_poker_create_join_start_v1.sql",
+      "sha256": "ea101545936348a442c9d634c131dcc60576b8553613588c771434adb38a0910"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261017120245_poker_advance_settle_v1.sql",
+      "sha256": "a258cfe9277b8e4c88267b8e84bd2a117427ee2fa1ed0e5bb47abc1c4c491412"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261017120300_poker_pin_initial_dealt_seat_count.sql",
+      "sha256": "370d8befb68aa4583c22eac07f71d0695ecf0313a6ef41ffbebf09be0803a9d1"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261017120317_poker_private_fairness_seed.sql",
+      "sha256": "cf69f1e268a4781e98d2a5439827287b845a543ae494d5fa6fd8678519292713"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261017120555_poker_superadmin_tournament_drafts_v1.sql",
+      "sha256": "68196971ded10a76cd17b1c59f6f1359ebb974aa2f290c2e186c9942443ee703"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261017124852_poker_event_registration_seating_v1.sql",
+      "sha256": "60cd30deb3e68f8623014e80e68f58921f56f29dc7468c4991f99f0f4d3584d1"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261017124927_poker_fix_stable_event_seating.sql",
+      "sha256": "0c24e548dff13a5a3cc722ec3772a0ac91c4950d6da72a755eedccd9f5bd44c7"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261017125108_poker_atomic_committed_repeatable_hand_start.sql",
+      "sha256": "689342c6f27c0162f8551e5cb8d0e00ba0e6462692ec96a8d8d8a207a6b4cc7a"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261017125708_poker_fix_button_and_postflop_turn_order.sql",
+      "sha256": "bf4dfd139195dbd7846f518229d60f7bd43b002c8bd2856d381bca80c439fc9e"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261017125804_poker_server_clock_blind_levels_v1.sql",
+      "sha256": "57a369565e0a2a9829ba9af616144a76ed4b32ab67c13182049e1cee41137c79"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261017125901_poker_tournament_elimination_and_balancing_v1.sql",
+      "sha256": "4a376fb77110af532e5e7d5d2b81dc060017a41b12b0192018ec710088cea7ef"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261017133438_poker_turn_timebank_staging_v4.sql",
+      "sha256": "dec7ae59f80aa5ed81daa31b351de4582ef9d652b0f80bfa695996a2629aa2a2"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261018002747_omaha_four_card_poker.sql",
+      "sha256": "1d6472472954e671f87ea6f925144181db3da772ddd771d76d6fde86061bae12"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261018002944_poker_deck_offset_fix.sql",
+      "sha256": "7f605a593e47e4ff9d2c1b09dbd97123eb3fbb71c2ddedb067e7d1c8f29164b4"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261018020156_nlhe_eight_seats.sql",
+      "sha256": "b87d692d4d6f7078e5b2f983e095a489165bb138e48ead62e7161a48b047a9d8"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261018052928_poker_tournament_staging_presets.sql",
+      "sha256": "7ff556ba5dcf2e7877f320585a5459d03b6383ae1b9657c5834ed339d6c21e6c"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261018061313_mtt_seat_table_limits.sql",
+      "sha256": "80dc3a878137fd0799e2a5f233ca5c4973c0ac2e2182016a306a1d9ba3030ad3"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261018061338_poker_preset_create_draft_event.sql",
+      "sha256": "a7b33bad389741223afba2672d76caf80dbb1f33b9fd57e873da0ffbeb49069f"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261018082634_poker_tournament_prizes_100_places.sql",
+      "sha256": "c3e5b459c0d52bb6705c967d3fca375af58117a9e4dc0cabdd469b6576fbd19d"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261018083136_poker_event_prize_plan_snapshot.sql",
+      "sha256": "f4c6f0aa536c6d14c10bb87827aee0e6d18c0515c85febda1c935d0cac6f7b68"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261024183852_committed_poker_replay_and_queue_limits.sql",
+      "sha256": "1cbda8f041a5a86622b932208885e5609c99e98867954a7623ece5a7fefecb6b"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261025060513_table_game_fairness_and_verification.sql",
+      "sha256": "20b2b3e10b461f16cbf26596c1116d08a3f29710f4acd2012330cc80121064b8"
+    }
+  ],
+  "proposalSources": [
+    {
+      "path": "supabase/proposals/practice-token-journal.sql",
+      "sha256": "c8f4962065cc1f28ebd4e2a4d6014a3fbcb2dc5c8edf485ec795226468af4e92"
+    },
+    {
+      "path": "supabase/proposals/practice-poker-fixed-capacities.sql",
+      "sha256": "a4790f8bf5d4e1f04c99f13ed63b4efaa743b69c2f8383a04f6d2a93ec00006b"
+    },
+    {
+      "path": "supabase/proposals/practice-poker-receipt-binding.sql",
+      "sha256": "52fc88ad5f6f218be4a61f6af49e230ffd757e517b919ec94405d0a421fbaa2b"
+    },
+    {
+      "path": "supabase/proposals/practice-poker-receipt-resolution.sql",
+      "sha256": "7f2e9be77abd30eabb0c1a4fef863deb0cff9a065e31fb596b3eec9590fac9d5"
+    }
+  ],
+  "platformGaps": [
+    "pinned actual Auth runtime migrations not executed",
+    "real GoTrue2.197.0 migration-supplied uid/role/jwt helper definitions and signed-JWT semantics must be verified, never overwritten",
+    "PostgREST authenticator role/password/JWT verification and role switching",
+    "actual Edge runtime/gateway allowlist and service transport",
+    "Realtime broadcast/polling acceptance distinction",
+    "browser profile fields outside minimal schema",
+    "no KYC Storage money signup rewards or Slots migrations"
+  ],
+  "additionalSourceDependencies": [
+    {
+      "path": "supabase/deployed-migrations/20261023174424_poker_social_events_v1.sql",
+      "sha256": "f9fe890fda7b7d7871b6a7e4013ce83af4a7a4c022e0cf8b1b4093d99f2386d7"
+    },
+    {
+      "path": "supabase/deployed-migrations/20261018175815_poker_verified_player_analytics_and_skill_v1.sql",
+      "sha256": "3b74bcc6486ab721239950e96b8069cdf18f74f09f4760767a4e08c381275609"
+    }
+  ],
+  "archiveExtraction": {
+    "source": "supabase/deployed-migrations/20261018175037_past_played_hands_ai_coaching_only_v1.sql",
+    "sourceSha256": "ddc8e7d93341471c14bbecfe733b7cfdb9c4ef6600acf5093d043191d8feffc8",
+    "stopBefore": "alter table public.ig_hand_analysis_receipts",
+    "output": "review/real-auth-practice/archive-prerequisite.sql",
+    "outputSha256": "84159b31f00364fa3fe2c1f9f8c902d87433db441e40305e7f54110624546129",
+    "excludes": "coaching receipts/credit catalog; no fake placeholder table"
+  },
+  "authHelperProvenance": {
+    "reportedPinnedAuthCommit": "4eee58f296d9698a1c2c0ae14d7a0b379c7622d3",
+    "migrationFiles": [
+      "20220224000811_update_auth_functions.up.sql",
+      "20220531120530_add_auth_jwt_function.up.sql"
+    ],
+    "rule": "real GoTrue startup supplies helpers; poststartup assert definitions/semantics, do not create replacements"
+  }
+}

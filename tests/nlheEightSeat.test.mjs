@@ -5,11 +5,15 @@ const file=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const sql=file('supabase/migrations/20261017210000_nlhe_eight_seats.sql');
 const edge=file('supabase/functions/poker-table-v1/index.ts');
 const ui=file('components/games/HoldemPracticeTable.jsx');
-test('NLHE joins seats 0 through 7; Omaha stays capped at 6',()=>{
+import {pokerCapacity} from '../lib/pokerFormats.js';
+test('recorded eight-seat migration remains intact; UI uses selected capacity',()=>{
  assert.match(sql,/case when t\.variant='holdem' then 8 else 6 end/);
  assert.match(sql,/generate_series\(0,seat_limit-1\)/);
  assert.match(sql,/players<2 or players>8/);
- assert.match(ui,/length:isOmaha\?6:8/);
+ assert.match(ui,/length:capacity\?\?0/);
+ assert.equal(pokerCapacity({},'holdem'),8);assert.equal(pokerCapacity({},'omaha'),6);
+ for(const n of [2,4,6,8,9])assert.equal(pokerCapacity({seatCapacity:n},'holdem'),n);
+ assert.equal(pokerCapacity({seatCapacity:7},'holdem'),null);assert.equal(pokerCapacity({seatCapacity:9},'omaha'),null);
 });
 test('button, blinds and first actor rotate clockwise across 8 seat numbers',()=>{
  const rotations=sql.match(/\+8\)%8/g)||[];
@@ -17,9 +21,9 @@ test('button, blinds and first actor rotate clockwise across 8 seat numbers',()=
  assert.match(sql,/dealt_count=players/);
  assert.match(sql,/p_deck->\(idx\+players\)/);
 });
-test('side-pot tie remainder follows 8-seat button order',()=>{
- assert.match(edge,/a\.seat_no-button-1\+8\)%8/);
- assert.match(edge,/b\.seat_no-button-1\+8\)%8/);
+test('side-pot tie remainder follows the configured table capacity',()=>{
+ assert.match(edge,/a\.seat_no-button-1\+seatCapacity\)%seatCapacity/);
+ assert.match(edge,/b\.seat_no-button-1\+seatCapacity\)%seatCapacity/);
  assert.doesNotMatch(edge,/seat_no-button-1\+6\)%6/);
 });
 test('seat snapshots expose only public player identity needed by the table profile button',()=>{
