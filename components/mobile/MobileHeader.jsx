@@ -32,7 +32,7 @@ export default function MobileHeader() {
   };
 
   return (
-    <div className="sticky top-0 z-40 bg-[#0A0612]/95 backdrop-blur-xl border-b border-white/10 md:hidden" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+    <div data-mobile-page-header className="sticky top-0 z-40 bg-[#0A0612]/95 backdrop-blur-xl border-b border-white/10 md:hidden" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
       <div className="flex items-center h-14 px-4">
         <button
           onClick={handleBack}

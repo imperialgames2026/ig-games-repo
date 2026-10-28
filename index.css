@@ -102,8 +102,13 @@
 
 /* Consent disclosure must remain unobscured when phone users scroll or focus fields. */
 @media (max-width: 640px) {
-  body:has([data-sms-consent-panel]) [aria-label="Player wallet toolbar"] {
+  body:has([data-sms-consent-panel]) [aria-label="Player wallet toolbar"],
+  body:has([data-sms-consent-panel]) [data-mobile-page-header] {
     position: relative;
     top: auto;
   }
+}
+
+@media (max-width: 640px) {
+  body:has([data-sms-consent-panel]) [data-mobile-page-header] button { min-height: 44px; }
 }
