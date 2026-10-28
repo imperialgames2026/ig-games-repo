@@ -99,3 +99,11 @@
     touch-action: pan-y pinch-zoom;
   }
 }
+
+/* Consent disclosure must remain unobscured when phone users scroll or focus fields. */
+@media (max-width: 640px) {
+  body:has([data-sms-consent-panel]) [aria-label="Player wallet toolbar"] {
+    position: relative;
+    top: auto;
+  }
+}
