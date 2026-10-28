@@ -1,3 +1,5 @@
+LAYER-1 REVIEW: final release applies this original proposal AND practice-sms-consent-deletion.sql atomically. The followup supersedes the original hard-deletion restriction; see docs/practice-sms-deletion-review.txt.
+
 REVIEW ONLY / SMS DELIVERY DISABLED
 Version2026-10-27.v1; purpose transactional_account. No manifest/migration/deployment changes.
 RPC practice_sms_consent_v1(actorUUID,requestUUID,action,phone,policyVersion,expectedRevision).

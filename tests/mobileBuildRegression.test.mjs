@@ -28,6 +28,8 @@ async function submit(mode, options = {}) {
   const handler = findFunction(parsed, 'handleSubmit');
   assert.ok(handler);
   const fn = runInNewContext(`(${handler.getText(parsed)})`, {
+    // Unchecked SMS preference preserves the original email-only registration contract.
+    smsConsent: false, smsPhone: '', setSmsPhone: () => {}, setSmsConsent: () => {},
     mode, submitting, isLoadingAuth, cooldown, confirm,
     emailOnly: ['recovery', 'confirmation'].includes(mode),
     window: { location: { origin: 'https://practice.example.test' }, ...(native ? { Capacitor: { isNativePlatform: () => true } } : {}) },
