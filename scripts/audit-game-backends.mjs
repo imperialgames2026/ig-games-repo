@@ -2,6 +2,7 @@
 // Inventory and enforce the staging game migration release boundary.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import {activePracticeGameRoutes,parkedPracticeGameRoutes} from '../lib/practiceReleasePolicy.js';
 
 const approved = new Set(['PlayDice', 'PlayCraps', 'PlayRoulette', 'PlayCrash', 'PlayTrenball', 'PlayBaccarat', 'PlayPoker', 'PlayOmaha', 'PlayBlackjack', 'PlayMultiplayerBlackjack', 'PlayCoinFlip', 'PlayHashDice', 'PlayLimbo', 'PlayPlinko', 'PlayWheel', 'PlayMines', 'PlayDarts', 'PlayDiceZone', 'PlayHiLo', 'PlayRocket', 'PlayTowers']);
 const scope = JSON.parse(readFileSync('config/game-migration-scope.json', 'utf8'));
@@ -11,6 +12,17 @@ const app = readFileSync('App.jsx', 'utf8');
 const pages = readdirSync('pages').filter(f => /^Play[A-Z][A-Za-z0-9]*\.jsx$/.test(f));
 const rows = [];
 let bad = false;
+// The site parks reviewed backends without deleting their source. Require the
+// canonical narrow availability policy and its actual App wiring, never infer
+// availability from unrelated route strings elsewhere in App.
+const expectedActive = ['PlayPoker','PlayOmaha','PlayBlackjack','PlayMultiplayerBlackjack','PlayBaccarat','PlayCraps','PlayRoulette','PlayCrash','PlayTrenball'];
+const active = new Set(activePracticeGameRoutes), parked = new Set(parkedPracticeGameRoutes);
+if (active.size !== expectedActive.length || expectedActive.some(p=>!active.has(p)) ||
+    parked.size !== approved.size-active.size || [...parked].some(p=>!approved.has(p)||active.has(p)) ||
+    [...approved].some(p=>!active.has(p)&&!parked.has(p)) ||
+    !/import\s*\{activePracticeGameRoutes,disabledFinancialRoutes\}\s*from\s*['"]@\/lib\/practiceReleasePolicy['"]/.test(app) ||
+    !/const verifiedPracticeGames = new Set\(activePracticeGameRoutes\)/.test(app) ||
+    !/disabledFinancialRoutes\.has\(path\)[\s\S]*?<ProtectedRoute><PracticeFinancialUnavailable/.test(app)) bad = true;
 if (new Set(scope.approvedForMigration).size !== scope.approvedForMigration.length || nonMigration.size !== scope.nonMigration.length ||
     [...pending].some(page => nonMigration.has(page)) ||
     [...nonMigration].some(page => approved.has(page))) bad = true;
@@ -20,7 +32,7 @@ for (const filename of pages) {
   const code = readFileSync(join('pages',filename), 'utf8');
   const invocations = [...code.matchAll(/base44\.functions\.invoke\(\s*['"`]([^'"`]+)/g)].map(m => m[1]);
   const directWalletMutation = /base44\.entities\.(?:UserWallet|Transaction|WithdrawalRequest)\.(?:create|update|delete)\s*\(/.test(code);
-  const approvedInApp = app.includes("'" + page + "'") && approved.has(page);
+  const approvedInApp = (active.has(page) || parked.has(page)) && approved.has(page);
   if (approved.has(page)) {
     if (!approvedInApp || invocations.length || directWalletMutation) bad = true;
     if (!/FinalPracticeGame|VerifiedMinesGame|VerifiedOriginalsGame|CrashPracticeV2|MultiplayerPracticeTable|SharedEventPracticeTable|BlackjackPracticeTable|HoldemPracticeTable|verifyPracticeDice/.test(code)) bad = true;
