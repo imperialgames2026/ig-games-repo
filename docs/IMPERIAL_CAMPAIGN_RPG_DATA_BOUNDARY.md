@@ -1,6 +1,6 @@
 # Imperial Campaign RPG — data and action boundary
 
-Status: schema design only. This document defines the initial persistence contract; it does not create or deploy tables.
+Status: schema design only. Target the existing `IG Network Lab tests` Supabase project (`jvyzpxjqmymafjapprpp`) and keep the campaign in its own `ig_campaign_v1` PostgreSQL schema. This document does not create or deploy tables.
 
 ## Design goals
 
