@@ -63,3 +63,22 @@ The first slice should use a small original set: one hero archetype, one weapon,
 ## Implementation status
 
 The pure d20 helper in `supabase/functions/_shared/imperial-campaign/rules.ts` currently implements ability modifiers, proficiency progression, advantage/disadvantage, attack natural 1/20 handling, and secure random integers. It does not yet implement turns, damage, state persistence, idempotency, campaign actions, or client UI. No database change or deployment has been made.
+
+## Worked examples
+
+- A hero with Dexterity 14 has modifier +2. At level 1, a proficient Dexterity check adds +2 proficiency. A d20 result of 13 with no situational bonus totals 17; against DC 15, the check succeeds.
+- The same hero's unproficient check totals the d20 result plus +2, so that roll is 15 and succeeds against DC 15.
+- On a check, a natural 20 with a total below the DC still fails, and a natural 1 can still succeed if the total reaches the DC.
+- On an attack, a natural 1 always misses and a natural 20 always hits and triggers a critical damage roll.
+- If advantage and disadvantage are both active, the event contains one d20 result. With advantage alone, it contains two results and selects the higher; with disadvantage alone, it contains two and selects the lower.
+
+## Proficiency progression
+
+| Character levels | Bonus |
+| --- | ---: |
+| 1–4 | +2 |
+| 5–8 | +3 |
+| 9–12 | +4 |
+| 13–16 | +5 |
+| 17–20 | +6 |
+
