@@ -90,7 +90,6 @@ export type EncounterActionErrorCode =
   | "INSUFFICIENT_MOVEMENT"
   | "ACTION_ALREADY_USED"
   | "INVALID_TARGET"
-  | "NO_WEAPON"
   | "ENCOUNTER_COMPLETE";
 
 export class EncounterActionError extends Error {
@@ -172,6 +171,13 @@ const assertState = (state: EncounterState): void => {
   if (!teams.has("heroes") || !teams.has("hostiles")) {
     fail("INVALID_STATE", "An encounter must include heroes and hostiles");
   }
+  const active = combatantById(state, state.turnOrder[state.activeTurnIndex]);
+  if (
+    (state.phase === "active" && (!active || active.team !== "heroes" || !active.ownerUserId)) ||
+    (state.phase === "awaiting_server_turn" && (!active || active.team !== "hostiles" || active.ownerUserId !== null))
+  ) {
+    fail("INVALID_STATE", "Encounter phase does not match the active combatant");
+  }
   if (
     (state.phase === "completed" && state.outcome === null) ||
     (state.phase !== "completed" && state.outcome !== null)
@@ -184,7 +190,10 @@ const assertState = (state: EncounterState): void => {
       typeof combatant.id !== "string" ||
       combatant.id.length === 0 ||
       !["heroes", "hostiles"].includes(combatant.team) ||
-      (combatant.ownerUserId !== null && typeof combatant.ownerUserId !== "string") ||
+      (combatant.team === "heroes" && (typeof combatant.ownerUserId !== "string" || combatant.ownerUserId.length === 0)) ||
+      (combatant.team === "hostiles" && combatant.ownerUserId !== null) ||
+      !combatant.abilities ||
+      typeof combatant.abilities !== "object" ||
       !Number.isSafeInteger(combatant.level) ||
       combatant.level < 1 ||
       combatant.level > 20 ||
