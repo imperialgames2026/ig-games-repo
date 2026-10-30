@@ -2,7 +2,7 @@
 
 **Branch:** `feature/imperial-campaign-rpg-mvp`  
 **Base:** `main` at `080d8a984fa9012a226129bb42e07411eeb7bf3e`  
-**Status:** Foundation specification only. No schema deployment, playable route, NFT transaction, or wager flow has been enabled.
+**Status:** Product foundation plus a pure server-side d20 math module. See [the rules contract](./IMPERIAL_CAMPAIGN_RPG_RULES_CONTRACT.md) and `supabase/functions/_shared/imperial-campaign/rules.ts`. No schema deployment, playable route, NFT transaction, or wager flow has been enabled.
 
 ## Product target
 
@@ -70,3 +70,7 @@ This is a structured starting point for an original Imperial ruleset, not a fina
 - Spectator payloads contain only intended public state.
 - Android layout is touch-friendly at common phone aspect ratios; narration can be skipped and the tactical view remains legible.
 - No production feature, marketplace transfer, or wager becomes active by adding client UI alone.
+
+## Current implementation checkpoint
+
+The branch now contains the candidate first-slice d20 math as a pure server-side module. It is not called by an Edge Function and has no database persistence or client integration. Rules examples and the exact roll/event contract are in the linked rules document. This keeps all rule decisions explicit before we introduce persistent encounter state.
