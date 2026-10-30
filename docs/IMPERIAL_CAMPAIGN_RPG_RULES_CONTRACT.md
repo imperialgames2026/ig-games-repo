@@ -62,7 +62,7 @@ The first slice should use a small original set: one hero archetype, one weapon,
 
 ## Implementation status
 
-The pure d20 helper in `supabase/functions/_shared/imperial-campaign/rules.ts` currently implements ability modifiers, proficiency progression, advantage/disadvantage, attack natural 1/20 handling, and secure random integers. It does not yet implement turns, damage, state persistence, idempotency, campaign actions, or client UI. No database change or deployment has been made.
+The pure d20 helper in `supabase/functions/_shared/imperial-campaign/rules.ts` implements ability modifiers, proficiency progression, advantage/disadvantage, attack natural 1/20 handling, and secure random integers. `supabase/functions/_shared/imperial-campaign/combat.ts` now resolves in-range weapon attacks and damage, including doubled damage dice on a critical hit. Neither module persists state or handles turn ownership, idempotency, campaign actions, or client UI. No database change or deployment has been made.
 
 ## Worked examples
 
