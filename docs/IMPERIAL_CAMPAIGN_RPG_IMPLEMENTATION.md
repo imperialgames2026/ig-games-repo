@@ -73,4 +73,4 @@ This is a structured starting point for an original Imperial ruleset, not a fina
 
 ## Current implementation checkpoint
 
-The branch now contains the candidate first-slice d20 math as a pure server-side module. It is not called by an Edge Function and has no database persistence or client integration. Rules examples and the exact roll/event contract are in the linked rules document. This keeps all rule decisions explicit before we introduce persistent encounter state.
+The branch now contains pure server-side d20 and weapon attack/damage resolvers. They are not called by an Edge Function and have no database persistence or client integration. Rules examples and the exact roll/event contract are in the linked rules document. Turn ownership, action validation, idempotency, and state persistence remain to be implemented.
