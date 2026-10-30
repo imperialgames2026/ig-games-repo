@@ -2,7 +2,7 @@
 
 **Branch:** `feature/imperial-campaign-rpg-mvp`  
 **Base:** `main` at `080d8a984fa9012a226129bb42e07411eeb7bf3e`  
-**Status:** Product foundation plus a pure server-side d20 math module. See [the rules contract](./IMPERIAL_CAMPAIGN_RPG_RULES_CONTRACT.md) and `supabase/functions/_shared/imperial-campaign/rules.ts`. No schema deployment, playable route, NFT transaction, or wager flow has been enabled.
+**Status:** Product foundation plus a pure server-side d20 math module. See [the rules contract](./IMPERIAL_CAMPAIGN_RPG_RULES_CONTRACT.md), [data and action boundary](./IMPERIAL_CAMPAIGN_RPG_DATA_BOUNDARY.md), and `supabase/functions/_shared/imperial-campaign/rules.ts`. No schema deployment, playable route, NFT transaction, or wager flow has been enabled.
 
 ## Product target
 
