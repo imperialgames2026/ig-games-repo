@@ -167,6 +167,50 @@ const assertState = (state: EncounterState): void => {
   ) {
     fail("INVALID_STATE", "Encounter combatant IDs or turn order are invalid");
   }
+
+  const teams = new Set(state.combatants.map(({ team }) => team));
+  if (!teams.has("heroes") || !teams.has("hostiles")) {
+    fail("INVALID_STATE", "An encounter must include heroes and hostiles");
+  }
+  if (
+    (state.phase === "completed" && state.outcome === null) ||
+    (state.phase !== "completed" && state.outcome !== null)
+  ) {
+    fail("INVALID_STATE", "Encounter phase and outcome do not match");
+  }
+
+  for (const combatant of state.combatants) {
+    if (
+      typeof combatant.id !== "string" ||
+      combatant.id.length === 0 ||
+      !["heroes", "hostiles"].includes(combatant.team) ||
+      (combatant.ownerUserId !== null && typeof combatant.ownerUserId !== "string") ||
+      !Number.isSafeInteger(combatant.level) ||
+      combatant.level < 1 ||
+      combatant.level > 20 ||
+      !Number.isSafeInteger(combatant.armorClass) ||
+      combatant.armorClass < 1 ||
+      !Number.isSafeInteger(combatant.maxHitPoints) ||
+      combatant.maxHitPoints < 1 ||
+      !Number.isSafeInteger(combatant.hitPoints) ||
+      combatant.hitPoints < 0 ||
+      combatant.hitPoints > combatant.maxHitPoints ||
+      !Number.isSafeInteger(combatant.movementPerTurnFeet) ||
+      combatant.movementPerTurnFeet < 0 ||
+      !Number.isSafeInteger(combatant.movementRemainingFeet) ||
+      combatant.movementRemainingFeet < 0 ||
+      combatant.movementRemainingFeet > combatant.movementPerTurnFeet ||
+      typeof combatant.actionUsed !== "boolean"
+    ) {
+      fail("INVALID_STATE", "Encounter combatant values are malformed");
+    }
+    validatePosition(combatant.position, state.map);
+    for (const score of Object.values(combatant.abilities)) {
+      if (!Number.isSafeInteger(score) || score < 1 || score > 30) {
+        fail("INVALID_STATE", "Encounter ability scores are malformed");
+      }
+    }
+  }
 };
 
 const validatePosition = (position: GridPosition, map: EncounterMap): void => {
@@ -455,7 +499,7 @@ export function resolveServerHostileTurn(
     .sort((a, b) =>
       gridDistanceFeet(nextActor.position, a.position, next.map.tileSizeFeet) -
         gridDistanceFeet(nextActor.position, b.position, next.map.tileSizeFeet) ||
-      a.id.localeCompare(b.id)
+      (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)
     )[0];
 
   const movementPath: GridPosition[] = [];
