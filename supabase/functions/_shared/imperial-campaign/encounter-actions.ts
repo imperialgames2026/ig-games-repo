@@ -134,8 +134,11 @@ const combatantById = (state: EncounterState, id: string): EncounterCombatant | 
 const assertState = (state: EncounterState): void => {
   if (
     !state ||
+    typeof state.id !== "string" ||
+    state.id.length === 0 ||
     !Number.isSafeInteger(state.revision) ||
     state.revision < 0 ||
+    !["active", "awaiting_server_turn", "completed"].includes(state.phase) ||
     !state.map ||
     !Number.isSafeInteger(state.map.width) ||
     !Number.isSafeInteger(state.map.height) ||
@@ -143,10 +146,12 @@ const assertState = (state: EncounterState): void => {
     state.map.height < 1 ||
     !Number.isSafeInteger(state.map.tileSizeFeet) ||
     state.map.tileSizeFeet < 1 ||
+    !Array.isArray(state.map.blockedCells) ||
     !Array.isArray(state.turnOrder) ||
     !Array.isArray(state.combatants) ||
     state.turnOrder.length === 0 ||
     state.combatants.length === 0 ||
+    !Number.isSafeInteger(state.activeTurnIndex) ||
     state.activeTurnIndex < 0 ||
     state.activeTurnIndex >= state.turnOrder.length
   ) {
@@ -154,7 +159,12 @@ const assertState = (state: EncounterState): void => {
   }
 
   const ids = new Set(state.combatants.map(({ id }) => id));
-  if (ids.size !== state.combatants.length || state.turnOrder.some((id) => !ids.has(id))) {
+  if (
+    ids.size !== state.combatants.length ||
+    new Set(state.turnOrder).size !== state.turnOrder.length ||
+    state.turnOrder.length !== state.combatants.length ||
+    state.turnOrder.some((id) => !ids.has(id))
+  ) {
     fail("INVALID_STATE", "Encounter combatant IDs or turn order are invalid");
   }
 };
@@ -232,7 +242,7 @@ export function resolvePlayerEncounterAction(
   const next = copyState(current);
   const nextActor = combatantById(next, actor.id)!;
   const revisionBefore = next.revision;
-  let detail: Record<string, unknown>;
+  let detail: Record<string, unknown> = {};
 
   if (action.type === "move") {
     if (!Array.isArray(action.path) || action.path.length === 0 || action.path.length > 200) {
@@ -322,7 +332,7 @@ export function resolvePlayerEncounterAction(
       next.phase = followingActor.team === "heroes" ? "active" : "awaiting_server_turn";
       detail = { nextActorId: followingActor.id, serverTurnRequired: next.phase === "awaiting_server_turn" };
     }
-    detail ??= { nextActorId: null, serverTurnRequired: false };
+    if (Object.keys(detail).length === 0) detail = { nextActorId: null, serverTurnRequired: false };
   }
 
   next.revision += 1;
