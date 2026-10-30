@@ -73,4 +73,4 @@ This is a structured starting point for an original Imperial ruleset, not a fina
 
 ## Current implementation checkpoint
 
-The branch now contains pure server-side d20 and weapon attack/damage resolvers. They are not called by an Edge Function and have no database persistence or client integration. Rules examples and the exact roll/event contract are in the linked rules document. Turn ownership, action validation, idempotency, and state persistence remain to be implemented.
+The branch now contains pure server-side d20, weapon damage, and encounter action resolvers. The encounter module validates player ownership, revision, grid movement, attack range, and turn use; it also resolves a basic server-controlled hostile turn. The modules are not called by an Edge Function and have no database persistence or client integration. Idempotency, encounter storage, additional player actions, and the Android route remain to be implemented. The code has not been compiled or tested.
