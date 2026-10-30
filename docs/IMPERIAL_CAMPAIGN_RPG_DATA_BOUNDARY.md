@@ -60,7 +60,6 @@ Database uniqueness and row locking are the final guards against concurrent requ
 
 ## Initial integrity constraints and indexes
 
-- Unique `(owner_user_id, character_id)` is not required; character ownership is expressed directly by `characters.owner_user_id`.
 - Unique `(encounter_id, revision_after)` for accepted event order.
 - Unique `(owner_user_id, request_id)` for retry identity, with a stored canonical request hash.
 - Foreign keys from encounter participants, items, events, and completion records to their parent rows.
