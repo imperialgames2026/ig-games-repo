@@ -2,7 +2,7 @@
 
 **Branch:** `feature/imperial-campaign-rpg-mvp`  
 **Base:** `main` at `080d8a984fa9012a226129bb42e07411eeb7bf3e`  
-**Status:** Product foundation plus a pure server-side d20 math module. See [the rules contract](./IMPERIAL_CAMPAIGN_RPG_RULES_CONTRACT.md), [data and action boundary](./IMPERIAL_CAMPAIGN_RPG_DATA_BOUNDARY.md), and `supabase/functions/_shared/imperial-campaign/rules.ts`. No schema deployment, playable route, NFT transaction, or wager flow has been enabled.
+**Status:** Product foundation plus pure server-side rules and encounter-action modules. See [the rules contract](./IMPERIAL_CAMPAIGN_RPG_RULES_CONTRACT.md), [data and action boundary](./IMPERIAL_CAMPAIGN_RPG_DATA_BOUNDARY.md), and `supabase/functions/_shared/imperial-campaign/`. No schema deployment, playable route, NFT transaction, or wager flow has been enabled.
 
 ## Product target
 
@@ -44,7 +44,7 @@ This is a structured starting point for an original Imperial ruleset, not a fina
 ## Backend and integration boundaries
 
 - Canonical source is `imperialgames2026/ig-games-repo`; the generated `.site-preview` directory is not an edit target.
-- Supabase project `qonqemhljgxlwpghkxhn` is the intended practice/staging backend. No campaign tables currently exist.
+- The existing `IG Network Lab tests` Supabase project (`jvyzpxjqmymafjapprpp`) is the chosen campaign lab target. It already contains the poker lab, so campaign tables and backend files will use their own `ig_campaign_v1` schema and `imperial-campaign` code directory. Poker tables, functions, and records remain untouched. The separate `imperial-games-staging` project (`qonqemhljgxlwpghkxhn`) remains untouched.
 - Reuse Supabase Auth and player profiles. Campaign characters are distinct from account profiles.
 - All mutation endpoints derive user identity from the authenticated session. Clients submit action intent; server code loads the character, validates prerequisites, generates random values, resolves effects, writes an ordered event, and returns the public projection.
 - Give each public table an explicit RLS policy and each private/server-only table an explicit no-client-access contract. Do not add broad policies to silence the existing advisor findings.
