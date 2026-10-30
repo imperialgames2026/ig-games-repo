@@ -68,7 +68,7 @@ export type PlayerEncounterAction =
   | { type: "end_turn" };
 
 export interface EncounterEvent {
-  kind: PlayerEncounterAction["type"];
+  kind: PlayerEncounterAction["type"] | "hostile_turn";
   encounterId: string;
   revisionBefore: number;
   revisionAfter: number;
@@ -343,6 +343,191 @@ export function resolvePlayerEncounterAction(
     revisionAfter: next.revision,
     actorId: actor.id,
     detail,
+  };
+
+  return { state: next, event };
+}
+
+
+interface PathNode {
+  position: GridPosition;
+  path: GridPosition[];
+}
+
+const gridDistanceFeet = (a: GridPosition, b: GridPosition, tileSizeFeet: number): number =>
+  (Math.abs(a.x - b.x) + Math.abs(a.y - b.y)) * tileSizeFeet;
+
+/**
+ * Find the shortest walkable path to weapon range. When no in-range tile is
+ * reachable, return a path to the closest reachable tile, with stable tie-breaks.
+ */
+const findHostileApproachPath = (
+  state: EncounterState,
+  actor: EncounterCombatant,
+  target: EncounterCombatant,
+): GridPosition[] => {
+  const start = { ...actor.position };
+  if (!actor.weapon || gridDistanceFeet(start, target.position, state.map.tileSizeFeet) <= actor.weapon.rangeFeet) {
+    return [];
+  }
+
+  const blocked = new Set(state.map.blockedCells);
+  const occupied = new Set(
+    state.combatants.filter((combatant) => living(combatant) && combatant.id !== actor.id)
+      .map((combatant) => cellKey(combatant.position)),
+  );
+  const directions = [
+    { x: 0, y: -1 },
+    { x: -1, y: 0 },
+    { x: 1, y: 0 },
+    { x: 0, y: 1 },
+  ];
+  const queue: PathNode[] = [{ position: start, path: [] }];
+  const visited = new Set([cellKey(start)]);
+  let closestPath: GridPosition[] = [];
+  let closestDistance = gridDistanceFeet(start, target.position, state.map.tileSizeFeet);
+
+  for (let cursor = 0; cursor < queue.length; cursor += 1) {
+    const node = queue[cursor];
+    const distance = gridDistanceFeet(node.position, target.position, state.map.tileSizeFeet);
+    if (distance <= actor.weapon.rangeFeet) return node.path;
+    if (distance < closestDistance) {
+      closestDistance = distance;
+      closestPath = node.path;
+    }
+
+    for (const direction of directions) {
+      const position = { x: node.position.x + direction.x, y: node.position.y + direction.y };
+      if (
+        position.x < 0 ||
+        position.y < 0 ||
+        position.x >= state.map.width ||
+        position.y >= state.map.height
+      ) continue;
+
+      const key = cellKey(position);
+      if (visited.has(key) || blocked.has(key) || occupied.has(key)) continue;
+      visited.add(key);
+      queue.push({ position, path: [...node.path, position] });
+    }
+  }
+
+  return closestPath;
+};
+
+/**
+ * Resolve one server-controlled hostile turn. The simple first-slice behavior
+ * approaches the nearest living hero and attacks when the weapon is in range.
+ * The AI chooses actions only; combat math and random rolls stay in shared code.
+ */
+export function resolveServerHostileTurn(
+  current: EncounterState,
+  expectedRevision: number,
+  randomInt: (upperExclusive: number) => number = secureRandomInt,
+): EncounterActionResult {
+  assertState(current);
+
+  if (current.phase === "completed") {
+    fail("ENCOUNTER_COMPLETE", "Encounter is already complete");
+  }
+  if (current.phase !== "awaiting_server_turn") {
+    fail("NOT_PLAYERS_TURN", "Encounter is not waiting for a server-controlled turn");
+  }
+  if (!Number.isSafeInteger(expectedRevision) || expectedRevision !== current.revision) {
+    fail("STALE_REVISION", "Encounter revision is stale");
+  }
+
+  const actor = activeCombatant(current);
+  if (!actor || !living(actor) || actor.team !== "hostiles" || actor.ownerUserId !== null) {
+    fail("INVALID_STATE", "Active server turn is not assigned to a hostile combatant");
+  }
+
+  const next = copyState(current);
+  const nextActor = combatantById(next, actor.id)!;
+  const heroes = next.combatants.filter((combatant) => combatant.team === "heroes" && living(combatant));
+  if (heroes.length === 0) {
+    next.phase = "completed";
+    next.outcome = "hostiles_win";
+  }
+
+  const target = heroes
+    .slice()
+    .sort((a, b) =>
+      gridDistanceFeet(nextActor.position, a.position, next.map.tileSizeFeet) -
+        gridDistanceFeet(nextActor.position, b.position, next.map.tileSizeFeet) ||
+      a.id.localeCompare(b.id)
+    )[0];
+
+  const movementPath: GridPosition[] = [];
+  let attack: ReturnType<typeof resolveWeaponAttack> | null = null;
+  let targetHpBefore: number | null = null;
+
+  if (target && next.phase !== "completed") {
+    const proposedPath = findHostileApproachPath(next, nextActor, target);
+    const maxSteps = Math.floor(nextActor.movementRemainingFeet / next.map.tileSizeFeet);
+    movementPath.push(...proposedPath.slice(0, maxSteps));
+    if (movementPath.length > 0) {
+      const destination = movementPath[movementPath.length - 1];
+      nextActor.position = { ...destination };
+      const movedFeet = movementPath.length * next.map.tileSizeFeet;
+      nextActor.movementRemainingFeet -= movedFeet;
+    }
+
+    const distanceFeet = gridDistanceFeet(nextActor.position, target.position, next.map.tileSizeFeet);
+    if (nextActor.weapon && distanceFeet <= nextActor.weapon.rangeFeet) {
+      attack = resolveWeaponAttack(
+        {
+          attackerLevel: nextActor.level,
+          attackAbilityScore: nextActor.abilities[nextActor.weapon.attackAbility],
+          proficientWithWeapon: nextActor.weapon.proficient,
+          attackFlatBonus: nextActor.weapon.attackFlatBonus,
+          targetArmorClass: target.armorClass,
+          distanceFeet,
+          weaponRangeFeet: nextActor.weapon.rangeFeet,
+          weaponId: nextActor.weapon.id,
+          damageDiceCount: nextActor.weapon.damageDiceCount,
+          damageDieSides: nextActor.weapon.damageDieSides,
+          damageAbilityModifier: abilityModifier(nextActor.abilities[nextActor.weapon.damageAbility]),
+          damageFlatBonus: nextActor.weapon.damageFlatBonus,
+        },
+        randomInt,
+      );
+      targetHpBefore = target.hitPoints;
+      target.hitPoints = Math.max(0, target.hitPoints - attack.damage);
+      nextActor.actionUsed = true;
+      finishIfEncounterOver(next);
+    }
+  }
+
+  let nextActorId: string | null = null;
+  if (next.phase !== "completed") {
+    const nextIndex = findNextLivingTurnIndex(next, next.activeTurnIndex);
+    next.activeTurnIndex = nextIndex;
+    const followingActor = combatantById(next, next.turnOrder[nextIndex])!;
+    followingActor.movementRemainingFeet = followingActor.movementPerTurnFeet;
+    followingActor.actionUsed = false;
+    next.phase = followingActor.team === "heroes" ? "active" : "awaiting_server_turn";
+    nextActorId = followingActor.id;
+  }
+
+  const revisionBefore = next.revision;
+  next.revision += 1;
+  const event: EncounterEvent = {
+    kind: "hostile_turn",
+    encounterId: next.id,
+    revisionBefore,
+    revisionAfter: next.revision,
+    actorId: actor.id,
+    detail: {
+      movementPath,
+      targetId: target?.id ?? null,
+      targetHpBefore,
+      targetHpAfter: target?.hitPoints ?? null,
+      attack,
+      outcome: next.outcome ?? (attack?.hit ? "attack_hit" : attack ? "attack_missed" : "approach"),
+      nextActorId,
+      serverTurnRequired: next.phase === "awaiting_server_turn",
+    },
   };
 
   return { state: next, event };
