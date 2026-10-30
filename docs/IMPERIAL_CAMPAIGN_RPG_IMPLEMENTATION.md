@@ -10,12 +10,16 @@ Add an Imperial Gaming fantasy RPG to the existing Imperial Games client. Player
 
 The game honors Randy Butcher, whose love of D&D inspired it. Any personal details or tribute content must come from Nate’s memories; do not invent them.
 
-## Interaction and camera
+## Video game interaction and camera
 
-- Use a compact 3D environment with a third-person exploration camera.
-- Switch to a raised tactical camera for turn-based combat; spectators see the full match overview by default.
-- The player performs actions directly. The server rolls required dice and applies the rules. A brief animation and optional result breakdown can show the outcome; no manual dice handling is required.
-- Make narration skippable and optional. The AI Game Master acts primarily as director, rules explainer, and narrator; player actions, outcomes, rewards, and match state are resolved by trusted server code.
+This is a video game inspired by D&D's character and encounter rules, not a virtual tabletop or a digital version of people sitting around a table.
+
+- Use a compact 3D environment with a third-person exploration camera and direct touch/controller movement.
+- Switch to a raised tactical camera for combat; spectators see the full match overview by default.
+- Players choose game actions from the world and combat interface. Dice are an internal server mechanic: the server rolls and applies the rules after the player acts. Never require physical or on-screen dice rolling.
+- Show the result through gameplay animation and a concise outcome cue. A detailed roll breakdown can be optional.
+- Make narration skippable and optional. The AI Game Master directs and explains; trusted server code resolves actions, outcomes, rewards, and match state.
+- Character sheets and rule details are supporting menus, never the main play surface.
 
 ## First playable slice
 
