@@ -1,0 +1,10 @@
+{
+  "loader": "unity.loader.js",
+  "data": "unity.data",
+  "framework": "unity.framework.js",
+  "wasmParts": [
+    "unity.wasm.part0",
+    "unity.wasm.part1"
+  ],
+  "wasmSHA256": "090ed52706801cd7f5e955bc299d9ecd751fd60c9b6f4f6bc722beedc2858219"
+}

@@ -7,7 +7,7 @@ const pageModules = import.meta.glob('./pages/*.jsx', { eager: true });
 
 export const PAGES = Object.fromEntries(
   Object.entries(pageModules)
-    .filter(([, module]) => typeof module.default === 'function')
+    .filter(([path, module]) => typeof module.default === 'function' && (!path.endsWith('/GameCollectionReview.jsx') || (typeof __IG_GAME_COLLECTION_REVIEW__ !== 'undefined' && __IG_GAME_COLLECTION_REVIEW__)))
     .map(([path, module]) => {
       const name = path.split('/').pop().replace(/\.jsx$/, '');
       return [name, module.default];

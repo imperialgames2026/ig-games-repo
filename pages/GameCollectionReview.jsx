@@ -1,0 +1,2 @@
+import React from 'react';
+export default function GameCollectionReview(){return <main className="w-full min-w-0 p-2 pb-24"><h1>Latest game collection · practice review</h1><p>Local bots only. No online accounts, wallet or payments. Not production multiplayer.</p><iframe title="Imperial latest game collection review" src="/game-collection/index.html" className="w-full border-0" style={{height:'85dvh'}} allow="fullscreen"/></main>;}

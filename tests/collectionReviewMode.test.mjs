@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import{collectionReviewEnabled,COLLECTION_REVIEW_BRANCH}from'../lib/collectionReviewMode.mjs';
+test('normal main/production builds exclude the collection review',()=>{for(const x of [{},{mode:'production'},{cfBranch:'main'},{vercelBranch:'main'},{cfBranch:'review/other'}])assert.equal(collectionReviewEnabled(x),false);});
+test('only explicit local mode or exact authorized preview branch includes collection',()=>{for(const x of [{mode:'collection-review'},{cfBranch:COLLECTION_REVIEW_BRANCH},{vercelBranch:COLLECTION_REVIEW_BRANCH}])assert.equal(collectionReviewEnabled(x),true);});

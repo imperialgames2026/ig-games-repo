@@ -1,0 +1,988 @@
+{
+  "handoffSHA256": "3cf3951bec22ce8fa6b42dee866426a555276908662d3ff1f1c9fb634e09d635",
+  "scope": "Standalone local-state bot review; no accounts, payments, backend or fairness certification",
+  "files": [
+    {
+      "path": "assets/WORDS-LICENSE.txt",
+      "bytes": 11135,
+      "sha256": "1d7c0128f6c72d2270bf1b271b37a3a21267f759161b68c4dc6c501574c0892e",
+      "sourcePath": "ImperialGames/dist/assets/WORDS-LICENSE.txt",
+      "sourceSHA256": "1d7c0128f6c72d2270bf1b271b37a3a21267f759161b68c4dc6c501574c0892e",
+      "adapted": false
+    },
+    {
+      "path": "assets/audio/README.txt",
+      "bytes": 283,
+      "sha256": "090715200fa133578020126b996a49877a311f79da3aa9482196bb59090c740f",
+      "sourcePath": "ImperialGames/dist/assets/audio/README.txt",
+      "sourceSHA256": "090715200fa133578020126b996a49877a311f79da3aa9482196bb59090c740f",
+      "adapted": false
+    },
+    {
+      "path": "assets/audio/chips.wav",
+      "bytes": 24740,
+      "sha256": "8774c665fd98362a74446f5d05126a1961db7e6ade7e27d4c78eb3b696640b53",
+      "sourcePath": "ImperialGames/dist/assets/audio/chips.wav",
+      "sourceSHA256": "8774c665fd98362a74446f5d05126a1961db7e6ade7e27d4c78eb3b696640b53",
+      "adapted": false
+    },
+    {
+      "path": "assets/audio/deal.wav",
+      "bytes": 13274,
+      "sha256": "14d9cd604016a1261383435fa2fce993af44938d293cfcb6d10cdf4b722d5b92",
+      "sourcePath": "ImperialGames/dist/assets/audio/deal.wav",
+      "sourceSHA256": "14d9cd604016a1261383435fa2fce993af44938d293cfcb6d10cdf4b722d5b92",
+      "adapted": false
+    },
+    {
+      "path": "assets/audio/hit.wav",
+      "bytes": 35324,
+      "sha256": "1467b69c36a08b861de8146eab4b9d2f0045d5b59db049aadd0a29e07a490b38",
+      "sourcePath": "ImperialGames/dist/assets/audio/hit.wav",
+      "sourceSHA256": "1467b69c36a08b861de8146eab4b9d2f0045d5b59db049aadd0a29e07a490b38",
+      "adapted": false
+    },
+    {
+      "path": "assets/audio/miss.wav",
+      "bytes": 35324,
+      "sha256": "b0e507dedb17fb37a6b286dfb864b1a20eacf6fce4574697d3d60a540ee24382",
+      "sourcePath": "ImperialGames/dist/assets/audio/miss.wav",
+      "sourceSHA256": "b0e507dedb17fb37a6b286dfb864b1a20eacf6fce4574697d3d60a540ee24382",
+      "adapted": false
+    },
+    {
+      "path": "assets/audio/move.wav",
+      "bytes": 14156,
+      "sha256": "8f47fe63f31ebfc564207c5a3ebb6b2c3cadfb158caa1cfe839481322bb170b0",
+      "sourcePath": "ImperialGames/dist/assets/audio/move.wav",
+      "sourceSHA256": "8f47fe63f31ebfc564207c5a3ebb6b2c3cadfb158caa1cfe839481322bb170b0",
+      "adapted": false
+    },
+    {
+      "path": "assets/audio/turn.wav",
+      "bytes": 19448,
+      "sha256": "50f5986b947ca8929a3e8d5a0d982811210fbcdc678bcd19cc310e71c96a9213",
+      "sourcePath": "ImperialGames/dist/assets/audio/turn.wav",
+      "sourceSHA256": "50f5986b947ca8929a3e8d5a0d982811210fbcdc678bcd19cc310e71c96a9213",
+      "adapted": false
+    },
+    {
+      "path": "assets/audio/win.wav",
+      "bytes": 70604,
+      "sha256": "70591014e7be59892881a3a227592917ee1e88854e709d2eef0476a79b25f0c2",
+      "sourcePath": "ImperialGames/dist/assets/audio/win.wav",
+      "sourceSHA256": "70591014e7be59892881a3a227592917ee1e88854e709d2eef0476a79b25f0c2",
+      "adapted": false
+    },
+    {
+      "path": "assets/avatars/player-1.svg",
+      "bytes": 558,
+      "sha256": "71f8224e17333b96c8e284664d1462a13861931674c9a9c574d182662567cd59",
+      "sourcePath": "ImperialGames/dist/assets/avatars/player-1.svg",
+      "sourceSHA256": "71f8224e17333b96c8e284664d1462a13861931674c9a9c574d182662567cd59",
+      "adapted": false
+    },
+    {
+      "path": "assets/avatars/player-2.svg",
+      "bytes": 558,
+      "sha256": "ba80925e6675281070775c5487ec84a7511857f6120fbb2f66b61a11347712f5",
+      "sourcePath": "ImperialGames/dist/assets/avatars/player-2.svg",
+      "sourceSHA256": "ba80925e6675281070775c5487ec84a7511857f6120fbb2f66b61a11347712f5",
+      "adapted": false
+    },
+    {
+      "path": "assets/avatars/player-3.svg",
+      "bytes": 558,
+      "sha256": "44a41dc2e532fe505351f39dee0d9573295b999018b72124179180cb5cee5b9a",
+      "sourcePath": "ImperialGames/dist/assets/avatars/player-3.svg",
+      "sourceSHA256": "44a41dc2e532fe505351f39dee0d9573295b999018b72124179180cb5cee5b9a",
+      "adapted": false
+    },
+    {
+      "path": "assets/avatars/player-4.svg",
+      "bytes": 558,
+      "sha256": "0ec06145114cd87e06fcb3ff7f3b531fa247296d42fbe460ec8333a38e0d86b1",
+      "sourcePath": "ImperialGames/dist/assets/avatars/player-4.svg",
+      "sourceSHA256": "0ec06145114cd87e06fcb3ff7f3b531fa247296d42fbe460ec8333a38e0d86b1",
+      "adapted": false
+    },
+    {
+      "path": "assets/avatars/player-5.svg",
+      "bytes": 558,
+      "sha256": "1c2db99fce08bcb6c32617c79e534dc8dcecd3b55ff3698551c7ac7d7d370f1f",
+      "sourcePath": "ImperialGames/dist/assets/avatars/player-5.svg",
+      "sourceSHA256": "1c2db99fce08bcb6c32617c79e534dc8dcecd3b55ff3698551c7ac7d7d370f1f",
+      "adapted": false
+    },
+    {
+      "path": "assets/avatars/player-6.svg",
+      "bytes": 558,
+      "sha256": "a5e222579ffc06e01d59fd490dc83ffad9fe2429be7019697ccc6e15a8898469",
+      "sourcePath": "ImperialGames/dist/assets/avatars/player-6.svg",
+      "sourceSHA256": "a5e222579ffc06e01d59fd490dc83ffad9fe2429be7019697ccc6e15a8898469",
+      "adapted": false
+    },
+    {
+      "path": "assets/avatars/player-7.svg",
+      "bytes": 558,
+      "sha256": "d114db9bd195b309665aef0d7aff9a02cbddd4b3534900b80ca52db968ca013a",
+      "sourcePath": "ImperialGames/dist/assets/avatars/player-7.svg",
+      "sourceSHA256": "d114db9bd195b309665aef0d7aff9a02cbddd4b3534900b80ca52db968ca013a",
+      "adapted": false
+    },
+    {
+      "path": "assets/avatars/player-8.svg",
+      "bytes": 558,
+      "sha256": "84d1b9f586d3f9d35d7a4ca55b9189c761d1d1a384308979294ece3fabac31d1",
+      "sourcePath": "ImperialGames/dist/assets/avatars/player-8.svg",
+      "sourceSHA256": "84d1b9f586d3f9d35d7a4ca55b9189c761d1d1a384308979294ece3fabac31d1",
+      "adapted": false
+    },
+    {
+      "path": "assets/avatars/player-9.svg",
+      "bytes": 558,
+      "sha256": "ed891fa6cf62dfb71a03472fb524a3520e8ff1b6f5b77be644774019d72b430d",
+      "sourcePath": "ImperialGames/dist/assets/avatars/player-9.svg",
+      "sourceSHA256": "ed891fa6cf62dfb71a03472fb524a3520e8ff1b6f5b77be644774019d72b430d",
+      "adapted": false
+    },
+    {
+      "path": "assets/models/Baccarat.glb",
+      "bytes": 768708,
+      "sha256": "db3328ddc68420ff6706c72cd60ab35ed62e585d78a433589431b04f4b21cff8",
+      "sourcePath": "ImperialGames/dist/assets/models/Baccarat.glb",
+      "sourceSHA256": "db3328ddc68420ff6706c72cd60ab35ed62e585d78a433589431b04f4b21cff8",
+      "adapted": false
+    },
+    {
+      "path": "assets/models/Blackjack_7.glb",
+      "bytes": 5680720,
+      "sha256": "1618ebb929f4ef4ca49089857cebb1cd5707e3420ae3e3ade87c9bcc99ace136",
+      "sourcePath": "ImperialGames/dist/assets/models/Blackjack_7.glb",
+      "sourceSHA256": "1618ebb929f4ef4ca49089857cebb1cd5707e3420ae3e3ade87c9bcc99ace136",
+      "adapted": false
+    },
+    {
+      "path": "assets/models/Chess.glb",
+      "bytes": 2685644,
+      "sha256": "fb2fb6771fc5cfe20bc5ee0beeb47aac4a6e21b26a6aa3bad85ed70e42ec164e",
+      "sourcePath": "ImperialGames/dist/assets/models/Chess.glb",
+      "sourceSHA256": "fb2fb6771fc5cfe20bc5ee0beeb47aac4a6e21b26a6aa3bad85ed70e42ec164e",
+      "adapted": false
+    },
+    {
+      "path": "assets/models/Craps.glb",
+      "bytes": 1261640,
+      "sha256": "efb0cec40961984a957b05cf4a50e0835b425a3f18debd57e6e622b48bfe0feb",
+      "sourcePath": "ImperialGames/dist/assets/models/Craps.glb",
+      "sourceSHA256": "efb0cec40961984a957b05cf4a50e0835b425a3f18debd57e6e622b48bfe0feb",
+      "adapted": false
+    },
+    {
+      "path": "assets/models/Fleet_Command.glb",
+      "bytes": 762400,
+      "sha256": "013339dddcfa13adf5a9fc3366ee84bb28d8bc9726e68662e8bb162ce6318343",
+      "sourcePath": "ImperialGames/dist/assets/models/Fleet_Command.glb",
+      "sourceSHA256": "013339dddcfa13adf5a9fc3366ee84bb28d8bc9726e68662e8bb162ce6318343",
+      "adapted": false
+    },
+    {
+      "path": "assets/models/Fleet_Ships_6.glb",
+      "bytes": 639672,
+      "sha256": "42b4938dd1a2d94e732800b6e1dfbe6f647de7fdd68c8ff594a6cfff36897819",
+      "sourcePath": "ImperialGames/dist/assets/models/Fleet_Ships_6.glb",
+      "sourceSHA256": "42b4938dd1a2d94e732800b6e1dfbe6f647de7fdd68c8ff594a6cfff36897819",
+      "adapted": false
+    },
+    {
+      "path": "assets/models/NLHE_2.glb",
+      "bytes": 1439652,
+      "sha256": "2702bc6560b2c72b3fa7faf37dfac2dc793f079962e6fa3b667825e428d3691e",
+      "sourcePath": "ImperialGames/dist/assets/models/NLHE_2.glb",
+      "sourceSHA256": "2702bc6560b2c72b3fa7faf37dfac2dc793f079962e6fa3b667825e428d3691e",
+      "adapted": false
+    },
+    {
+      "path": "assets/models/NLHE_4.glb",
+      "bytes": 2491176,
+      "sha256": "3ab9832a4e928f0f1fbc2426002496336f76cbd84422ad72a3f6b213d463eb51",
+      "sourcePath": "ImperialGames/dist/assets/models/NLHE_4.glb",
+      "sourceSHA256": "3ab9832a4e928f0f1fbc2426002496336f76cbd84422ad72a3f6b213d463eb51",
+      "adapted": false
+    },
+    {
+      "path": "assets/models/NLHE_6.glb",
+      "bytes": 3605156,
+      "sha256": "dd4b1dc97f265ab84e469dbe8d696f8558faba36c06a1eecea8030c7e14924d5",
+      "sourcePath": "ImperialGames/dist/assets/models/NLHE_6.glb",
+      "sourceSHA256": "dd4b1dc97f265ab84e469dbe8d696f8558faba36c06a1eecea8030c7e14924d5",
+      "adapted": false
+    },
+    {
+      "path": "assets/models/NLHE_7.glb",
+      "bytes": 4136440,
+      "sha256": "fb042ef38392fd438378b3bb0bf16419eca40c43a4c2e42e191a6081e0552610",
+      "sourcePath": "ImperialGames/dist/assets/models/NLHE_7.glb",
+      "sourceSHA256": "fb042ef38392fd438378b3bb0bf16419eca40c43a4c2e42e191a6081e0552610",
+      "adapted": false
+    },
+    {
+      "path": "assets/models/NLHE_8.glb",
+      "bytes": 4712688,
+      "sha256": "c69317a91743eb5f5d797cf9f4380c332b4c34413f18ae41c54aadf8f0517f6c",
+      "sourcePath": "ImperialGames/dist/assets/models/NLHE_8.glb",
+      "sourceSHA256": "c69317a91743eb5f5d797cf9f4380c332b4c34413f18ae41c54aadf8f0517f6c",
+      "adapted": false
+    },
+    {
+      "path": "assets/models/NLHE_9.glb",
+      "bytes": 5253620,
+      "sha256": "da88d5b5315c583001d63c8f66217f6a4b049716b24d5854691a4bb6884e08f0",
+      "sourcePath": "ImperialGames/dist/assets/models/NLHE_9.glb",
+      "sourceSHA256": "da88d5b5315c583001d63c8f66217f6a4b049716b24d5854691a4bb6884e08f0",
+      "adapted": false
+    },
+    {
+      "path": "assets/models/Roulette.glb",
+      "bytes": 2937668,
+      "sha256": "8318863e8ccf58e929bf510f249f78518a802e51eddbc93aef7e60139586d651",
+      "sourcePath": "ImperialGames/dist/assets/models/Roulette.glb",
+      "sourceSHA256": "8318863e8ccf58e929bf510f249f78518a802e51eddbc93aef7e60139586d651",
+      "adapted": false
+    },
+    {
+      "path": "assets/models/Rummy_2.glb",
+      "bytes": 887640,
+      "sha256": "cd7c0b5b65a7294230bab5818b5d4dff52085b95c3fa3eadf6a256758c530d94",
+      "sourcePath": "ImperialGames/dist/assets/models/Rummy_2.glb",
+      "sourceSHA256": "cd7c0b5b65a7294230bab5818b5d4dff52085b95c3fa3eadf6a256758c530d94",
+      "adapted": false
+    },
+    {
+      "path": "assets/models/Rummy_6.glb",
+      "bytes": 1191808,
+      "sha256": "f514bed30d5aa5ce558de8a6af22b6945bca2af5270b1e89c1dbf163f14ac964",
+      "sourcePath": "ImperialGames/dist/assets/models/Rummy_6.glb",
+      "sourceSHA256": "f514bed30d5aa5ce558de8a6af22b6945bca2af5270b1e89c1dbf163f14ac964",
+      "adapted": false
+    },
+    {
+      "path": "assets/models/Spades_4.glb",
+      "bytes": 629348,
+      "sha256": "227a9b504740791b0599902872d0c08a6a55f461e8d4e32ef82da9ba6e736852",
+      "sourcePath": "ImperialGames/dist/assets/models/Spades_4.glb",
+      "sourceSHA256": "227a9b504740791b0599902872d0c08a6a55f461e8d4e32ef82da9ba6e736852",
+      "adapted": false
+    },
+    {
+      "path": "assets/words.txt",
+      "bytes": 503947,
+      "sha256": "653f2209a4c7dbd4193baaed0904e6f00fb0d798e978f8ef7ae0aa60b90851fa",
+      "sourcePath": "ImperialGames/dist/assets/words.txt",
+      "sourceSHA256": "653f2209a4c7dbd4193baaed0904e6f00fb0d798e978f8ef7ae0aa60b90851fa",
+      "adapted": false
+    },
+    {
+      "path": "engine-browser.js",
+      "bytes": 7547,
+      "sha256": "c1471c094f3b00ecfb91b19f8439f9b4f1cbeb0a12920b7b34fa3d595f82e6bb",
+      "sourcePath": "ImperialGames/engine.mjs",
+      "sourceSHA256": "2e19a3c90625af40d370c7a8220e1355dd6342c5b26beecd71a1287b59e68404",
+      "adapted": true
+    },
+    {
+      "path": "index.html",
+      "bytes": 1758,
+      "sha256": "ebc6e80cb54d16a30e11a45e37d385c4457a6a37370e6fcb58140061bbcc16c0",
+      "sourcePath": "ImperialGames/dist/index.html",
+      "sourceSHA256": "5bb1c3d27f8eb68afe4b2fc0a68a7f8ce36413a0443e0632f15584a1bb051d04",
+      "adapted": true
+    },
+    {
+      "path": "original.css",
+      "bytes": 50277,
+      "sha256": "9abe2025b84124d73eab92e1ed88102d0cf7282223f8907d90e76b8fda71b42f",
+      "sourcePath": "ImperialGames/dist/hub.css",
+      "sourceSHA256": "9abe2025b84124d73eab92e1ed88102d0cf7282223f8907d90e76b8fda71b42f",
+      "adapted": false
+    },
+    {
+      "path": "review.css",
+      "bytes": 1436,
+      "sha256": "baf44b4871a11455fa908509d38ea86450754d4536cd42f2b2b859cddb4e9ce7",
+      "sourcePath": null,
+      "sourceSHA256": null,
+      "adapted": true
+    },
+    {
+      "path": "review.js",
+      "bytes": 6543,
+      "sha256": "31f6f98f034ffaf4d523be2408094acacbbe1de50d7df5300fde5d1d7026fe67",
+      "sourcePath": null,
+      "sourceSHA256": null,
+      "adapted": true
+    },
+    {
+      "path": "runtime/camera-fit.js",
+      "bytes": 808,
+      "sha256": "143ce24358d32a74a52cea16e85fe1c35b8a07efd7ac6da7b4cb098cb7015086",
+      "sourcePath": null,
+      "sourceSHA256": null,
+      "adapted": true
+    },
+    {
+      "path": "runtime/chess/app.js",
+      "bytes": 6957,
+      "sha256": "4822d56d80d9b31c819a5e2dc90f82c192c157b8cfe8ed9270c920e8a3f452fd",
+      "sourcePath": "ImperialGames/dist/chess/app.js",
+      "sourceSHA256": "4822d56d80d9b31c819a5e2dc90f82c192c157b8cfe8ed9270c920e8a3f452fd",
+      "adapted": false
+    },
+    {
+      "path": "runtime/chess/engine.js",
+      "bytes": 1730,
+      "sha256": "9c54a5fdbfd28cb93f8360df7be7e341a90bbb5193d2e74ef9bacfcc194f4fd5",
+      "sourcePath": "ImperialGames/dist/chess/engine.js",
+      "sourceSHA256": "9c54a5fdbfd28cb93f8360df7be7e341a90bbb5193d2e74ef9bacfcc194f4fd5",
+      "adapted": false
+    },
+    {
+      "path": "runtime/chess/index.html",
+      "bytes": 3247,
+      "sha256": "db8007c5b147720cb5a266d5a5802c87ec5d11dc657cddcb89aaf7a1d0f96c2e",
+      "sourcePath": "ImperialGames/dist/chess/index.html",
+      "sourceSHA256": "db8007c5b147720cb5a266d5a5802c87ec5d11dc657cddcb89aaf7a1d0f96c2e",
+      "adapted": false
+    },
+    {
+      "path": "runtime/chess/match.js",
+      "bytes": 1263,
+      "sha256": "648a6f85e726fa59e26efa542f704f44bb98c0fb22e1fe760978ca6e2832d057",
+      "sourcePath": "ImperialGames/dist/chess/match.js",
+      "sourceSHA256": "648a6f85e726fa59e26efa542f704f44bb98c0fb22e1fe760978ca6e2832d057",
+      "adapted": false
+    },
+    {
+      "path": "runtime/chess/pieces.js",
+      "bytes": 1320,
+      "sha256": "fabf00b92c75b891df8dd84ba1008485e9db1422fcee5d623d39ce66b5552938",
+      "sourcePath": "ImperialGames/dist/chess/pieces.js",
+      "sourceSHA256": "fabf00b92c75b891df8dd84ba1008485e9db1422fcee5d623d39ce66b5552938",
+      "adapted": false
+    },
+    {
+      "path": "runtime/chess/style.css",
+      "bytes": 6614,
+      "sha256": "2e87f77766591bb23765e19a9e8cf6db435a0ad2d95ea8518c80b8b0f96233ed",
+      "sourcePath": "ImperialGames/dist/chess/style.css",
+      "sourceSHA256": "2e87f77766591bb23765e19a9e8cf6db435a0ad2d95ea8518c80b8b0f96233ed",
+      "adapted": false
+    },
+    {
+      "path": "runtime/chess/vendor/chess.LICENSE",
+      "bytes": 1315,
+      "sha256": "0b3a3c2b4432a26bb18f9d06f5bba4de015bcc980306b7db28b06025495e2186",
+      "sourcePath": "ImperialGames/dist/chess/vendor/chess.LICENSE",
+      "sourceSHA256": "0b3a3c2b4432a26bb18f9d06f5bba4de015bcc980306b7db28b06025495e2186",
+      "adapted": false
+    },
+    {
+      "path": "runtime/chess/vendor/chess.js",
+      "bytes": 107052,
+      "sha256": "76c7c34f0e2e9ab076521a5d6fe786a9cce537bb1b6f29d32a9c9970b5b232d2",
+      "sourcePath": "ImperialGames/dist/chess/vendor/chess.js",
+      "sourceSHA256": "76c7c34f0e2e9ab076521a5d6fe786a9cce537bb1b6f29d32a9c9970b5b232d2",
+      "adapted": false
+    },
+    {
+      "path": "runtime/chess/worker.js",
+      "bytes": 177,
+      "sha256": "eb34232bf679913a896d54e4e133583ed995d97ac5303c79ab5a0435560d4f92",
+      "sourcePath": "ImperialGames/dist/chess/worker.js",
+      "sourceSHA256": "eb34232bf679913a896d54e4e133583ed995d97ac5303c79ab5a0435560d4f92",
+      "adapted": false
+    },
+    {
+      "path": "runtime/extra-views.js",
+      "bytes": 8556,
+      "sha256": "7a4fe06b0d52b66ed2f225ac1f22fd41df9bc862e9cbbe679dad93ed03ef9f23",
+      "sourcePath": "ImperialGames/dist/extra-views.js",
+      "sourceSHA256": "7a4fe06b0d52b66ed2f225ac1f22fd41df9bc862e9cbbe679dad93ed03ef9f23",
+      "adapted": false
+    },
+    {
+      "path": "runtime/game-audio.js",
+      "bytes": 1421,
+      "sha256": "68b33d4fa2d9627a4f226e5633826343bb98009fddc81d14e3d6da7cae826019",
+      "sourcePath": "ImperialGames/dist/game-audio.js",
+      "sourceSHA256": "4230ab8d385671c5a5256bf3f09aa942c26fb219f6023be5866b1903c2720f89",
+      "adapted": true
+    },
+    {
+      "path": "runtime/games/baccarat.js",
+      "bytes": 171,
+      "sha256": "aa639f2ab0f9b93aada870561190b4dfccdda9ab4b12df36f69590d2de70741f",
+      "sourcePath": "ImperialGames/dist/games/baccarat.js",
+      "sourceSHA256": "aa639f2ab0f9b93aada870561190b4dfccdda9ab4b12df36f69590d2de70741f",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/backgammon.js",
+      "bytes": 7460,
+      "sha256": "16d7aa170c5151eca9b1eccb0a266de314469b5e4f0a5e4de37715b81d1d5d4d",
+      "sourcePath": "ImperialGames/dist/games/backgammon.js",
+      "sourceSHA256": "16d7aa170c5151eca9b1eccb0a266de314469b5e4f0a5e4de37715b81d1d5d4d",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/battleship.js",
+      "bytes": 5836,
+      "sha256": "e07a43a201f4399f0b1369ef41a370d6d171799350acc894cab082ad87f54cbd",
+      "sourcePath": "ImperialGames/dist/games/battleship.js",
+      "sourceSHA256": "e07a43a201f4399f0b1369ef41a370d6d171799350acc894cab082ad87f54cbd",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/battleship6.js",
+      "bytes": 169,
+      "sha256": "ca1d389b2d3784c97d042254e2f62eb66cb4f9b1d80fe50351c2ec95bf40652f",
+      "sourcePath": "ImperialGames/dist/games/battleship6.js",
+      "sourceSHA256": "ca1d389b2d3784c97d042254e2f62eb66cb4f9b1d80fe50351c2ec95bf40652f",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/blackjack.js",
+      "bytes": 173,
+      "sha256": "1cf23e180ffd872cf693b8989af78c7603f7de14ee812d05190c7ce8e8b362c7",
+      "sourcePath": "ImperialGames/dist/games/blackjack.js",
+      "sourceSHA256": "1cf23e180ffd872cf693b8989af78c7603f7de14ee812d05190c7ce8e8b362c7",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/casino-core.js",
+      "bytes": 6333,
+      "sha256": "7b37a22a705a6ae58928d32f3b11bf3afca667beefebdd9def97d4f067cec241",
+      "sourcePath": "ImperialGames/dist/games/casino-core.js",
+      "sourceSHA256": "7b37a22a705a6ae58928d32f3b11bf3afca667beefebdd9def97d4f067cec241",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/catalog.js",
+      "bytes": 22534,
+      "sha256": "7e1e137a6f93ababceec71e2c9e12e9e2fcf63f8be1968f7c4fedd9a7b5d8d05",
+      "sourcePath": "ImperialGames/dist/games/catalog.js",
+      "sourceSHA256": "7e1e137a6f93ababceec71e2c9e12e9e2fcf63f8be1968f7c4fedd9a7b5d8d05",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/checkers.js",
+      "bytes": 3466,
+      "sha256": "c77b5dbf5ef3b983d10bf1e63a59a7a389b08dfa48e800d9cdf6f78c0a28a04e",
+      "sourcePath": "ImperialGames/dist/games/checkers.js",
+      "sourceSHA256": "c77b5dbf5ef3b983d10bf1e63a59a7a389b08dfa48e800d9cdf6f78c0a28a04e",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/chess.js",
+      "bytes": 1602,
+      "sha256": "3ab23ac910c4b0520e03b1dbbce68a696c0a6b39e1e40bfe875ceb492745b720",
+      "sourcePath": "ImperialGames/dist/games/chess.js",
+      "sourceSHA256": "3ab23ac910c4b0520e03b1dbbce68a696c0a6b39e1e40bfe875ceb492745b720",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/common.js",
+      "bytes": 3029,
+      "sha256": "29d7ec5bbb2261d3fe1f30243c4fd9a8e68672c826ae088d637baabdff85ce58",
+      "sourcePath": "ImperialGames/dist/games/common.js",
+      "sourceSHA256": "29d7ec5bbb2261d3fe1f30243c4fd9a8e68672c826ae088d637baabdff85ce58",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/connectfour.js",
+      "bytes": 4054,
+      "sha256": "218ce3ebbd1efd6f09d425b3266cedd8849d1582a0cbd0de53d558299a403856",
+      "sourcePath": "ImperialGames/dist/games/connectfour.js",
+      "sourceSHA256": "218ce3ebbd1efd6f09d425b3266cedd8849d1582a0cbd0de53d558299a403856",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/craps.js",
+      "bytes": 165,
+      "sha256": "1191617efa689e70384105c86b2ed4c81b0c90b5b8053d7904e941bd799dfe20",
+      "sourcePath": "ImperialGames/dist/games/craps.js",
+      "sourceSHA256": "1191617efa689e70384105c86b2ed4c81b0c90b5b8053d7904e941bd799dfe20",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/crazy6.js",
+      "bytes": 167,
+      "sha256": "d455cf8cf24ef54a34f4350cf746bf02109350546bffdc1f2a03b7f0673b0a9b",
+      "sourcePath": "ImperialGames/dist/games/crazy6.js",
+      "sourceSHA256": "d455cf8cf24ef54a34f4350cf746bf02109350546bffdc1f2a03b7f0673b0a9b",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/dominoes.js",
+      "bytes": 4489,
+      "sha256": "a9ec8f3e69256a7e69bb125e1e6979cfb17bc26cf7b59deb1c2d62a7c3699627",
+      "sourcePath": "ImperialGames/dist/games/dominoes.js",
+      "sourceSHA256": "a9ec8f3e69256a7e69bb125e1e6979cfb17bc26cf7b59deb1c2d62a7c3699627",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/draw5.js",
+      "bytes": 157,
+      "sha256": "6c5905379c2d64c27e3367fee79320a64c9264b97e70566958ee81e93b9ded77",
+      "sourcePath": "ImperialGames/dist/games/draw5.js",
+      "sourceSHA256": "6c5905379c2d64c27e3367fee79320a64c9264b97e70566958ee81e93b9ded77",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/euchre.js",
+      "bytes": 6402,
+      "sha256": "128d4745a4870efe16f5bc852add2025522f47abc9db751f37656079c69126e9",
+      "sourcePath": "ImperialGames/dist/games/euchre.js",
+      "sourceSHA256": "128d4745a4870efe16f5bc852add2025522f47abc9db751f37656079c69126e9",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/gomoku.js",
+      "bytes": 4155,
+      "sha256": "e45c82c5cef4dca221d5649d2917d5687f1c42931be4ef00598c89ea99b3e256",
+      "sourcePath": "ImperialGames/dist/games/gomoku.js",
+      "sourceSHA256": "e45c82c5cef4dca221d5649d2917d5687f1c42931be4ef00598c89ea99b3e256",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/hearts.js",
+      "bytes": 5042,
+      "sha256": "8be358e02082b379644f4c2d59960ef4dfc647b3fd546b3a157474fc468de2dc",
+      "sourcePath": "ImperialGames/dist/games/hearts.js",
+      "sourceSHA256": "8be358e02082b379644f4c2d59960ef4dfc647b3fd546b3a157474fc468de2dc",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/lazy6.js",
+      "bytes": 166,
+      "sha256": "f117d7dc6b35bbbc4432a109a0da9485a3c6d8e35c867c94038e0474b4089f17",
+      "sourcePath": "ImperialGames/dist/games/lazy6.js",
+      "sourceSHA256": "f117d7dc6b35bbbc4432a109a0da9485a3c6d8e35c867c94038e0474b4089f17",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/omaha2.js",
+      "bytes": 157,
+      "sha256": "0d41271c28d87f12f61a794abad510edf1b3c73b1bad6bdb722c5c438bfc047e",
+      "sourcePath": "ImperialGames/dist/games/omaha2.js",
+      "sourceSHA256": "0d41271c28d87f12f61a794abad510edf1b3c73b1bad6bdb722c5c438bfc047e",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/omaha4.js",
+      "bytes": 157,
+      "sha256": "a46484ac5f13f24cfab12bedcee58a57d73f9108525e2019c58f087cc5830cd0",
+      "sourcePath": "ImperialGames/dist/games/omaha4.js",
+      "sourceSHA256": "a46484ac5f13f24cfab12bedcee58a57d73f9108525e2019c58f087cc5830cd0",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/omaha6.js",
+      "bytes": 157,
+      "sha256": "83ffbedb8ca5be1ba0d00c3cde05d91d3784a13e4a12824fc6395eadeb5ffcdd",
+      "sourcePath": "ImperialGames/dist/games/omaha6.js",
+      "sourceSHA256": "83ffbedb8ca5be1ba0d00c3cde05d91d3784a13e4a12824fc6395eadeb5ffcdd",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/omaha7.js",
+      "bytes": 157,
+      "sha256": "1d25e1a81d6f928904eac054e2305b4ef2ad3e62cd12730695f85f200a677647",
+      "sourcePath": "ImperialGames/dist/games/omaha7.js",
+      "sourceSHA256": "1d25e1a81d6f928904eac054e2305b4ef2ad3e62cd12730695f85f200a677647",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/omaha8.js",
+      "bytes": 157,
+      "sha256": "1d7ad7f5a6178e1d26de53b0065ab5102437884262517a609121d77de62e34b2",
+      "sourcePath": "ImperialGames/dist/games/omaha8.js",
+      "sourceSHA256": "1d7ad7f5a6178e1d26de53b0065ab5102437884262517a609121d77de62e34b2",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/omaha9.js",
+      "bytes": 157,
+      "sha256": "c973af5e436df4061fb21885f63a2cc22d8c541254e7b437a746b0cec1bfe470",
+      "sourcePath": "ImperialGames/dist/games/omaha9.js",
+      "sourceSHA256": "c973af5e436df4061fb21885f63a2cc22d8c541254e7b437a746b0cec1bfe470",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/pineapple6.js",
+      "bytes": 161,
+      "sha256": "3848b229ca45b1cf46811de1e5010e211b5c2884c39e289c5addf14b78b39337",
+      "sourcePath": "ImperialGames/dist/games/pineapple6.js",
+      "sourceSHA256": "3848b229ca45b1cf46811de1e5010e211b5c2884c39e289c5addf14b78b39337",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/pinochle.js",
+      "bytes": 6443,
+      "sha256": "21249897684ab22733bd78ea44cb54da1b4986bd5037890e8c98206af1f42e9b",
+      "sourcePath": "ImperialGames/dist/games/pinochle.js",
+      "sourceSHA256": "21249897684ab22733bd78ea44cb54da1b4986bd5037890e8c98206af1f42e9b",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/poker-core.js",
+      "bytes": 17108,
+      "sha256": "a40a91d3df54069dc1d685364aaabf308e4a77cb6ddcb3491f21b22fad9e7ce8",
+      "sourcePath": "ImperialGames/dist/games/poker-core.js",
+      "sourceSHA256": "a40a91d3df54069dc1d685364aaabf308e4a77cb6ddcb3491f21b22fad9e7ce8",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/poker-family.js",
+      "bytes": 456,
+      "sha256": "d48dfb7d91a07de9b53fa524c804156dafdb1558902ef4ac3f457bda8715df34",
+      "sourcePath": "ImperialGames/dist/games/poker-family.js",
+      "sourceSHA256": "d48dfb7d91a07de9b53fa524c804156dafdb1558902ef4ac3f457bda8715df34",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/poker2.js",
+      "bytes": 149,
+      "sha256": "b6abf7563e4775c30c2e6fd239592cd82f77fcb53b30401699903a9ed2120dbb",
+      "sourcePath": "ImperialGames/dist/games/poker2.js",
+      "sourceSHA256": "b6abf7563e4775c30c2e6fd239592cd82f77fcb53b30401699903a9ed2120dbb",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/poker4.js",
+      "bytes": 149,
+      "sha256": "8c198c47d068169a5cc5f1c6a5943cbba1a82ab92efaff57ab75e9061503b151",
+      "sourcePath": "ImperialGames/dist/games/poker4.js",
+      "sourceSHA256": "8c198c47d068169a5cc5f1c6a5943cbba1a82ab92efaff57ab75e9061503b151",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/poker6.js",
+      "bytes": 149,
+      "sha256": "bc1d3539d4ea3f12641ce92b6ec6ca4df1355f37b77c2ef790869f94b8a0bb12",
+      "sourcePath": "ImperialGames/dist/games/poker6.js",
+      "sourceSHA256": "bc1d3539d4ea3f12641ce92b6ec6ca4df1355f37b77c2ef790869f94b8a0bb12",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/poker7.js",
+      "bytes": 149,
+      "sha256": "2169d0538b2d074469389704d954ee84c2fe2e04620f97c4cdefe68f76164edb",
+      "sourcePath": "ImperialGames/dist/games/poker7.js",
+      "sourceSHA256": "2169d0538b2d074469389704d954ee84c2fe2e04620f97c4cdefe68f76164edb",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/poker8.js",
+      "bytes": 149,
+      "sha256": "e370e768f089ece27653ab7580bd21ee0870709d78368df6495c13707fecbb45",
+      "sourcePath": "ImperialGames/dist/games/poker8.js",
+      "sourceSHA256": "e370e768f089ece27653ab7580bd21ee0870709d78368df6495c13707fecbb45",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/poker9.js",
+      "bytes": 149,
+      "sha256": "1252855cc832507ba7be6d649d9d559515756dcb07686b5cdd7e905dc726e89d",
+      "sourcePath": "ImperialGames/dist/games/poker9.js",
+      "sourceSHA256": "1252855cc832507ba7be6d649d9d559515756dcb07686b5cdd7e905dc726e89d",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/progressive5.js",
+      "bytes": 168,
+      "sha256": "2e119e7b461889009e7a005653db21fbaaf345275ff7697bcb109c68eb84e458",
+      "sourcePath": "ImperialGames/dist/games/progressive5.js",
+      "sourceSHA256": "2e119e7b461889009e7a005653db21fbaaf345275ff7697bcb109c68eb84e458",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/reversi.js",
+      "bytes": 3991,
+      "sha256": "92f6226b89a778c81258ff132018a0f439338c409f07b213ea7db42597934740",
+      "sourcePath": "ImperialGames/dist/games/reversi.js",
+      "sourceSHA256": "92f6226b89a778c81258ff132018a0f439338c409f07b213ea7db42597934740",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/roulette-bets.js",
+      "bytes": 3364,
+      "sha256": "947c17d2f7336c91cd57a6c9df66ac23daec7275e400582c088fe0840fd14af1",
+      "sourcePath": "ImperialGames/dist/games/roulette-bets.js",
+      "sourceSHA256": "947c17d2f7336c91cd57a6c9df66ac23daec7275e400582c088fe0840fd14af1",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/roulette.js",
+      "bytes": 376,
+      "sha256": "b9a1734f17e08a8e97a6095d84cca6bec7cdb5e814fc6aece4df2cb33014b17a",
+      "sourcePath": "ImperialGames/dist/games/roulette.js",
+      "sourceSHA256": "b9a1734f17e08a8e97a6095d84cca6bec7cdb5e814fc6aece4df2cb33014b17a",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/rummy.js",
+      "bytes": 5992,
+      "sha256": "71982ac0180be6f22233d3e4fe99e489917057e1c368d11d6feb0d17876b93f1",
+      "sourcePath": "ImperialGames/dist/games/rummy.js",
+      "sourceSHA256": "71982ac0180be6f22233d3e4fe99e489917057e1c368d11d6feb0d17876b93f1",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/rummy6.js",
+      "bytes": 144,
+      "sha256": "adb57b6719ad1f62c7811301be9137fa968df52427bd9520f6826033847dc714",
+      "sourcePath": "ImperialGames/dist/games/rummy6.js",
+      "sourceSHA256": "adb57b6719ad1f62c7811301be9137fa968df52427bd9520f6826033847dc714",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/spades.js",
+      "bytes": 5461,
+      "sha256": "f2a192a13a73de3146f09780823b3a4293ad7a4543352d0a3ccf08893184fbcb",
+      "sourcePath": "ImperialGames/dist/games/spades.js",
+      "sourceSHA256": "f2a192a13a73de3146f09780823b3a4293ad7a4543352d0a3ccf08893184fbcb",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/stud5.js",
+      "bytes": 157,
+      "sha256": "46b64febe75e04bb6c309b7b829234f3d981758fc070669245cb2e49cb88d5f5",
+      "sourcePath": "ImperialGames/dist/games/stud5.js",
+      "sourceSHA256": "46b64febe75e04bb6c309b7b829234f3d981758fc070669245cb2e49cb88d5f5",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/tournament-capabilities.js",
+      "bytes": 1192,
+      "sha256": "83da6bb54a56977d34d09587e6ca027e7ee512dae5879ea48a302415b62fe17e",
+      "sourcePath": "ImperialGames/dist/games/tournament-capabilities.js",
+      "sourceSHA256": "83da6bb54a56977d34d09587e6ca027e7ee512dae5879ea48a302415b62fe17e",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/triple27.js",
+      "bytes": 160,
+      "sha256": "9cbdab0bd2cea3bb09821fe7ea4c1efbd7d56d6d25edc518752f0b1454047fb0",
+      "sourcePath": "ImperialGames/dist/games/triple27.js",
+      "sourceSHA256": "9cbdab0bd2cea3bb09821fe7ea4c1efbd7d56d6d25edc518752f0b1454047fb0",
+      "adapted": false
+    },
+    {
+      "path": "runtime/games/words.js",
+      "bytes": 7996,
+      "sha256": "801ef3aa7713268c55e71a098d1aa818f6056e7e9b0d68edc8ca9b8dfb748fa7",
+      "sourcePath": "ImperialGames/dist/games/words.js",
+      "sourceSHA256": "801ef3aa7713268c55e71a098d1aa818f6056e7e9b0d68edc8ca9b8dfb748fa7",
+      "adapted": false
+    },
+    {
+      "path": "runtime/model-view.js",
+      "bytes": 19964,
+      "sha256": "5626591344c4418e692cccb6ee5bb49ce9c9fa9b95c224a798195178e8e3c2ef",
+      "sourcePath": "ImperialGames/dist/model-view.js",
+      "sourceSHA256": "dd6912eebfe414c03f12edf083ae5614560cb33a983cb8ce1697b9bfc3bee094",
+      "adapted": true
+    },
+    {
+      "path": "runtime/poker-preferences.js",
+      "bytes": 3109,
+      "sha256": "64407f23c80feb73b7934af904f1a9043b07e57a3812840bd5aa14474a14fbb7",
+      "sourcePath": "ImperialGames/dist/poker-preferences.js",
+      "sourceSHA256": "64407f23c80feb73b7934af904f1a9043b07e57a3812840bd5aa14474a14fbb7",
+      "adapted": false
+    },
+    {
+      "path": "runtime/poker-profile-stats.js",
+      "bytes": 4498,
+      "sha256": "051f87eda8e5417c053fd7dcd0c3dbb13cf96cee015159240c9fb74189b08d56",
+      "sourcePath": "ImperialGames/dist/poker-profile-stats.js",
+      "sourceSHA256": "051f87eda8e5417c053fd7dcd0c3dbb13cf96cee015159240c9fb74189b08d56",
+      "adapted": false
+    },
+    {
+      "path": "runtime/roulette-view.js",
+      "bytes": 3483,
+      "sha256": "d29dc07f68caffce00772506db4d7a82ede87dbcd626250209e06edffcb81a66",
+      "sourcePath": "ImperialGames/dist/roulette-view.js",
+      "sourceSHA256": "3e22767f619276ad767de7b5c4dbfaa3c9e70630c76c07d347de4c811a6fb5d7",
+      "adapted": true
+    },
+    {
+      "path": "runtime/table-views.js",
+      "bytes": 9533,
+      "sha256": "42ffc81be340ae8e71d441ae5b078c22eb161944e17b9323130c79adc613844e",
+      "sourcePath": "ImperialGames/dist/table-views.js",
+      "sourceSHA256": "42ffc81be340ae8e71d441ae5b078c22eb161944e17b9323130c79adc613844e",
+      "adapted": false
+    },
+    {
+      "path": "runtime/unity-view.js",
+      "bytes": 5141,
+      "sha256": "d46bb33d939ed9d29c3986bdd5add92bb310ae24b52cc8512a875938c42350b8",
+      "sourcePath": "ImperialGames/dist/unity-view.js",
+      "sourceSHA256": "b77ddaf5c8268dee5d25729262ed0e64463fc90729e9a1a4ccd38f8d51a90e87",
+      "adapted": true
+    },
+    {
+      "path": "runtime/vendor/three/LICENSE.txt",
+      "bytes": 1081,
+      "sha256": "4c40a1ef62450b857c3b2aaf294936304cd552d965fbcd9d32d4c5bcf4ba4454",
+      "sourcePath": "ImperialGames/dist/vendor/three/LICENSE.txt",
+      "sourceSHA256": "4c40a1ef62450b857c3b2aaf294936304cd552d965fbcd9d32d4c5bcf4ba4454",
+      "adapted": false
+    },
+    {
+      "path": "runtime/vendor/three/loaders/GLTFLoader.js",
+      "bytes": 110286,
+      "sha256": "88934e9d3664349c0adff797b848d7878d6626c43273d2b5eabdbe329885b18c",
+      "sourcePath": "ImperialGames/dist/vendor/three/loaders/GLTFLoader.js",
+      "sourceSHA256": "88934e9d3664349c0adff797b848d7878d6626c43273d2b5eabdbe329885b18c",
+      "adapted": false
+    },
+    {
+      "path": "runtime/vendor/three/three.core.js",
+      "bytes": 752926,
+      "sha256": "ad0eb850a183c828dfb01f45b63920fca0e1b56a0fe9c4f7f6532019f9c48987",
+      "sourcePath": "ImperialGames/dist/vendor/three/three.core.js",
+      "sourceSHA256": "ad0eb850a183c828dfb01f45b63920fca0e1b56a0fe9c4f7f6532019f9c48987",
+      "adapted": false
+    },
+    {
+      "path": "runtime/vendor/three/three.module.js",
+      "bytes": 573935,
+      "sha256": "c4c0f7bb4cd7c18b1bb04f1c606bbcc58da6430eb7b09b3eb5f2877b87dc115a",
+      "sourcePath": "ImperialGames/dist/vendor/three/three.module.js",
+      "sourceSHA256": "c4c0f7bb4cd7c18b1bb04f1c606bbcc58da6430eb7b09b3eb5f2877b87dc115a",
+      "adapted": false
+    },
+    {
+      "path": "runtime/vendor/three/utils/BufferGeometryUtils.js",
+      "bytes": 31781,
+      "sha256": "51db05616ad0ddf7722e4ae8ad06bacc464985f510db3e65501498c4a816b10c",
+      "sourcePath": "ImperialGames/dist/vendor/three/utils/BufferGeometryUtils.js",
+      "sourceSHA256": "51db05616ad0ddf7722e4ae8ad06bacc464985f510db3e65501498c4a816b10c",
+      "adapted": false
+    },
+    {
+      "path": "runtime/view.js",
+      "bytes": 27715,
+      "sha256": "897f593cd4f0966d0e78cbd5a16e550a6b648b3ef638afccc0a04fb88fcb68bf",
+      "sourcePath": "ImperialGames/dist/view.js",
+      "sourceSHA256": "897f593cd4f0966d0e78cbd5a16e550a6b648b3ef638afccc0a04fb88fcb68bf",
+      "adapted": false
+    },
+    {
+      "path": "unity/Build/manifest.json",
+      "bytes": 248,
+      "sha256": "cceb40de0234257fd5cb397c00b389fe5e578b7eef9a491dcd833512baa31910",
+      "sourcePath": "ImperialGames/dist/unity/Build/manifest.json",
+      "sourceSHA256": "b7a9eda9132e7801f15cb0eff1adefb0308f66328fa718330e905bcc9853e61d",
+      "adapted": true
+    },
+    {
+      "path": "unity/Build/unity.data",
+      "bytes": 3386836,
+      "sha256": "10cb9d8f5726dd67c54df38de62778b03bac8179902c8b38cb5017221bdb0530",
+      "sourcePath": "ImperialGames/dist/unity/Build/unity.data",
+      "sourceSHA256": "10cb9d8f5726dd67c54df38de62778b03bac8179902c8b38cb5017221bdb0530",
+      "adapted": false
+    },
+    {
+      "path": "unity/Build/unity.framework.js",
+      "bytes": 368049,
+      "sha256": "b379fc7276751bda8a2eae28633d403d02146ba6d89d52d63317e936f64eb065",
+      "sourcePath": "ImperialGames/dist/unity/Build/unity.framework.js",
+      "sourceSHA256": "b379fc7276751bda8a2eae28633d403d02146ba6d89d52d63317e936f64eb065",
+      "adapted": false
+    },
+    {
+      "path": "unity/Build/unity.loader.js",
+      "bytes": 26982,
+      "sha256": "3d057c5bb94017834ee53f15fc98a4716406831c9c6cf863cb02b8cf1fb66ce7",
+      "sourcePath": "ImperialGames/dist/unity/Build/unity.loader.js",
+      "sourceSHA256": "3d057c5bb94017834ee53f15fc98a4716406831c9c6cf863cb02b8cf1fb66ce7",
+      "adapted": false
+    },
+    {
+      "path": "unity/Build/unity.wasm.part0",
+      "sourcePath": null,
+      "sourceSHA256": null,
+      "adapted": true,
+      "bytes": 6636795,
+      "sha256": "81775c1a970c23ec2d54ea0ae020b734481952b2717e5284a0d94e31433a5394"
+    },
+    {
+      "path": "unity/Build/unity.wasm.part1",
+      "sourcePath": null,
+      "sourceSHA256": null,
+      "adapted": true,
+      "bytes": 6636795,
+      "sha256": "b7ef240e9b9ffb6fafdbd8a71223cf1c5d93fa482dd5bc7aa85be13dc35e187a"
+    },
+    {
+      "path": "unity/TemplateData/webmemd-icon.png",
+      "bytes": 1670,
+      "sha256": "c56f5494640cedda273aad38d58e6ab9da625d5b3f4d875c0ff92c6192a569c2",
+      "sourcePath": "ImperialGames/dist/unity/TemplateData/webmemd-icon.png",
+      "sourceSHA256": "c56f5494640cedda273aad38d58e6ab9da625d5b3f4d875c0ff92c6192a569c2",
+      "adapted": false
+    },
+    {
+      "path": "unity/index.html",
+      "bytes": 2127,
+      "sha256": "eb6f0cb3d8f8ac1f6cfe71e4deb3175f8f02bde4dbcbb4d63edaee8d1bea7c14",
+      "sourcePath": "ImperialGames/dist/unity/index.html",
+      "sourceSHA256": "9b055c8264bf3dc628429028e2a36b6c0c08251ec928c337a0f573deef9803fb",
+      "adapted": true
+    },
+    {
+      "path": "unity/wasm-url.js",
+      "sourcePath": null,
+      "sourceSHA256": null,
+      "adapted": true,
+      "bytes": 823,
+      "sha256": "86ecc3d3dd4eb7e2537ea02a8ec691c1535e7c2a892fee260864892765fde807"
+    }
+  ],
+  "transforms": {
+    "engine-browser.js": "Browser-local dictionary, no Node crypto/fs, no server fleet commitment; original rule modules remain unchanged",
+    "runtime/model-view.js": "Same-origin asset prefix and already verified Fleet camera fit; original model geometry unchanged",
+    "runtime/game-audio.js": "Same-origin original-sound path and actual hit-log matching",
+    "runtime/unity-view.js": "Same-origin supplied Unity build path",
+    "runtime/roulette-view.js": "Market quote/currency conversion requests removed; amounts labelled virtual demo chips",
+    "review.js/index.html/review.css": "Review-only UI and bounded local bot orchestration; account/profile buttons disabled",
+    "runtime/camera-fit.js": "Integration-authored helper from tested3a8417f",
+    "unity/Build/manifest.json + unity/wasm-url.js + unity/index.html": "Two transport parts reassembled and SHA-256 verified as original runtime; Blob URL released after load"
+  },
+  "originalSounds": "Seven deterministic synthesized cues, original generator/readme; no Asset Store samples",
+  "excluded": [
+    "server.mjs",
+    "deposit-review.mjs",
+    "practice-ledger.mjs",
+    "payouts.js",
+    "deposit-admin.js",
+    "tournament-admin.js",
+    "tournament-runner.mjs",
+    "guest sessions/chat/wallet database"
+  ],
+  "reassembledWasm": {
+    "sha256": "090ed52706801cd7f5e955bc299d9ecd751fd60c9b6f4f6bc722beedc2858219",
+    "bytes": 13273590,
+    "parts": [
+      "unity/Build/unity.wasm.part0",
+      "unity/Build/unity.wasm.part1"
+    ],
+    "note": "Byte-identical original Unity WASM split only to fit repository connector transport; verified before instantiation"
+  }
+}
