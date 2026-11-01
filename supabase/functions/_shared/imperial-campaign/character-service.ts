@@ -70,10 +70,33 @@ export function createCharacterHandler(deps: ServiceDependencies) {
       const visualId = validated.archetypeId === 'wildscout' ? 'scout' : validated.archetypeId === 'spellweaver' ? 'spellweaver' : 'knight';
       name = 'ig_campaign_character_create_v1';
       args = { p_user_id: user.id, p_request_id: input.requestId, p_character_data: { ...validated, visualId } };
+    } else if (['inventory', 'claim_starter', 'equip', 'unequip'].includes(String(input.action))) {
+      const mutation = input.action === 'equip' || input.action === 'unequip';
+      const fields = ['action', 'characterId', ...(mutation ? ['expectedRevision', 'slot'] : []), ...(input.action === 'equip' ? ['itemId'] : [])];
+      const slots = ['main_hand','off_hand','head','body','feet','accessory','skill_1','skill_2','skill_3'];
+      if (!keysMatch(input, fields) || typeof input.characterId !== 'string' || !uuid.test(input.characterId) ||
+          (mutation && (!Number.isSafeInteger(input.expectedRevision) || Number(input.expectedRevision) < 0 || !slots.includes(String(input.slot)))) ||
+          (input.action === 'equip' && (typeof input.itemId !== 'string' || !uuid.test(input.itemId))))
+        return json(400, { error: 'Invalid inventory request' });
+      name = 'ig_campaign_inventory_v1';
+      args = { p_user_id: user.id, p_character_id: input.characterId, p_action: input.action,
+        p_expected_revision: mutation ? input.expectedRevision : null,
+        p_slot: mutation ? input.slot : null, p_item_id: input.action === 'equip' ? input.itemId : null };
     } else return json(400, { error: 'Unsupported action or unexpected fields' });
     try {
       const result = await deps.rpc(name, args);
       if (result.error) {
+        if (name === 'ig_campaign_inventory_v1') {
+          const failures: Record<string, [number, string]> = {
+            '40001': [409, 'Loadout changed. Refresh inventory and try again.'],
+            P0002: [404, 'Hero or item unavailable.'],
+            P0003: [409, 'Item or loadout is locked or unavailable.'],
+            P0004: [422, 'Hero does not meet the item requirements, or skill is already equipped.'],
+            '22023': [400, 'Invalid inventory request.'],
+          };
+          const failure = failures[result.error.code ?? ''];
+          if (failure) return json(failure[0], { error: failure[1] });
+        }
         if (result.error.code === '22023') return json(409, { error: 'Creation request conflicts with an earlier request' });
         if (result.error.code === '23514') return json(409, { error: 'Character limit reached' });
         return json(503, { error: 'Character service unavailable' });

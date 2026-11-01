@@ -22,6 +22,11 @@ namespace Imperial.Butcher
         bool busy;
         Vector2 scroll;
         GUISkin menuSkin;
+        InventoryReply inventory;
+        bool showEquipment;
+        int equipmentSlot;
+        static readonly string[] EquipmentSlots = { "main_hand", "body", "skill_1", "skill_2", "skill_3" };
+        static readonly string[] EquipmentLabels = { "Weapon", "Armor", "Skill 1", "Skill 2", "Skill 3" };
         public bool IsOpen { get; private set; }
         public string SelectedCharacterId { get; private set; }
         public bool ProbeCompleted { get; private set; }
@@ -74,8 +79,14 @@ namespace Imperial.Butcher
                 if (GUILayout.Button("Sign in", GUILayout.Height(38))) SignIn();
                 GUILayout.Label("Credentials and session stay in memory for this play session. Use your existing lab account.");
             }
+            else if (showEquipment)
+            {
+                DrawEquipment();
+            }
             else
             {
+                if (!string.IsNullOrEmpty(SelectedCharacterId) && GUILayout.Button("Equipment and skills", GUILayout.Height(38)))
+                { showEquipment = true; RefreshInventory(); }
                 GUILayout.BeginHorizontal();
                 if (GUILayout.Button("Refresh heroes", GUILayout.Height(32))) RefreshCharacters();
                 if (GUILayout.Button("Sign out", GUILayout.Height(32))) SignOut();
@@ -135,7 +146,7 @@ namespace Imperial.Butcher
         void SignOut()
         {
             session = ""; password = ""; characters = Array.Empty<CharacterEntry>();
-            SelectedCharacterId = null; pendingPayload = null; pendingRequestId = null;
+            SelectedCharacterId = null; inventory = null; showEquipment = false; pendingPayload = null; pendingRequestId = null;
             message = "Signed out. The current appearance remains a local preview.";
         }
 
@@ -153,6 +164,8 @@ namespace Imperial.Butcher
             if (character?.characterData == null || !world.ApplyHeroAppearance(character.characterData.visualId))
             { message = "This hero's appearance is not available in this client yet."; return; }
             SelectedCharacterId = character.id;
+            inventory = null; showEquipment = false;
+            RefreshInventory();
             message = "Selected " + character.name + ".";
             IsOpen = false;
         }
@@ -180,8 +193,64 @@ namespace Imperial.Butcher
                 var reply = JsonUtility.FromJson<CharacterReply>(raw);
                 if (reply?.character == null) { message = "No hero was returned. You can retry safely."; return; }
                 pendingPayload = null; pendingRequestId = null;
+                var updated = new CharacterEntry[characters.Length + 1];
+                Array.Copy(characters, updated, characters.Length);
+                updated[characters.Length] = reply.character;
+                characters = updated;
                 Select(reply.character);
-                RefreshCharacters();
+            }));
+        }
+
+        void DrawEquipment()
+        {
+            if (GUILayout.Button("Back to heroes", GUILayout.Height(32))) { showEquipment = false; return; }
+            GUILayout.Label("Equipment and skills · Practice");
+            GUILayout.Label("These items are non-transferable. Equipment saves on the server; combat effects and visible gear attachments come later.");
+            if (GUILayout.Button("Refresh inventory", GUILayout.Height(32))) RefreshInventory();
+            if (inventory == null) { GUILayout.Label("Load a hero's inventory to begin."); return; }
+            GUILayout.Label("Compatibility symbols: " + string.Join(" · ", inventory.symbols ?? Array.Empty<string>()));
+            if (inventory.locked) GUILayout.Label("Your loadout is locked for an active encounter.");
+            if (!inventory.starterClaimed && GUILayout.Button("Claim practice starter kit", GUILayout.Height(36))) InventoryAction("claim_starter");
+            equipmentSlot = GUILayout.SelectionGrid(equipmentSlot, EquipmentLabels, 3, GUILayout.Height(64));
+            string slot = EquipmentSlots[equipmentSlot];
+            GUILayout.Label("Slot: " + EquipmentLabels[equipmentSlot]);
+            InventoryItem equipped = null;
+            foreach (var item in inventory.items ?? Array.Empty<InventoryItem>())
+                if (item.equippedCharacterId == SelectedCharacterId && item.slot == slot) equipped = item;
+            GUILayout.Label(equipped == null ? "Currently empty" : "Equipped: " + equipped.name);
+            if (equipped != null && GUILayout.Button("Unequip", GUILayout.Height(32))) InventoryAction("unequip");
+            GUILayout.Space(10);
+            foreach (var item in inventory.items ?? Array.Empty<InventoryItem>())
+            {
+                if (Array.IndexOf(item.allowedSlots ?? Array.Empty<string>(), slot) < 0) continue;
+                GUILayout.BeginVertical(GUI.skin.box);
+                GUILayout.Label(item.name + " · " + item.state);
+                string symbols = item.requiredSymbols == null || item.requiredSymbols.Length == 0 ? "Any symbols" : string.Join(" + ", item.requiredSymbols);
+                GUILayout.Label(symbols + " · Level " + item.minimumLevel + (item.kind == "skill" ? " · Training checked by server" : ""));
+                if (item.state == "available" && !inventory.locked && GUILayout.Button("Equip " + item.name, GUILayout.Height(32))) InventoryAction("equip", item.id);
+                else if (item.state == "equipped") GUILayout.Label(item.equippedCharacterId == SelectedCharacterId ? "Equipped on this hero" : "Equipped on another hero");
+                GUILayout.EndVertical();
+            }
+        }
+
+        public void RefreshInventory() { if (!string.IsNullOrEmpty(SelectedCharacterId)) InventoryAction("inventory"); }
+        void InventoryAction(string action, string itemId = null)
+        {
+            if (busy || string.IsNullOrEmpty(SelectedCharacterId)) return;
+            string heroId = SelectedCharacterId;
+            string body;
+            if (action == "inventory" || action == "claim_starter")
+                body = JsonUtility.ToJson(new InventoryReadRequest { action = action, characterId = heroId });
+            else if (action == "equip")
+                body = JsonUtility.ToJson(new EquipRequest { characterId = heroId, expectedRevision = inventory.loadoutRevision, slot = EquipmentSlots[equipmentSlot], itemId = itemId });
+            else
+                body = JsonUtility.ToJson(new UnequipRequest { characterId = heroId, expectedRevision = inventory.loadoutRevision, slot = EquipmentSlots[equipmentSlot] });
+            StartCoroutine(Post("/functions/v1/butcher-characters", body, true, raw => {
+                if (heroId != SelectedCharacterId) return;
+                var reply = JsonUtility.FromJson<InventoryReply>(raw);
+                if (reply == null || reply.characterId != heroId || reply.items == null) { message = "Inventory response was unexpected. Refresh and try again."; return; }
+                inventory = reply;
+                message = action == "inventory" ? "Inventory loaded from the server." : "Equipment saved on the server.";
             }));
         }
 
@@ -203,6 +272,10 @@ namespace Imperial.Butcher
                 {
                     if (authenticated && request.responseCode == 401) { SignOut(); message = "Your session ended. Sign in again."; }
                     else if (!authenticated && request.responseCode >= 400 && request.responseCode < 500) message = "Sign-in failed. Check your lab credentials and account requirements.";
+                    else if (path.Contains("butcher-characters") && body.Contains("expectedRevision") && request.responseCode == 409)
+                        message = "Your inventory changed or an item is locked. Refresh inventory before trying again.";
+                    else if (request.responseCode == 422) message = "This hero needs the matching symbols, level and skill training. Duplicate skills cannot be stacked.";
+                    else if (request.responseCode == 404) message = "That hero or item is no longer available. Refresh your list.";
                     else if (request.responseCode == 409) message = "Creation request conflicts, or the ten-hero limit was reached.";
                     else message = "The request did not complete. Check your connection and try again.";
                     yield break;
@@ -212,6 +285,11 @@ namespace Imperial.Butcher
             }
         }
 
+        [Serializable] class InventoryReadRequest { public string action, characterId; }
+        [Serializable] class EquipRequest { public string action = "equip", characterId, itemId, slot; public long expectedRevision; }
+        [Serializable] class UnequipRequest { public string action = "unequip", characterId, slot; public long expectedRevision; }
+        [Serializable] class InventoryReply { public string characterId; public long loadoutRevision; public bool starterClaimed, locked; public string[] symbols; public InventoryItem[] items; }
+        [Serializable] class InventoryItem { public string id, definitionId, name, kind, state, source, equippedCharacterId, slot; public int minimumLevel; public string[] allowedSlots, requiredSymbols; }
         [Serializable] class LoginRequest { public string email, password; }
         [Serializable] class TokenReply { public string access_token; }
         [Serializable] class AbilityScores { public int strength = 15, dexterity = 14, constitution = 13, intelligence = 12, wisdom = 10, charisma = 8; }

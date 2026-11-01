@@ -138,3 +138,24 @@ test('loadout changes reject active missions, wrong slots and mismatched content
  assert.equal(canEquipItem('owner',hero,item,definition,'main_hand').reason,'incompatible_slot');
  assert.equal(canEquipItem('owner',hero,{...item,definitionVersion:9},definition,'skill_1').reason,'definition_mismatch');
 });
+
+test('inventory endpoint binds account identity and validates mutation revision/slot',async()=>{
+ const calls=[]; const handler=createCharacterHandler({authenticate:async()=>({id:'trusted-owner'}),rpc:async(name,args)=>{calls.push({name,args});return {data:{items:[]},error:null};}});
+ const hero='a1111111-1111-4111-8111-111111111111',item='b1111111-1111-4111-8111-111111111111';
+ const send=body=>handler(new Request('https://test',{method:'POST',headers:{authorization:'Bearer test'},body:JSON.stringify(body)}));
+ assert.equal((await send({action:'equip',characterId:hero,itemId:item,slot:'main_hand',expectedRevision:2})).status,200);
+ assert.equal(calls[0].args.p_user_id,'trusted-owner'); assert.equal(calls[0].args.p_expected_revision,2);
+ for(const extra of [{ownerUserId:'attacker'},{expectedRevision:-1},{slot:'arbitrary'},{expectedRevision:1.5},{itemId:'not-a-uuid'}]){
+  assert.equal((await send({action:'equip',characterId:hero,itemId:item,slot:'main_hand',expectedRevision:2,...extra})).status,400);
+ }
+ assert.equal(calls.length,1);
+ assert.equal((await send({action:'claim_starter',characterId:hero,items:['fabricated']})).status,400);
+ assert.equal((await send({action:'inventory',characterId:hero})).status,200);
+});
+test('inventory endpoint sanitizes stale, locked and incompatible item failures',async()=>{
+ for(const [code,status] of [['40001',409],['P0002',404],['P0003',409],['P0004',422],['XX000',503]]){
+  const handler=createCharacterHandler({authenticate:async()=>({id:'owner'}),rpc:async()=>({data:null,error:{code,message:'private database detail'}})});
+  const response=await handler(new Request('https://test',{method:'POST',headers:{authorization:'Bearer test'},body:JSON.stringify({action:'inventory',characterId:'a1111111-1111-4111-8111-111111111111'})}));
+  assert.equal(response.status,status); assert.equal((await response.text()).includes('private database detail'),false);
+ }
+});

@@ -12,7 +12,7 @@
         "domainReloadInProgress": false,
         "playMode": "stopped",
         "runInBackground": true,
-        "lastHeartbeat": "2026-11-01T15:21:22.812599Z",
+        "lastHeartbeat": "2026-11-01T16:29:24.508Z",
         "projectPath": "/home/imperialist85/Documents/ChatGPT/Unity Builds/Butcher",
         "unityVersion": "6000.3.6f1",
         "role": "main",
@@ -37,8 +37,8 @@
           "log": 0
         },
         "groundTruth": {
-          "sampledUtc": "2026-11-01T15:21:23.713602Z",
-          "ageMs": 146,
+          "sampledUtc": "2026-11-01T16:29:25.407075Z",
+          "ageMs": 124,
           "compilationFailed": false,
           "compiling": false,
           "consoleErrors": 0,
@@ -80,9 +80,9 @@
         "timedOut": false,
         "member": "UnityEngine.Time.frameCount",
         "op": "changed",
-        "value": 37,
-        "initialValue": 30,
-        "elapsedMs": 118,
+        "value": 14,
+        "initialValue": 7,
+        "elapsedMs": 121,
         "framesObserved": 2
       }
     },
@@ -111,7 +111,7 @@
         "op": "equals",
         "value": true,
         "initialValue": true,
-        "elapsedMs": 7,
+        "elapsedMs": 3,
         "framesObserved": 1
       }
     },
@@ -148,7 +148,7 @@
         "width": 1280,
         "height": 720,
         "encoding": "png",
-        "bytes": 177521,
+        "bytes": 177563,
         "source": "screen",
         "savedPath": "Assets/Screenshots/Character-Menu.png"
       }
@@ -162,7 +162,21 @@
         "output": null,
         "diagnostics": [],
         "success": true,
-        "result": "Character menu closed"
+        "result": "Inventory UI fixture loaded; no authentication or writes"
+      }
+    },
+    {
+      "command": [
+        "capture",
+        "game_view"
+      ],
+      "result": {
+        "width": 1280,
+        "height": 720,
+        "encoding": "png",
+        "bytes": 206593,
+        "source": "screen",
+        "savedPath": "Assets/Screenshots/Inventory-Menu.png"
       }
     },
     {
@@ -174,7 +188,19 @@
         "output": null,
         "diagnostics": [],
         "success": true,
-        "result": "Humanoid initialized, animationTime=3.253209"
+        "result": "Inventory fixture cleared"
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": "Humanoid initialized, animationTime=3.622256"
       }
     },
     {
@@ -344,9 +370,9 @@
         "timedOut": false,
         "member": "UnityEngine.Time.frameCount",
         "op": "changed",
-        "value": 1348,
-        "initialValue": 1342,
-        "elapsedMs": 118,
+        "value": 1395,
+        "initialValue": 1388,
+        "elapsedMs": 108,
         "framesObserved": 2
       }
     },
@@ -359,7 +385,7 @@
         "width": 1280,
         "height": 720,
         "encoding": "png",
-        "bytes": 287139,
+        "bytes": 287716,
         "source": "camera:Third person camera",
         "savedPath": "Assets/Screenshots/Camp-Hero.png"
       }
@@ -382,8 +408,8 @@
           "log": 0
         },
         "groundTruth": {
-          "sampledUtc": "2026-11-01T15:21:59.503642Z",
-          "ageMs": 8,
+          "sampledUtc": "2026-11-01T16:29:59.89657Z",
+          "ageMs": 166,
           "compilationFailed": false,
           "compiling": false,
           "consoleErrors": 0,

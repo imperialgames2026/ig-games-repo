@@ -1,7 +1,7 @@
 {
   "Assets/Butcher/Editor/ButcherProjectSetup.cs": "57a083137a57b1c7bdf679935e1e4b019d747ea86d118b7da9d2e60719790d0e",
   "Assets/Butcher/Runtime/ButcherAppearanceCatalog.cs": "7104ff850c5239ca82ba3374cf862d3c720c6b5bd7553b3191d35ed9a2914332",
-  "Assets/Butcher/Runtime/ButcherCharacterMenu.cs": "cad1373d59830fa8fe2a2687dcc3d4dabb632ca06ca9f9fb5f9d4aebafb21cb1",
+  "Assets/Butcher/Runtime/ButcherCharacterMenu.cs": "dee8f47df72b55d38a34fb0fb4754f80c40746abfff50084c0d636aabc82831a",
   "Assets/Butcher/Runtime/ButcherFootsteps.cs": "0509f471b20375f0c5ed5dcceee5b733aa6090619b1ff4c7b9f4aec304f2436f",
   "Assets/Butcher/Runtime/ButcherTrailObjective.cs": "45b955d091fd82e6918885943c9577e2503a3220826debb6917af7c39519a2e7",
   "Assets/Butcher/Runtime/ButcherWorld.cs": "98b89fd1fb8392d395a6f5a2ef2848401bfe16fcf15286452cc1d5794be07fbe"

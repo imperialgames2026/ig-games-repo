@@ -28,6 +28,12 @@ Owned package sources are kept in the Unity download cache. The active project c
 
 ## Backend and source checkpoint
 
-The backend and authored Unity source checkpoint are in `ButcherBackend`, branch `feature/imperial-campaign-rpg-mvp`, draft PR #76. The deployed lab character service uses private `ig_campaign_v1.characters`. Poker was not changed. NFT eligibility rules exist as pure code; chain verification, marketplace settlement, minting, inventory APIs, and gameplay combat integration remain pending.
+The backend and authored Unity source checkpoint are in `ButcherBackend`, branch `feature/imperial-campaign-rpg-mvp`, draft PR #76. The deployed lab character service uses private `ig_campaign_v1.characters`. Poker was not changed. The lab now provides private practice inventory and atomic equip/unequip APIs. NFT eligibility rules also exist as pure code; chain verification, marketplace settlement, minting and gameplay combat integration remain pending.
 
 The repository checkpoint excludes purchased source assets and generated copies of their animation data. The active local project retains them. See the checkpoint's RESTORE instructions before restoring on another machine.
+
+## Equipment and skills
+
+After signing in and selecting your hero, press C again and choose **Equipment and skills**. Claim the one-time **practice starter kit**, choose Weapon, Armor or a Skill slot, then equip an available compatible item. Use Refresh inventory to reload saved state. The kit includes both compatible and incompatible choices so symbol/training restrictions can be tested. Unequip an item before assigning it to another hero. Practice items are non-transferable.
+
+The server validates ownership, slot, level, compatibility symbols and skill/subskill training. Loadouts and assets can be locked for encounters. Conflicting changes require refresh; requests do not silently overwrite a newer loadout. Visible weapon/armor attachment changes and combat effects are not yet connected.
