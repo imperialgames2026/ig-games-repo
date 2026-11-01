@@ -13,7 +13,7 @@ The client source checkpoint is under `unity/Butcher`. Purchased third-party ass
 - Target: `IG Network Lab tests`, project `jvyzpxjqmymafjapprpp`.
 - Private schema/table: `ig_campaign_v1.characters`.
 - Migration: `20261101150932_butcher_campaign_characters_v1.sql`. Created through `supabase migration new`; its filename was aligned to the deployment history version returned by Supabase.
-- Endpoint: `/functions/v1/butcher-characters`, deployed version 2, JWT verification enabled.
+- Endpoint: `/functions/v1/butcher-characters`, deployed version 3, JWT verification enabled.
 - Only its trusted service client can execute the character RPCs. Public/anonymous/authenticated direct table access and RPC execution are revoked.
 - Character creation derives user identity from verified Auth, validates the starting score array and skill choices, derives appearance/family symbols on the server, limits accounts to ten heroes, and handles retries with stable request IDs.
 
@@ -49,3 +49,11 @@ The database serializes mutations per account and locks the hero row. Slots, own
 The Unity Characters panel exposes Equipment and skills after selecting a saved hero. It can claim the practice kit, inspect compatibility symbols, equip a weapon or coat, use three skill slots and unequip items. Inventory loads from the server when the hero is selected. Visible gear attachments and combat effects are still pending.
 
 Validation: 21 campaign/handler/loadout tests and 2 packaging/migration tests passed. `supabase/tests/butcher_inventory.sql` passed transactional checks for claim idempotency, ownership isolation, stale revision rejection, atomic replacement, symbols, ranks, duplicate skills, encounter locks, asset locks, unequip, slot rejection, listed-item rejection, level checks and subskill thresholds. Test writes rolled back. The deployed endpoint returned OPTIONS 204 and unsigned POST 401. Advisors reported no new campaign security findings; pre-existing lab notices remain. The inventory screen's rendering fixture is explicitly unauthenticated and performs no server writes; it is not evidence of a completed authenticated inventory journey.
+
+## Visible equipment and detailed prerequisites
+
+The client now attaches the catalogued sword/staff to the humanoid hand and an original travel cloak to the chest. An appearance change rebinds equipment, and an accepted inventory reply updates the visuals. Clearing selection/signing out removes them. Unknown definition IDs or versions do not resolve to arbitrary assets. The cloak is a rigid prototype over the base outfit; cloth simulation, complete armor replacement, attack poses and combat effects remain pending.
+
+The character endpoint version 3 adds public descriptions, named unlocks and array-form skill prerequisites/ranks for Unity JSON parsing. Original database values are retained. Client requirement hints explain missing levels, symbols, training, duplicate skills and item states; the transaction remains authoritative. Skill labels appear in the world HUD for the equipped skills returned by the server.
+
+The new `verify_equipment.py` exercises local presentation fixtures only, including bone parenting, all appearance rebinds, replacement/clear and unknown IDs/versions. No authenticated inventory test is claimed by those fixtures. The campaign test suite now has 23 checks, plus 2 migration/packaging checks. Full signed-in inventory save/restart verification remains outstanding.

@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -14,6 +16,25 @@ namespace Imperial.Butcher
         [SerializeField] string previewVisualId = "knight";
         [SerializeField] GameObject[] treePrefabs;
         [SerializeField] Material skyboxMaterial;
+        [Serializable]
+        public struct EquippedVisualSelection
+        {
+            public string definitionId;
+            public int definitionVersion;
+            public string slot;
+        }
+        EquippedVisualSelection[] equippedVisuals = Array.Empty<EquippedVisualSelection>();
+        readonly List<GameObject> equipmentObjects = new List<GameObject>();
+        ButcherEquipmentCatalog equipmentCatalog;
+        string[] equippedSkillNames = Array.Empty<string>();
+        public int EquippedSkillCount => equippedSkillNames.Length;
+        public void SetEquippedSkillNames(string[] names)
+        {
+            var filtered = new List<string>();
+            foreach (var name in names ?? Array.Empty<string>())
+                if (!string.IsNullOrWhiteSpace(name) && filtered.Count < 3) filtered.Add(name.Length > 40 ? name.Substring(0,40) : name);
+            equippedSkillNames = filtered.ToArray();
+        }
         Animator heroAnimator;
         GameObject heroVisual;
         ButcherTrailObjective objective;
@@ -125,7 +146,48 @@ namespace Imperial.Butcher
             heroVisual = replacement;
             heroAnimator = replacement.GetComponentInChildren<Animator>();
             if (heroAnimator != null) heroAnimator.applyRootMotion = false;
+            // Imported models include decorative weapons; ownership comes from the loadout.
+            foreach (var renderer in replacement.GetComponentsInChildren<Renderer>(true))
+            {
+                string part = renderer.name.ToLowerInvariant();
+                if (part.Contains("sword") || part.Contains("staff") || part.Contains("dagger") || part.Contains("scabbard") || part.Contains("shield") || part.Contains("bow") || part.Contains("knife")) renderer.enabled = false;
+            }
+            RebuildEquipmentVisuals();
             return true;
+        }
+
+        // Presentation only: call with the server-returned equipped items, not pending clicks.
+        public int ApplyEquipmentVisuals(EquippedVisualSelection[] selections)
+        {
+            equippedVisuals = selections == null ? Array.Empty<EquippedVisualSelection>() : (EquippedVisualSelection[])selections.Clone();
+            return RebuildEquipmentVisuals();
+        }
+
+        int RebuildEquipmentVisuals()
+        {
+            foreach (var visual in equipmentObjects)
+                if (visual != null) { visual.SetActive(false); Destroy(visual); }
+            equipmentObjects.Clear();
+            if (heroAnimator == null || !heroAnimator.isHuman) return 0;
+            if (equipmentCatalog == null) equipmentCatalog = Resources.Load<ButcherEquipmentCatalog>("EquipmentVisualCatalog");
+            if (equipmentCatalog == null) return 0;
+            var slots = new HashSet<string>();
+            foreach (var selection in equippedVisuals)
+            {
+                if (slots.Contains(selection.slot) || !equipmentCatalog.TryResolve(selection.definitionId, selection.definitionVersion, selection.slot, out var entry)) continue;
+                var bone = heroAnimator.GetBoneTransform(entry.bone);
+                if (bone == null) continue;
+                var visual = Instantiate(entry.prefab, bone, false);
+                visual.name = "Equipped " + selection.definitionId;
+                visual.transform.localPosition = entry.localPosition;
+                visual.transform.localRotation = Quaternion.Euler(entry.localEuler);
+                var scale = bone.lossyScale;
+                visual.transform.localScale = new Vector3(1 / Mathf.Max(.001f, Mathf.Abs(scale.x)), 1 / Mathf.Max(.001f, Mathf.Abs(scale.y)), 1 / Mathf.Max(.001f, Mathf.Abs(scale.z)));
+                visual.AddComponent<ButcherEquippedVisual>().Configure(selection.definitionId, selection.slot);
+                equipmentObjects.Add(visual);
+                slots.Add(selection.slot);
+            }
+            return equipmentObjects.Count;
         }
 
         void Update()
@@ -179,6 +241,11 @@ namespace Imperial.Butcher
                 GUI.Box(new Rect(18, 152, 490, 108), "");
                 GUI.Label(new Rect(34, 164, 456, 84), objective.ObjectiveText, caption);
                 if (objective.CanInteract && GUI.Button(new Rect(w - 204, 84, 180, 48), "Interact [E]")) objective.Interact();
+            }
+            if (equippedSkillNames.Length > 0)
+            {
+                GUI.Box(new Rect(18, 270, 490, 82), "");
+                GUI.Label(new Rect(34, 280, 456, 65), "Equipped skills\n" + string.Join(" · ", equippedSkillNames), caption);
             }
             if (GUI.Button(new Rect(w - 204, 24, 180, 48), tactical ? "Third person" : "Tactical overview")) tactical = !tactical;
             touchMove = Vector2.zero;

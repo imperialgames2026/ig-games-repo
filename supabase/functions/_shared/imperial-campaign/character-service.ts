@@ -1,3 +1,4 @@
+import { presentCampaignResult } from './inventory-presentation.ts';
 import { validateCharacterBuild, IMPERIAL_ARCHETYPES, IMPERIAL_ORIGINS, IMPERIAL_SKILLS, type CharacterBuildInput } from './character-build.ts';
 
 interface ServiceDependencies {
@@ -101,7 +102,7 @@ export function createCharacterHandler(deps: ServiceDependencies) {
         if (result.error.code === '23514') return json(409, { error: 'Character limit reached' });
         return json(503, { error: 'Character service unavailable' });
       }
-      return json(200, result.data);
+      return json(200, presentCampaignResult(result.data));
     } catch { return json(503, { error: 'Character service unavailable' }); }
   };
 }

@@ -20,7 +20,7 @@ Only a public publishable key is included in the client. No service-role credent
 
 ## Graphics and assets
 
-URP 17.3.0 provides desktop and mobile starting profiles. Final high-definition visuals and performance still require art direction, lighting, optimization, and target-device testing. No standalone or Android build has been validated yet.
+URP 17.3.0 provides desktop and mobile starting profiles. Final high-definition visuals and performance still require art direction, lighting, optimization, and target-device testing. Android packaging remains pending; standalone Linux build verification is recorded in Verification when available.
 
 Owned package sources are kept in the Unity download cache. The active project contains Footsteps Pack Expanded, DEVTRICKED Forest Survival Starter Pack Lite, POLY STYLE Platformer Starter Pack, PolysplitGames LowPolyMedievalFantasyHeroes, Kevin Iglesias Human Melee Animations, and a Nature Starter Kit 2 ground texture. Do not move or overwrite vendor metadata casually.
 
@@ -36,4 +36,12 @@ The repository checkpoint excludes purchased source assets and generated copies 
 
 After signing in and selecting your hero, press C again and choose **Equipment and skills**. Claim the one-time **practice starter kit**, choose Weapon, Armor or a Skill slot, then equip an available compatible item. Use Refresh inventory to reload saved state. The kit includes both compatible and incompatible choices so symbol/training restrictions can be tested. Unequip an item before assigning it to another hero. Practice items are non-transferable.
 
-The server validates ownership, slot, level, compatibility symbols and skill/subskill training. Loadouts and assets can be locked for encounters. Conflicting changes require refresh; requests do not silently overwrite a newer loadout. Visible weapon/armor attachment changes and combat effects are not yet connected.
+The server validates ownership, slot, level, compatibility symbols and skill/subskill training. Loadouts and assets can be locked for encounters. Conflicting changes require refresh; requests do not silently overwrite a newer loadout. Saved sword/staff attachments and the travel cloak now appear on the animated character. The cloak is a rigid prototype layer over the base outfit. Combat effects remain pending.
+
+## Equipment visuals and verification
+
+`Tools/EditorTasks/PrepareEquipment.csx` prepares the owned sword/staff references and an original travel cloak, then builds a local visual whitelist. `ButcherWorld.ApplyEquipmentVisuals` renders only recognized definition/version/slot combinations. Sign-out, hero changes, and unequip clear the old visual; appearance previews rebind the saved loadout to the new rig. No item grants, stats or ownership are decided by these visuals.
+
+`Tools/verify_equipment.py` starts its own Play session and checks attachment bones, all three appearances, replacement/clear, unknown IDs and versions, colliders, skill labels, and UI prerequisite hints. It uses explicit local fixtures and does not sign in or mutate inventory. Equipment and skill-details screenshots are saved in Assets/Screenshots.
+
+`python3 Tools/build_linux.py` queues and observes a local Linux player build through Unity Pipeline. When available, run the resulting player with `python3 Tools/verify_linux.py` for an opt-in startup probe that checks the scene, humanoid, visual catalog, attachments, HTTPS reachability and rejection of unsigned requests, then exits. This probe never signs in or writes to the lab. Graphical play and saved inventory restoration still need hands-on verification.

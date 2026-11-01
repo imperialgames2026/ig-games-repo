@@ -9,3 +9,10 @@
 *.sln
 .vs/
 .idea/
+
+# Keep purchased payloads and generated copies of vendor animations local.
+/Assets/*
+!/Assets/Butcher/
+!/Assets/Butcher.meta
+/Assets/Butcher/Art/Animation/*.anim
+/Verification/*.log

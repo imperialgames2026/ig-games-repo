@@ -23,6 +23,7 @@ namespace Imperial.Butcher
         Vector2 scroll;
         GUISkin menuSkin;
         InventoryReply inventory;
+        CharacterData selectedBuild;
         bool showEquipment;
         int equipmentSlot;
         static readonly string[] EquipmentSlots = { "main_hand", "body", "skill_1", "skill_2", "skill_3" };
@@ -146,6 +147,7 @@ namespace Imperial.Butcher
         void SignOut()
         {
             session = ""; password = ""; characters = Array.Empty<CharacterEntry>();
+            world.ApplyEquipmentVisuals(null); world.SetEquippedSkillNames(null); selectedBuild = null;
             SelectedCharacterId = null; inventory = null; showEquipment = false; pendingPayload = null; pendingRequestId = null;
             message = "Signed out. The current appearance remains a local preview.";
         }
@@ -163,6 +165,8 @@ namespace Imperial.Butcher
         {
             if (character?.characterData == null || !world.ApplyHeroAppearance(character.characterData.visualId))
             { message = "This hero's appearance is not available in this client yet."; return; }
+            world.ApplyEquipmentVisuals(null); world.SetEquippedSkillNames(null);
+            selectedBuild = character.characterData;
             SelectedCharacterId = character.id;
             inventory = null; showEquipment = false;
             RefreshInventory();
@@ -205,7 +209,7 @@ namespace Imperial.Butcher
         {
             if (GUILayout.Button("Back to heroes", GUILayout.Height(32))) { showEquipment = false; return; }
             GUILayout.Label("Equipment and skills · Practice");
-            GUILayout.Label("These items are non-transferable. Equipment saves on the server; combat effects and visible gear attachments come later.");
+            GUILayout.Label("Practice gear saves with your hero. Weapons and the travel cloak appear on your character; combat effects are still being built.");
             if (GUILayout.Button("Refresh inventory", GUILayout.Height(32))) RefreshInventory();
             if (inventory == null) { GUILayout.Label("Load a hero's inventory to begin."); return; }
             GUILayout.Label("Compatibility symbols: " + string.Join(" · ", inventory.symbols ?? Array.Empty<string>()));
@@ -225,12 +229,44 @@ namespace Imperial.Butcher
                 if (Array.IndexOf(item.allowedSlots ?? Array.Empty<string>(), slot) < 0) continue;
                 GUILayout.BeginVertical(GUI.skin.box);
                 GUILayout.Label(item.name + " · " + item.state);
+                if (!string.IsNullOrEmpty(item.description)) GUILayout.Label(item.description);
                 string symbols = item.requiredSymbols == null || item.requiredSymbols.Length == 0 ? "Any symbols" : string.Join(" + ", item.requiredSymbols);
-                GUILayout.Label(symbols + " · Level " + item.minimumLevel + (item.kind == "skill" ? " · Training checked by server" : ""));
-                if (item.state == "available" && !inventory.locked && GUILayout.Button("Equip " + item.name, GUILayout.Height(32))) InventoryAction("equip", item.id);
-                else if (item.state == "equipped") GUILayout.Label(item.equippedCharacterId == SelectedCharacterId ? "Equipped on this hero" : "Equipped on another hero");
+                GUILayout.Label(symbols + " · Level " + item.minimumLevel);
+                foreach (var requirement in item.skillRequirements ?? Array.Empty<SkillRank>())
+                    GUILayout.Label("Requires " + requirement.skill.Replace('.', ' ').Replace('_', ' ') + " rank " + requirement.rank);
+                if (item.grantedAbilityNames != null && item.grantedAbilityNames.Length > 0)
+                    GUILayout.Label("Unlocks: " + string.Join(", ", item.grantedAbilityNames));
+                string reason = EquipUnavailableReason(item, slot);
+                bool wasEnabled = GUI.enabled;
+                GUI.enabled = wasEnabled && reason == null;
+                if (GUILayout.Button("Equip " + item.name, GUILayout.Height(32))) InventoryAction("equip", item.id);
+                GUI.enabled = wasEnabled;
+                if (reason != null) GUILayout.Label(reason);
                 GUILayout.EndVertical();
             }
+        }
+
+        // UI hints only; the database validates every actual mutation again.
+        string EquipUnavailableReason(InventoryItem item, string slot)
+        {
+            if (inventory.locked) return "Loadout locked for an encounter";
+            if (item.state == "equipped") return item.equippedCharacterId == SelectedCharacterId ? "Equipped on this hero" : "Equipped on another hero";
+            if (item.state != "available") return "Item is " + item.state;
+            if (selectedBuild == null) return "Select your hero to check requirements";
+            if (selectedBuild.level < item.minimumLevel) return "Requires level " + item.minimumLevel;
+            foreach (var symbol in item.requiredSymbols ?? Array.Empty<string>())
+                if (Array.IndexOf(inventory.symbols ?? Array.Empty<string>(), symbol) < 0) return "Missing " + symbol + " symbol";
+            foreach (var requirement in item.skillRequirements ?? Array.Empty<SkillRank>())
+            {
+                int rank = Array.IndexOf(selectedBuild.proficientSkills ?? Array.Empty<string>(), requirement.skill) >= 0 ? 1 : 0;
+                foreach (var trained in selectedBuild.skillRanksEntries ?? Array.Empty<SkillRank>())
+                    if (trained.skill == requirement.skill) rank = Math.Max(rank, trained.rank);
+                if (rank < requirement.rank) return "Requires " + requirement.skill.Replace('.', ' ') + " rank " + requirement.rank;
+            }
+            if (item.kind == "skill")
+                foreach (var other in inventory.items)
+                    if (other.equippedCharacterId == SelectedCharacterId && other.slot != slot && other.definitionId == item.definitionId) return "This skill is already equipped";
+            return null;
         }
 
         public void RefreshInventory() { if (!string.IsNullOrEmpty(SelectedCharacterId)) InventoryAction("inventory"); }
@@ -250,6 +286,16 @@ namespace Imperial.Butcher
                 var reply = JsonUtility.FromJson<InventoryReply>(raw);
                 if (reply == null || reply.characterId != heroId || reply.items == null) { message = "Inventory response was unexpected. Refresh and try again."; return; }
                 inventory = reply;
+                var visuals = new System.Collections.Generic.List<ButcherWorld.EquippedVisualSelection>();
+                var skillNames = new System.Collections.Generic.List<string>();
+                foreach (var item in reply.items)
+                    if (item.state == "equipped" && item.equippedCharacterId == heroId)
+                    {
+                        visuals.Add(new ButcherWorld.EquippedVisualSelection { definitionId = item.definitionId, definitionVersion = item.definitionVersion, slot = item.slot });
+                        if (item.kind == "skill") skillNames.Add(item.name);
+                    }
+                world.ApplyEquipmentVisuals(visuals.ToArray());
+                world.SetEquippedSkillNames(skillNames.ToArray());
                 message = action == "inventory" ? "Inventory loaded from the server." : "Equipment saved on the server.";
             }));
         }
@@ -289,7 +335,7 @@ namespace Imperial.Butcher
         [Serializable] class EquipRequest { public string action = "equip", characterId, itemId, slot; public long expectedRevision; }
         [Serializable] class UnequipRequest { public string action = "unequip", characterId, slot; public long expectedRevision; }
         [Serializable] class InventoryReply { public string characterId; public long loadoutRevision; public bool starterClaimed, locked; public string[] symbols; public InventoryItem[] items; }
-        [Serializable] class InventoryItem { public string id, definitionId, name, kind, state, source, equippedCharacterId, slot; public int minimumLevel; public string[] allowedSlots, requiredSymbols; }
+        [Serializable] class InventoryItem { public string id, definitionId, name, kind, state, source, equippedCharacterId, slot, description; public int minimumLevel, definitionVersion; public string[] allowedSlots, requiredSymbols, grantedAbilityNames; public SkillRank[] skillRequirements; }
         [Serializable] class LoginRequest { public string email, password; }
         [Serializable] class TokenReply { public string access_token; }
         [Serializable] class AbilityScores { public int strength = 15, dexterity = 14, constitution = 13, intelligence = 12, wisdom = 10, charisma = 8; }
@@ -297,6 +343,7 @@ namespace Imperial.Butcher
         [Serializable] class CreateRequest { public string action = "create", requestId; public CharacterBuild character; }
         [Serializable] class CharacterReply { public CharacterEntry[] characters; public CharacterEntry character; }
         [Serializable] class CharacterEntry { public string id, name; public CharacterData characterData; }
-        [Serializable] class CharacterData { public string archetypeId, visualId; }
+        [Serializable] class SkillRank { public string skill; public int rank; }
+        [Serializable] class CharacterData { public string archetypeId, visualId; public int level; public string[] proficientSkills; public SkillRank[] skillRanksEntries; }
     }
 }

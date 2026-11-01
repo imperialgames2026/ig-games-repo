@@ -1,0 +1,552 @@
+{
+  "passed": true,
+  "events": [
+    {
+      "command": [
+        "editor",
+        "status"
+      ],
+      "result": {
+        "status": "ready",
+        "compiling": false,
+        "domainReloadInProgress": false,
+        "playMode": "stopped",
+        "runInBackground": true,
+        "lastHeartbeat": "2026-11-01T16:42:41.493062Z",
+        "projectPath": "/home/imperialist85/Documents/ChatGPT/Unity Builds/Butcher",
+        "unityVersion": "6000.3.6f1",
+        "role": "main",
+        "instanceName": "Main Editor"
+      }
+    },
+    {
+      "command": [
+        "console",
+        "status"
+      ],
+      "result": {
+        "entries": [],
+        "cursor": 1851,
+        "session": "3975e4836472449ebfeef8008bd91b24",
+        "returned": 0,
+        "dropped": false,
+        "reset": false,
+        "counts": {
+          "error": 5,
+          "warn": 1846,
+          "log": 0
+        },
+        "groundTruth": {
+          "sampledUtc": "2026-11-01T16:42:42.292623Z",
+          "ageMs": 222,
+          "compilationFailed": false,
+          "compiling": false,
+          "consoleErrors": 0,
+          "consoleWarnings": 0,
+          "consoleLogs": 0,
+          "seeded": true
+        }
+      }
+    },
+    {
+      "command": [
+        "editor",
+        "set_auto_tick"
+      ],
+      "result": "Auto-tick already enabled (interval updated to 16ms)"
+    },
+    {
+      "command": [
+        "editor.playmode",
+        "set_run_in_background"
+      ],
+      "result": "Run In Background is on (overriding the project's value, on; builds use the project's value)"
+    },
+    {
+      "command": [
+        "editor.playmode",
+        "start"
+      ],
+      "result": "Entered play mode"
+    },
+    {
+      "command": [
+        "job",
+        "wait"
+      ],
+      "result": {
+        "state": "met",
+        "met": true,
+        "timedOut": false,
+        "member": "UnityEngine.Time.frameCount",
+        "op": "changed",
+        "value": 13,
+        "initialValue": 6,
+        "elapsedMs": 110,
+        "framesObserved": 2
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": 2
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "job",
+        "wait"
+      ],
+      "result": {
+        "state": "met",
+        "met": true,
+        "timedOut": false,
+        "member": "UnityEngine.Time.frameCount",
+        "op": "changed",
+        "value": 82,
+        "initialValue": 81,
+        "elapsedMs": 1968,
+        "framesObserved": 2
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": "Close visual inspection"
+      }
+    },
+    {
+      "command": [
+        "capture",
+        "game_view"
+      ],
+      "result": {
+        "width": 1280,
+        "height": 720,
+        "encoding": "png",
+        "bytes": 300199,
+        "source": "camera:Third person camera",
+        "savedPath": "Assets/Screenshots/Equipment-knight.png"
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "job",
+        "wait"
+      ],
+      "result": {
+        "state": "met",
+        "met": true,
+        "timedOut": false,
+        "member": "UnityEngine.Time.frameCount",
+        "op": "changed",
+        "value": 92,
+        "initialValue": 91,
+        "elapsedMs": 1967,
+        "framesObserved": 2
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": "Close visual inspection"
+      }
+    },
+    {
+      "command": [
+        "capture",
+        "game_view"
+      ],
+      "result": {
+        "width": 1280,
+        "height": 720,
+        "encoding": "png",
+        "bytes": 298238,
+        "source": "camera:Third person camera",
+        "savedPath": "Assets/Screenshots/Equipment-scout.png"
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "job",
+        "wait"
+      ],
+      "result": {
+        "state": "met",
+        "met": true,
+        "timedOut": false,
+        "member": "UnityEngine.Time.frameCount",
+        "op": "changed",
+        "value": 102,
+        "initialValue": 101,
+        "elapsedMs": 1965,
+        "framesObserved": 2
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": "Close visual inspection"
+      }
+    },
+    {
+      "command": [
+        "capture",
+        "game_view"
+      ],
+      "result": {
+        "width": 1280,
+        "height": 720,
+        "encoding": "png",
+        "bytes": 295451,
+        "source": "camera:Third person camera",
+        "savedPath": "Assets/Screenshots/Equipment-spellweaver.png"
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": 2
+      }
+    },
+    {
+      "command": [
+        "job",
+        "wait"
+      ],
+      "result": {
+        "state": "met",
+        "met": true,
+        "timedOut": false,
+        "member": "UnityEngine.Time.frameCount",
+        "op": "changed",
+        "value": 113,
+        "initialValue": 112,
+        "elapsedMs": 1969,
+        "framesObserved": 2
+      }
+    },
+    {
+      "command": [
+        "capture",
+        "game_view"
+      ],
+      "result": {
+        "width": 1280,
+        "height": 720,
+        "encoding": "png",
+        "bytes": 299319,
+        "source": "camera:Third person camera",
+        "savedPath": "Assets/Screenshots/Equipment-staff.png"
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": 1
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": 1
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": 0
+      }
+    },
+    {
+      "command": [
+        "job",
+        "wait"
+      ],
+      "result": {
+        "state": "met",
+        "met": true,
+        "timedOut": false,
+        "member": "UnityEngine.Time.frameCount",
+        "op": "changed",
+        "value": 123,
+        "initialValue": 122,
+        "elapsedMs": 1022,
+        "framesObserved": 2
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": 0
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": "Skill labels restore/clear verified"
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": "Requires arcana rank 1"
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": null
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": "Missing ARCANE symbol"
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": "Explicit UI fixture; no session or writes"
+      }
+    },
+    {
+      "command": [
+        "capture",
+        "game_view"
+      ],
+      "result": {
+        "width": 1280,
+        "height": 720,
+        "encoding": "png",
+        "bytes": 209710,
+        "source": "screen",
+        "savedPath": "Assets/Screenshots/Skill-Details.png"
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": "Fixture cleared"
+      }
+    },
+    {
+      "command": [
+        "console",
+        "status"
+      ],
+      "result": {
+        "entries": [],
+        "cursor": 1851,
+        "session": "3975e4836472449ebfeef8008bd91b24",
+        "returned": 0,
+        "dropped": false,
+        "reset": false,
+        "counts": {
+          "error": 5,
+          "warn": 1846,
+          "log": 0
+        },
+        "groundTruth": {
+          "sampledUtc": "2026-11-01T16:43:55.807386Z",
+          "ageMs": 51,
+          "compilationFailed": false,
+          "compiling": false,
+          "consoleErrors": 0,
+          "consoleWarnings": 0,
+          "consoleLogs": 0,
+          "seeded": true
+        }
+      }
+    },
+    {
+      "command": [
+        "editor.playmode",
+        "stop"
+      ],
+      "result": "Exited play mode"
+    },
+    {
+      "command": [
+        "editor.playmode",
+        "set_run_in_background"
+      ],
+      "result": "Run In Background is on (the project's own value; nothing is overriding it)"
+    }
+  ]
+}

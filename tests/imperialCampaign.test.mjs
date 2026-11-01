@@ -159,3 +159,23 @@ test('inventory endpoint sanitizes stale, locked and incompatible item failures'
   assert.equal(response.status,status); assert.equal((await response.text()).includes('private database detail'),false);
  }
 });
+
+test('inventory display metadata preserves authoritative values and exposes skill prerequisites',async()=>{
+ const data={loadoutRevision:9,items:[{definitionId:'spark_rune',definitionVersion:1,state:'available',requiredSkillRanks:{arcana:1,'alchemy.potions':2},grantedAbilityIds:['spark_burst']}]};
+ const handler=createCharacterHandler({authenticate:async()=>({id:'owner'}),rpc:async()=>({data,error:null})});
+ const response=await handler(new Request('https://test',{method:'POST',headers:{authorization:'Bearer test'},body:JSON.stringify({action:'inventory',characterId:'a1111111-1111-4111-8111-111111111111'})}));
+ const result=await response.json();
+ assert.equal(result.loadoutRevision,9); assert.equal(result.items[0].state,'available');
+ assert.deepEqual(result.items[0].skillRequirements,[{skill:'arcana',rank:1},{skill:'alchemy.potions',rank:2}]);
+ assert.deepEqual(result.items[0].grantedAbilityNames,['Spark Burst']);
+ assert.match(result.items[0].description,/trained Arcana/);
+ assert.equal(data.items[0].description,undefined);
+});
+test('character display ranks do not fabricate proficiency or overwrite saved build data',async()=>{
+ const data={characters:[{id:'hero',characterData:{level:2,proficientSkills:['arcana'],skillRanks:{'alchemy.potions':2,invalid:-1,bad:'9'}}}]};
+ const handler=createCharacterHandler({authenticate:async()=>({id:'owner'}),rpc:async()=>({data,error:null})});
+ const response=await handler(new Request('https://test',{method:'POST',headers:{authorization:'Bearer test'},body:'{"action":"list"}'}));
+ const result=await response.json();
+ assert.deepEqual(result.characters[0].characterData.skillRanksEntries,[{skill:'alchemy.potions',rank:2}]);
+ assert.equal(result.characters[0].characterData.level,2);assert.deepEqual(result.characters[0].characterData.proficientSkills,['arcana']);
+});
