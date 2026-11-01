@@ -1,0 +1,33 @@
+# Butcher
+
+An Imperial Gaming 3D fantasy video game in memory of Randy Butcher.
+
+## Play the prototype
+
+Open this project with Unity **6000.3.6f1**, let package restoration finish, open `Assets/Butcher/Scenes/Camp.unity`, and press Play.
+
+WASD/arrows move, Shift runs, right mouse orbits, Tab changes camera, E interacts. Touch controls are also provided. Press C or **Characters** to open the character panel; Escape or **Return to the world** closes it.
+
+The camp includes imported trees, a chest, firepit, torches, grass footsteps, three animated appearance previews, and a memorial → gateway → campfire exploration objective. This is an early playable prototype using stylized owned assets.
+
+## Saved characters
+
+The Characters panel connects to **IG Network Lab tests**, project `jvyzpxjqmymafjapprpp`. Check the lab connection, sign in with an existing lab account, then create or select a hero. Main-site accounts may differ from lab accounts. Passwords and access tokens remain in memory for the Play session; signing out clears the client session. Sessions currently require sign-in again after expiration.
+
+Character creation uses four original origins and archetypes with suggested level-one attributes/skills. The server validates the build, derives identity and compatibility symbols, and stores the character. Appearance previews are cosmetic. Exploration remains local; selecting a character does not yet connect combat, progression, inventory, or rewards.
+
+Only a public publishable key is included in the client. No service-role credentials belong in Unity.
+
+## Graphics and assets
+
+URP 17.3.0 provides desktop and mobile starting profiles. Final high-definition visuals and performance still require art direction, lighting, optimization, and target-device testing. No standalone or Android build has been validated yet.
+
+Owned package sources are kept in the Unity download cache. The active project contains Footsteps Pack Expanded, DEVTRICKED Forest Survival Starter Pack Lite, POLY STYLE Platformer Starter Pack, PolysplitGames LowPolyMedievalFantasyHeroes, Kevin Iglesias Human Melee Animations, and a Nature Starter Kit 2 ground texture. Do not move or overwrite vendor metadata casually.
+
+`Tools/EditorTasks/PrepareHero.csx` and `BuildAppearanceCatalog.csx` regenerate prepared hero assets through the live editor. `Tools/verify_camp.py` verifies the stopped editor, live frames, lab connectivity, menu presence, humanoid initialization, all appearance swaps, unknown-ID rejection, objective sequence, and current console errors. It stops its own Play session and writes timestamped reports under `Verification`.
+
+## Backend and source checkpoint
+
+The backend and authored Unity source checkpoint are in `ButcherBackend`, branch `feature/imperial-campaign-rpg-mvp`, draft PR #76. The deployed lab character service uses private `ig_campaign_v1.characters`. Poker was not changed. NFT eligibility rules exist as pure code; chain verification, marketplace settlement, minting, inventory APIs, and gameplay combat integration remain pending.
+
+The repository checkpoint excludes purchased source assets and generated copies of their animation data. The active local project retains them. See the checkpoint's RESTORE instructions before restoring on another machine.

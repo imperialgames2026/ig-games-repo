@@ -62,7 +62,7 @@ The first slice should use a small original set: one hero archetype, one weapon,
 
 ## Implementation status
 
-The server-only modules now include d20 checks and weapon damage in `rules.ts` and `combat.ts`, plus `encounter-actions.ts` for player move/attack/end-turn validation and a simple hostile turn that approaches the nearest hero along a deterministic grid path. Attacks and hostile turns share the same secure server roll and damage calculation. Interact/consumable actions, condition-driven advantage, persistence, transactional idempotency, an Edge Function endpoint, and client UI remain unimplemented. The code has not been compiled or tested. No database change or deployment has been made.
+The server-only modules now include d20 checks and weapon damage in `rules.ts` and `combat.ts`, plus `encounter-actions.ts` for player move/attack/end-turn validation and a simple hostile turn that approaches the nearest hero along a deterministic grid path. Attacks and hostile turns share the same secure server roll and damage calculation. Interact/consumable actions, condition-driven advantage, persistence, transactional idempotency, an Edge Function endpoint, and client UI remain unimplemented. The pure modules have targeted automated coverage. Character persistence and a character endpoint are now deployed in the lab; combat/action persistence and client combat integration remain pending. See BUTCHER_CHECKPOINT_2026_11_01.md.
 
 ## Worked examples
 

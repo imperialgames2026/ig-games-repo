@@ -1,0 +1,224 @@
+using System;
+using System.Collections;
+using System.Text;
+using UnityEngine;
+using UnityEngine.Networking;
+
+namespace Imperial.Butcher
+{
+    public sealed class ButcherCharacterMenu : MonoBehaviour
+    {
+        // Publishable client key only. Service credentials never belong in Unity.
+        const string Api = "https://jvyzpxjqmymafjapprpp.supabase.co";
+        const string Publishable = "sb_publishable_9uFdh-OL4yAWtPPKNSZLPA_aVM5daBS";
+        static readonly string[] Archetypes = { "vanguard", "spellweaver", "oathkeeper", "wildscout" };
+        static readonly string[] Origins = { "ridgeborn", "tideborn", "emberkin", "stonebound" };
+        ButcherWorld world;
+        string email = "", password = "", session = "", heroName = "New Hero";
+        string message = "Preview an appearance, or sign in to the Butcher lab to save a hero.";
+        string pendingPayload, pendingRequestId;
+        CharacterEntry[] characters = Array.Empty<CharacterEntry>();
+        int archetype, origin;
+        bool busy;
+        Vector2 scroll;
+        GUISkin menuSkin;
+        public bool IsOpen { get; private set; }
+        public string SelectedCharacterId { get; private set; }
+        public bool ProbeCompleted { get; private set; }
+        public bool ServiceReachable { get; private set; }
+
+        public void Configure(ButcherWorld owner) { world = owner; }
+        void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Escape)) IsOpen = false;
+            else if (!IsOpen && Input.GetKeyDown(KeyCode.C)) IsOpen = true;
+        }
+
+        void OnGUI()
+        {
+            float scale = Mathf.Max(.6f, Mathf.Min(Screen.width / 1280f, Screen.height / 720f));
+            GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.one * scale);
+            float width = Screen.width / scale, height = Screen.height / scale;
+            if (GUI.Button(new Rect(width - 394, 24, 180, 48), "Characters [C]")) IsOpen = !IsOpen;
+            if (!IsOpen) return;
+            var previousSkin = GUI.skin;
+            if (menuSkin == null)
+            {
+                menuSkin = Instantiate(GUI.skin);
+                menuSkin.label.fontSize = 18; menuSkin.label.wordWrap = true;
+                menuSkin.button.fontSize = 18; menuSkin.textField.fontSize = 18;
+            }
+            GUI.skin = menuSkin;
+            float panelHeight = Mathf.Min(640, height - 100);
+            var panel = new Rect((width - 580) / 2, 85, 580, panelHeight);
+            var previousColor = GUI.color;
+            GUI.color = new Color(.075f, .085f, .10f, 1);
+            GUI.DrawTexture(panel, Texture2D.whiteTexture);
+            GUI.color = previousColor;
+            GUILayout.BeginArea(panel, GUI.skin.box);
+            scroll = GUILayout.BeginScrollView(scroll);
+            GUILayout.Label("BUTCHER · Characters · Lab");
+            GUILayout.Label(message, GUILayout.MinHeight(45));
+            GUI.enabled = !busy;
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Knight preview", GUILayout.Height(36))) world.ApplyHeroAppearance("knight");
+            if (GUILayout.Button("Scout preview", GUILayout.Height(36))) world.ApplyHeroAppearance("scout");
+            if (GUILayout.Button("Caster preview", GUILayout.Height(36))) world.ApplyHeroAppearance("spellweaver");
+            GUILayout.EndHorizontal();
+            if (string.IsNullOrEmpty(session))
+            {
+                GUILayout.Space(15);
+                if (GUILayout.Button("Check lab connection", GUILayout.Height(34))) CheckConnection();
+                GUILayout.Label("Lab account email"); email = GUILayout.TextField(email, 254, GUILayout.Height(30));
+                GUILayout.Label("Password"); password = GUILayout.PasswordField(password, '*', 256, GUILayout.Height(30));
+                if (GUILayout.Button("Sign in", GUILayout.Height(38))) SignIn();
+                GUILayout.Label("Credentials and session stay in memory for this play session. Use your existing lab account.");
+            }
+            else
+            {
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("Refresh heroes", GUILayout.Height(32))) RefreshCharacters();
+                if (GUILayout.Button("Sign out", GUILayout.Height(32))) SignOut();
+                GUILayout.EndHorizontal();
+                foreach (var character in characters)
+                {
+                    if (character?.characterData == null) continue;
+                    if (GUILayout.Button(character.name + " · " + character.characterData.archetypeId + (SelectedCharacterId == character.id ? " · Selected" : ""), GUILayout.Height(36))) Select(character);
+                }
+                GUILayout.Space(15);
+                GUILayout.Label("Create a level-one hero");
+                heroName = GUILayout.TextField(heroName, 32, GUILayout.Height(30));
+                GUILayout.Label("Origin: " + Origins[origin]);
+                if (GUILayout.Button("Change origin", GUILayout.Height(30))) origin = (origin + 1) % Origins.Length;
+                GUILayout.Label("Archetype: " + Archetypes[archetype]);
+                if (GUILayout.Button("Change archetype", GUILayout.Height(30))) archetype = (archetype + 1) % Archetypes.Length;
+                GUILayout.Label("Uses a starter ability array and two suggested skills. Detailed stat assignment comes later.");
+                if (GUILayout.Button("Save new hero", GUILayout.Height(38))) CreateCharacter();
+            }
+            GUI.enabled = true;
+            if (GUILayout.Button("Return to the world", GUILayout.Height(34))) IsOpen = false;
+            GUILayout.EndScrollView();
+            GUILayout.EndArea();
+            GUI.skin = previousSkin;
+        }
+
+        public void CheckConnection() { if (!busy) StartCoroutine(Probe()); }
+
+        IEnumerator Probe()
+        {
+            busy = true; ProbeCompleted = false; ServiceReachable = false;
+            using (var request = new UnityWebRequest(Api + "/functions/v1/butcher-characters", "OPTIONS"))
+            {
+                request.downloadHandler = new DownloadHandlerBuffer();
+                request.timeout = 20;
+                yield return request.SendWebRequest();
+                ServiceReachable = request.responseCode == 204;
+                ProbeCompleted = true; busy = false;
+                message = ServiceReachable ? "The Butcher lab is reachable. Sign in to load your heroes." : "The lab could not be reached. Check your connection and try again.";
+            }
+        }
+
+        void SignIn()
+        {
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrEmpty(password)) { message = "Enter your lab account email and password."; return; }
+            string body = JsonUtility.ToJson(new LoginRequest { email = email.Trim(), password = password });
+            password = "";
+            StartCoroutine(Post("/auth/v1/token?grant_type=password", body, false, raw => {
+                var reply = JsonUtility.FromJson<TokenReply>(raw);
+                if (reply == null || string.IsNullOrEmpty(reply.access_token)) { message = "Sign-in did not return a session."; return; }
+                session = reply.access_token;
+                message = "Signed in to the Butcher lab.";
+                RefreshCharacters();
+            }));
+        }
+
+        void SignOut()
+        {
+            session = ""; password = ""; characters = Array.Empty<CharacterEntry>();
+            SelectedCharacterId = null; pendingPayload = null; pendingRequestId = null;
+            message = "Signed out. The current appearance remains a local preview.";
+        }
+
+        void RefreshCharacters()
+        {
+            StartCoroutine(Post("/functions/v1/butcher-characters", "{\"action\":\"list\"}", true, raw => {
+                var reply = JsonUtility.FromJson<CharacterReply>(raw);
+                characters = reply?.characters ?? Array.Empty<CharacterEntry>();
+                message = characters.Length == 0 ? "No saved heroes yet. Create your first hero below." : "Choose one of your saved heroes.";
+            }));
+        }
+
+        void Select(CharacterEntry character)
+        {
+            if (character?.characterData == null || !world.ApplyHeroAppearance(character.characterData.visualId))
+            { message = "This hero's appearance is not available in this client yet."; return; }
+            SelectedCharacterId = character.id;
+            message = "Selected " + character.name + ".";
+            IsOpen = false;
+        }
+
+        void CreateCharacter()
+        {
+            var data = new CharacterBuild {
+                name = heroName.Trim(), originId = Origins[origin], archetypeId = Archetypes[archetype],
+                abilityScores = new AbilityScores(), proficientSkills = new[] { "athletics", "perception" }
+            };
+            if (archetype == 1) {
+                data.abilityScores = new AbilityScores { strength = 8, dexterity = 12, constitution = 13, intelligence = 15, wisdom = 10, charisma = 14 };
+                data.proficientSkills = new[] { "arcana", "lore" };
+            } else if (archetype == 2) {
+                data.abilityScores = new AbilityScores { strength = 15, dexterity = 10, constitution = 13, intelligence = 8, wisdom = 12, charisma = 14 };
+                data.proficientSkills = new[] { "athletics", "medicine" };
+            } else if (archetype == 3) {
+                data.abilityScores = new AbilityScores { strength = 10, dexterity = 15, constitution = 13, intelligence = 12, wisdom = 14, charisma = 8 };
+                data.proficientSkills = new[] { "stealth", "survival" };
+            }
+            string payload = JsonUtility.ToJson(data);
+            if (payload != pendingPayload) { pendingPayload = payload; pendingRequestId = Guid.NewGuid().ToString(); }
+            var request = new CreateRequest { requestId = pendingRequestId, character = data };
+            StartCoroutine(Post("/functions/v1/butcher-characters", JsonUtility.ToJson(request), true, raw => {
+                var reply = JsonUtility.FromJson<CharacterReply>(raw);
+                if (reply?.character == null) { message = "No hero was returned. You can retry safely."; return; }
+                pendingPayload = null; pendingRequestId = null;
+                Select(reply.character);
+                RefreshCharacters();
+            }));
+        }
+
+        IEnumerator Post(string path, string body, bool authenticated, Action<string> success)
+        {
+            if (authenticated && string.IsNullOrEmpty(session)) { message = "Sign in first."; yield break; }
+            busy = true;
+            using (var request = new UnityWebRequest(Api + path, "POST"))
+            {
+                request.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(body));
+                request.downloadHandler = new DownloadHandlerBuffer();
+                request.timeout = 20;
+                request.SetRequestHeader("content-type", "application/json");
+                request.SetRequestHeader("apikey", Publishable);
+                if (authenticated) request.SetRequestHeader("authorization", "Bearer " + session);
+                yield return request.SendWebRequest();
+                busy = false;
+                if (request.result != UnityWebRequest.Result.Success)
+                {
+                    if (authenticated && request.responseCode == 401) { SignOut(); message = "Your session ended. Sign in again."; }
+                    else if (!authenticated && request.responseCode >= 400 && request.responseCode < 500) message = "Sign-in failed. Check your lab credentials and account requirements.";
+                    else if (request.responseCode == 409) message = "Creation request conflicts, or the ten-hero limit was reached.";
+                    else message = "The request did not complete. Check your connection and try again.";
+                    yield break;
+                }
+                try { success(request.downloadHandler.text); }
+                catch { message = "The server returned an unexpected response. Please retry."; }
+            }
+        }
+
+        [Serializable] class LoginRequest { public string email, password; }
+        [Serializable] class TokenReply { public string access_token; }
+        [Serializable] class AbilityScores { public int strength = 15, dexterity = 14, constitution = 13, intelligence = 12, wisdom = 10, charisma = 8; }
+        [Serializable] class CharacterBuild { public string name, originId, archetypeId; public AbilityScores abilityScores; public string[] proficientSkills; }
+        [Serializable] class CreateRequest { public string action = "create", requestId; public CharacterBuild character; }
+        [Serializable] class CharacterReply { public CharacterEntry[] characters; public CharacterEntry character; }
+        [Serializable] class CharacterEntry { public string id, name; public CharacterData characterData; }
+        [Serializable] class CharacterData { public string archetypeId, visualId; }
+    }
+}

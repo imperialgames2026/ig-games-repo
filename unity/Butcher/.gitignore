@@ -1,0 +1,11 @@
+/Library/
+/Temp/
+/Obj/
+/Builds/
+/Logs/
+/UserSettings/
+/TempImports/
+*.csproj
+*.sln
+.vs/
+.idea/

@@ -2,7 +2,7 @@
 
 **Branch:** `feature/imperial-campaign-rpg-mvp`  
 **Base:** `main` at `080d8a984fa9012a226129bb42e07411eeb7bf3e`  
-**Status:** Product foundation plus pure server-side rules and encounter-action modules. See [the rules contract](./IMPERIAL_CAMPAIGN_RPG_RULES_CONTRACT.md), [data and action boundary](./IMPERIAL_CAMPAIGN_RPG_DATA_BOUNDARY.md), and `supabase/functions/_shared/imperial-campaign/`. No schema deployment, playable route, NFT transaction, or wager flow has been enabled.
+**Status:** Unity prototype and authenticated lab character service. See [the current checkpoint](./BUTCHER_CHECKPOINT_2026_11_01.md) for verified behavior and remaining work.
 
 ## Product target
 
@@ -77,4 +77,6 @@ This is a structured starting point for an original Imperial ruleset, not a fina
 
 ## Current implementation checkpoint
 
-The branch now contains pure server-side d20, weapon damage, and encounter action resolvers. The encounter module validates player ownership, revision, grid movement, attack range, and turn use; it also resolves a basic server-controlled hostile turn. The modules are not called by an Edge Function and have no database persistence or client integration. Idempotency, encounter storage, additional player actions, and the Android route remain to be implemented. The code has not been compiled or tested.
+The Unity client now supports three swappable animated appearances, scenery, footsteps and an exploration objective. An account panel is being connected to the lab character service. The lab character table and authenticated endpoint are deployed; database retry, ownership and access checks passed. The full signed-in Unity journey still needs user verification.
+
+The server rules, attack and encounter reducers remain pure modules awaiting combat endpoint integration. The item/loadout module models ownership, compatible symbols, prerequisites and asset locks, while actual NFT ownership verification, marketplace transactions and mint/burn operations remain pending. See the linked checkpoint for test commands and deployment details.

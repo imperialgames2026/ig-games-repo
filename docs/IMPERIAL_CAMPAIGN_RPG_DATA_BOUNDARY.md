@@ -1,6 +1,6 @@
 # Imperial Campaign RPG — data and action boundary
 
-Status: schema design only. Target the existing `IG Network Lab tests` Supabase project (`jvyzpxjqmymafjapprpp`) and keep the campaign in its own `ig_campaign_v1` PostgreSQL schema. This document does not create or deploy tables.
+Status: character storage is deployed in the lab; the remaining campaign tables below are still a schema design. Target the existing `IG Network Lab tests` Supabase project (`jvyzpxjqmymafjapprpp`) and keep the campaign in its own `ig_campaign_v1` PostgreSQL schema. The deployed subset is documented in BUTCHER_CHECKPOINT_2026_11_01.md.
 
 ## Design goals
 

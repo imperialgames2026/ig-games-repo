@@ -93,11 +93,10 @@ export type EncounterActionErrorCode =
   | "ENCOUNTER_COMPLETE";
 
 export class EncounterActionError extends Error {
-  constructor(
-    public readonly code: EncounterActionErrorCode,
-    message: string,
-  ) {
+  public readonly code: EncounterActionErrorCode;
+  constructor(code: EncounterActionErrorCode, message: string) {
     super(message);
+    this.code = code;
     this.name = "EncounterActionError";
   }
 }
