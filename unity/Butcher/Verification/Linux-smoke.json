@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "check": "scene,humanoid,catalog,attachments,lab_tls,auth_guard",
+  "processExitCode": 0,
+  "graphicsVerified": false,
+  "authenticatedInventoryVerified": false
+}

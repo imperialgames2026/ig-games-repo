@@ -20,7 +20,7 @@ Only a public publishable key is included in the client. No service-role credent
 
 ## Graphics and assets
 
-URP 17.3.0 provides desktop and mobile starting profiles. Final high-definition visuals and performance still require art direction, lighting, optimization, and target-device testing. Android packaging remains pending; standalone Linux build verification is recorded in Verification when available.
+URP 17.3.0 provides desktop and mobile starting profiles. Final high-definition visuals and performance still require art direction, lighting, optimization, and target-device testing. The first standalone Linux build succeeded (107,238,046 bytes; zero build errors/warnings). Startup probes passed both headless and with OpenGL initialized. Interactive standalone play and Android packaging remain pending.
 
 Owned package sources are kept in the Unity download cache. The active project contains Footsteps Pack Expanded, DEVTRICKED Forest Survival Starter Pack Lite, POLY STYLE Platformer Starter Pack, PolysplitGames LowPolyMedievalFantasyHeroes, Kevin Iglesias Human Melee Animations, and a Nature Starter Kit 2 ground texture. Do not move or overwrite vendor metadata casually.
 

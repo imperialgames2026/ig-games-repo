@@ -57,3 +57,11 @@ The client now attaches the catalogued sword/staff to the humanoid hand and an o
 The character endpoint version 3 adds public descriptions, named unlocks and array-form skill prerequisites/ranks for Unity JSON parsing. Original database values are retained. Client requirement hints explain missing levels, symbols, training, duplicate skills and item states; the transaction remains authoritative. Skill labels appear in the world HUD for the equipped skills returned by the server.
 
 The new `verify_equipment.py` exercises local presentation fixtures only, including bone parenting, all appearance rebinds, replacement/clear and unknown IDs/versions. No authenticated inventory test is claimed by those fixtures. The campaign test suite now has 23 checks, plus 2 migration/packaging checks. Full signed-in inventory save/restart verification remains outstanding.
+
+## First standalone Linux build
+
+Unity Pipeline built `Builds/Linux/Butcher.x86_64` successfully: 107,238,046 bytes, zero build errors/warnings. The editor initially waited on the Camp save dialog; the scene was saved, and the build completed. Future builds use the async Pipeline build helper, which saves open scenes before queuing.
+
+`verify_linux.py` passed with the actual built player in both no-graphics mode and with OpenGL initialized. The runtime probe verified scene/humanoid initialization, the visual catalog, sword/cloak attachments, lab HTTPS reachability and unsigned-request rejection, then exited with code 0. It never signs in or modifies inventory. These startup checks do not establish interactive graphical play, authenticated inventory restoration, performance on target devices or Android compatibility. The final editor console had zero current errors/warnings.
+
+The repository includes build summary, runtime reports and SHA-256 hashes. The compiled player stays in the active project's ignored Builds folder; it is not a published release. The current code checkpoint is source plus owned-asset references and original cloak geometry, excluding purchased mesh/animation payloads.

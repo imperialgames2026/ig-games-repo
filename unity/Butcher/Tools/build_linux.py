@@ -30,7 +30,8 @@ while time.monotonic()<deadline:
  status=result.get('status')
  if status!=last: print('Build status:',status,flush=True);last=status
  if status=='completed':
-  print('Build completed; review Verification/Linux-build.json and run Tools/verify_linux.py',flush=True)
+  if result.get('result') != 'Succeeded': raise SystemExit('Build failed; inspect Verification/Linux-build.json')
+  print('Build succeeded; run Tools/verify_linux.py',flush=True)
   break
  time.sleep(10)
 else: raise SystemExit('Build is still pending after ten minutes; inspect build status before retrying')
