@@ -14,7 +14,7 @@
         "domainReloadInProgress": false,
         "playMode": "stopped",
         "runInBackground": true,
-        "lastHeartbeat": "2026-11-02T06:16:15.885904Z",
+        "lastHeartbeat": "2026-11-02T23:27:56.210738Z",
         "projectPath": "/home/imperialist85/Documents/ChatGPT/Unity Builds/Butcher",
         "unityVersion": "6000.3.6f1",
         "role": "main",
@@ -28,7 +28,7 @@
       ],
       "result": {
         "entries": [],
-        "cursor": 1853,
+        "cursor": 1855,
         "session": "3975e4836472449ebfeef8008bd91b24",
         "returned": 0,
         "dropped": false,
@@ -36,11 +36,11 @@
         "counts": {
           "error": 5,
           "warn": 1846,
-          "log": 2
+          "log": 4
         },
         "groundTruth": {
-          "sampledUtc": "2026-11-02T06:16:16.78782Z",
-          "ageMs": 114,
+          "sampledUtc": "2026-11-02T23:27:56.809906Z",
+          "ageMs": 159,
           "compilationFailed": false,
           "compiling": false,
           "consoleErrors": 0,
@@ -84,7 +84,7 @@
         "op": "changed",
         "value": 4,
         "initialValue": 3,
-        "elapsedMs": 1814,
+        "elapsedMs": 1827,
         "framesObserved": 2
       }
     },
@@ -161,7 +161,7 @@
         "op": "changed",
         "value": 18,
         "initialValue": 17,
-        "elapsedMs": 1964,
+        "elapsedMs": 1963,
         "framesObserved": 2
       }
     },
@@ -174,7 +174,7 @@
         "width": 1280,
         "height": 720,
         "encoding": "png",
-        "bytes": 171908,
+        "bytes": 174333,
         "source": "screen",
         "savedPath": "Assets/Screenshots/Trial-Arena.png"
       }
@@ -204,7 +204,7 @@
         "op": "equals",
         "value": true,
         "initialValue": true,
-        "elapsedMs": 964,
+        "elapsedMs": 967,
         "framesObserved": 1
       }
     },
@@ -303,9 +303,9 @@
         "timedOut": false,
         "member": "UnityEngine.Time.frameCount",
         "op": "changed",
-        "value": 41,
-        "initialValue": 40,
-        "elapsedMs": 1959,
+        "value": 40,
+        "initialValue": 39,
+        "elapsedMs": 1338,
         "framesObserved": 2
       }
     },
@@ -318,7 +318,7 @@
         "width": 1280,
         "height": 720,
         "encoding": "png",
-        "bytes": 138111,
+        "bytes": 139914,
         "source": "screen",
         "savedPath": "Assets/Screenshots/Trial-Result.png"
       }
@@ -346,9 +346,9 @@
         "timedOut": false,
         "member": "UnityEngine.Time.frameCount",
         "op": "changed",
-        "value": 47,
-        "initialValue": 46,
-        "elapsedMs": 1971,
+        "value": 46,
+        "initialValue": 45,
+        "elapsedMs": 1966,
         "framesObserved": 2
       }
     },
@@ -395,7 +395,7 @@
       ],
       "result": {
         "entries": [],
-        "cursor": 1853,
+        "cursor": 1855,
         "session": "3975e4836472449ebfeef8008bd91b24",
         "returned": 0,
         "dropped": false,
@@ -403,11 +403,11 @@
         "counts": {
           "error": 5,
           "warn": 1846,
-          "log": 2
+          "log": 4
         },
         "groundTruth": {
-          "sampledUtc": "2026-11-02T06:17:18.999277Z",
-          "ageMs": 39,
+          "sampledUtc": "2026-11-02T23:28:56.80166Z",
+          "ageMs": 34,
           "compilationFailed": false,
           "compiling": false,
           "consoleErrors": 0,
