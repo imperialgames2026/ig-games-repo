@@ -42,6 +42,10 @@ export interface EncounterCombatant {
   movementRemainingFeet: number;
   actionUsed: boolean;
   weapon: WeaponDefinition | null;
+  abilityIds?: string[];
+  mana?: number;
+  maxMana?: number;
+  wardArmorBonus?: number;
 }
 
 export interface EncounterMap {
@@ -66,7 +70,8 @@ export type PlayerEncounterAction =
   | { type: "move"; path: GridPosition[] }
   | { type: "attack"; targetId: string }
   | { type: "end_turn" }
-  | { type: "abandon" };
+  | { type: "abandon" }
+  | { type: "skill"; skillId: "spark_burst" | "guarding_vow"; targetId: string };
 
 export interface EncounterEvent {
   kind: PlayerEncounterAction["type"] | "hostile_turn";
@@ -91,7 +96,9 @@ export type EncounterActionErrorCode =
   | "INSUFFICIENT_MOVEMENT"
   | "ACTION_ALREADY_USED"
   | "INVALID_TARGET"
-  | "ENCOUNTER_COMPLETE";
+  | "ENCOUNTER_COMPLETE"
+  | "SKILL_UNAVAILABLE"
+  | "INSUFFICIENT_MANA";
 
 export class EncounterActionError extends Error {
   public readonly code: EncounterActionErrorCode;
@@ -115,6 +122,7 @@ const copyState = (state: EncounterState): EncounterState => ({
   combatants: state.combatants.map((combatant) => ({
     ...combatant,
     abilities: { ...combatant.abilities },
+    ...(combatant.abilityIds ? { abilityIds: [...combatant.abilityIds] } : {}),
     position: { ...combatant.position },
     weapon: combatant.weapon ? { ...combatant.weapon } : null,
   })),
@@ -216,6 +224,14 @@ const assertState = (state: EncounterState): void => {
     ) {
       fail("INVALID_STATE", "Encounter combatant values are malformed");
     }
+    if (combatant.abilityIds !== undefined && (!Array.isArray(combatant.abilityIds) || combatant.abilityIds.length > 16 || combatant.abilityIds.some(id => typeof id !== 'string') || new Set(combatant.abilityIds).size !== combatant.abilityIds.length))
+      fail("INVALID_STATE", "Combat skill list is malformed");
+    if (combatant.mana !== undefined || combatant.maxMana !== undefined) {
+      if (!Number.isSafeInteger(combatant.mana) || !Number.isSafeInteger(combatant.maxMana) || combatant.mana! < 0 || combatant.maxMana! < 0 || combatant.maxMana! > 100 || combatant.mana! > combatant.maxMana!)
+        fail("INVALID_STATE", "Mana values are malformed");
+    }
+    if (combatant.wardArmorBonus !== undefined && combatant.wardArmorBonus !== 0 && combatant.wardArmorBonus !== 2)
+      fail("INVALID_STATE", "Ward value is malformed");
     validatePosition(combatant.position, state.map);
     if (Object.keys(combatant.abilities).length !== 6 || abilityNames.some(name => !Object.hasOwn(combatant.abilities, name)))
       fail("INVALID_STATE", "Encounter requires all six ability scores");
@@ -280,6 +296,13 @@ const findNextLivingTurnIndex = (state: EncounterState, fromIndex: number): numb
   return fromIndex;
 };
 
+const expireWard = (actor: EncounterCombatant): void => {
+  if ((actor.wardArmorBonus ?? 0) > 0) {
+    actor.armorClass -= actor.wardArmorBonus!;
+    actor.wardArmorBonus = 0;
+  }
+};
+
 const finishIfEncounterOver = (state: EncounterState): void => {
   const heroesAlive = state.combatants.some((combatant) => combatant.team === "heroes" && living(combatant));
   const hostilesAlive = state.combatants.some((combatant) => combatant.team === "hostiles" && living(combatant));
@@ -323,7 +346,7 @@ export function resolvePlayerEncounterAction(
   if (!actor || !living(actor) || actor.ownerUserId !== authenticatedUserId || actor.team !== "heroes") {
     fail("NOT_PLAYERS_TURN", "Authenticated player does not control the active hero");
   }
-  if (!action || !["move", "attack", "end_turn", "abandon"].includes(action.type)) {
+  if (!action || !["move", "attack", "end_turn", "abandon", "skill"].includes(action.type)) {
     fail("INVALID_ACTION", "Action type is not supported");
   }
 
@@ -410,6 +433,30 @@ export function resolvePlayerEncounterAction(
       attack,
       outcome: target.hitPoints === 0 ? "target_down" : attack.hit ? "hit" : "miss",
     };
+  } else if (action.type === "skill") {
+    if (nextActor.actionUsed) fail("ACTION_ALREADY_USED", "The hero has already used an action this turn");
+    if (!['spark_burst','guarding_vow'].includes(action.skillId) || !nextActor.abilityIds?.includes(action.skillId))
+      fail("SKILL_UNAVAILABLE", "This skill is not in the trial's frozen loadout");
+    if ((nextActor.mana ?? 0) < 1) fail("INSUFFICIENT_MANA", "Not enough mana");
+    if (action.skillId === 'guarding_vow') {
+      if (action.targetId !== nextActor.id) fail("INVALID_TARGET", "Guarding Vow targets the caster");
+      if ((nextActor.wardArmorBonus ?? 0) > 0) fail("SKILL_UNAVAILABLE", "Guarding Vow is already active");
+      nextActor.armorClass += 2;
+      nextActor.wardArmorBonus = 2;
+      detail = { skillId: action.skillId, targetId: nextActor.id, manaSpent: 1, wardArmorBonus: 2, expires: 'next_own_turn' };
+    } else {
+      const target = combatantById(next, action.targetId);
+      if (!target || !living(target) || target.team === nextActor.team) fail("INVALID_TARGET", "Skill target is invalid");
+      const distanceFeet = (Math.abs(nextActor.position.x-target.position.x)+Math.abs(nextActor.position.y-target.position.y))*next.map.tileSizeFeet;
+      if (distanceFeet > 30 || !hasLineOfSight(nextActor.position,target.position,next.map)) fail("INVALID_TARGET", "Skill target is out of range or behind an obstacle");
+      const attack = resolveWeaponAttack({attackerLevel: nextActor.level,attackAbilityScore: nextActor.abilities.intelligence,proficientWithWeapon: true,targetArmorClass: target.armorClass,distanceFeet,weaponRangeFeet:30,weaponId:'skill_spark_burst',damageDiceCount:1,damageDieSides:6,damageAbilityModifier:abilityModifier(nextActor.abilities.intelligence)},randomInt);
+      const before = target.hitPoints;
+      target.hitPoints = Math.max(0,target.hitPoints-attack.damage);
+      finishIfEncounterOver(next);
+      detail = { skillId:action.skillId,targetId:target.id,manaSpent:1,targetHpBefore:before,targetHpAfter:target.hitPoints,attack,outcome:target.hitPoints===0?'target_down':attack.hit?'hit':'miss' };
+    }
+    nextActor.mana = (nextActor.mana ?? 0)-1;
+    nextActor.actionUsed = true;
   } else if (action.type === "abandon") {
     next.phase = "completed"; next.outcome = "abandoned"; detail = { reason: "player_abandoned" };
   } else {
@@ -421,6 +468,7 @@ export function resolvePlayerEncounterAction(
       const followingActor = combatantById(next, next.turnOrder[nextIndex])!;
       followingActor.movementRemainingFeet = followingActor.movementPerTurnFeet;
       followingActor.actionUsed = false;
+      expireWard(followingActor);
       next.phase = followingActor.team === "heroes" ? "active" : "awaiting_server_turn";
       detail = { nextActorId: followingActor.id, serverTurnRequired: next.phase === "awaiting_server_turn" };
     }
@@ -598,6 +646,7 @@ export function resolveServerHostileTurn(
     const followingActor = combatantById(next, next.turnOrder[nextIndex])!;
     followingActor.movementRemainingFeet = followingActor.movementPerTurnFeet;
     followingActor.actionUsed = false;
+    expireWard(followingActor);
     next.phase = followingActor.team === "heroes" ? "active" : "awaiting_server_turn";
     nextActorId = followingActor.id;
   }

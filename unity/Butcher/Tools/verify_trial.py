@@ -22,8 +22,8 @@ def csharp_json(value):return json.dumps(json.dumps(value,separators=(',',':')))
 def apply(reply,extra='return c.DisplayedRevision;'):
  return evaluate('var c=UnityEngine.Object.FindFirstObjectByType<Imperial.Butcher.ButcherCombatController>();c.ApplyTrialPresentation('+csharp_json(reply)+');'+extra)
 
-hero={'id':'hero','name':'Fixture Hero','hitPoints':11,'maxHitPoints':11,'movementRemainingFeet':30,'actionUsed':False,'position':{'x':2,'y':2},'weapon':{'id':'practice_sword','rangeFeet':5}}
-sentinel={'id':'sentinel','name':'Camp Sentinel','hitPoints':10,'maxHitPoints':10,'movementRemainingFeet':20,'actionUsed':False,'position':{'x':5,'y':2},'weapon':{'id':'training_strike','rangeFeet':5}}
+hero={'id':'hero','name':'Fixture Hero','armorClass':12,'hitPoints':11,'maxHitPoints':11,'movementRemainingFeet':30,'actionUsed':False,'position':{'x':2,'y':2},'weapon':{'id':'practice_sword','rangeFeet':5}}
+sentinel={'id':'sentinel','name':'Camp Sentinel','armorClass':11,'hitPoints':10,'maxHitPoints':10,'movementRemainingFeet':20,'actionUsed':False,'position':{'x':5,'y':2},'weapon':{'id':'training_strike','rangeFeet':5}}
 state={'id':'fixture-trial','revision':0,'phase':'active','outcome':None,'map':{'width':8,'height':8,'tileSizeFeet':5,'blockedCells':['4,4','4,5']},'combatants':[hero,sentinel]}
 reply={'encounter':{'id':'fixture-trial','characterId':'fixture-hero','state':state},'events':[]}
 assert run('editor','status')['playMode']=='stopped','Existing Play session belongs to the user'

@@ -12,6 +12,7 @@ const uuid=(v:unknown):v is string=>typeof v==='string'&&/^[0-9a-f]{8}-[0-9a-f]{
 const keys=(v:Record<string,unknown>,names:string[])=>Object.keys(v).length===names.length&&names.every(n=>Object.hasOwn(v,n));
 function validCommand(v:unknown):v is PlayerEncounterAction {
  if(!record(v))return false;
+ if(v.type==='skill')return keys(v,['type','skillId','targetId'])&&((v.skillId==='spark_burst'&&v.targetId==='sentinel')||(v.skillId==='guarding_vow'&&v.targetId==='hero'));
  if(v.type==='attack')return keys(v,['type','targetId'])&&v.targetId==='sentinel';
  if(v.type==='end_turn'||v.type==='abandon')return keys(v,['type']);
  return v.type==='move'&&keys(v,['type','path'])&&Array.isArray(v.path)&&v.path.length>0&&v.path.length<=6&&v.path.every(p=>record(p)&&keys(p,['x','y'])&&Number.isSafeInteger(p.x)&&Number.isSafeInteger(p.y));

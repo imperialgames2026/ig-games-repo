@@ -37,3 +37,14 @@ test('start/resume use verified owner and only start accepts a request ID',async
  assert.equal((await send(h,{action:'resume',characterId:id})).status,200);assert.equal(calls[1].args.p_request_id,null);
  assert.equal((await send(h,{action:'resume',characterId:id,requestId})).status,400);
 });
+
+test('skill endpoint spends only frozen mana and rejects fabricated resources or targets',async()=>{
+ const s=state();Object.assign(s.combatants[0],{abilityIds:['spark_burst'],mana:3,maxMana:3,wardArmorBonus:0});
+ const calls=[];const h=createEncounterHandler({authenticate:async()=>({id:'owner'}),randomInt:()=>0,rpc:async(name,args)=>{calls.push({name,args});return{data:name.includes('prepare')?{state:s}:{encounter:{state:args.p_next_state},events:args.p_events},error:null};}});
+ const command={type:'skill',skillId:'spark_burst',targetId:'sentinel'};
+ const response=await send(h,intent(command));assert.equal(response.status,200);const result=await response.json();
+ assert.equal(result.encounter.state.combatants[0].mana,2);assert.equal(result.events[0].kind,'skill');assert.equal(s.combatants[0].mana,3);
+ const count=calls.length;
+ for(const invalid of [{...command,mana:999},{...command,skillId:'admin_damage'},{type:'skill',skillId:'guarding_vow',targetId:'sentinel'}])assert.equal((await send(h,intent(invalid))).status,400);
+ assert.equal(calls.length,count);
+});

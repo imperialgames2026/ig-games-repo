@@ -16,3 +16,5 @@ The equipment checkpoint includes original travel-cloak geometry/material plus a
 Linux builds can be queued with `python3 Tools/build_linux.py` on the editor host. The helper saves the current scene first to avoid Unity waiting on a modal prompt. Run `python3 Tools/verify_linux.py` after a successful build for the opt-in headless startup/HTTPS check. This does not verify graphical play or authenticated inventory.
 
 Camp Trial: run `PrepareCombatAnimation.csx` after the hero/catalog preparation steps to restore the owned one-shot attack clip and its transition. `verify_trial.py` renders explicit local presentation fixtures and performs no authenticated mutations. Its screenshots do not prove a signed-in trial lifecycle.
+
+Combat skills: `verify_skills.py` checks labelled local Spark/Ward presentation fixtures, resource validation and empty-trial resume. It performs no authenticated mutations. Equip the compatible practice skill before starting a new trial; existing trials preserve their frozen loadout. Keys 1/2 use Spark/Ward when available.

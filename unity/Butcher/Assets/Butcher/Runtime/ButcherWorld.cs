@@ -278,7 +278,7 @@ namespace Imperial.Butcher
                 GUI.Label(new Rect(34, 164, 456, 84), objective.ObjectiveText, caption);
                 if (objective.CanInteract && GUI.Button(new Rect(w - 204, 84, 180, 48), "Interact [E]")) objective.Interact();
             }
-            if (equippedSkillNames.Length > 0)
+            if (equippedSkillNames.Length > 0 && (combat == null || !combat.InTrial))
             {
                 GUI.Box(new Rect(18, 270, 490, 82), "");
                 GUI.Label(new Rect(34, 280, 456, 65), "Equipped skills\n" + string.Join(" · ", equippedSkillNames), caption);

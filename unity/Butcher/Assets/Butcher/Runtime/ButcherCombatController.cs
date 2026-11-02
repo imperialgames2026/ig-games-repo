@@ -12,7 +12,7 @@ namespace Imperial.Butcher
         ButcherCharacterMenu menu;
         string heroId, pendingBody, notice = "Select a saved hero to enter the camp trial.";
         TrialReply snapshot;
-        GameObject arena, enemy;
+        GameObject arena, enemy, wardVisual;
         readonly List<Material> materials = new List<Material>();
         readonly Queue<string> recent = new Queue<string>();
         bool loading;
@@ -21,6 +21,8 @@ namespace Imperial.Butcher
         const float Tile = 1.524f; // Five feet in metres; range math stays server-side.
         GUIStyle text;
         public bool InTrial => snapshot?.encounter?.state != null;
+        public int DisplayedMana => Actor("hero")?.mana ?? 0;
+        public bool WardVisible => wardVisual != null && wardVisual.activeSelf;
         public int DisplayedRevision => InTrial ? snapshot.encounter.state.revision : -1;
         public string TrialOutcome => InTrial ? snapshot.encounter.state.outcome : null;
         public bool HeroAtDestination => InTrial && Vector3.Distance(world.HeroPosition, heroTarget) < .08f;
@@ -93,10 +95,25 @@ namespace Imperial.Butcher
             if (CanAttack) SubmitCommand("{\"type\":\"attack\",\"targetId\":\"sentinel\"}");
             else notice = "Move into weapon range and use your available action.";
         }
+        bool CanUseSkill(string id)
+        {
+            var hero = Actor("hero"); var hostile = Actor("sentinel");
+            if (!CanAct || hero == null || hero.actionUsed || hero.mana < 1 || Array.IndexOf(hero.abilityIds ?? Array.Empty<string>(), id) < 0) return false;
+            if (id == "guarding_vow") return hero.wardArmorBonus == 0;
+            int distance = (Math.Abs(hero.position.x-hostile.position.x)+Math.Abs(hero.position.y-hostile.position.y))*snapshot.encounter.state.map.tileSizeFeet;
+            return distance <= 30;
+        }
+        void UseSkill(string id)
+        {
+            if (!CanUseSkill(id)) { notice = "This skill needs an available action, mana and a valid target."; return; }
+            SubmitCommand("{\"type\":\"skill\",\"skillId\":\"" + id + "\",\"targetId\":\"" + (id=="guarding_vow"?"hero":"sentinel") + "\"}");
+        }
         public void ReadMovementInput()
         {
             if (!CanAct || menu.IsOpen) return;
             if (Input.GetKeyDown(KeyCode.F)) AttackTarget();
+            else if (Input.GetKeyDown(KeyCode.Alpha1)) UseSkill("spark_burst");
+            else if (Input.GetKeyDown(KeyCode.Alpha2)) UseSkill("guarding_vow");
             else if (Input.GetKeyDown(KeyCode.Space)) SubmitCommand("{\"type\":\"end_turn\"}");
             else if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)) Step(0, 1);
             else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)) Step(0, -1);
@@ -107,6 +124,7 @@ namespace Imperial.Butcher
         {
             if (!InTrial) return;
             world.MoveTrialHero(heroTarget);
+            if (wardVisual != null) wardVisual.transform.position = world.HeroPosition + Vector3.up * .025f;
             if (enemy != null) enemy.transform.position = Vector3.MoveTowards(enemy.transform.position, enemyTarget, Time.deltaTime * 6);
         }
         ActorState Actor(string id)
@@ -122,7 +140,7 @@ namespace Imperial.Butcher
         {
             var reply = JsonUtility.FromJson<TrialReply>(json);
             if (reply == null) throw new FormatException("Missing trial reply");
-            if (reply.encounter == null) { ClearPresentation(); notice = "Ready for a camp trial."; return; }
+            if (reply.encounter == null || string.IsNullOrEmpty(reply.encounter.id)) { ClearPresentation(); notice = "Ready for a camp trial."; return; }
             var state = reply.encounter.state;
             if (reply.encounter.characterId != heroId || state?.map == null || state.combatants == null || state.map.width < 1 || state.map.width > 16 || state.map.height < 1 || state.map.height > 16)
                 throw new FormatException("Unexpected trial snapshot");
@@ -131,7 +149,7 @@ namespace Imperial.Butcher
             ActorState hero = null, hostile = null;
             foreach (var actor in state.combatants) { if (actor.id == "hero") hero = actor; if (actor.id == "sentinel") hostile = actor; }
             foreach (var actor in new[] { hero, hostile })
-                if (actor?.position == null || actor.position.x < 0 || actor.position.y < 0 || actor.position.x >= state.map.width || actor.position.y >= state.map.height || actor.hitPoints < 0 || actor.hitPoints > actor.maxHitPoints || actor.maxHitPoints < 1)
+                if (actor?.position == null || actor.position.x < 0 || actor.position.y < 0 || actor.position.x >= state.map.width || actor.position.y >= state.map.height || actor.hitPoints < 0 || actor.hitPoints > actor.maxHitPoints || actor.maxHitPoints < 1 || actor.mana < 0 || actor.maxMana < actor.mana || (actor.wardArmorBonus != 0 && actor.wardArmorBonus != 2))
                     throw new FormatException("Invalid trial actors");
             if (state.phase != "active" && state.phase != "completed") throw new FormatException("Unexpected trial phase");
             snapshot = reply;
@@ -139,18 +157,42 @@ namespace Imperial.Butcher
             heroTarget = Position(hero.position); enemyTarget = Position(hostile.position);
             if (entering) { world.PlaceTrialHero(heroTarget); enemy.transform.position = enemyTarget; }
             enemy.SetActive(hostile.hitPoints > 0);
+            UpdateWardVisual(hero.wardArmorBonus > 0);
             foreach (var evt in reply.events ?? Array.Empty<TrialEvent>())
             {
-                if (evt.kind == "attack" || (evt.kind == "hostile_turn" && evt.detail?.attack != null))
+                if (evt.kind == "skill" && evt.detail?.skillId == "guarding_vow")
+                    recent.Enqueue("Guarding Vow: +2 defense until your next turn.");
+                else if (evt.kind == "attack" || (evt.kind == "skill" && evt.detail?.skillId == "spark_burst") || (evt.kind == "hostile_turn" && evt.detail?.outcome != "approach" && evt.detail?.attack != null))
                 {
-                    bool player = evt.kind == "attack";
+                    bool player = evt.kind != "hostile_turn";
                     if (player) { world.FaceTrialTarget(enemyTarget); world.PlayTrialAttack(); }
+                    if (evt.kind == "skill") StartCoroutine(SparkVisual());
                     var hit = evt.detail?.attack;
                     recent.Enqueue((player ? "You" : "Sentinel") + (hit != null && hit.hit ? " hit for " + hit.damage + "." : " missed."));
-                    while (recent.Count > 3) recent.Dequeue();
                 }
+                while (recent.Count > 3) recent.Dequeue();
             }
             notice = state.phase == "completed" ? (state.outcome == "heroes_win" ? "Trial won." : state.outcome == "abandoned" ? "Trial ended." : "Defeated. You can train again.") : "Your turn. Step into range, attack, then end your turn.";
+        }
+        void UpdateWardVisual(bool active)
+        {
+            if (!active) { if (wardVisual != null) { wardVisual.SetActive(false); Destroy(wardVisual); } wardVisual=null; return; }
+            if (wardVisual != null) return;
+            wardVisual = GameObject.CreatePrimitive(PrimitiveType.Cylinder); wardVisual.name="Guarding Vow aura";
+            wardVisual.transform.SetParent(arena.transform,false); wardVisual.transform.localScale=new Vector3(1.25f,.018f,1.25f);
+            var collider=wardVisual.GetComponent<Collider>(); collider.enabled=false; Destroy(collider);
+            wardVisual.GetComponent<Renderer>().sharedMaterial=Mat(new Color(.15f,.65f,.8f));
+            wardVisual.transform.position=world.HeroPosition+Vector3.up*.025f;
+        }
+        IEnumerator SparkVisual()
+        {
+            var spark=GameObject.CreatePrimitive(PrimitiveType.Sphere); spark.name="Spark Burst visual";
+            spark.transform.SetParent(arena.transform,false);spark.transform.localScale=Vector3.one*.22f;
+            var collider=spark.GetComponent<Collider>();collider.enabled=false;Destroy(collider);
+            spark.GetComponent<Renderer>().sharedMaterial=Mat(new Color(.3f,.55f,1f));
+            Vector3 start=world.HeroPosition+Vector3.up*1.25f;float elapsed=0;
+            while(elapsed<.25f && spark!=null) { spark.transform.position=Vector3.Lerp(start,enemyTarget+Vector3.up,elapsed/.25f); elapsed+=Time.deltaTime; yield return null; }
+            if(spark!=null) Destroy(spark);
         }
         void BuildArena(MapState map)
         {
@@ -181,7 +223,7 @@ namespace Imperial.Butcher
         }
         void ReleaseArena()
         {
-            if (arena != null) { arena.SetActive(false); Destroy(arena); } arena=null; enemy=null;
+            if (arena != null) { arena.SetActive(false); Destroy(arena); } arena=null; enemy=null; wardVisual=null;
             foreach (var material in materials) if (material != null) Destroy(material); materials.Clear();
         }
         public void ClearPresentation()
@@ -206,8 +248,8 @@ namespace Imperial.Butcher
                 return;
             }
             var hero=Actor("hero");var hostile=Actor("sentinel");
-            GUI.Box(new Rect(18,152,490,112),"");
-            GUI.Label(new Rect(34,162,456,100),"CAMP TRIAL · Practice\n"+hero.name+": "+hero.hitPoints+" / "+hero.maxHitPoints+" HP · Sentinel: "+hostile.hitPoints+" / "+hostile.maxHitPoints+" HP\nMovement: "+hero.movementRemainingFeet+" ft · "+(hero.actionUsed?"Action used":"Action ready"),text);
+            GUI.Box(new Rect(18,152,490,148),"");
+            GUI.Label(new Rect(34,162,456,136),"CAMP TRIAL · Practice\n"+hero.name+": "+hero.hitPoints+" / "+hero.maxHitPoints+" HP · Sentinel: "+hostile.hitPoints+" / "+hostile.maxHitPoints+" HP\nMovement: "+hero.movementRemainingFeet+" ft · "+(hero.actionUsed?"Action used":"Action ready")+"\nMana: "+hero.mana+" / "+hero.maxMana+" · Defense: "+hero.armorClass+(hero.wardArmorBonus>0?" (ward active)":""),text);
             GUI.Box(new Rect(18,360,490,150),"");
             GUI.Label(new Rect(34,370,456,130),notice+"\n"+string.Join("\n",recent.ToArray()),text);
             if (snapshot.encounter.state.phase=="completed")
@@ -215,7 +257,10 @@ namespace Imperial.Butcher
                 if (GUI.Button(new Rect(w/2-110,h-92,220,52),"Return to camp")) {ClearPresentation();menu.RefreshInventory();}
                 return;
             }
-            GUI.enabled=CanAct;
+            if (Array.IndexOf(hero.abilityIds ?? Array.Empty<string>(), "spark_burst") >= 0)
+            { GUI.enabled=CanUseSkill("spark_burst"); if(GUI.Button(new Rect(w/2-260,h-148,160,44),"Spark [1] · 1 mana"))UseSkill("spark_burst"); }
+            if (Array.IndexOf(hero.abilityIds ?? Array.Empty<string>(), "guarding_vow") >= 0)
+            { GUI.enabled=CanUseSkill("guarding_vow"); if(GUI.Button(new Rect(w/2-90,h-148,160,44),"Ward [2] · 1 mana"))UseSkill("guarding_vow"); }
             GUI.enabled=CanAttack;
             if(GUI.Button(new Rect(w/2-260,h-92,160,52),"Attack [F]"))AttackTarget();
             GUI.enabled=CanAct;
@@ -235,10 +280,10 @@ namespace Imperial.Butcher
         [Serializable] public class State { public string id,phase,outcome; public int revision; public MapState map; public ActorState[] combatants; }
         [Serializable] public class MapState { public int width,height,tileSizeFeet; public string[] blockedCells; }
         [Serializable] public class GridPosition { public int x,y; }
-        [Serializable] public class ActorState { public string id,name; public int hitPoints,maxHitPoints,movementRemainingFeet; public bool actionUsed; public GridPosition position; public WeaponState weapon; }
+        [Serializable] public class ActorState { public string id,name; public int hitPoints,maxHitPoints,movementRemainingFeet,mana,maxMana,wardArmorBonus,armorClass; public string[] abilityIds; public bool actionUsed; public GridPosition position; public WeaponState weapon; }
         [Serializable] public class WeaponState { public string id; public int rangeFeet; }
         [Serializable] public class TrialEvent { public string kind; public EventDetail detail; }
-        [Serializable] public class EventDetail { public Attack attack; }
+        [Serializable] public class EventDetail { public Attack attack; public string skillId,outcome; public int manaSpent,wardArmorBonus; }
         [Serializable] public class Attack { public bool hit; public int damage; }
     }
 }

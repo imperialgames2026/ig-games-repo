@@ -3,8 +3,8 @@ const details: Record<string, string> = {
   practice_sword: 'A one-handed training blade. Requires a Martial symbol.',
   practice_staff: 'A practice focus for an Arcane hero.',
   travel_coat: 'A sturdy travel cloak worn over your current outfit.',
-  spark_rune: 'Unlocks Spark Burst when equipped. Requires Arcane and trained Arcana.',
-  oath_ward: 'Unlocks Guarding Vow when equipped. Requires an Oath symbol.',
+  spark_rune: 'Spark Burst: 1 mana and one action, up to 30 feet. Requires Arcane and trained Arcana.',
+  oath_ward: 'Guarding Vow: 1 mana and one action; +2 defense until your next turn. Requires an Oath symbol.',
   trailcraft: 'Unlocks Read Trail when equipped. Requires Field and trained Survival.',
   advanced_brewing: 'Unlocks Brew Mana after level 2 and Potions rank 2. Recipes and crafting come later.',
 };

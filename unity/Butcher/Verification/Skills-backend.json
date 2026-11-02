@@ -1,0 +1,13 @@
+{
+  "campaignTests": 37,
+  "campaignPassed": 37,
+  "packagingMigrationTests": 2,
+  "packagingMigrationPassed": 2,
+  "sqlFixture": "supabase/tests/butcher_trial_skills.sql",
+  "sqlPassed": true,
+  "sqlWritesRolledBack": true,
+  "labProject": "jvyzpxjqmymafjapprpp",
+  "encountersVersion": 2,
+  "charactersVersion": 4,
+  "signedInCastingVerified": false
+}
