@@ -179,3 +179,20 @@ test('character display ranks do not fabricate proficiency or overwrite saved bu
  assert.deepEqual(result.characters[0].characterData.skillRanksEntries,[{skill:'alchemy.potions',rank:2}]);
  assert.equal(result.characters[0].characterData.level,2);assert.deepEqual(result.characters[0].characterData.proficientSkills,['arcana']);
 });
+
+test('attacks behind walls or beyond range consume no action or randomness',()=>{
+ for(const wall of [true,false]){
+  const s=state();s.combatants[1].position={x:4,y:1};s.combatants[0].weapon.rangeFeet=wall?30:5;if(wall)s.map.blockedCells=['2,1'];
+  let rolls=0;assert.throws(()=>resolvePlayerEncounterAction(s,'owner',0,{type:'attack',targetId:'enemy'},()=>{rolls++;return 0;}),e=>e.code==='INVALID_TARGET');
+  assert.equal(rolls,0);assert.equal(s.combatants[0].actionUsed,false);assert.equal(s.revision,0);
+ }
+});
+test('malformed abilities, weapons and occupied terrain fail before randomness',()=>{
+ for(const corrupt of [s=>delete s.combatants[0].abilities.strength,s=>s.combatants[0].weapon.attackAbility='fabricated',s=>s.combatants[1].position={...s.combatants[0].position},s=>s.map.blockedCells=['1,1']]){
+  const s=state();corrupt(s);let rolls=0;assert.throws(()=>resolvePlayerEncounterAction(s,'owner',0,{type:'attack',targetId:'enemy'},()=>{rolls++;return 0;}),e=>e.code==='INVALID_STATE');assert.equal(rolls,0);
+ }
+});
+test('abandon ends a trial without rolling or changing hit points',()=>{
+ const s=state();const r=resolvePlayerEncounterAction(s,'owner',0,{type:'abandon'},()=>{throw new Error('No roll permitted');});
+ assert.equal(r.state.outcome,'abandoned');assert.equal(r.state.phase,'completed');assert.equal(r.event.kind,'abandon');assert.equal(r.state.combatants[0].hitPoints,10);assert.equal(s.phase,'active');
+});

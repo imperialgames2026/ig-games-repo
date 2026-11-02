@@ -34,7 +34,11 @@ namespace Imperial.Butcher
                 new ButcherWorld.EquippedVisualSelection { definitionId="travel_coat", definitionVersion=1, slot="body" }
             });
             if (count != 2) { Fail("equipment_attachments"); yield break; }
-            const string endpoint = "https://jvyzpxjqmymafjapprpp.supabase.co/functions/v1/butcher-characters";
+            if (UnityEngine.Object.FindFirstObjectByType<ButcherCombatController>() == null || !animator.HasState(0, Animator.StringToHash("Attack")))
+            { Fail("trial_controller_or_attack_animation"); yield break; }
+            foreach (var function in new[] { "butcher-characters", "butcher-encounters" })
+            {
+            string endpoint = "https://jvyzpxjqmymafjapprpp.supabase.co/functions/v1/" + function;
             using (var request = new UnityWebRequest(endpoint, "OPTIONS"))
             {
                 request.downloadHandler = new DownloadHandlerBuffer();request.timeout=20;
@@ -49,8 +53,9 @@ namespace Imperial.Butcher
                 yield return request.SendWebRequest();
                 if (request.responseCode!=401) { Fail("auth_guard_"+request.responseCode); yield break; }
             }
+            }
             Debug.Log("BUTCHER_SMOKE_PASS: scene, humanoid, catalog, attachments, lab TLS and unsigned-request rejection");
-            WriteResult(true, "scene,humanoid,catalog,attachments,lab_tls,auth_guard");
+            WriteResult(true, "scene,humanoid,catalog,attachments,trial_controller,attack_animation,characters_tls,encounters_tls,auth_guards");
             Application.Quit(0);
         }
         void WriteResult(bool passed, string check)

@@ -45,3 +45,11 @@ The server validates ownership, slot, level, compatibility symbols and skill/sub
 `Tools/verify_equipment.py` starts its own Play session and checks attachment bones, all three appearances, replacement/clear, unknown IDs and versions, colliders, skill labels, and UI prerequisite hints. It uses explicit local fixtures and does not sign in or mutate inventory. Equipment and skill-details screenshots are saved in Assets/Screenshots.
 
 `python3 Tools/build_linux.py` queues and observes a local Linux player build through Unity Pipeline. When available, run the resulting player with `python3 Tools/verify_linux.py` for an opt-in startup probe that checks the scene, humanoid, visual catalog, attachments, HTTPS reachability and rejection of unsigned requests, then exits. This probe never signs in or writes to the lab. Graphical play and saved inventory restoration still need hands-on verification.
+
+## Camp trial
+
+After signing in and selecting your saved hero, close Characters and choose **Camp trial**. The hero resumes an active saved trial when selected. In the arena, WASD/arrows step, F attacks and Space ends the turn. Buttons provide the same actions; Tab switches camera. Refresh recovers server state after a connection interruption. Leave trial abandons it; Return to camp exits a completed trial.
+
+The lab decides positions, range, hits, damage and enemy turns. Repeated requests return saved results, and gear is locked during a trial. This first trial supports weapon attacks and grants no progression or rewards. Skill combat actions are still pending. The five-foot grid uses 1.524 metres per tile in the scene.
+
+`Tools/verify_trial.py` checks presentation with explicit fixtures and no account or lab writes. Run `Tools/EditorTasks/PrepareCombatAnimation.csx` after preparing the hero assets when restoring this checkpoint. Native startup verification also checks the trial controller, attack state and both lab endpoints. Authenticated interactive trial play still needs hands-on verification.

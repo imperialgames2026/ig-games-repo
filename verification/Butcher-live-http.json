@@ -1,0 +1,7 @@
+{
+  "passed": false,
+  "checks": [],
+  "disposableUsersCreated": 0,
+  "disposableUsersRemoved": true,
+  "failure": "AssertionError: Lab admin CLI credentials unavailable"
+}

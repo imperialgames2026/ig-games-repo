@@ -14,3 +14,5 @@ Generated art IDs will change on a clean restoration; the preparation tasks rebi
 The equipment checkpoint includes original travel-cloak geometry/material plus authored sword/staff wrapper prefabs that reference the owned package. Third-party weapon mesh payloads are excluded. `PrepareEquipment.csx` regenerates the local visual catalog and references.
 
 Linux builds can be queued with `python3 Tools/build_linux.py` on the editor host. The helper saves the current scene first to avoid Unity waiting on a modal prompt. Run `python3 Tools/verify_linux.py` after a successful build for the opt-in headless startup/HTTPS check. This does not verify graphical play or authenticated inventory.
+
+Camp Trial: run `PrepareCombatAnimation.csx` after the hero/catalog preparation steps to restore the owned one-shot attack clip and its transition. `verify_trial.py` renders explicit local presentation fixtures and performs no authenticated mutations. Its screenshots do not prove a signed-in trial lifecycle.

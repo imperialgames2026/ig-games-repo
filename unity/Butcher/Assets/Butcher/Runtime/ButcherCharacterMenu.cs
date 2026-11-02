@@ -28,6 +28,9 @@ namespace Imperial.Butcher
         int equipmentSlot;
         static readonly string[] EquipmentSlots = { "main_hand", "body", "skill_1", "skill_2", "skill_3" };
         static readonly string[] EquipmentLabels = { "Weapon", "Armor", "Skill 1", "Skill 2", "Skill 3" };
+        public bool IsBusy => busy;
+        public bool IsSignedIn => !string.IsNullOrEmpty(session);
+        public string StatusMessage => message;
         public bool IsOpen { get; private set; }
         public string SelectedCharacterId { get; private set; }
         public bool ProbeCompleted { get; private set; }
@@ -147,7 +150,7 @@ namespace Imperial.Butcher
         void SignOut()
         {
             session = ""; password = ""; characters = Array.Empty<CharacterEntry>();
-            world.ApplyEquipmentVisuals(null); world.SetEquippedSkillNames(null); selectedBuild = null;
+            world.ApplyEquipmentVisuals(null); world.SetEquippedSkillNames(null); world.NotifyHeroSelected(null); selectedBuild = null;
             SelectedCharacterId = null; inventory = null; showEquipment = false; pendingPayload = null; pendingRequestId = null;
             message = "Signed out. The current appearance remains a local preview.";
         }
@@ -168,6 +171,7 @@ namespace Imperial.Butcher
             world.ApplyEquipmentVisuals(null); world.SetEquippedSkillNames(null);
             selectedBuild = character.characterData;
             SelectedCharacterId = character.id;
+            world.NotifyHeroSelected(character.id);
             inventory = null; showEquipment = false;
             RefreshInventory();
             message = "Selected " + character.name + ".";
@@ -300,9 +304,17 @@ namespace Imperial.Butcher
             }));
         }
 
-        IEnumerator Post(string path, string body, bool authenticated, Action<string> success)
+        public bool RequestTrial(string body, Action<string> success, Action<long> failure)
         {
-            if (authenticated && string.IsNullOrEmpty(session)) { message = "Sign in first."; yield break; }
+            if (busy) return false;
+            if (!IsSignedIn) { failure?.Invoke(401); return false; }
+            StartCoroutine(Post("/functions/v1/butcher-encounters", body, true, success, failure));
+            return true;
+        }
+
+        IEnumerator Post(string path, string body, bool authenticated, Action<string> success, Action<long> failure = null)
+        {
+            if (authenticated && string.IsNullOrEmpty(session)) { message = "Sign in first."; failure?.Invoke(401); yield break; }
             busy = true;
             using (var request = new UnityWebRequest(Api + path, "POST"))
             {
@@ -318,19 +330,27 @@ namespace Imperial.Butcher
                 {
                     if (authenticated && request.responseCode == 401) { SignOut(); message = "Your session ended. Sign in again."; }
                     else if (!authenticated && request.responseCode >= 400 && request.responseCode < 500) message = "Sign-in failed. Check your lab credentials and account requirements.";
+                    else if (path.Contains("butcher-encounters"))
+                    {
+                        message = "Trial request did not complete. Retry or refresh.";
+                        try { var error = JsonUtility.FromJson<ErrorReply>(request.downloadHandler.text); if (!string.IsNullOrEmpty(error?.error)) message = error.error; }
+                        catch { /* A proxy response may not be JSON. Keep the retry path available. */ }
+                    }
                     else if (path.Contains("butcher-characters") && body.Contains("expectedRevision") && request.responseCode == 409)
                         message = "Your inventory changed or an item is locked. Refresh inventory before trying again.";
                     else if (request.responseCode == 422) message = "This hero needs the matching symbols, level and skill training. Duplicate skills cannot be stacked.";
                     else if (request.responseCode == 404) message = "That hero or item is no longer available. Refresh your list.";
                     else if (request.responseCode == 409) message = "Creation request conflicts, or the ten-hero limit was reached.";
                     else message = "The request did not complete. Check your connection and try again.";
+                    failure?.Invoke(request.responseCode);
                     yield break;
                 }
                 try { success(request.downloadHandler.text); }
-                catch { message = "The server returned an unexpected response. Please retry."; }
+                catch { message = "The server returned an unexpected response. Please retry."; failure?.Invoke(0); }
             }
         }
 
+        [Serializable] class ErrorReply { public string error; }
         [Serializable] class InventoryReadRequest { public string action, characterId; }
         [Serializable] class EquipRequest { public string action = "equip", characterId, itemId, slot; public long expectedRevision; }
         [Serializable] class UnequipRequest { public string action = "unequip", characterId, slot; public long expectedRevision; }

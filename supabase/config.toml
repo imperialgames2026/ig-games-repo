@@ -8,3 +8,6 @@ verify_jwt = true
 
 [functions.butcher-characters]
 verify_jwt = true
+
+[functions.butcher-encounters]
+verify_jwt = true

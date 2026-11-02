@@ -1,0 +1,435 @@
+{
+  "passed": true,
+  "authenticated": false,
+  "labWrites": false,
+  "events": [
+    {
+      "command": [
+        "editor",
+        "status"
+      ],
+      "result": {
+        "status": "ready",
+        "compiling": false,
+        "domainReloadInProgress": false,
+        "playMode": "stopped",
+        "runInBackground": true,
+        "lastHeartbeat": "2026-11-02T06:16:15.885904Z",
+        "projectPath": "/home/imperialist85/Documents/ChatGPT/Unity Builds/Butcher",
+        "unityVersion": "6000.3.6f1",
+        "role": "main",
+        "instanceName": "Main Editor"
+      }
+    },
+    {
+      "command": [
+        "console",
+        "status"
+      ],
+      "result": {
+        "entries": [],
+        "cursor": 1853,
+        "session": "3975e4836472449ebfeef8008bd91b24",
+        "returned": 0,
+        "dropped": false,
+        "reset": false,
+        "counts": {
+          "error": 5,
+          "warn": 1846,
+          "log": 2
+        },
+        "groundTruth": {
+          "sampledUtc": "2026-11-02T06:16:16.78782Z",
+          "ageMs": 114,
+          "compilationFailed": false,
+          "compiling": false,
+          "consoleErrors": 0,
+          "consoleWarnings": 0,
+          "consoleLogs": 0,
+          "seeded": true
+        }
+      }
+    },
+    {
+      "command": [
+        "editor",
+        "set_auto_tick"
+      ],
+      "result": "Auto-tick already enabled (interval updated to 16ms)"
+    },
+    {
+      "command": [
+        "editor.playmode",
+        "set_run_in_background"
+      ],
+      "result": "Run In Background is on (overriding the project's value, on; builds use the project's value)"
+    },
+    {
+      "command": [
+        "editor.playmode",
+        "start"
+      ],
+      "result": "Entered play mode"
+    },
+    {
+      "command": [
+        "job",
+        "wait"
+      ],
+      "result": {
+        "state": "met",
+        "met": true,
+        "timedOut": false,
+        "member": "UnityEngine.Time.frameCount",
+        "op": "changed",
+        "value": 4,
+        "initialValue": 3,
+        "elapsedMs": 1814,
+        "framesObserved": 2
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": "Local presentation fixture only"
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": 0
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": 69
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": "Fixture labelled"
+      }
+    },
+    {
+      "command": [
+        "job",
+        "wait"
+      ],
+      "result": {
+        "state": "met",
+        "met": true,
+        "timedOut": false,
+        "member": "UnityEngine.Time.frameCount",
+        "op": "changed",
+        "value": 18,
+        "initialValue": 17,
+        "elapsedMs": 1964,
+        "framesObserved": 2
+      }
+    },
+    {
+      "command": [
+        "capture",
+        "game_view"
+      ],
+      "result": {
+        "width": 1280,
+        "height": 720,
+        "encoding": "png",
+        "bytes": 171908,
+        "source": "screen",
+        "savedPath": "Assets/Screenshots/Trial-Arena.png"
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": 1
+      }
+    },
+    {
+      "command": [
+        "job",
+        "wait"
+      ],
+      "result": {
+        "state": "met",
+        "met": true,
+        "timedOut": false,
+        "member": "HeroAtDestination",
+        "op": "equals",
+        "value": true,
+        "initialValue": true,
+        "elapsedMs": 964,
+        "framesObserved": 1
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": 1
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": 2
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": "heroes_win"
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "job",
+        "wait"
+      ],
+      "result": {
+        "state": "met",
+        "met": true,
+        "timedOut": false,
+        "member": "UnityEngine.Time.frameCount",
+        "op": "changed",
+        "value": 41,
+        "initialValue": 40,
+        "elapsedMs": 1959,
+        "framesObserved": 2
+      }
+    },
+    {
+      "command": [
+        "capture",
+        "game_view"
+      ],
+      "result": {
+        "width": 1280,
+        "height": 720,
+        "encoding": "png",
+        "bytes": 138111,
+        "source": "screen",
+        "savedPath": "Assets/Screenshots/Trial-Result.png"
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": "Returned to camp"
+      }
+    },
+    {
+      "command": [
+        "job",
+        "wait"
+      ],
+      "result": {
+        "state": "met",
+        "met": true,
+        "timedOut": false,
+        "member": "UnityEngine.Time.frameCount",
+        "op": "changed",
+        "value": 47,
+        "initialValue": 46,
+        "elapsedMs": 1971,
+        "framesObserved": 2
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": false
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "console",
+        "status"
+      ],
+      "result": {
+        "entries": [],
+        "cursor": 1853,
+        "session": "3975e4836472449ebfeef8008bd91b24",
+        "returned": 0,
+        "dropped": false,
+        "reset": false,
+        "counts": {
+          "error": 5,
+          "warn": 1846,
+          "log": 2
+        },
+        "groundTruth": {
+          "sampledUtc": "2026-11-02T06:17:18.999277Z",
+          "ageMs": 39,
+          "compilationFailed": false,
+          "compiling": false,
+          "consoleErrors": 0,
+          "consoleWarnings": 0,
+          "consoleLogs": 0,
+          "seeded": true
+        }
+      }
+    },
+    {
+      "command": [
+        "editor.playmode",
+        "stop"
+      ],
+      "result": "Exited play mode"
+    },
+    {
+      "command": [
+        "editor.playmode",
+        "set_run_in_background"
+      ],
+      "result": "Run In Background is on (the project's own value; nothing is overriding it)"
+    }
+  ]
+}

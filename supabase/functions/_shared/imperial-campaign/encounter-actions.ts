@@ -55,7 +55,7 @@ export interface EncounterState {
   id: string;
   revision: number;
   phase: "active" | "awaiting_server_turn" | "completed";
-  outcome: "heroes_win" | "hostiles_win" | null;
+  outcome: "heroes_win" | "hostiles_win" | "abandoned" | null;
   map: EncounterMap;
   turnOrder: string[];
   activeTurnIndex: number;
@@ -65,7 +65,8 @@ export interface EncounterState {
 export type PlayerEncounterAction =
   | { type: "move"; path: GridPosition[] }
   | { type: "attack"; targetId: string }
-  | { type: "end_turn" };
+  | { type: "end_turn" }
+  | { type: "abandon" };
 
 export interface EncounterEvent {
   kind: PlayerEncounterAction["type"] | "hostile_turn";
@@ -142,13 +143,14 @@ const assertState = (state: EncounterState): void => {
     !Number.isSafeInteger(state.map.height) ||
     state.map.width < 1 ||
     state.map.height < 1 ||
+    state.map.width > 64 || state.map.height > 64 ||
     !Number.isSafeInteger(state.map.tileSizeFeet) ||
     state.map.tileSizeFeet < 1 ||
     !Array.isArray(state.map.blockedCells) ||
     !Array.isArray(state.turnOrder) ||
     !Array.isArray(state.combatants) ||
     state.turnOrder.length === 0 ||
-    state.combatants.length === 0 ||
+    state.combatants.length === 0 || state.combatants.length > 32 ||
     !Number.isSafeInteger(state.activeTurnIndex) ||
     state.activeTurnIndex < 0 ||
     state.activeTurnIndex >= state.turnOrder.length
@@ -184,6 +186,8 @@ const assertState = (state: EncounterState): void => {
     fail("INVALID_STATE", "Encounter phase and outcome do not match");
   }
 
+  const abilityNames: AbilityName[] = ["strength","dexterity","constitution","intelligence","wisdom","charisma"];
+  const occupied = new Set<string>();
   for (const combatant of state.combatants) {
     if (
       typeof combatant.id !== "string" ||
@@ -213,6 +217,22 @@ const assertState = (state: EncounterState): void => {
       fail("INVALID_STATE", "Encounter combatant values are malformed");
     }
     validatePosition(combatant.position, state.map);
+    if (Object.keys(combatant.abilities).length !== 6 || abilityNames.some(name => !Object.hasOwn(combatant.abilities, name)))
+      fail("INVALID_STATE", "Encounter requires all six ability scores");
+    const cell = cellKey(combatant.position);
+    if (state.map.blockedCells.includes(cell) || (living(combatant) && occupied.has(cell)))
+      fail("INVALID_STATE", "Combatant occupies a blocked or occupied cell");
+    if (living(combatant)) occupied.add(cell);
+    if (combatant.weapon) {
+      const w = combatant.weapon;
+      if (!abilityNames.includes(w.attackAbility) || !abilityNames.includes(w.damageAbility) || typeof w.proficient !== 'boolean' ||
+          typeof w.id !== 'string' || !w.id || !Number.isSafeInteger(w.rangeFeet) || w.rangeFeet < 1 || w.rangeFeet > 320 ||
+          !Number.isSafeInteger(w.damageDiceCount) || w.damageDiceCount < 1 || w.damageDiceCount > 20 ||
+          !Number.isSafeInteger(w.damageDieSides) || w.damageDieSides < 2 || w.damageDieSides > 100 ||
+          !Number.isSafeInteger(w.attackFlatBonus) || Math.abs(w.attackFlatBonus)>100 ||
+          !Number.isSafeInteger(w.damageFlatBonus) || Math.abs(w.damageFlatBonus)>100)
+        fail("INVALID_STATE", "Encounter weapon is malformed");
+    }
     for (const score of Object.values(combatant.abilities)) {
       if (!Number.isSafeInteger(score) || score < 1 || score > 30) {
         fail("INVALID_STATE", "Encounter ability scores are malformed");
@@ -234,6 +254,22 @@ const validatePosition = (position: GridPosition, map: EncounterMap): void => {
     fail("INVALID_PATH", "Position is outside the encounter map");
   }
 };
+
+/** Conservative supercover: blocked corners and intervening walls stop attacks. */
+export function hasLineOfSight(from: GridPosition, to: GridPosition, map: EncounterMap): boolean {
+  const blocked = new Set(map.blockedCells);
+  let x=from.x, y=from.y, ix=0, iy=0;
+  const nx=Math.abs(to.x-x), ny=Math.abs(to.y-y), sx=Math.sign(to.x-x), sy=Math.sign(to.y-y);
+  while(ix<nx || iy<ny) {
+    const a=(1+2*ix)*ny, b=(1+2*iy)*nx;
+    if(a===b) {
+      if(blocked.has(`${x+sx},${y}`) || blocked.has(`${x},${y+sy}`)) return false;
+      x+=sx;y+=sy;ix++;iy++;
+    } else if(a<b) {x+=sx;ix++;} else {y+=sy;iy++;}
+    if(blocked.has(`${x},${y}`)) return false;
+  }
+  return true;
+}
 
 const findNextLivingTurnIndex = (state: EncounterState, fromIndex: number): number => {
   for (let offset = 1; offset <= state.turnOrder.length; offset += 1) {
@@ -287,7 +323,7 @@ export function resolvePlayerEncounterAction(
   if (!actor || !living(actor) || actor.ownerUserId !== authenticatedUserId || actor.team !== "heroes") {
     fail("NOT_PLAYERS_TURN", "Authenticated player does not control the active hero");
   }
-  if (!action || !["move", "attack", "end_turn"].includes(action.type)) {
+  if (!action || !["move", "attack", "end_turn", "abandon"].includes(action.type)) {
     fail("INVALID_ACTION", "Action type is not supported");
   }
 
@@ -343,6 +379,8 @@ export function resolvePlayerEncounterAction(
         Math.abs(nextActor.position.y - target.position.y)) *
       next.map.tileSizeFeet;
 
+    if (distanceFeet > nextActor.weapon.rangeFeet || !hasLineOfSight(nextActor.position, target.position, next.map))
+      fail("INVALID_TARGET", "Target is out of range or behind an obstacle");
     const attack = resolveWeaponAttack(
       {
         attackerLevel: nextActor.level,
@@ -372,6 +410,8 @@ export function resolvePlayerEncounterAction(
       attack,
       outcome: target.hitPoints === 0 ? "target_down" : attack.hit ? "hit" : "miss",
     };
+  } else if (action.type === "abandon") {
+    next.phase = "completed"; next.outcome = "abandoned"; detail = { reason: "player_abandoned" };
   } else {
     const nextIndex = findNextLivingTurnIndex(next, next.activeTurnIndex);
     if (nextIndex === next.activeTurnIndex && !living(combatantById(next, next.turnOrder[nextIndex])!)) {
@@ -419,7 +459,7 @@ const findHostileApproachPath = (
   target: EncounterCombatant,
 ): GridPosition[] => {
   const start = { ...actor.position };
-  if (!actor.weapon || gridDistanceFeet(start, target.position, state.map.tileSizeFeet) <= actor.weapon.rangeFeet) {
+  if (!actor.weapon || gridDistanceFeet(start, target.position, state.map.tileSizeFeet) <= actor.weapon.rangeFeet && hasLineOfSight(start,target.position,state.map)) {
     return [];
   }
 
@@ -442,7 +482,7 @@ const findHostileApproachPath = (
   for (let cursor = 0; cursor < queue.length; cursor += 1) {
     const node = queue[cursor];
     const distance = gridDistanceFeet(node.position, target.position, state.map.tileSizeFeet);
-    if (distance <= actor.weapon.rangeFeet) return node.path;
+    if (distance <= actor.weapon.rangeFeet && hasLineOfSight(node.position,target.position,state.map)) return node.path;
     if (distance < closestDistance) {
       closestDistance = distance;
       closestPath = node.path;
@@ -526,7 +566,7 @@ export function resolveServerHostileTurn(
     }
 
     const distanceFeet = gridDistanceFeet(nextActor.position, target.position, next.map.tileSizeFeet);
-    if (nextActor.weapon && distanceFeet <= nextActor.weapon.rangeFeet) {
+    if (nextActor.weapon && distanceFeet <= nextActor.weapon.rangeFeet && hasLineOfSight(nextActor.position,target.position,next.map)) {
       attack = resolveWeaponAttack(
         {
           attackerLevel: nextActor.level,

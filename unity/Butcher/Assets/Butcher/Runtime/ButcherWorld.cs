@@ -39,6 +39,7 @@ namespace Imperial.Butcher
         GameObject heroVisual;
         ButcherTrailObjective objective;
         ButcherCharacterMenu characterMenu;
+        ButcherCombatController combat;
         CharacterController hero;
         Camera view;
         float yaw = 25f, verticalVelocity;
@@ -78,10 +79,10 @@ namespace Imperial.Butcher
             if (groundTexture != null)
             {
                 grass.SetTexture("_BaseMap", groundTexture);
-                grass.SetTextureScale("_BaseMap", new Vector2(24, 24));
+                grass.SetTextureScale("_BaseMap", new Vector2(64, 64));
                 grass.color = new Color(.26f, .38f, .20f);
             }
-            Shape("Clearing", PrimitiveType.Cube, new Vector3(0, -.5f, 0), new Vector3(90, 1, 90), grass);
+            Shape("Clearing", PrimitiveType.Cube, new Vector3(0, -.5f, 0), new Vector3(240, 1, 240), grass);
             Shape("Old road", PrimitiveType.Cube, new Vector3(0, .01f, 4), new Vector3(5, .04f, 65), trail);
             for (int i = 0; i < 10; i++)
             {
@@ -126,6 +127,8 @@ namespace Imperial.Butcher
             objective = player.AddComponent<ButcherTrailObjective>();
             characterMenu = gameObject.AddComponent<ButcherCharacterMenu>();
             characterMenu.Configure(this);
+            combat = gameObject.AddComponent<ButcherCombatController>();
+            combat.Configure(this, characterMenu);
             view = new GameObject("Third person camera").AddComponent<Camera>();
             view.tag = "MainCamera";
             view.fieldOfView = 58;
@@ -154,6 +157,37 @@ namespace Imperial.Butcher
             }
             RebuildEquipmentVisuals();
             return true;
+        }
+
+        public void StartTrialView() { tactical = true; }
+        public void NotifyHeroSelected(string id) { if (combat != null) combat.SelectHero(id); }
+        public Vector3 HeroPosition => hero != null ? hero.transform.position : Vector3.zero;
+        public void PlaceTrialHero(Vector3 position)
+        {
+            if (hero == null) return;
+            hero.enabled = false; hero.transform.position = position; hero.enabled = true;
+            verticalVelocity = 0;
+            if (heroAnimator != null) heroAnimator.SetFloat("Speed", 0);
+        }
+        public void MoveTrialHero(Vector3 position)
+        {
+            if (hero == null) return;
+            var destination = Vector3.MoveTowards(hero.transform.position, position, Time.deltaTime * 7);
+            var delta = destination - hero.transform.position;
+            hero.Move(delta);
+            var facing = new Vector3(delta.x, 0, delta.z);
+            if (facing.sqrMagnitude > .00001f) hero.transform.rotation = Quaternion.Slerp(hero.transform.rotation, Quaternion.LookRotation(facing), Time.deltaTime * 12);
+            if (heroAnimator != null) heroAnimator.SetFloat("Speed", delta.sqrMagnitude > .00001f ? 3 : 0, .1f, Time.deltaTime);
+        }
+        public void FaceTrialTarget(Vector3 position)
+        {
+            if (hero == null) return;
+            var direction = position - hero.transform.position; direction.y = 0;
+            if (direction.sqrMagnitude > .001f) hero.transform.rotation = Quaternion.LookRotation(direction);
+        }
+        public void PlayTrialAttack()
+        {
+            if (heroAnimator != null && heroAnimator.HasState(0, Animator.StringToHash("Attack"))) heroAnimator.CrossFadeInFixedTime("Attack", .08f);
         }
 
         // Presentation only: call with the server-returned equipped items, not pending clicks.
@@ -199,6 +233,8 @@ namespace Imperial.Butcher
                 return;
             }
             if (Input.GetKeyDown(KeyCode.Tab)) tactical = !tactical;
+            if (combat != null && combat.InTrial) { combat.ReadMovementInput(); return; }
+            if (hero.transform.position.y < -15) PlaceTrialHero(new Vector3(0,.1f,-12));
             if (Input.GetMouseButton(1)) yaw += Input.GetAxis("Mouse X") * 3;
             var input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) + touchMove;
             input = Vector2.ClampMagnitude(input, 1);
@@ -235,8 +271,8 @@ namespace Imperial.Butcher
             }
             GUI.Box(new Rect(18, 18, 490, 126), "");
             GUI.Label(new Rect(34, 26, 450, 42), "BUTCHER", title);
-            GUI.Label(new Rect(34, 72, 450, 62), "Exploration prototype · In memory of Randy Butcher\nWASD: move · Right mouse: orbit · Shift: run", caption);
-            if (objective != null)
+            GUI.Label(new Rect(34, 72, 450, 62), (combat != null && combat.InTrial ? "Camp Trial · In memory of Randy Butcher\nWASD: step · F: attack · Space: end turn" : "Exploration prototype · In memory of Randy Butcher\nWASD: move · Right mouse: orbit · Shift: run"), caption);
+            if (objective != null && (combat == null || !combat.InTrial))
             {
                 GUI.Box(new Rect(18, 152, 490, 108), "");
                 GUI.Label(new Rect(34, 164, 456, 84), objective.ObjectiveText, caption);
@@ -249,6 +285,7 @@ namespace Imperial.Butcher
             }
             if (GUI.Button(new Rect(w - 204, 24, 180, 48), tactical ? "Third person" : "Tactical overview")) tactical = !tactical;
             touchMove = Vector2.zero;
+            if (combat != null && combat.InTrial) return;
             if (GUI.RepeatButton(new Rect(86, h - 174, 64, 64), "↑")) touchMove.y += 1;
             if (GUI.RepeatButton(new Rect(22, h - 108, 64, 64), "←")) touchMove.x -= 1;
             if (GUI.RepeatButton(new Rect(86, h - 108, 64, 64), "↓")) touchMove.y -= 1;
