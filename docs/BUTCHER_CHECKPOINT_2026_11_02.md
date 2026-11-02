@@ -23,3 +23,11 @@ Migration `20261101180340_butcher_practice_encounters_v1.sql` was generated thro
 - Earlier source/UI changes were left uncommitted when the ChatGPT app froze; the PC files survived. This checkpoint recovers that work.
 
 The sentinel uses original primitive geometry and the attack uses an owned humanoid animation. The scene is an early prototype. NPC animation, detailed combat feedback, armor replacement, skill actions, progression, missions beyond training, AI narration, multiplayer, marketplace and Android work remain development tasks.
+
+## Recovered checkpoint verification
+
+The final editor presentation pass completed successfully with zero current console errors/warnings. It verifies arena geometry, accepted-position movement, attack playback, one feedback entry per accepted revision, stale/invalid response guards, victory display and camp return. Screenshots use labelled fixtures, not a real account.
+
+The updated Linux player built successfully: 107,361,438 bytes, zero build errors/warnings. Its headless startup probe passed, including the new trial controller/attack state and both character/encounter endpoints. Interactive account-to-trial play remains pending; this does not imply the disposable-account HTTP runner passed.
+
+The same updated native player also passed with OpenGL initialized. This remains a startup check, not an authenticated interactive play test. No current editor errors or warnings were reported after the build.
