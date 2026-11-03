@@ -14,7 +14,7 @@
         "domainReloadInProgress": false,
         "playMode": "stopped",
         "runInBackground": true,
-        "lastHeartbeat": "2026-11-02T23:27:02.191494Z",
+        "lastHeartbeat": "2026-11-03T04:40:34.9488Z",
         "projectPath": "/home/imperialist85/Documents/ChatGPT/Unity Builds/Butcher",
         "unityVersion": "6000.3.6f1",
         "role": "main",
@@ -28,7 +28,7 @@
       ],
       "result": {
         "entries": [],
-        "cursor": 1855,
+        "cursor": 1857,
         "session": "3975e4836472449ebfeef8008bd91b24",
         "returned": 0,
         "dropped": false,
@@ -36,11 +36,11 @@
         "counts": {
           "error": 5,
           "warn": 1846,
-          "log": 4
+          "log": 6
         },
         "groundTruth": {
-          "sampledUtc": "2026-11-02T23:27:03.194782Z",
-          "ageMs": 58,
+          "sampledUtc": "2026-11-03T04:40:35.948166Z",
+          "ageMs": 25,
           "compilationFailed": false,
           "compiling": false,
           "consoleErrors": 0,
@@ -82,9 +82,9 @@
         "timedOut": false,
         "member": "UnityEngine.Time.frameCount",
         "op": "changed",
-        "value": 3,
-        "initialValue": 2,
-        "elapsedMs": 1235,
+        "value": 42,
+        "initialValue": 36,
+        "elapsedMs": 113,
         "framesObserved": 2
       }
     },
@@ -135,9 +135,9 @@
         "timedOut": false,
         "member": "UnityEngine.Time.frameCount",
         "op": "changed",
-        "value": 12,
-        "initialValue": 11,
-        "elapsedMs": 1967,
+        "value": 298,
+        "initialValue": 292,
+        "elapsedMs": 108,
         "framesObserved": 2
       }
     },
@@ -186,7 +186,7 @@
         "width": 1280,
         "height": 720,
         "encoding": "png",
-        "bytes": 182628,
+        "bytes": 184192,
         "source": "screen",
         "savedPath": "Assets/Screenshots/Skills-Ward.png"
       }
@@ -238,9 +238,9 @@
         "timedOut": false,
         "member": "UnityEngine.Time.frameCount",
         "op": "changed",
-        "value": 24,
-        "initialValue": 23,
-        "elapsedMs": 1310,
+        "value": 800,
+        "initialValue": 793,
+        "elapsedMs": 114,
         "framesObserved": 2
       }
     },
@@ -265,7 +265,7 @@
         "width": 1280,
         "height": 720,
         "encoding": "png",
-        "bytes": 183839,
+        "bytes": 185488,
         "source": "screen",
         "savedPath": "Assets/Screenshots/Skills-Spark.png"
       }
@@ -305,9 +305,9 @@
         "timedOut": false,
         "member": "UnityEngine.Time.frameCount",
         "op": "changed",
-        "value": 33,
-        "initialValue": 32,
-        "elapsedMs": 1962,
+        "value": 1117,
+        "initialValue": 1111,
+        "elapsedMs": 115,
         "framesObserved": 2
       }
     },
@@ -330,7 +330,7 @@
       ],
       "result": {
         "entries": [],
-        "cursor": 1855,
+        "cursor": 1857,
         "session": "3975e4836472449ebfeef8008bd91b24",
         "returned": 0,
         "dropped": false,
@@ -338,11 +338,11 @@
         "counts": {
           "error": 5,
           "warn": 1846,
-          "log": 4
+          "log": 6
         },
         "groundTruth": {
-          "sampledUtc": "2026-11-02T23:27:47.486012Z",
-          "ageMs": 36,
+          "sampledUtc": "2026-11-03T04:41:07.367087Z",
+          "ageMs": 234,
           "compilationFailed": false,
           "compiling": false,
           "consoleErrors": 0,

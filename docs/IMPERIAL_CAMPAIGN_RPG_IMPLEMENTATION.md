@@ -2,7 +2,7 @@
 
 **Branch:** `feature/imperial-campaign-rpg-mvp`  
 **Base:** `main` at `080d8a984fa9012a226129bb42e07411eeb7bf3e`  
-**Status:** Unity prototype and authenticated lab character service. See [the current checkpoint](./BUTCHER_CHECKPOINT_2026_11_02.md) for verified behavior and remaining work.
+**Status:** Unity prototype with lab-backed heroes, inventory, persistent solo trials and two equipped combat skills. See [the current checkpoint](./BUTCHER_CHECKPOINT_2026_11_02.md) for verified behavior and remaining work.
 
 ## Product target
 
@@ -79,4 +79,4 @@ This is a structured starting point for an original Imperial ruleset, not a fina
 
 The Unity client supports animated appearances, owned scenery, footsteps, a memorial objective, saved heroes, practice equipment visuals, and a solo trial presentation. The lab character, inventory and encounter services are deployed. See the linked checkpoint for the distinction between automated database/module checks, Unity presentation fixtures, native startup checks and the outstanding authenticated player journey.
 
-The campaign foundation now persists encounter snapshots and action receipts, resolves weapon attacks and enemy turns on the server, and locks equipment until a trial ends. Skill combat effects, progression/rewards, party play, NFT ownership verification, marketplace settlement and mint/burn operations remain pending.
+The campaign foundation now persists encounter snapshots and action receipts, resolves weapon attacks and enemy turns on the server, and locks equipment until a trial ends. Spark Burst and Guarding Vow use frozen equipped unlocks and server-owned mana. Further skills, progression/rewards, party play, NFT ownership verification, marketplace settlement and mint/burn operations remain pending.

@@ -50,7 +50,7 @@ The server validates ownership, slot, level, compatibility symbols and skill/sub
 
 After signing in and selecting your saved hero, close Characters and choose **Camp trial**. The hero resumes an active saved trial when selected. In the arena, WASD/arrows step, F attacks and Space ends the turn. Buttons provide the same actions; Tab switches camera. Refresh recovers server state after a connection interruption. Leave trial abandons it; Return to camp exits a completed trial.
 
-The lab decides positions, range, hits, damage and enemy turns. Repeated requests return saved results, and gear is locked during a trial. This first trial supports weapon attacks and grants no progression or rewards. Skill combat actions are still pending. The five-foot grid uses 1.524 metres per tile in the scene.
+The lab decides positions, range, hits, damage and enemy turns. Repeated requests return saved results, and gear is locked during a trial. This trial supports weapon attacks and the two practice combat skills below, and grants no progression or rewards. The five-foot grid uses 1.524 metres per tile in the scene.
 
 `Tools/verify_trial.py` checks presentation with explicit fixtures and no account or lab writes. Run `Tools/EditorTasks/PrepareCombatAnimation.csx` after preparing the hero assets when restoring this checkpoint. Native startup verification also checks the trial controller, attack state and both lab endpoints. Authenticated interactive trial play still needs hands-on verification.
 
@@ -59,3 +59,7 @@ The lab decides positions, range, hits, damage and enemy turns. Repeated request
 Equip a Spark Rune or Oath Ward on a compatible hero before starting a **new** trial. Spark Burst (**1**) costs one mana/action for a ranged Intelligence attack, up to 30 feet. Guarding Vow (**2**) costs one mana/action and gives +2 defense through the enemy turn, expiring at your next turn. A new trial starts with three mana. Mana is spent on a valid cast even if the attack misses; it does not regenerate each turn.
 
 The trial snapshots your equipped skills. Old saved trials keep their original loadouts; finish or leave them, then start a new trial to use newly equipped skills. Crafting and exploration skills are not combat actions yet. The spell visuals only display accepted server results.
+
+## Combat feedback
+
+Health bars follow the hero and sentinel in the world. Accepted attacks display hit damage or a miss cue; the wooden sentinel faces the hero and plays a short attack swing. Duplicate/stale replies do not repeat these effects. Health and damage continue to come from the server. `Tools/verify_feedback.py` exercises explicit local presentation fixtures, including enemy approach versus attack and fresh-arena cleanup. It never signs in or writes to the lab.

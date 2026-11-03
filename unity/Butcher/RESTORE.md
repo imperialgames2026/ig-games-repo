@@ -18,3 +18,5 @@ Linux builds can be queued with `python3 Tools/build_linux.py` on the editor hos
 Camp Trial: run `PrepareCombatAnimation.csx` after the hero/catalog preparation steps to restore the owned one-shot attack clip and its transition. `verify_trial.py` renders explicit local presentation fixtures and performs no authenticated mutations. Its screenshots do not prove a signed-in trial lifecycle.
 
 Combat skills: `verify_skills.py` checks labelled local Spark/Ward presentation fixtures, resource validation and empty-trial resume. It performs no authenticated mutations. Equip the compatible practice skill before starting a new trial; existing trials preserve their frozen loadout. Keys 1/2 use Spark/Ward when available.
+
+Combat readability: `verify_feedback.py` checks the health displays and accepted hit/miss/skill cues, sentinel attack presentation, replay suppression and fresh-arena cleanup. It uses local fixtures without signing in or writing to the lab. Feedback art is original runtime geometry; no additional asset package is required.

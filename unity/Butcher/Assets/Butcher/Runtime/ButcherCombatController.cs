@@ -13,6 +13,8 @@ namespace Imperial.Butcher
         string heroId, pendingBody, notice = "Select a saved hero to enter the camp trial.";
         TrialReply snapshot;
         GameObject arena, enemy, wardVisual;
+        ButcherTrialFeedback feedback;
+        Coroutine sparkRoutine;
         readonly List<Material> materials = new List<Material>();
         readonly Queue<string> recent = new Queue<string>();
         bool loading;
@@ -125,7 +127,13 @@ namespace Imperial.Butcher
             if (!InTrial) return;
             world.MoveTrialHero(heroTarget);
             if (wardVisual != null) wardVisual.transform.position = world.HeroPosition + Vector3.up * .025f;
-            if (enemy != null) enemy.transform.position = Vector3.MoveTowards(enemy.transform.position, enemyTarget, Time.deltaTime * 6);
+            if (enemy != null)
+            {
+                enemy.transform.position = Vector3.MoveTowards(enemy.transform.position, enemyTarget, Time.deltaTime * 6);
+                var facing = world.HeroPosition - enemy.transform.position; facing.y = 0;
+                if (facing.sqrMagnitude > .001f) enemy.transform.rotation = Quaternion.LookRotation(facing);
+                feedback.Follow(world.HeroPosition, enemy.transform.position, !menu.IsOpen);
+            }
         }
         ActorState Actor(string id)
         {
@@ -157,6 +165,7 @@ namespace Imperial.Butcher
             heroTarget = Position(hero.position); enemyTarget = Position(hostile.position);
             if (entering) { world.PlaceTrialHero(heroTarget); enemy.transform.position = enemyTarget; }
             enemy.SetActive(hostile.hitPoints > 0);
+            feedback.PresentHealth(hero.hitPoints, hero.maxHitPoints, hostile.hitPoints, hostile.maxHitPoints);
             UpdateWardVisual(hero.wardArmorBonus > 0);
             foreach (var evt in reply.events ?? Array.Empty<TrialEvent>())
             {
@@ -166,8 +175,13 @@ namespace Imperial.Butcher
                 {
                     bool player = evt.kind != "hostile_turn";
                     if (player) { world.FaceTrialTarget(enemyTarget); world.PlayTrialAttack(); }
-                    if (evt.kind == "skill") StartCoroutine(SparkVisual());
+                    if (evt.kind == "skill")
+                    {
+                        if (sparkRoutine != null) StopCoroutine(sparkRoutine);
+                        sparkRoutine = StartCoroutine(SparkVisual());
+                    }
                     var hit = evt.detail?.attack;
+                    feedback.PresentAttack(player, hit != null && hit.hit, hit?.damage ?? 0, evt.kind == "skill");
                     recent.Enqueue((player ? "You" : "Sentinel") + (hit != null && hit.hit ? " hit for " + hit.damage + "." : " missed."));
                 }
                 while (recent.Count > 3) recent.Dequeue();
@@ -190,9 +204,10 @@ namespace Imperial.Butcher
             spark.transform.SetParent(arena.transform,false);spark.transform.localScale=Vector3.one*.22f;
             var collider=spark.GetComponent<Collider>();collider.enabled=false;Destroy(collider);
             spark.GetComponent<Renderer>().sharedMaterial=Mat(new Color(.3f,.55f,1f));
-            Vector3 start=world.HeroPosition+Vector3.up*1.25f;float elapsed=0;
-            while(elapsed<.25f && spark!=null) { spark.transform.position=Vector3.Lerp(start,enemyTarget+Vector3.up,elapsed/.25f); elapsed+=Time.deltaTime; yield return null; }
+            Vector3 start=world.HeroPosition+Vector3.up*1.25f, end=enemyTarget+Vector3.up;float elapsed=0;
+            while(elapsed<.25f && spark!=null) { spark.transform.position=Vector3.Lerp(start,end,elapsed/.25f); elapsed+=Time.deltaTime; yield return null; }
             if(spark!=null) Destroy(spark);
+            sparkRoutine=null;
         }
         void BuildArena(MapState map)
         {
@@ -210,9 +225,11 @@ namespace Imperial.Butcher
                     Primitive("Trial obstacle",PrimitiveType.Cube,Position(new GridPosition{x=x,y=y})+Vector3.up*.8f,new Vector3(1.35f,1.6f,1.35f),stone,arena.transform);
             }
             enemy = new GameObject("Camp Sentinel"); enemy.transform.SetParent(arena.transform);
-            Primitive("Sentinel body",PrimitiveType.Cylinder,Vector3.up*.85f,new Vector3(.65f,.6f,.65f),wood,enemy.transform,true);
-            Primitive("Sentinel head",PrimitiveType.Sphere,Vector3.up*1.65f,Vector3.one*.4f,wood,enemy.transform,true);
-            Primitive("Sentinel arms",PrimitiveType.Cube,Vector3.up*1.25f,new Vector3(1.2f,.18f,.18f),wood,enemy.transform,true);
+            var motion = new GameObject("Sentinel motion").transform; motion.SetParent(enemy.transform,false);
+            Primitive("Sentinel body",PrimitiveType.Cylinder,Vector3.up*.85f,new Vector3(.65f,.6f,.65f),wood,motion,true);
+            Primitive("Sentinel head",PrimitiveType.Sphere,Vector3.up*1.65f,Vector3.one*.4f,wood,motion,true);
+            Primitive("Sentinel arms",PrimitiveType.Cube,Vector3.up*1.25f,new Vector3(1.2f,.18f,.18f),wood,motion,true);
+            feedback = arena.AddComponent<ButcherTrialFeedback>(); feedback.Configure(motion);
         }
         Material Mat(Color color) { var material = new Material(Shader.Find("Universal Render Pipeline/Lit")) { color=color }; materials.Add(material); return material; }
         static void Primitive(string name, PrimitiveType type, Vector3 position, Vector3 scale, Material material, Transform parent, bool local=false)
@@ -223,7 +240,9 @@ namespace Imperial.Butcher
         }
         void ReleaseArena()
         {
+            if (sparkRoutine != null) { StopCoroutine(sparkRoutine); sparkRoutine=null; }
             if (arena != null) { arena.SetActive(false); Destroy(arena); } arena=null; enemy=null; wardVisual=null;
+            feedback=null;
             foreach (var material in materials) if (material != null) Destroy(material); materials.Clear();
         }
         public void ClearPresentation()
