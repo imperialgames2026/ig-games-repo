@@ -2,7 +2,7 @@
   "Assets/Butcher/Editor/ButcherProjectSetup.cs": "57a083137a57b1c7bdf679935e1e4b019d747ea86d118b7da9d2e60719790d0e",
   "Assets/Butcher/Runtime/ButcherAppearanceCatalog.cs": "7104ff850c5239ca82ba3374cf862d3c720c6b5bd7553b3191d35ed9a2914332",
   "Assets/Butcher/Runtime/ButcherCharacterMenu.cs": "2532ecbcd9b9a975a5da6f498db0052bed9c576ced62bbb3a49be75c7652b745",
-  "Assets/Butcher/Runtime/ButcherCombatController.cs": "0179e3d8019997102e3635107dd47fd627e6e1d6a19e1fb5580ce199a8d68a15",
+  "Assets/Butcher/Runtime/ButcherCombatController.cs": "24e82c3aa5a842e1207cf83a5dfaf9a30ddffa96f93147a4001d33e11bc78863",
   "Assets/Butcher/Runtime/ButcherEquipmentCatalog.cs": "bc388042e8310a4935e1aae1cab41820c45b5d06f9b5411ab4311eb3750a1c11",
   "Assets/Butcher/Runtime/ButcherEquippedVisual.cs": "c93dfeb38fd81fdaeba3fa43e69a5cefa1fc176ab3fc687eaeb5fb1b9558ccbc",
   "Assets/Butcher/Runtime/ButcherFootsteps.cs": "0509f471b20375f0c5ed5dcceee5b733aa6090619b1ff4c7b9f4aec304f2436f",

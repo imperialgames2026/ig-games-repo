@@ -14,7 +14,7 @@
         "domainReloadInProgress": false,
         "playMode": "stopped",
         "runInBackground": true,
-        "lastHeartbeat": "2026-11-03T04:41:10.80356Z",
+        "lastHeartbeat": "2026-11-06T02:39:13.408315Z",
         "projectPath": "/home/imperialist85/Documents/ChatGPT/Unity Builds/Butcher",
         "unityVersion": "6000.3.6f1",
         "role": "main",
@@ -28,19 +28,19 @@
       ],
       "result": {
         "entries": [],
-        "cursor": 1857,
-        "session": "3975e4836472449ebfeef8008bd91b24",
+        "cursor": 1,
+        "session": "06b3b55730c444579096bf591550205d",
         "returned": 0,
         "dropped": false,
         "reset": false,
         "counts": {
-          "error": 5,
-          "warn": 1846,
-          "log": 6
+          "error": 0,
+          "warn": 1,
+          "log": 0
         },
         "groundTruth": {
-          "sampledUtc": "2026-11-03T04:41:11.802283Z",
-          "ageMs": 27,
+          "sampledUtc": "2026-11-06T02:39:14.382641Z",
+          "ageMs": 52,
           "compilationFailed": false,
           "compiling": false,
           "consoleErrors": 0,
@@ -82,9 +82,9 @@
         "timedOut": false,
         "member": "UnityEngine.Time.frameCount",
         "op": "changed",
-        "value": 43,
-        "initialValue": 37,
-        "elapsedMs": 119,
+        "value": 65,
+        "initialValue": 59,
+        "elapsedMs": 117,
         "framesObserved": 2
       }
     },
@@ -110,6 +110,18 @@
         "diagnostics": [],
         "success": true,
         "result": 0
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
       }
     },
     {
@@ -159,9 +171,9 @@
         "timedOut": false,
         "member": "UnityEngine.Time.frameCount",
         "op": "changed",
-        "value": 422,
-        "initialValue": 416,
-        "elapsedMs": 109,
+        "value": 508,
+        "initialValue": 501,
+        "elapsedMs": 119,
         "framesObserved": 2
       }
     },
@@ -174,7 +186,7 @@
         "width": 1280,
         "height": 720,
         "encoding": "png",
-        "bytes": 175964,
+        "bytes": 319065,
         "source": "screen",
         "savedPath": "Assets/Screenshots/Trial-Arena.png"
       }
@@ -204,7 +216,7 @@
         "op": "equals",
         "value": true,
         "initialValue": true,
-        "elapsedMs": 34,
+        "elapsedMs": 5,
         "framesObserved": 1
       }
     },
@@ -303,9 +315,9 @@
         "timedOut": false,
         "member": "UnityEngine.Time.frameCount",
         "op": "changed",
-        "value": 1111,
-        "initialValue": 1105,
-        "elapsedMs": 109,
+        "value": 1150,
+        "initialValue": 1144,
+        "elapsedMs": 108,
         "framesObserved": 2
       }
     },
@@ -318,7 +330,7 @@
         "width": 1280,
         "height": 720,
         "encoding": "png",
-        "bytes": 141511,
+        "bytes": 264974,
         "source": "screen",
         "savedPath": "Assets/Screenshots/Trial-Result.png"
       }
@@ -346,9 +358,9 @@
         "timedOut": false,
         "member": "UnityEngine.Time.frameCount",
         "op": "changed",
-        "value": 1298,
-        "initialValue": 1291,
-        "elapsedMs": 110,
+        "value": 1321,
+        "initialValue": 1315,
+        "elapsedMs": 107,
         "framesObserved": 2
       }
     },
@@ -395,23 +407,23 @@
       ],
       "result": {
         "entries": [],
-        "cursor": 1857,
-        "session": "3975e4836472449ebfeef8008bd91b24",
+        "cursor": 1907,
+        "session": "06b3b55730c444579096bf591550205d",
         "returned": 0,
         "dropped": false,
         "reset": false,
         "counts": {
-          "error": 5,
-          "warn": 1846,
-          "log": 6
+          "error": 0,
+          "warn": 1907,
+          "log": 0
         },
         "groundTruth": {
-          "sampledUtc": "2026-11-03T04:41:48.733647Z",
-          "ageMs": 217,
+          "sampledUtc": "2026-11-06T02:39:50.622446Z",
+          "ageMs": 54,
           "compilationFailed": false,
           "compiling": false,
           "consoleErrors": 0,
-          "consoleWarnings": 0,
+          "consoleWarnings": 1902,
           "consoleLogs": 0,
           "seeded": true
         }

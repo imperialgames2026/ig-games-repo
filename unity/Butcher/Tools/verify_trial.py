@@ -36,6 +36,20 @@ try:
  frames()
  evaluate('var c=UnityEngine.Object.FindFirstObjectByType<Imperial.Butcher.ButcherCombatController>();if(c==null)throw new System.Exception("Trial controller missing");if(UnityEngine.Object.FindFirstObjectByType<Imperial.Butcher.ButcherCharacterMenu>().IsSignedIn)throw new System.Exception("Unexpected real session");c.GetType().GetField("heroId",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance).SetValue(c,"fixture-hero");return "Local presentation fixture only";')
  assert apply(reply)==0
+ assert evaluate('''
+ var c = UnityEngine.Object.FindFirstObjectByType<Imperial.Butcher.ButcherCombatController>();
+ var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+ var actor = c.GetType().GetMethod("Actor", flags);
+ var hero = (Imperial.Butcher.ButcherCombatController.ActorState)actor.Invoke(c, new object[] { "hero" });
+ var sentinel = actor.Invoke(c, new object[] { "sentinel" });
+ var step = c.GetType().GetMethod("StepBlockReason", flags);
+ var distance = c.GetType().GetMethod("DistanceFeet", flags);
+ return (int)distance.Invoke(c, new object[] { hero, sentinel }) == 15
+     && step.Invoke(c, new object[] { hero, 3, 2 }) == null
+     && (string)step.Invoke(c, new object[] { hero, -1, 2 }) == "That step leaves the arena."
+     && (string)step.Invoke(c, new object[] { hero, 4, 4 }) == "A wall blocks that step."
+     && (string)step.Invoke(c, new object[] { hero, 5, 2 }) == "The sentinel blocks that step.";
+ ''')
  assert evaluate('return UnityEngine.Object.FindFirstObjectByType<Imperial.Butcher.ButcherCombatController>().InTrial;')
  assert evaluate('return UnityEngine.GameObject.Find("Camp Trial Arena").GetComponentsInChildren<UnityEngine.Renderer>().Length;')==69
  evaluate('UnityEngine.Object.FindFirstObjectByType<Imperial.Butcher.ButcherCombatController>().GetType().GetField("notice",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance).SetValue(UnityEngine.Object.FindFirstObjectByType<Imperial.Butcher.ButcherCombatController>(),"Presentation fixture · no server mutations");return "Fixture labelled";')

@@ -78,9 +78,26 @@ namespace Imperial.Butcher
         }
         void Step(int x, int y)
         {
-            var hero = Actor("hero"); if (!CanAct || hero == null) return;
-            if (hero.movementRemainingFeet < snapshot.encounter.state.map.tileSizeFeet) { notice = "Movement spent. End your turn."; return; }
-            SubmitCommand("{\"type\":\"move\",\"path\":[{\"x\":" + (hero.position.x + x) + ",\"y\":" + (hero.position.y + y) + "}]}");
+            if (!CanAct) return;
+            var hero = Actor("hero");
+            int targetX = hero.position.x + x, targetY = hero.position.y + y;
+            var reason = StepBlockReason(hero, targetX, targetY);
+            if (reason != null) { notice = reason; return; }
+            SubmitCommand("{\"type\":\"move\",\"path\":[{\"x\":" + targetX + ",\"y\":" + targetY + "}]}");
+        }
+        string StepBlockReason(ActorState hero, int x, int y)
+        {
+            var map = snapshot.encounter.state.map;
+            if (hero.movementRemainingFeet < map.tileSizeFeet) return "Movement spent. End your turn.";
+            if (x < 0 || y < 0 || x >= map.width || y >= map.height) return "That step leaves the arena.";
+            if (Array.IndexOf(map.blockedCells ?? Array.Empty<string>(), x + "," + y) >= 0) return "A wall blocks that step.";
+            var hostile = Actor("sentinel");
+            if (hostile.hitPoints > 0 && hostile.position.x == x && hostile.position.y == y) return "The sentinel blocks that step.";
+            return null;
+        }
+        int DistanceFeet(ActorState hero, ActorState hostile)
+        {
+            return (Math.Abs(hero.position.x-hostile.position.x) + Math.Abs(hero.position.y-hostile.position.y)) * snapshot.encounter.state.map.tileSizeFeet;
         }
         bool CanAttack
         {
@@ -88,8 +105,7 @@ namespace Imperial.Butcher
             {
                 var hero = Actor("hero"); var hostile = Actor("sentinel");
                 if (!CanAct || hero == null || hostile == null || hero.actionUsed || hero.weapon == null) return false;
-                int distance = (Math.Abs(hero.position.x-hostile.position.x)+Math.Abs(hero.position.y-hostile.position.y))*snapshot.encounter.state.map.tileSizeFeet;
-                return distance <= hero.weapon.rangeFeet;
+                return DistanceFeet(hero, hostile) <= hero.weapon.rangeFeet;
             }
         }
         void AttackTarget()
@@ -102,8 +118,7 @@ namespace Imperial.Butcher
             var hero = Actor("hero"); var hostile = Actor("sentinel");
             if (!CanAct || hero == null || hero.actionUsed || hero.mana < 1 || Array.IndexOf(hero.abilityIds ?? Array.Empty<string>(), id) < 0) return false;
             if (id == "guarding_vow") return hero.wardArmorBonus == 0;
-            int distance = (Math.Abs(hero.position.x-hostile.position.x)+Math.Abs(hero.position.y-hostile.position.y))*snapshot.encounter.state.map.tileSizeFeet;
-            return distance <= 30;
+            return DistanceFeet(hero, hostile) <= 30;
         }
         void UseSkill(string id)
         {
@@ -268,7 +283,8 @@ namespace Imperial.Butcher
             }
             var hero=Actor("hero");var hostile=Actor("sentinel");
             GUI.Box(new Rect(18,152,490,148),"");
-            GUI.Label(new Rect(34,162,456,136),"CAMP TRIAL · Practice\n"+hero.name+": "+hero.hitPoints+" / "+hero.maxHitPoints+" HP · Sentinel: "+hostile.hitPoints+" / "+hostile.maxHitPoints+" HP\nMovement: "+hero.movementRemainingFeet+" ft · "+(hero.actionUsed?"Action used":"Action ready")+"\nMana: "+hero.mana+" / "+hero.maxMana+" · Defense: "+hero.armorClass+(hero.wardArmorBonus>0?" (ward active)":""),text);
+            string range = hero.weapon == null ? "No weapon" : "Weapon range: " + hero.weapon.rangeFeet + " ft";
+            GUI.Label(new Rect(34,162,456,136),"CAMP TRIAL · Practice\n"+hero.name+": "+hero.hitPoints+" / "+hero.maxHitPoints+" HP · Sentinel: "+hostile.hitPoints+" / "+hostile.maxHitPoints+" HP\nMovement: "+hero.movementRemainingFeet+" ft · "+(hero.actionUsed?"Action used":"Action ready")+"\nMana: "+hero.mana+" / "+hero.maxMana+" · Defense: "+hero.armorClass+(hero.wardArmorBonus>0?" (ward active)":"")+"\nSentinel: "+DistanceFeet(hero,hostile)+" ft away · "+range,text);
             GUI.Box(new Rect(18,360,490,150),"");
             GUI.Label(new Rect(34,370,456,130),notice+"\n"+string.Join("\n",recent.ToArray()),text);
             if (snapshot.encounter.state.phase=="completed")
@@ -284,15 +300,21 @@ namespace Imperial.Butcher
             if(GUI.Button(new Rect(w/2-260,h-92,160,52),"Attack [F]"))AttackTarget();
             GUI.enabled=CanAct;
             if(GUI.Button(new Rect(w/2-90,h-92,160,52),"End turn [Space]"))SubmitCommand("{\"type\":\"end_turn\"}");
-            if(GUI.Button(new Rect(86,h-174,64,64),"↑"))Step(0,1);
-            if(GUI.Button(new Rect(22,h-108,64,64),"←"))Step(-1,0);
-            if(GUI.Button(new Rect(86,h-108,64,64),"↓"))Step(0,-1);
-            if(GUI.Button(new Rect(150,h-108,64,64),"→"))Step(1,0);
+            DrawStepButton(hero, new Rect(86,h-174,64,64), "↑", 0, 1);
+            DrawStepButton(hero, new Rect(22,h-108,64,64), "←", -1, 0);
+            DrawStepButton(hero, new Rect(86,h-108,64,64), "↓", 0, -1);
+            DrawStepButton(hero, new Rect(150,h-108,64,64), "→", 1, 0);
+            GUI.enabled=CanAct;
             if(GUI.Button(new Rect(w-184,h-92,160,52),"Leave trial"))SubmitCommand("{\"type\":\"abandon\"}");
             GUI.enabled=!menu.IsBusy;
             if(GUI.Button(new Rect(w-204,140,180,44),"Refresh trial"))RefreshTrial();
             if(pendingBody!=null && GUI.Button(new Rect(w-204,194,180,44),"Retry same action"))Send(pendingBody,true);
             GUI.enabled=true;
+        }
+        void DrawStepButton(ActorState hero, Rect rect, string label, int dx, int dy)
+        {
+            GUI.enabled = CanAct && StepBlockReason(hero, hero.position.x + dx, hero.position.y + dy) == null;
+            if (GUI.Button(rect, label)) Step(dx, dy);
         }
         [Serializable] public class TrialReply { public TrialEnvelope encounter; public TrialEvent[] events; }
         [Serializable] public class TrialEnvelope { public string id,characterId; public State state; }
