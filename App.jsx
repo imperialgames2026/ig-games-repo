@@ -12,6 +12,8 @@ import ProtectedRoute from '@/lib/ProtectedRoute';
 import CommandCenterLayout from '@/components/admin/CommandCenterLayout';
 import PlayerWalletBar from '@/components/casino/PlayerWalletBar';
 import GameUnavailable from '@/components/games/GameUnavailable';
+import PracticeFinancialUnavailable from '@/components/casino/PracticeFinancialUnavailable';
+import {activePracticeGameRoutes,disabledFinancialRoutes} from '@/lib/practiceReleasePolicy';
 import Login from './pages/Login';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -22,13 +24,16 @@ const publicPages = new Set([
 ]);
 // Only these game pages have reviewed zero-wager server handlers.
 // A successful Vite build never authorizes direct legacy wallet settlement.
-const verifiedPracticeGames = new Set(['PlayDice', 'PlayCraps', 'PlayRoulette', 'PlayCrash', 'PlayTrenball', 'PlayBaccarat', 'PlayPoker', 'PlayOmaha', 'PlayBlackjack', 'PlayMultiplayerBlackjack', 'PlayCoinFlip', 'PlayHashDice', 'PlayLimbo', 'PlayPlinko', 'PlayWheel', 'PlayMines', 'PlayDarts', 'PlayDiceZone', 'PlayHiLo', 'PlayRocket', 'PlayTowers']);
+const verifiedPracticeGames = new Set(activePracticeGameRoutes);
 const adminPages = new Set([
   'Admin', 'AdminVIP', 'AdminRewardWheels', 'AdminAnnouncements', 'AdminKYC', 'AdminSupport', 'AdminUsers',
   'AdminWallets', 'AdminSweepstakesAudit', 'AdminIGTSupply', 'OwnerKeyring', 'SuperadminPokerTournaments', 'PokerBotLab', 'AdminTreasury', 'AdminLegacyTools',
 ]);
 
 const withAccess = (path, element) => {
+  if (disabledFinancialRoutes.has(path)) {
+    return <ProtectedRoute><PracticeFinancialUnavailable /></ProtectedRoute>;
+  }
   if (publicPages.has(path)) return element;
   if (/^Play[A-Z]/.test(path) && !verifiedPracticeGames.has(path)) {
     return <ProtectedRoute><GameUnavailable game={path} /></ProtectedRoute>;

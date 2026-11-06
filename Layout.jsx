@@ -439,7 +439,7 @@ export default function Layout({ children, currentPageName }) {
                 <span className="font-black text-sm text-gray-900 dark:text-white">IMPERIAL GAMING</span>
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Premium social casino entertainment. Play responsibly.
+                Premium gaming network entertainment. Play responsibly.
               </p>
             </div>
 
@@ -506,7 +506,7 @@ export default function Layout({ children, currentPageName }) {
             <div>
               <h3 className="font-bold text-gray-900 dark:text-white mb-3 text-sm">Responsible Gaming</h3>
               <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
-                Imperial Gaming is a social casino for entertainment only. No real money gambling takes place on this platform.
+                Imperial Gaming is a gaming network for entertainment only. No real money gambling takes place on this platform.
               </p>
               <p className="text-xs text-gray-600 dark:text-gray-400">
                 Must be 18+ to play. Virtual currency has no real-world value and cannot be exchanged for cash or prizes.
@@ -527,13 +527,13 @@ export default function Layout({ children, currentPageName }) {
             {/* Centered Disclosure */}
             <div className="pt-4 border-t border-gray-200 dark:border-white/5 text-center space-y-3">
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Imperial Gaming is a premium social casino for entertainment only. Play responsibly.
+                Imperial Gaming is a premium gaming network for entertainment only. Play responsibly.
               </p>
               <div className="text-xs text-gray-600 dark:text-gray-500 space-y-1 max-w-4xl mx-auto">
                 <p>imperialgaming.llc is owned and operated by IMPERIAL GAMING LLC also known as Imperial Gaming</p>
                 <p>State Tax Registration number: 10-228399686F-001 | License number for Imperial Gaming LLC: 38-228399686F-001</p>
                 <p>Registered address: 391 Brook Dr. Hot Springs, Virginia 24445 U.S.A.</p>
-                <p>Support: <a href="mailto:support@imperialgaming.llc" className="text-pink-400 hover:text-pink-300">support@imperialgaming.llc</a> | Admin: <a href="mailto:admin@imperialhouse.online" className="text-pink-400 hover:text-pink-300">admin@imperialhouse.online</a></p>
+                <p>Support: <a href="mailto:support@imperialgaming.llc" className="text-pink-400 hover:text-pink-300">support@imperialgaming.llc</a> | Admin: <a href="mailto:admin@imperialgaming.llc" className="text-pink-400 hover:text-pink-300">admin@imperialgaming.llc</a></p>
                 <p className="mt-3 text-gray-600 dark:text-gray-400 italic">
                   No purchase necessary to play or enter sweepstakes. Games and sweepstakes are void where prohibited by law. For detailed rules see{' '}
                   <Link to={createPageUrl('TermsOfService')} className="text-pink-400 hover:text-pink-300">

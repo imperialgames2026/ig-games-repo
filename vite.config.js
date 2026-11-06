@@ -16,7 +16,7 @@ export default defineConfig(({mode})=>{
  }};
  return {
   logLevel: 'error',
-  build: {rollupOptions:{input:{index:fileURLToPath(new URL('./index.html',import.meta.url)),practice:fileURLToPath(new URL('./practice-lab.html',import.meta.url)),unity:fileURLToPath(new URL('./unity-practice-frame.html',import.meta.url))}}},
+  build: {rollupOptions:{input:{index:fileURLToPath(new URL('./index.html',import.meta.url)),practice:fileURLToPath(new URL('./practice-lab.html',import.meta.url)),unity:fileURLToPath(new URL('./unity-practice-frame.html',import.meta.url)),...(mode==='test'&&/^http:\/\/(127\.0\.0\.1|localhost):54321$/.test(env.VITE_SUPABASE_URL||'')?{parkedSource:fileURLToPath(new URL('./tests/fixtures/parked-source.html',import.meta.url))}:{})}}},
   plugins: [react(),release],
   resolve: {
     alias: {

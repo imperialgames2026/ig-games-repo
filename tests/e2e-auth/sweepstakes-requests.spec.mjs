@@ -17,7 +17,8 @@ test('player submits AMOE and a KYC-checked prize request; owner history and adm
  const before=await service.from('wallets').select('*').eq('user_id',player.id).single();expect(before.error).toBeNull();
  await page.goto('/AMOE');await page.getByLabel('Entries requested',{exact:true}).fill('3');await page.getByRole('button',{name:'Submit Free Entry',exact:true}).click();await expect(page.getByRole('status')).toContainText('recorded as pending');await expect(page.getByRole('article')).toContainText('3 entries requested · pending');
  await page.reload();await expect(page.getByRole('article')).toContainText('3 entries requested · pending');
- await page.goto('/PrizeClaims');await expect(page.getByRole('button',{name:'Submit Prize Claim'})).toBeDisabled();
+ await page.goto('/PrizeClaims');await expect(page.getByRole('heading',{name:'Financial services are disabled',exact:true})).toBeVisible();await expect(page.locator('form')).toHaveCount(0);
+ await page.goto('/tests/fixtures/parked-source.html?source=PrizeClaims');await expect(page.getByRole('button',{name:'Submit Prize Claim'})).toBeDisabled();
  expect((await service.from('profiles').update({kyc_status:'approved'}).eq('id',player.id)).error).toBeNull();
  await page.reload();await expect(page.getByRole('button',{name:'Submit Prize Claim'})).toBeEnabled();
  await page.getByLabel('Amount',{exact:true}).fill('19.25');await page.getByLabel('Network',{exact:true}).fill('SOL');await page.getByLabel('Wallet Address',{exact:true}).fill('ExampleDeliveryAddress123');await page.getByRole('button',{name:'Submit Prize Claim'}).click();await expect(page.getByRole('status')).toContainText('submitted for review');await expect(page.getByText('Crypto Prize · 19.25',{exact:true})).toBeVisible();
