@@ -31,6 +31,16 @@
     "pvp-unity/Build/unity.data": "10cb9d8f5726dd67c54df38de62778b03bac8179902c8b38cb5017221bdb0530",
     "pvp-unity/Build/unity.wasm.part0": "81775c1a970c23ec2d54ea0ae020b734481952b2717e5284a0d94e31433a5394",
     "pvp-unity/Build/unity.loader.js": "3d057c5bb94017834ee53f15fc98a4716406831c9c6cf863cb02b8cf1fb66ce7",
-    "pvp-unity/Build/unity.wasm.part1": "b7ef240e9b9ffb6fafdbd8a71223cf1c5d93fa482dd5bc7aa85be13dc35e187a"
+    "pvp-unity/Build/unity.wasm.part1": "b7ef240e9b9ffb6fafdbd8a71223cf1c5d93fa482dd5bc7aa85be13dc35e187a",
+    "pvp3d-models/NLHE_9.glb": "da88d5b5315c583001d63c8f66217f6a4b049716b24d5854691a4bb6884e08f0",
+    "pvp3d-models/Roulette.glb": "8318863e8ccf58e929bf510f249f78518a802e51eddbc93aef7e60139586d651",
+    "pvp3d-models/NLHE_8.glb": "c69317a91743eb5f5d797cf9f4380c332b4c34413f18ae41c54aadf8f0517f6c",
+    "pvp3d-models/Baccarat.glb": "db3328ddc68420ff6706c72cd60ab35ed62e585d78a433589431b04f4b21cff8",
+    "pvp3d-models/Craps.glb": "efb0cec40961984a957b05cf4a50e0835b425a3f18debd57e6e622b48bfe0feb",
+    "pvp3d-models/NLHE_2.glb": "2702bc6560b2c72b3fa7faf37dfac2dc793f079962e6fa3b667825e428d3691e",
+    "pvp3d-models/NLHE_6.glb": "dd4b1dc97f265ab84e469dbe8d696f8558faba36c06a1eecea8030c7e14924d5",
+    "pvp3d-models/NLHE_4.glb": "3ab9832a4e928f0f1fbc2426002496336f76cbd84422ad72a3f6b213d463eb51",
+    "pvp3d-models/NLHE_7.glb": "fb042ef38392fd438378b3bb0bf16419eca40c43a4c2e42e191a6081e0552610",
+    "pvp3d-models/Blackjack_7.glb": "1618ebb929f4ef4ca49089857cebb1cd5707e3420ae3e3ade87c9bcc99ace136"
   }
 }
