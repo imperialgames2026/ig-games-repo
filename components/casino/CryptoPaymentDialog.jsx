@@ -94,7 +94,7 @@ export default function CryptoPaymentDialog({ pack, children }) {
               </p>
             </div>
             <a
-              href="mailto:support@imperialhouse.online?subject=Crypto Deposit Request&body=I'd like to deposit via crypto for the {pack?.name} pack ($${pack?.price})."
+              href="mailto:support@imperialgaming.llc?subject=Crypto Deposit Request&body=I'd like to deposit via crypto for the {pack?.name} pack ($${pack?.price})."
               className="flex items-center justify-center gap-2 w-full p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-sm text-gray-300"
             >
               <Mail className="w-4 h-4" />
@@ -124,7 +124,7 @@ export default function CryptoPaymentDialog({ pack, children }) {
               
             </button>
             <a
-              href={`mailto:support@imperialhouse.online?subject=Purchase Help&body=I need help with the $${(pack?.price || 0).toFixed(2)} payment for the ${pack?.name} pack.`}
+              href={`mailto:support@imperialgaming.llc?subject=Purchase Help&body=I need help with the $${(pack?.price || 0).toFixed(2)} payment for the ${pack?.name} pack.`}
               className="flex items-center justify-center gap-2 w-full p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-sm text-gray-300"
             >
               <Mail className="w-4 h-4" />

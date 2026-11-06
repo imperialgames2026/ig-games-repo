@@ -50,8 +50,10 @@ async function setup(page,{lostResponse=false,history=[],excludeRefreshFails=fal
   });
   return {ids,count:()=>prepared,exclusions:()=>exclusionCalls};
 }
+// Underlying parked form behavior is tested only through the dev-test fixture.
+// The actual application route is checked separately below and stays blocked.
 test('saved request plus refresh failure offers history retry without a second preparation',async({page})=>{
- const state=await setup(page);await page.goto('/Withdraw');
+ const state=await setup(page);await page.goto('/tests/fixtures/parked-source.html?source=Withdraw');
  await page.getByLabel('Amount',{exact:true}).fill('1');
  await page.getByLabel('Destination address',{exact:true}).fill('synthetic-test-only');
  await page.getByRole('button',{name:'Save preparation request',exact:true}).click();
@@ -63,7 +65,7 @@ test('saved request plus refresh failure offers history retry without a second p
  expect(state.count()).toBe(1);
 });
 test('uncertain preparation retry reuses the original UUID',async({page})=>{
- const state=await setup(page,{lostResponse:true});await page.goto('/Withdraw');
+ const state=await setup(page,{lostResponse:true});await page.goto('/tests/fixtures/parked-source.html?source=Withdraw');
  await page.getByLabel('Amount',{exact:true}).fill('1');
  await page.getByLabel('Destination address',{exact:true}).fill('synthetic-test-only');
  await page.getByRole('button',{name:'Save preparation request',exact:true}).click();
@@ -77,7 +79,7 @@ test('uncertain preparation retry reuses the original UUID',async({page})=>{
 test('withdrawal history shows its exact destination without exposing it on deposit rows',async({page})=>{
  await setup(page,{history:[{id:'w',kind:'withdrawal',amount:'1',asset:'SOL',network:'solana',destination:'synthetic-destination-123',status:'awaiting_provider',created_at:'2026-10-20T00:00:00Z'},
  {id:'d',kind:'deposit',amount:'2',asset:'SOL',network:'solana',destination:'must-not-display',status:'awaiting_provider',created_at:'2026-10-20T00:00:00Z'}]});
- await page.goto('/Withdraw');
+ await page.goto('/tests/fixtures/parked-source.html?source=Withdraw');
  await expect(page.getByText('Destination: synthetic-destination-123',{exact:true})).toBeVisible();
  await expect(page.getByText('Destination: must-not-display',{exact:true})).toHaveCount(0);
 });
@@ -91,4 +93,14 @@ test('confirmed self-exclusion remains successful and cannot be resubmitted afte
  await expect(page.getByRole('alert').filter({hasText:'Self-exclusion is confirmed active'})).toBeVisible();
  await expect(page.getByRole('button',{name:'Activate self-exclusion',exact:true})).toHaveCount(0);
  expect(state.exclusions()).toBe(1);
+});
+
+for(const route of ['Payments','Withdraw','CryptoWallet','DepositNetworks','PrizeClaims'])test(`${route} remains blocked with no preparation writes`,async({page})=>{
+ const state=await setup(page);const financial=[];
+ page.on('request',r=>{if(/ig-payment-requests|ig_prize_claim_requests/.test(r.url()))financial.push(r.url());});
+ await page.goto('/'+route);
+ await expect(page.getByRole('heading',{name:'Financial services are disabled',exact:true})).toBeVisible();
+ await expect(page.locator('form')).toHaveCount(0);
+ await expect(page.getByLabel('Amount',{exact:true})).toHaveCount(0);
+ expect(state.count()).toBe(0);expect(financial).toEqual([]);
 });

@@ -1,3 +1,5 @@
+// Parked game-source regressions use a dev-test-only entry; actual blocked routes
+// remain covered by practice-release-gates.spec.mjs. No production route is enabled.
 // Browser behavior with controlled API responses. Live staging contracts are tested separately by the HTTP scripts.
 import { test, expect } from '@playwright/test';
 import { calculateOriginalsOutcome } from '../../lib/originalsFairness.js';
@@ -72,7 +74,7 @@ async function setup(page, { role = 'player', failReveal = false, minesLostStart
 for (const route of ['PlayCoinFlip','PlayHashDice','PlayLimbo','PlayPlinko','PlayWheel']) {
   test(`${route} displays a locally verified server outcome`, async ({ page }) => {
     await setup(page);
-    await page.goto('/' + route);
+    await page.goto('/tests/fixtures/parked-source.html?source='+route);
     await page.getByLabel('Client seed', { exact: true }).fill('client:unicode-🎲');
     await page.getByRole('button', { name: /^(Flip coin|Roll hash dice|Launch|Drop ball|Spin wheel)$/ }).click();
     await expect(page.getByText('Fairness proof verified on your device', { exact: false })).toBeVisible();
@@ -83,7 +85,7 @@ for (const route of ['PlayCoinFlip','PlayHashDice','PlayLimbo','PlayPlinko','Pla
 for (const [route, choice, action] of [['PlayCoinFlip', 'tails', 'Flip coin'], ['PlayHashDice', 'high', 'Roll hash dice'], ['PlayPlinko', 'right', 'Drop ball'], ['PlayWheel', 'purple', 'Spin wheel']]) {
 test(`${route} resumes the same saved prediction after page reload`, async ({ page }) => {
   const state = await setup(page, { failReveal: true });
-  await page.goto('/' + route);
+  await page.goto('/tests/fixtures/parked-source.html?source='+route);
   await page.getByLabel('Client seed', { exact: true }).fill('saved-round-seed');
   await page.getByRole('button', { name: choice, exact: true }).click();
   await page.getByRole('button', { name: action, exact: true }).click();
@@ -115,7 +117,7 @@ test('profile saves a name, locks the chosen display name and uploads an avatar'
 });
 test('tester cannot start a round or change protected profile fields', async ({ page }) => {
   const state = await setup(page, { role: 'tester' });
-  await page.goto('/PlayCoinFlip');
+  await page.goto('/tests/fixtures/parked-source.html?source=PlayCoinFlip');
   await expect(page.getByRole('button', { name: 'Flip coin', exact: true })).toBeDisabled();
   await page.goto('/Profile');
   await expect(page.getByRole('button', { name: 'Save', exact: true }).first()).toBeDisabled();
@@ -124,7 +126,7 @@ test('tester cannot start a round or change protected profile fields', async ({ 
 });
 test('Mines keeps tiles hidden, resumes a server-owned round and verifies the final board', async ({ page }) => {
   await setup(page);
-  await page.goto('/PlayMines');
+  await page.goto('/tests/fixtures/parked-source.html?source=PlayMines');
   await page.getByRole('button',{ name: 'Commit round',exact: true }).click();
   await expect(page.getByRole('button',{ name: 'Start committed round',exact: true })).toBeVisible();
   await page.getByLabel('Client seed',{ exact: true }).fill('client:unicode-🎲');
@@ -142,7 +144,7 @@ test('Mines keeps tiles hidden, resumes a server-owned round and verifies the fi
 });
 
 async function startMines(page) {
- await page.goto('/PlayMines');
+ await page.goto('/tests/fixtures/parked-source.html?source=PlayMines');
  await page.getByRole('button',{name:'Commit round',exact:true}).click();
  await expect(page.getByRole('button',{name:'Start committed round',exact:true})).toBeVisible();
  await page.getByLabel('Client seed',{exact:true}).fill('client:unicode-🎲');

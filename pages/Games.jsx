@@ -7,17 +7,17 @@ import PullToRefresh from '@/components/mobile/PullToRefresh';
 import { createPageUrl } from '@/utils';
 import ExclusionBanner from '@/components/casino/ExclusionBanner';
 import { motion } from 'framer-motion';
-import { Gamepad2, LayoutGrid, Table, Sparkles, Dice5, Crown, ArrowRight } from 'lucide-react';
+import { Gamepad2, LayoutGrid, Table, Dice5, Crown, ArrowRight } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import GameCard from '@/components/casino/GameCard';
 import WeeklyTokenLeaderboard from '@/components/casino/WeeklyTokenLeaderboard';
-import { approvedPracticeGames } from '@/lib/approvedPracticeGames';
+import ProgramUnavailable from '@/components/casino/ProgramUnavailable';
+
 
 const categoryIcons = {
   all: LayoutGrid,
   table: Table,
-  slots: Sparkles,
   instant: Dice5,
   cards: Gamepad2,
   poker: Crown,
@@ -35,7 +35,7 @@ export default function Games() {
 
   if (user?.is_excluded) return <ExclusionBanner />;
 
-  const categories = ['all', 'table', 'slots', 'instant', 'cards', 'poker', 'blackjack'];
+  const categories = ['all', 'table', 'instant', 'cards', 'poker', 'blackjack'];
 
   const sortGames = (gamesList) => {
     const categoryOrder = { 'instant': 1, 'table': 2, 'cards': 3, 'slots': 4 };
@@ -77,7 +77,7 @@ export default function Games() {
             </div>
             <h1 className="text-4xl font-black text-white mb-4">Game Library</h1>
             <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              Explore our collection of exciting casino games. Play responsibly and have fun!
+              Explore our collection of exciting games on our gaming network. Play responsibly and have fun!
             </p>
           </motion.div>
         </div>
@@ -88,7 +88,7 @@ export default function Games() {
         <section aria-label="Available multiplayer practice tables" className="mb-10 rounded-2xl border border-amber-400/20 bg-[#181525] p-5 sm:p-7">
           <div className="mb-5">
             <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-300">Staging · Multiplayer practice</p>
-            <h2 className="mt-2 text-2xl font-black text-white">Join a live casino-style table</h2>
+            <h2 className="mt-2 text-2xl font-black text-white">Join a live gaming network table</h2>
             <p className="mt-2 text-sm text-gray-300">Play beside other signed-in users using imaginary practice chips only. No cryptocurrency, paid wagers, transfers, redemptions or cash prizes.</p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -150,17 +150,9 @@ export default function Games() {
             </Link>
           </div>
         </section>
-        <section aria-label="Verified Originals practice games" className="mb-10 rounded-2xl border border-violet-400/20 bg-[#181525] p-5 sm:p-7">
-          <h2 className="text-2xl font-black text-white">Verified Originals</h2>
-          <p className="mt-2 text-sm text-gray-300">Free practice rounds with server commitments and proofs you can verify on your device. No money, tokens or prizes.</p>
-          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {approvedPracticeGames.filter(game => ['provably-fair-v2','ig-originals-practice','ig-mines-practice','ig-final-practice'].includes(game.backend) || game.slug==='rocket').map(game =>
-              <Link key={game.slug} to={game.route} className="rounded-xl border border-violet-400/25 bg-violet-950/30 p-5 text-white hover:border-amber-300">
-                <span aria-hidden="true" className="text-3xl">{game.icon}</span><h3 className="mt-2 text-xl font-bold">{game.name}</h3>
-                <p className="mt-2 text-sm text-gray-300">{game.description}</p><p className="mt-4 text-sm font-bold text-amber-200">Play free practice →</p>
-              </Link>)}
-          </div>
-        </section>
+        <div className="mb-10"><ProgramUnavailable title="Slots, Originals and Mines are parked">
+          <p>These games are not accepting practice play in this release. Other skill-game builds remain separate until their own review and integration.</p>
+        </ProgramUnavailable></div>
         <WeeklyTokenLeaderboard />
 
         {error && <p role="alert" className="mb-5 rounded-xl border border-red-400/30 p-4 text-red-200">Your approved game catalog could not load. Refresh to try again.</p>}
@@ -169,7 +161,6 @@ export default function Games() {
             {[
               { value: 'all', label: 'All', Icon: LayoutGrid },
               { value: 'table', label: 'Table', Icon: Table },
-              { value: 'slots', label: 'Slots', Icon: Sparkles },
               { value: 'instant', label: 'Instant', Icon: Dice5 },
               { value: 'cards', label: 'Cards', Icon: Gamepad2 },
               { value: 'poker', label: 'Poker', Icon: Crown },
@@ -186,7 +177,7 @@ export default function Games() {
             ))}
           </TabsList>
 
-          {['all', 'table', 'slots', 'instant', 'cards'].map((category) => (
+          {['all', 'table', 'instant', 'cards'].map((category) => (
             <TabsContent key={category} value={category}>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filterGames(category).map((game, i) => (
@@ -219,7 +210,7 @@ export default function Games() {
               </div>
               <h2 className="text-3xl font-black text-white mb-3">Imperial Poker</h2>
               <p className="text-gray-400 text-lg mb-8 max-w-xl mx-auto">
-                Join live Sit & Go tables or compete in scheduled tournaments. Real action, real stakes.
+                Join practice tables or free scheduled tournaments. Practice chips have no cash value.
               </p>
               <Link to={createPageUrl('PokerLobby')}>
                 <Button className="bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white font-bold text-lg px-10 py-4 h-auto rounded-xl shadow-lg shadow-pink-500/30">
