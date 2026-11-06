@@ -460,10 +460,10 @@
         "runtime/dist/games/stud5.js": "46b64febe75e04bb6c309b7b829234f3d981758fc070669245cb2e49cb88d5f5",
         "runtime/dist/games/triple27.js": "9cbdab0bd2cea3bb09821fe7ea4c1efbd7d56d6d25edc518752f0b1454047fb0",
         "runtime/dist/games/words.js": "801ef3aa7713268c55e71a098d1aa818f6056e7e9b0d68edc8ca9b8dfb748fa7",
-        "runtime/engine.mjs": "3bc32257e5078362cd315a29c88844374ca1a0abbf51cf3813859d6e9ca2ce5b",
-        "service.mjs": "c2d5f370f312828d5d5c6e91ddcaeefc69765d8d0b7e354a0f945c4f98f1bc23"
+        "runtime/engine.mjs": "f9750f904eaa2457aed28689a70ecf0ed6a523baa14d07f817ce63bb90683a10",
+        "service.mjs": "e018c6357c62687b3d34f50a05bc9505d1b44d442f4da9bba1dde7ad7a7384e8"
       },
-      "deployed_version": 3
+      "deployed_version": 4
     }
   ],
   "migrations": [

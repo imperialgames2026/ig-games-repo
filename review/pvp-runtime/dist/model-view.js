@@ -5,8 +5,8 @@ import {profileStats,profileReactions} from './poker-profile-stats.js';
 import {preferences,skins,formatChips,openTableOptions,attachTableHold} from './poker-preferences.js';
 import * as T from './vendor/three/three.module.js';
 import {GLTFLoader} from './vendor/three/loaders/GLTFLoader.js';
-const models={poker2:'NLHE_2',poker4:'NLHE_4',poker6:'NLHE_6',poker8:'NLHE_8',poker7:'NLHE_7',poker9:'NLHE_9',rummy:'Rummy_2',rummy6:'Rummy_6',spades:'Spades_4',hearts:'Hearts_4',euchre:'Euchre_4',pinochle:'Pinochle_4',blackjack:'Blackjack_7',roulette:'Roulette',craps:'Craps',baccarat:'Baccarat',chess:'Chess',battleship:'Fleet_Command',battleship6:'Fleet_Command'};
-for(const count of [2,4,6,7,8,9])models['omaha'+count]='NLHE_'+count;
+const models={poker2:'NLHE_2',poker4:'NLHE_4',poker6:'NLHE_6',poker8:'NLHE_8',poker9:'NLHE_9',rummy:'Rummy_2',rummy6:'Rummy_6',spades:'Spades_4',hearts:'Hearts_4',euchre:'Euchre_4',pinochle:'Pinochle_4',blackjack:'Blackjack_7',roulette:'Roulette',craps:'Craps',baccarat:'Baccarat',chess:'Chess',battleship:'Fleet_Command',battleship6:'Fleet_Command'};
+for(const count of [2,4,6,8,9])models['omaha'+count]='NLHE_'+count;
 for(const id of ['pineapple6','crazy6','lazy6','stud5','draw5','progressive5','triple27'])models[id]='NLHE_6';
 let active=null;const cache=new Map();
 export const hasModel=game=>!!models[game];
@@ -95,11 +95,11 @@ export async function updateModel(room,gameRoot){
   room.seats.forEach((seat,i)=>{
    const anchor=a.model.getObjectByName('Seat_'+String((Math.max(0,room.seat)-i+(a.portrait?Math.round(room.seats.length*.75):0)+room.seats.length)%room.seats.length).padStart(2,'0'));if(!anchor)return;
    const point=anchor.getWorldPosition(new T.Vector3());point.x*=.94;point.z*=.94;
-   const node=document.createElement('button');node.type='button';node.setAttribute('aria-label','View profile: '+seat.name);node.className='poker-seat-label'+(i===room.seat?' is-you':'')+(i===s.turn&&!s.over&&s.phase!=='round'?' is-turn':'')+(s.folded[i]?' is-folded':'');
+   const node=document.createElement('button');node.type='button';node.disabled=!!seat.inactive;node.setAttribute('aria-label','View profile: '+seat.name);node.className='poker-seat-label'+(i===room.seat?' is-you':'')+(i===s.turn&&!s.over&&s.phase!=='round'?' is-turn':'')+(s.folded[i]?' is-folded':'');
    const name=document.createElement('strong');name.textContent=seat.name+(i===room.seat?' · YOU':'');name.title=name.textContent;
-   const chips=document.createElement('span');chips.textContent=formatChips(s.stacks[i],s);
-   const bet=document.createElement('small');bet.textContent=(i===s.dealer?'D · ':'')+(s.folded[i]?'Folded':s.stacks[i]===0?'All-in · '+formatChips(s.bets[i],s):'Bet '+formatChips(s.bets[i],s));
-   const avatar=document.createElement('img');avatar.className='poker-avatar';avatar.src='/pvp3d-avatars/player-'+(i%9+1)+'.svg';avatar.alt='Placeholder avatar';avatar.width=44;avatar.height=44;
+   const chips=document.createElement('span');chips.textContent=seat.inactive?'':formatChips(s.stacks[i],s);
+   const bet=document.createElement('small');bet.textContent=seat.inactive?'Not playing':(i===s.dealer?'D · ':'')+(s.folded[i]?'Folded':s.stacks[i]===0?'All-in · '+formatChips(s.bets[i],s):'Bet '+formatChips(s.bets[i],s));
+   const avatar=document.createElement('img');avatar.className='poker-avatar';avatar.src='/pvp3d-avatars/player-'+(i%9+1)+'.svg';avatar.alt='Placeholder avatar';avatar.hidden=!!seat.inactive;avatar.width=44;avatar.height=44;
    node.append(avatar,name,chips,bet);
    if(node.classList.contains('is-turn')&&room.turnClock){
     const clock=room.turnClock,received=performance.now();const countdown=document.createElement('small');countdown.className='poker-turn-seconds';node.append(countdown);

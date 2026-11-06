@@ -1,0 +1,11 @@
+# Poker table scope correction
+
+Inspection found that deployed pvp-games-review v3 and the main frontend offered distinct poker7/omaha7 rooms using a separate NLHE_7 model. That did not match Nathan’s fixed designs (2,4,6,8,9); the production aggregate query found zero stored poker7/omaha7 rooms at inspection.
+
+The correction removes both seven-max entries from the published registry and new-room whitelist, and removes the seven-seat GLB. Seven occupants are instead selected with `players:7` only when creating poker8, poker9, omaha8 or omaha9. Those rooms retain eight/nine physical slots and the corresponding approved model, but exactly seven human participants and seven rule-engine players. Extra slots are explicitly unused, cannot be joined and never act as bots. Raw server state has seven hands; only the authorized UI projection is padded with null/zero inactive slots. Default full-table behavior and other game rules are unchanged. Historical SQL migrations/receipts are retained.
+
+Five focused PostgreSQL checks passed: exact approved formats and invalid-count rejection; four complete seven-player matches on the approved eight/nine-seat NLHE/Omaha tables; private/spectator hands; unused-seat denial; exact retry/conflicting-count denial; and conserved total 7,000 imaginary chips. All 266 application checks and 37 replay checks passed. Real local Auth/PostgREST browser acceptance passed all 36 game entries and seven real occupants on each approved eight/nine-seat NLHE/Omaha layout at desktop/mobile sizes, including an enabled browser move and disabled unused-seat controls. Canonical wallet rows were byte-identical. The registry will contain 36 game entries; seven-player occupancy remains available within the approved larger table formats rather than counting as a distinct format.
+
+The main-game APK source must be aligned with the corrected web commit before distribution. The wallet APK is separate and untouched.
+
+Backend version 4 is active with JWT verification enabled; all 51 bundled source files matched readback. Runtime creation no longer accepts poker7/omaha7. No SQL table, grant, migration history or recorded room was changed. Frontend promotion follows CI.
