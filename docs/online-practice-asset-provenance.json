@@ -1,0 +1,17 @@
+{
+  "source": "Mini-Imp November2 authored handoff; six referenced GLBs compared byte-for-byte",
+  "shared_runtime_source_commit": "7ae5025808b672550e09400f0589df4f622c54f0",
+  "files": {
+    "pvp3d-models/Rummy_6.glb": "f514bed30d5aa5ce558de8a6af22b6945bca2af5270b1e89c1dbf163f14ac964",
+    "pvp3d-models/Rummy_2.png": "405eb07b226377fd28a429c0446eb62d1408496061c005d1488caa3504dd2225",
+    "pvp3d-models/Fleet_Command.glb": "013339dddcfa13adf5a9fc3366ee84bb28d8bc9726e68662e8bb162ce6318343",
+    "pvp3d-models/Chess.glb": "fb2fb6771fc5cfe20bc5ee0beeb47aac4a6e21b26a6aa3bad85ed70e42ec164e",
+    "pvp3d-models/Fleet_Ships_6.glb": "42b4938dd1a2d94e732800b6e1dfbe6f647de7fdd68c8ff594a6cfff36897819",
+    "pvp3d-models/Rummy_6.png": "c82190c96169a78b9e0d6759e38febf0aa0abeac85fe720702f016ac4a3ee143",
+    "pvp3d-models/Fleet_Command.png": "4b9b989e786e8886878b4337b78df3ce6f955264453c3bf07e6388a4e0822384",
+    "pvp3d-models/Rummy_2.glb": "cd7c0b5b65a7294230bab5818b5d4dff52085b95c3fa3eadf6a256758c530d94",
+    "pvp3d-models/Spades_4.glb": "227a9b504740791b0599902872d0c08a6a55f461e8d4e32ef82da9ba6e736852",
+    "pvp3d-models/Chess.png": "6491149a324287a97c38b8c0f255175ec779ea500d2a8f8103f69ec2d3c91def",
+    "pvp3d-models/Spades_4.png": "5e8b6dbe903827a84c05c52601eb2c3f020796dccbd8f69f71c13740bc85453f"
+  }
+}

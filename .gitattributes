@@ -1,0 +1,6 @@
+# Preserve third-party generated source and license notices byte-for-byte.
+supabase/functions/pvp-games-review/runtime/dist/chess/vendor/** -whitespace
+public/licenses/** -whitespace
+review/pvp-runtime/dist/assets/*LICENSE* -whitespace
+
+review/pvp-runtime/dist/vendor/** -whitespace
