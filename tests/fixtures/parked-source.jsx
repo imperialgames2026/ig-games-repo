@@ -3,6 +3,8 @@
 import React from 'react';
 import {createRoot} from 'react-dom/client';
 import {BrowserRouter} from 'react-router-dom';
+import {QueryClientProvider} from '@tanstack/react-query';
+import {queryClientInstance} from '../../lib/query-client';
 import {AuthProvider} from '../../lib/AuthContext';
 import ProtectedRoute from '../../lib/ProtectedRoute';
 import Withdraw from '../../pages/Withdraw';
@@ -21,4 +23,4 @@ import '../../index.css';
 const sources={PlayDarts,PlayDiceZone,PlayHiLo,PlayTowers,PrizeClaims,Withdraw,PlayCoinFlip,PlayHashDice,PlayLimbo,PlayPlinko,PlayWheel,PlayMines};
 const Source=sources[new URLSearchParams(location.search).get('source')];
 if(!Source)throw Error('Unknown parked source fixture');
-createRoot(document.getElementById('root')).render(<BrowserRouter><AuthProvider><ProtectedRoute><Source/></ProtectedRoute></AuthProvider></BrowserRouter>);
+createRoot(document.getElementById('root')).render(<BrowserRouter><AuthProvider><QueryClientProvider client={queryClientInstance}><ProtectedRoute><Source/></ProtectedRoute></QueryClientProvider></AuthProvider></BrowserRouter>);
