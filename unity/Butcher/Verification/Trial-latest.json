@@ -14,7 +14,7 @@
         "domainReloadInProgress": false,
         "playMode": "stopped",
         "runInBackground": true,
-        "lastHeartbeat": "2026-11-06T02:39:13.408315Z",
+        "lastHeartbeat": "2026-11-06T02:45:14.203622Z",
         "projectPath": "/home/imperialist85/Documents/ChatGPT/Unity Builds/Butcher",
         "unityVersion": "6000.3.6f1",
         "role": "main",
@@ -28,24 +28,24 @@
       ],
       "result": {
         "entries": [],
-        "cursor": 1,
+        "cursor": 1982,
         "session": "06b3b55730c444579096bf591550205d",
         "returned": 0,
         "dropped": false,
         "reset": false,
         "counts": {
           "error": 0,
-          "warn": 1,
-          "log": 0
+          "warn": 1980,
+          "log": 2
         },
         "groundTruth": {
-          "sampledUtc": "2026-11-06T02:39:14.382641Z",
-          "ageMs": 52,
+          "sampledUtc": "2026-11-06T02:45:15.080385Z",
+          "ageMs": 151,
           "compilationFailed": false,
           "compiling": false,
           "consoleErrors": 0,
           "consoleWarnings": 0,
-          "consoleLogs": 0,
+          "consoleLogs": 2,
           "seeded": true
         }
       }
@@ -82,9 +82,9 @@
         "timedOut": false,
         "member": "UnityEngine.Time.frameCount",
         "op": "changed",
-        "value": 65,
-        "initialValue": 59,
-        "elapsedMs": 117,
+        "value": 31,
+        "initialValue": 24,
+        "elapsedMs": 132,
         "framesObserved": 2
       }
     },
@@ -145,7 +145,7 @@
         "output": null,
         "diagnostics": [],
         "success": true,
-        "result": 69
+        "result": true
       }
     },
     {
@@ -171,9 +171,9 @@
         "timedOut": false,
         "member": "UnityEngine.Time.frameCount",
         "op": "changed",
-        "value": 508,
-        "initialValue": 501,
-        "elapsedMs": 119,
+        "value": 386,
+        "initialValue": 380,
+        "elapsedMs": 117,
         "framesObserved": 2
       }
     },
@@ -186,7 +186,7 @@
         "width": 1280,
         "height": 720,
         "encoding": "png",
-        "bytes": 319065,
+        "bytes": 328273,
         "source": "screen",
         "savedPath": "Assets/Screenshots/Trial-Arena.png"
       }
@@ -216,7 +216,7 @@
         "op": "equals",
         "value": true,
         "initialValue": true,
-        "elapsedMs": 5,
+        "elapsedMs": 6,
         "framesObserved": 1
       }
     },
@@ -315,9 +315,9 @@
         "timedOut": false,
         "member": "UnityEngine.Time.frameCount",
         "op": "changed",
-        "value": 1150,
-        "initialValue": 1144,
-        "elapsedMs": 108,
+        "value": 921,
+        "initialValue": 914,
+        "elapsedMs": 109,
         "framesObserved": 2
       }
     },
@@ -330,7 +330,7 @@
         "width": 1280,
         "height": 720,
         "encoding": "png",
-        "bytes": 264974,
+        "bytes": 273773,
         "source": "screen",
         "savedPath": "Assets/Screenshots/Trial-Result.png"
       }
@@ -358,9 +358,9 @@
         "timedOut": false,
         "member": "UnityEngine.Time.frameCount",
         "op": "changed",
-        "value": 1321,
-        "initialValue": 1315,
-        "elapsedMs": 107,
+        "value": 1052,
+        "initialValue": 1046,
+        "elapsedMs": 122,
         "framesObserved": 2
       }
     },
@@ -407,23 +407,23 @@
       ],
       "result": {
         "entries": [],
-        "cursor": 1907,
+        "cursor": 3587,
         "session": "06b3b55730c444579096bf591550205d",
         "returned": 0,
         "dropped": false,
         "reset": false,
         "counts": {
           "error": 0,
-          "warn": 1907,
-          "log": 0
+          "warn": 1998,
+          "log": 2
         },
         "groundTruth": {
-          "sampledUtc": "2026-11-06T02:39:50.622446Z",
-          "ageMs": 54,
+          "sampledUtc": "2026-11-06T02:45:47.657861Z",
+          "ageMs": 19,
           "compilationFailed": false,
           "compiling": false,
           "consoleErrors": 0,
-          "consoleWarnings": 1902,
+          "consoleWarnings": 1604,
           "consoleLogs": 0,
           "seeded": true
         }

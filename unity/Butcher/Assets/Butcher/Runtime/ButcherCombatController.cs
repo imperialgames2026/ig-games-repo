@@ -236,8 +236,31 @@ namespace Imperial.Butcher
             foreach (var key in map.blockedCells ?? Array.Empty<string>())
             {
                 var parts = key.Split(',');
-                if (parts.Length==2 && int.TryParse(parts[0],out int x) && int.TryParse(parts[1],out int y))
-                    Primitive("Trial obstacle",PrimitiveType.Cube,Position(new GridPosition{x=x,y=y})+Vector3.up*.8f,new Vector3(1.35f,1.6f,1.35f),stone,arena.transform);
+                if (parts.Length != 2 || !int.TryParse(parts[0], out int x) || !int.TryParse(parts[1], out int y)) continue;
+                var cell = Position(new GridPosition { x=x, y=y });
+                Primitive("Trial obstacle", PrimitiveType.Cube, cell + Vector3.up*.8f,
+                    new Vector3(1.35f,1.6f,1.35f), stone, arena.transform);
+                for (int course=0; course<4; course++)
+                {
+                    float inset = course % 2 == 0 ? .04f : 0;
+                    Primitive("Watchpost masonry", PrimitiveType.Cube, cell + Vector3.up*(.2f+.4f*course),
+                        new Vector3(1.43f-inset,.35f,1.43f-inset), course % 2 == 0 ? light : stone, arena.transform, collides:false);
+                }
+                Primitive("Broken capstone", PrimitiveType.Cube, cell + new Vector3(-.23f,1.69f,.13f),
+                    new Vector3(.7f,.18f,.85f), light, arena.transform, collides:false);
+            }
+            var bronze = Mat(new Color(.78f,.48f,.19f));
+            var threshold = ArenaOrigin + new Vector3((map.width-1)*Tile*.5f, -.064f, -Tile*.38f);
+            Primitive("Watchpost entry inlay", PrimitiveType.Cube, threshold,
+                new Vector3(Tile*1.6f,.015f,.12f), bronze, arena.transform, collides:false);
+            foreach (float x in new[] { -Tile*.85f, (map.width-.15f)*Tile })
+            foreach (float z in new[] { -Tile*.85f, (map.height-.15f)*Tile })
+            {
+                var corner = ArenaOrigin + new Vector3(x,0,z);
+                Primitive("Watchpost boundary plinth", PrimitiveType.Cube, corner + Vector3.up*.32f,
+                    new Vector3(.65f,.64f,.65f), stone, arena.transform, collides:false);
+                Primitive("Watchpost bronze marker", PrimitiveType.Cylinder, corner + Vector3.up*.69f,
+                    new Vector3(.36f,.07f,.36f), bronze, arena.transform, collides:false);
             }
             enemy = new GameObject("Camp Sentinel"); enemy.transform.SetParent(arena.transform);
             var motion = new GameObject("Sentinel motion").transform; motion.SetParent(enemy.transform,false);
@@ -247,11 +270,17 @@ namespace Imperial.Butcher
             feedback = arena.AddComponent<ButcherTrialFeedback>(); feedback.Configure(motion);
         }
         Material Mat(Color color) { var material = new Material(Shader.Find("Universal Render Pipeline/Lit")) { color=color }; materials.Add(material); return material; }
-        static void Primitive(string name, PrimitiveType type, Vector3 position, Vector3 scale, Material material, Transform parent, bool local=false)
+        static void Primitive(string name, PrimitiveType type, Vector3 position, Vector3 scale, Material material, Transform parent, bool local=false, bool collides=true)
         {
             var obj=GameObject.CreatePrimitive(type);obj.name=name;obj.transform.SetParent(parent,false);
             if (local) obj.transform.localPosition=position; else obj.transform.position=position;
             obj.transform.localScale=scale;obj.GetComponent<Renderer>().sharedMaterial=material;
+            if (!collides)
+            {
+                var collider = obj.GetComponent<Collider>();
+                collider.enabled = false;
+                Destroy(collider);
+            }
         }
         void ReleaseArena()
         {
@@ -284,7 +313,7 @@ namespace Imperial.Butcher
             var hero=Actor("hero");var hostile=Actor("sentinel");
             GUI.Box(new Rect(18,152,490,148),"");
             string range = hero.weapon == null ? "No weapon" : "Weapon range: " + hero.weapon.rangeFeet + " ft";
-            GUI.Label(new Rect(34,162,456,136),"CAMP TRIAL · Practice\n"+hero.name+": "+hero.hitPoints+" / "+hero.maxHitPoints+" HP · Sentinel: "+hostile.hitPoints+" / "+hostile.maxHitPoints+" HP\nMovement: "+hero.movementRemainingFeet+" ft · "+(hero.actionUsed?"Action used":"Action ready")+"\nMana: "+hero.mana+" / "+hero.maxMana+" · Defense: "+hero.armorClass+(hero.wardArmorBonus>0?" (ward active)":"")+"\nSentinel: "+DistanceFeet(hero,hostile)+" ft away · "+range,text);
+            GUI.Label(new Rect(34,162,456,136),"CAMP TRIAL · Ruined Watchpost\n"+hero.name+": "+hero.hitPoints+" / "+hero.maxHitPoints+" HP · Sentinel: "+hostile.hitPoints+" / "+hostile.maxHitPoints+" HP\nMovement: "+hero.movementRemainingFeet+" ft · "+(hero.actionUsed?"Action used":"Action ready")+"\nMana: "+hero.mana+" / "+hero.maxMana+" · Defense: "+hero.armorClass+(hero.wardArmorBonus>0?" (ward active)":"")+"\nSentinel: "+DistanceFeet(hero,hostile)+" ft away · "+range,text);
             GUI.Box(new Rect(18,360,490,150),"");
             GUI.Label(new Rect(34,370,456,130),notice+"\n"+string.Join("\n",recent.ToArray()),text);
             if (snapshot.encounter.state.phase=="completed")

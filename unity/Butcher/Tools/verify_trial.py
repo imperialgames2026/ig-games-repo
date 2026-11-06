@@ -51,7 +51,7 @@ try:
      && (string)step.Invoke(c, new object[] { hero, 5, 2 }) == "The sentinel blocks that step.";
  ''')
  assert evaluate('return UnityEngine.Object.FindFirstObjectByType<Imperial.Butcher.ButcherCombatController>().InTrial;')
- assert evaluate('return UnityEngine.GameObject.Find("Camp Trial Arena").GetComponentsInChildren<UnityEngine.Renderer>().Length;')==69
+ assert evaluate('var a=UnityEngine.GameObject.Find("Camp Trial Arena");return a.GetComponentsInChildren<UnityEngine.Collider>().Length == 69 && UnityEngine.GameObject.Find("Broken capstone") != null && UnityEngine.GameObject.Find("Watchpost bronze marker") != null;')
  evaluate('UnityEngine.Object.FindFirstObjectByType<Imperial.Butcher.ButcherCombatController>().GetType().GetField("notice",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance).SetValue(UnityEngine.Object.FindFirstObjectByType<Imperial.Butcher.ButcherCombatController>(),"Presentation fixture · no server mutations");return "Fixture labelled";')
  frames();run('capture','game_view','--','--source','screen','--save_path','Screenshots/Trial-Arena.png')
  state['revision']=1;hero['position']={'x':4,'y':2};hero['movementRemainingFeet']=20

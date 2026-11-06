@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -13,6 +14,20 @@ namespace Imperial.Butcher
         const string Publishable = "sb_publishable_9uFdh-OL4yAWtPPKNSZLPA_aVM5daBS";
         static readonly string[] Archetypes = { "vanguard", "spellweaver", "oathkeeper", "wildscout" };
         static readonly string[] Origins = { "ridgeborn", "tideborn", "emberkin", "stonebound" };
+        static readonly string[] AbilityLabels = { "Strength", "Dexterity", "Constitution", "Intelligence", "Wisdom", "Charisma" };
+        static readonly int[][] StarterScores = {
+            new[] { 15, 14, 13, 12, 10, 8 }, new[] { 8, 12, 13, 15, 10, 14 },
+            new[] { 15, 10, 13, 8, 12, 14 }, new[] { 10, 15, 13, 12, 14, 8 }
+        };
+        // Matches the lab's level-one archetype proficiency lists.
+        static readonly string[][] SkillOptions = {
+            new[] { "athletics", "perception", "insight", "survival" },
+            new[] { "arcana", "lore", "insight", "perception" },
+            new[] { "athletics", "medicine", "insight", "persuasion" },
+            new[] { "stealth", "survival", "acrobatics", "foraging", "perception" }
+        };
+        int[] draftScores = (int[])StarterScores[0].Clone();
+        readonly List<string> draftSkills = new List<string> { SkillOptions[0][0], SkillOptions[0][1] };
         ButcherWorld world;
         string email = "", password = "", session = "", heroName = "New Hero";
         string message = "Preview an appearance, or sign in to the Butcher lab to save a hero.";
@@ -106,8 +121,13 @@ namespace Imperial.Butcher
                 GUILayout.Label("Origin: " + Origins[origin]);
                 if (GUILayout.Button("Change origin", GUILayout.Height(30))) origin = (origin + 1) % Origins.Length;
                 GUILayout.Label("Archetype: " + Archetypes[archetype]);
-                if (GUILayout.Button("Change archetype", GUILayout.Height(30))) archetype = (archetype + 1) % Archetypes.Length;
-                GUILayout.Label("Uses a starter ability array and two suggested skills. Detailed stat assignment comes later.");
+                if (GUILayout.Button("Change archetype", GUILayout.Height(30)))
+                {
+                    archetype = (archetype + 1) % Archetypes.Length;
+                    ResetBuildChoices();
+                }
+                DrawBuildChoices();
+                GUI.enabled = !busy && draftSkills.Count == 2;
                 if (GUILayout.Button("Save new hero", GUILayout.Height(38))) CreateCharacter();
             }
             GUI.enabled = true;
@@ -115,6 +135,39 @@ namespace Imperial.Butcher
             GUILayout.EndScrollView();
             GUILayout.EndArea();
             GUI.skin = previousSkin;
+        }
+
+        void ResetBuildChoices()
+        {
+            draftScores = (int[])StarterScores[archetype].Clone();
+            draftSkills.Clear();
+            draftSkills.Add(SkillOptions[archetype][0]);
+            draftSkills.Add(SkillOptions[archetype][1]);
+        }
+
+        void DrawBuildChoices()
+        {
+            GUILayout.Label("Ability scores · Swap scores between abilities.");
+            for (int i = 0; i < AbilityLabels.Length; i++)
+            {
+                int next = (i + 1) % AbilityLabels.Length;
+                GUILayout.BeginHorizontal();
+                GUILayout.Label(AbilityLabels[i] + "  " + draftScores[i]);
+                if (GUILayout.Button("Swap with " + AbilityLabels[next], GUILayout.Width(225), GUILayout.Height(30)))
+                    (draftScores[i], draftScores[next]) = (draftScores[next], draftScores[i]);
+                GUILayout.EndHorizontal();
+            }
+            GUILayout.Label("Skill proficiencies · Choose two (" + draftSkills.Count + "/2)");
+            foreach (string skill in SkillOptions[archetype])
+            {
+                bool chosen = draftSkills.Contains(skill);
+                GUI.enabled = !busy && (chosen || draftSkills.Count < 2);
+                bool selected = GUILayout.Toggle(chosen, char.ToUpperInvariant(skill[0]) + skill.Substring(1), GUILayout.Height(28));
+                if (selected && !chosen) draftSkills.Add(skill);
+                if (!selected && chosen) draftSkills.Remove(skill);
+            }
+            GUI.enabled = !busy;
+            if (GUILayout.Button("Restore archetype defaults", GUILayout.Height(30))) ResetBuildChoices();
         }
 
         public void CheckConnection() { if (!busy) StartCoroutine(Probe()); }
@@ -180,20 +233,15 @@ namespace Imperial.Butcher
 
         void CreateCharacter()
         {
+            if (draftSkills.Count != 2) return;
             var data = new CharacterBuild {
                 name = heroName.Trim(), originId = Origins[origin], archetypeId = Archetypes[archetype],
-                abilityScores = new AbilityScores(), proficientSkills = new[] { "athletics", "perception" }
+                abilityScores = new AbilityScores {
+                    strength = draftScores[0], dexterity = draftScores[1], constitution = draftScores[2],
+                    intelligence = draftScores[3], wisdom = draftScores[4], charisma = draftScores[5]
+                },
+                proficientSkills = draftSkills.ToArray()
             };
-            if (archetype == 1) {
-                data.abilityScores = new AbilityScores { strength = 8, dexterity = 12, constitution = 13, intelligence = 15, wisdom = 10, charisma = 14 };
-                data.proficientSkills = new[] { "arcana", "lore" };
-            } else if (archetype == 2) {
-                data.abilityScores = new AbilityScores { strength = 15, dexterity = 10, constitution = 13, intelligence = 8, wisdom = 12, charisma = 14 };
-                data.proficientSkills = new[] { "athletics", "medicine" };
-            } else if (archetype == 3) {
-                data.abilityScores = new AbilityScores { strength = 10, dexterity = 15, constitution = 13, intelligence = 12, wisdom = 14, charisma = 8 };
-                data.proficientSkills = new[] { "stealth", "survival" };
-            }
             string payload = JsonUtility.ToJson(data);
             if (payload != pendingPayload) { pendingPayload = payload; pendingRequestId = Guid.NewGuid().ToString(); }
             var request = new CreateRequest { requestId = pendingRequestId, character = data };
