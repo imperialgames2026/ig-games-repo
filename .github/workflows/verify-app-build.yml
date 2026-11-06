@@ -38,6 +38,7 @@ jobs:
           IG_LOCAL_BROWSER: '1'
           IG_LOCAL_STORAGE: '1'
           IG_LOCAL_EDGE: '1'
+          IG_LOCAL_PVP: '1'
   browser-ui:
     runs-on: ubuntu-24.04
     timeout-minutes: 15

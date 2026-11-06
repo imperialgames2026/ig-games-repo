@@ -20,3 +20,9 @@ android/local.properties
 android/key.properties
 android/.gradle/
 android/**/build/
+
+# Frozen authored runtime source is part of this release, not build output.
+!review/pvp-runtime/dist/
+!review/pvp-runtime/dist/**
+!supabase/functions/pvp-games-review/runtime/dist/
+!supabase/functions/pvp-games-review/runtime/dist/**

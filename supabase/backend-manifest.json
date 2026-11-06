@@ -351,6 +351,47 @@
         "image-file.js": "d1e888a264afbf78183c1e673cf31a2b868a942b99e3c67ea58f44d07672e7ed"
       },
       "status": "pending_deployment"
+    },
+    {
+      "name": "pvp-games-review",
+      "verify_jwt": true,
+      "files": [
+        "handler.mjs",
+        "index.ts",
+        "runtime/dist/chess/engine.js",
+        "runtime/dist/chess/match.js",
+        "runtime/dist/chess/vendor/chess.LICENSE",
+        "runtime/dist/chess/vendor/chess.js",
+        "runtime/dist/games/battleship.js",
+        "runtime/dist/games/battleship6.js",
+        "runtime/dist/games/chess.js",
+        "runtime/dist/games/common.js",
+        "runtime/dist/games/poker-family.js",
+        "runtime/dist/games/rummy.js",
+        "runtime/dist/games/rummy6.js",
+        "runtime/dist/games/spades.js",
+        "runtime/engine.mjs",
+        "service.mjs"
+      ],
+      "sha256": {
+        "handler.mjs": "095cdd9ec3c9274607cf3f3d4e0fc60ad12d8f8e066b29e8e716ba1eaa20fbc5",
+        "index.ts": "10f0caaf534de361e47a0a4fe0f10020818aa124510c8cd0a68680b73c37914d",
+        "runtime/dist/chess/engine.js": "9c54a5fdbfd28cb93f8360df7be7e341a90bbb5193d2e74ef9bacfcc194f4fd5",
+        "runtime/dist/chess/match.js": "648a6f85e726fa59e26efa542f704f44bb98c0fb22e1fe760978ca6e2832d057",
+        "runtime/dist/chess/vendor/chess.LICENSE": "0b3a3c2b4432a26bb18f9d06f5bba4de015bcc980306b7db28b06025495e2186",
+        "runtime/dist/chess/vendor/chess.js": "76c7c34f0e2e9ab076521a5d6fe786a9cce537bb1b6f29d32a9c9970b5b232d2",
+        "runtime/dist/games/battleship.js": "e07a43a201f4399f0b1369ef41a370d6d171799350acc894cab082ad87f54cbd",
+        "runtime/dist/games/battleship6.js": "ca1d389b2d3784c97d042254e2f62eb66cb4f9b1d80fe50351c2ec95bf40652f",
+        "runtime/dist/games/chess.js": "3ab23ac910c4b0520e03b1dbbce68a696c0a6b39e1e40bfe875ceb492745b720",
+        "runtime/dist/games/common.js": "ebb8f918424e0dea265e3ffbe28170357f066cc9f4fdf61996823b6ad9737491",
+        "runtime/dist/games/poker-family.js": "d48dfb7d91a07de9b53fa524c804156dafdb1558902ef4ac3f457bda8715df34",
+        "runtime/dist/games/rummy.js": "71982ac0180be6f22233d3e4fe99e489917057e1c368d11d6feb0d17876b93f1",
+        "runtime/dist/games/rummy6.js": "adb57b6719ad1f62c7811301be9137fa968df52427bd9520f6826033847dc714",
+        "runtime/dist/games/spades.js": "f2a192a13a73de3146f09780823b3a4293ad7a4543352d0a3ccf08893184fbcb",
+        "runtime/engine.mjs": "b454cc29c404414043a92bf4f2e2b92245a9869fc8ca35783a52d498516d2c78",
+        "service.mjs": "7330a7bff4d84053611c3cf7c56014b110805f3462a1af47349bb201d51d391a"
+      },
+      "deployed_version": 1
     }
   ],
   "migrations": [
@@ -800,6 +841,10 @@
     {
       "file": "20261025060513_table_game_fairness_and_verification.sql",
       "sha256": "20b2b3e10b461f16cbf26596c1116d08a3f29710f4acd2012330cc80121064b8"
+    },
+    {
+      "file": "20261106031056_online_private_practice_rooms.sql",
+      "sha256": "e5b7925fea3e59d98d3db26a795b27e4dee1ab6a6f15011225877c63f375e44c"
     }
   ]
 }

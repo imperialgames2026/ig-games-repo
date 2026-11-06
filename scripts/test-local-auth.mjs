@@ -37,7 +37,7 @@ async function request(origin,path,{token,body,method}={}) {
  const text=await r.text(); let data;try{data=JSON.parse(text);}catch{data=text;}
  return {status:r.status,data};
 }
-let net=false, proxy, vite, browser, storageOrigin;
+let net=false, proxy, vite, browser, storageOrigin, pvpHandler;
 try {
  // Docker suppresses host port publication for --internal networks. Use a
  // dedicated bridge, publish API ports on loopback only, and never publish DB.
@@ -126,7 +126,7 @@ try {
   const {verifyStorageServices}=await import('../tests/database/storage-service-checks.mjs');
   await verifyStorageServices({origin:storageOrigin,users,serviceKey,sql});
  }
- if(process.env.IG_LOCAL_BROWSER === '1' || process.env.IG_LOCAL_EDGE === '1') {
+ if(process.env.IG_LOCAL_BROWSER === '1' || process.env.IG_LOCAL_EDGE === '1' || process.env.IG_LOCAL_PVP === '1') {
   let functionRequests=0, functionRequestPaths=[];
   proxy=createServer(async(req,res)=>{
    res.setHeader('Access-Control-Allow-Origin','*');
@@ -135,6 +135,7 @@ try {
    if(req.method==='OPTIONS'){res.writeHead(204);res.end();return;}
    const url=new URL(req.url,'http://127.0.0.1');
    if(url.pathname.startsWith('/functions/v1/')){functionRequests++;functionRequestPaths.push(url.pathname);}
+   if(url.pathname==='/functions/v1/pvp-games-review'&&pvpHandler){try{const chunks=[];for await(const chunk of req)chunks.push(chunk);const response=await pvpHandler(new Request('http://kong:8000'+url.pathname,{method:req.method,headers:{'content-type':'application/json',...(req.headers.authorization?{authorization:req.headers.authorization}:{})},body:Buffer.concat(chunks)}));res.writeHead(response.status,Object.fromEntries(response.headers));res.end(Buffer.from(await response.arrayBuffer()));}catch{res.writeHead(503);res.end();}return;}
    const prefix=url.pathname.startsWith('/auth/v1/')?'/auth/v1':url.pathname.startsWith('/rest/v1/')?'/rest/v1':null;
    if(!prefix){res.writeHead(404);res.end();return;}
    try {
@@ -148,6 +149,7 @@ try {
   });
   await new Promise(resolve=>proxy.listen(0,'127.0.0.1',resolve));
   const apiOrigin=`http://127.0.0.1:${proxy.address().port}`;
+  if(process.env.IG_LOCAL_PVP === '1'){const {verifyOnlinePractice}=await import('../tests/database/pvp-hosted-services.mjs');await verifyOnlinePractice({apiOrigin,anonKey,serviceKey,users,sql,registerHandler:handler=>{pvpHandler=handler;}});}
   if(process.env.IG_LOCAL_EDGE === '1') {
    const { verifyHandlerServices } = await import('../tests/database/handler-service-checks.mjs');
    await verifyHandlerServices({apiOrigin,anonKey,serviceKey,users,sql,read});
@@ -158,7 +160,7 @@ try {
   const appPort=reservation.address().port;await new Promise(resolve=>reservation.close(resolve));
   const appOrigin=`http://127.0.0.1:${appPort}`;
   vite=spawn(process.execPath,[resolve(root,'node_modules/vite/bin/vite.js'),'--host','127.0.0.1','--port',String(appPort),'--strictPort'],{
-   cwd:root,stdio:'ignore',env:{...process.env,VITE_SUPABASE_URL:apiOrigin,VITE_SUPABASE_PUBLISHABLE_KEY:'local-test-publishable-key',VITE_ENABLE_LEGACY_EDGE_FUNCTIONS:'false'}});
+   cwd:root,stdio:'ignore',env:{...process.env,VITE_SUPABASE_URL:apiOrigin,VITE_SUPABASE_PUBLISHABLE_KEY:'local-test-publishable-key',VITE_ENABLE_LEGACY_EDGE_FUNCTIONS:'false',VITE_ENABLE_PVP_PRACTICE:process.env.IG_LOCAL_PVP==='1'?'true':'false'}});
   await ready(async()=> (await fetch(appOrigin)).status===200);
   browser=await chromium.launch({...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH?{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH}:{}),args:['--no-sandbox']});
   const page=await browser.newPage();
@@ -183,6 +185,7 @@ try {
   });
   assert.equal(blocked,true);assert.equal(functionRequestPaths.filter(path=>path===legacyProbePath).length,beforeLegacyProbe);
   console.log('PASS: disabled legacy Base44 dispatch fails before any function HTTP request.');
+  if(process.env.IG_LOCAL_PVP==='1'){const {verifyOnlinePvpBrowser}=await import('../tests/database/pvp-hosted-browser.mjs');await verifyOnlinePvpBrowser({browser,appOrigin,users});}
   }
  }
 } catch(error) {
