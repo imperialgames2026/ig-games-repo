@@ -1,15 +1,15 @@
 import {randomBytes,randomUUID} from 'node:crypto';
 import {createGame,authorizedAction,playerView} from './runtime/engine.mjs';
-export const onlineGames=Object.freeze({chess:2,rummy:2,rummy6:6,spades:4,battleship:2,battleship6:2});
+export const onlineGames=Object.freeze({chess:2,rummy:2,rummy6:6,spades:4,battleship:2,battleship6:2,checkers:2,dominoes:2,euchre:4,hearts:4,pinochle:4,connectfour:2,backgammon:2,reversi:2,gomoku:2,words:2});
 const uuid=x=>typeof x==='string'&&/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(x);
 export const failure=(code,status=400)=>Object.assign(new Error(code),{code,status});
 const fail=(c,s)=>{throw failure(c,s);};
 export function canonical(x){if(x===null||typeof x!=='object')return JSON.stringify(x);if(Array.isArray(x))return '['+x.map(canonical).join(',')+']';return '{'+Object.keys(x).sort().map(k=>JSON.stringify(k)+':'+canonical(x[k])).join(',')+'}';}
-function actionSafe(a,depth=0,allowBid=false){
+function actionSafe(a,depth=0,bid=null){
  if(depth>12)fail('INVALID_ACTION');
  if(a===null||typeof a==='string'||typeof a==='boolean'||typeof a==='number'&&Number.isSafeInteger(a))return;
  if(!a||typeof a!=='object')fail('INVALID_ACTION');
- for(const[k,v]of Object.entries(a)){if(['actor','actorId','userId','role','token','player','wallet','balance','payout','credits','__proto__','constructor','prototype'].includes(k))fail('CALLER_AUTHORITY_FORBIDDEN');if(k==='amount'&&(!allowBid||depth!==0||!Number.isInteger(v)||v<0||v>13))fail('INVALID_NONMONETARY_BID');actionSafe(v,depth+1);}
+ for(const[k,v]of Object.entries(a)){if(['actor','actorId','userId','role','token','player','wallet','balance','payout','credits','__proto__','constructor','prototype'].includes(k))fail('CALLER_AUTHORITY_FORBIDDEN');if(k==='amount'&&(depth!==0||!bid||!(v===null&&bid.nullable||Number.isInteger(v)&&v>=bid.min&&v<=bid.max)))fail('INVALID_NONMONETARY_BID');actionSafe(v,depth+1);}
 }
 export function privateSnapshot(room,actor){
  if(!room.members.includes(actor.id))fail('ROOM_MEMBERSHIP_REQUIRED',403);
@@ -43,7 +43,7 @@ export function createHostedPvpService({store,resolveActor,makeId=randomUUID,see
     if(!Number.isInteger(input.seat)||input.seat<0||input.seat>=room.seats.length||room.seats[input.seat]||room.seats.includes(actor.id))fail('SEAT_UNAVAILABLE',409);room.seats[input.seat]=actor.id;room.names[actor.id]='Player '+(input.seat+1);
    }else{
     if(!room.seats.every(Boolean))fail('WAITING_FOR_PLAYERS',409);
-    if(!input.action||Array.isArray(input.action)||typeof input.action.type!=='string')fail('INVALID_ACTION');actionSafe(input.action,0,room.game==='spades'&&input.action.type==='bid');
+    if(!input.action||Array.isArray(input.action)||typeof input.action.type!=='string')fail('INVALID_ACTION');actionSafe(input.action,0,input.action.type==='bid'?(room.game==='spades'?{min:0,max:13,nullable:false}:room.game==='pinochle'?{min:25,max:250,nullable:true}:null):null);
     try{room.state=authorizedAction(room,actor.id,structuredClone(input.action));}catch{fail('GAME_ACTION_REJECTED',409);}
    }
    room.version++;

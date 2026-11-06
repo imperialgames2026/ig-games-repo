@@ -1,3 +1,14 @@
+import {dictionary} from "./dictionary.mjs";
+import * as checkers from "./dist/games/checkers.js";
+import * as dominoes from "./dist/games/dominoes.js";
+import * as euchre from "./dist/games/euchre.js";
+import * as hearts from "./dist/games/hearts.js";
+import * as pinochle from "./dist/games/pinochle.js";
+import * as connectfour from "./dist/games/connectfour.js";
+import * as backgammon from "./dist/games/backgammon.js";
+import * as reversi from "./dist/games/reversi.js";
+import * as gomoku from "./dist/games/gomoku.js";
+import * as words from "./dist/games/words.js";
 import {createHash,randomBytes,randomUUID} from "node:crypto";
 import {isPokerGame} from "./dist/games/poker-family.js";
 import * as chess from "./dist/games/chess.js";
@@ -6,7 +17,7 @@ import * as rummy6 from "./dist/games/rummy6.js";
 import * as spades from "./dist/games/spades.js";
 import * as battleship from "./dist/games/battleship.js";
 import * as battleship6 from "./dist/games/battleship6.js";
-export const modules={chess,rummy,rummy6,spades,battleship,battleship6};
+export const modules={chess,rummy,rummy6,spades,battleship,battleship6,checkers,dominoes,euchre,hearts,pinochle,connectfour,backgammon,reversi,gomoku,words};
 export const createGame = (id, seed) => {
   const state = modules[id].create(seed);
   if (id.startsWith('battleship')) state.deploymentId = randomUUID();
@@ -24,7 +35,7 @@ export function applyGame(id, state, action) {
     }
     return next;
   }
-  return modules[id].apply(state, action);
+  return id === "words" ? words.apply(state,action,dictionary) : modules[id].apply(state,action);
 }
 export function playerView(room, guestId) {
   const seat = room.seats.indexOf(guestId),

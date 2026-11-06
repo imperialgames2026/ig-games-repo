@@ -1,5 +1,5 @@
 {
-  "source": "Mini-Imp November2 authored handoff; six referenced GLBs compared byte-for-byte",
+  "source": "Mini-Imp November2 authored handoff; original models, synthesized audio and preserved Unity build",
   "shared_runtime_source_commit": "7ae5025808b672550e09400f0589df4f622c54f0",
   "files": {
     "pvp3d-models/Rummy_6.glb": "f514bed30d5aa5ce558de8a6af22b6945bca2af5270b1e89c1dbf163f14ac964",
@@ -12,6 +12,25 @@
     "pvp3d-models/Rummy_2.glb": "cd7c0b5b65a7294230bab5818b5d4dff52085b95c3fa3eadf6a256758c530d94",
     "pvp3d-models/Spades_4.glb": "227a9b504740791b0599902872d0c08a6a55f461e8d4e32ef82da9ba6e736852",
     "pvp3d-models/Chess.png": "6491149a324287a97c38b8c0f255175ec779ea500d2a8f8103f69ec2d3c91def",
-    "pvp3d-models/Spades_4.png": "5e8b6dbe903827a84c05c52601eb2c3f020796dccbd8f69f71c13740bc85453f"
+    "pvp3d-models/Spades_4.png": "5e8b6dbe903827a84c05c52601eb2c3f020796dccbd8f69f71c13740bc85453f",
+    "pvp3d-models/Euchre_4.glb": "f17cc1750be2087d30ace781859613bc10f649f61eeeb13033eab70d7ecc80a5",
+    "pvp3d-models/Pinochle_4.glb": "70b73f3d4932041851b7fc9519ac445bc31ddc5cfef1d0f8d764c019062fa8c7",
+    "pvp3d-models/Hearts_4.glb": "83d9b0865ac5640228e90ec608d90d70b3e2710615f0f2cce11f7285410c7d9f",
+    "pvp3d-audio/stone.wav": "fc8ea9eabc220a58bf65e464f1cd0507f0da25ec8e933c0ee9dc1ea7f3363af3",
+    "pvp3d-audio/domino.wav": "0867851262bfd6f42bc121ed3318dff5a1b2f7b749a40324a492fedd5f8d97dc",
+    "pvp3d-audio/hit.wav": "1467b69c36a08b861de8146eab4b9d2f0045d5b59db049aadd0a29e07a490b38",
+    "pvp3d-audio/dice.wav": "6e9a4931cfbd3055e875138d6f0c3d65aea3f7b47102fa839af0481ec2a84cf3",
+    "pvp3d-audio/chips.wav": "8774c665fd98362a74446f5d05126a1961db7e6ade7e27d4c78eb3b696640b53",
+    "pvp3d-audio/move.wav": "8f47fe63f31ebfc564207c5a3ebb6b2c3cadfb158caa1cfe839481322bb170b0",
+    "pvp3d-audio/deal.wav": "14d9cd604016a1261383435fa2fce993af44938d293cfcb6d10cdf4b722d5b92",
+    "pvp3d-audio/turn.wav": "50f5986b947ca8929a3e8d5a0d982811210fbcdc678bcd19cc310e71c96a9213",
+    "pvp3d-audio/win.wav": "70591014e7be59892881a3a227592917ee1e88854e709d2eef0476a79b25f0c2",
+    "pvp3d-audio/miss.wav": "b0e507dedb17fb37a6b286dfb864b1a20eacf6fce4574697d3d60a540ee24382",
+    "pvp-unity/Build/manifest.json": "cceb40de0234257fd5cb397c00b389fe5e578b7eef9a491dcd833512baa31910",
+    "pvp-unity/Build/unity.framework.js": "b379fc7276751bda8a2eae28633d403d02146ba6d89d52d63317e936f64eb065",
+    "pvp-unity/Build/unity.data": "10cb9d8f5726dd67c54df38de62778b03bac8179902c8b38cb5017221bdb0530",
+    "pvp-unity/Build/unity.wasm.part0": "81775c1a970c23ec2d54ea0ae020b734481952b2717e5284a0d94e31433a5394",
+    "pvp-unity/Build/unity.loader.js": "3d057c5bb94017834ee53f15fc98a4716406831c9c6cf863cb02b8cf1fb66ce7",
+    "pvp-unity/Build/unity.wasm.part1": "b7ef240e9b9ffb6fafdbd8a71223cf1c5d93fa482dd5bc7aa85be13dc35e187a"
   }
 }

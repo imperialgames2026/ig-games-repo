@@ -5,7 +5,7 @@ import {profileStats,profileReactions} from './poker-profile-stats.js';
 import {preferences,skins,formatChips,openTableOptions,attachTableHold} from './poker-preferences.js';
 import * as T from './vendor/three/three.module.js';
 import {GLTFLoader} from './vendor/three/loaders/GLTFLoader.js';
-const models={poker2:'NLHE_2',poker4:'NLHE_4',poker6:'NLHE_6',poker8:'NLHE_8',poker7:'NLHE_7',poker9:'NLHE_9',rummy:'Rummy_2',rummy6:'Rummy_6',spades:'Spades_4',blackjack:'Blackjack_7',roulette:'Roulette',craps:'Craps',baccarat:'Baccarat',chess:'Chess',battleship:'Fleet_Command',battleship6:'Fleet_Command'};
+const models={poker2:'NLHE_2',poker4:'NLHE_4',poker6:'NLHE_6',poker8:'NLHE_8',poker7:'NLHE_7',poker9:'NLHE_9',rummy:'Rummy_2',rummy6:'Rummy_6',spades:'Spades_4',hearts:'Hearts_4',euchre:'Euchre_4',pinochle:'Pinochle_4',blackjack:'Blackjack_7',roulette:'Roulette',craps:'Craps',baccarat:'Baccarat',chess:'Chess',battleship:'Fleet_Command',battleship6:'Fleet_Command'};
 for(const count of [2,4,6,7,8,9])models['omaha'+count]='NLHE_'+count;
 for(const id of ['pineapple6','crazy6','lazy6','stud5','draw5','progressive5','triple27'])models[id]='NLHE_6';
 let active=null;const cache=new Map();
@@ -18,7 +18,7 @@ function addCard(group,c,x,z,click=null,back=false,y=.86){
  const canvas=document.createElement('canvas');canvas.width=256;canvas.height=356;const ctx=canvas.getContext('2d');
  ctx.fillStyle=back?'#352049':'#fff8e8';ctx.beginPath();ctx.roundRect(3,3,250,350,16);ctx.fill();ctx.strokeStyle=back?'#c7a668':'#cabfa9';ctx.lineWidth=4;ctx.stroke();
  if(back){ctx.strokeStyle='#a98b5e';ctx.lineWidth=2;for(let k=-350;k<256;k+=22){ctx.beginPath();ctx.moveTo(k,14);ctx.lineTo(k+330,342);ctx.stroke();}ctx.fillStyle='#352049';ctx.fillRect(24,145,208,65);ctx.fillStyle='#e3c58a';ctx.font='bold 24px Georgia';ctx.textAlign='center';ctx.fillText('IMPERIAL',128,183);}
- else{const rank=({1:'A',11:'J',12:'Q',13:'K'})[c.r]||String(c.r),suit={S:'♠',H:'♥',D:'♦',C:'♣'}[c.s];ctx.fillStyle=['H','D'].includes(c.s)?'#aa1830':'#15232b';
+ else{const rank=({1:'A',14:'A',11:'J',12:'Q',13:'K'})[c.r]||String(c.r),suit={S:'♠',H:'♥',D:'♦',C:'♣'}[c.s];ctx.fillStyle=['H','D'].includes(c.s)?'#aa1830':'#15232b';
  for(let k=0;k<2;k++){ctx.save();if(k){ctx.translate(256,356);ctx.rotate(Math.PI);}ctx.textAlign='center';ctx.font='bold 43px Georgia';ctx.fillText(rank,33,49);ctx.font='37px Georgia';ctx.fillText(suit,33,87);ctx.restore();}
  ctx.textAlign='center';ctx.textBaseline='middle';
  if(c.r>=2&&c.r<=10){const layouts={2:[[128,105],[128,251]],3:[[128,100],[128,178],[128,256]],4:[[83,105],[173,105],[83,251],[173,251]],5:[[83,105],[173,105],[128,178],[83,251],[173,251]],6:[[83,100],[173,100],[83,178],[173,178],[83,256],[173,256]],7:[[83,100],[173,100],[128,139],[83,178],[173,178],[83,256],[173,256]],8:[[83,100],[173,100],[128,139],[83,178],[173,178],[128,217],[83,256],[173,256]],9:[[83,92],[173,92],[83,149],[173,149],[128,178],[83,207],[173,207],[83,264],[173,264]],10:[[83,92],[173,92],[128,121],[83,149],[173,149],[83,207],[173,207],[128,235],[83,264],[173,264]]};ctx.font='43px Georgia';for(const [px,py] of layouts[c.r])ctx.fillText(suit,px,py);}
@@ -28,7 +28,7 @@ function addCard(group,c,x,z,click=null,back=false,y=.86){
  const map=new T.CanvasTexture(canvas);map.colorSpace=T.SRGBColorSpace;map.anisotropy=4;
  const o=new T.Mesh(new T.PlaneGeometry(.12,.17),new T.MeshStandardMaterial({map,transparent:true,side:T.DoubleSide,roughness:.6,metalness:0}));o.rotation.x=-Math.PI/2;o.position.set(x,y,z);o.userData={owned:true,click};group.add(o);return o;
 }
-function buttonCard(root,c){const rank=({1:'A',11:'J',12:'Q',13:'K'})[c.r]||String(c.r),suit={S:'♠',H:'♥',D:'♦',C:'♣'}[c.s];return [...root.querySelectorAll('.playing-card')].find(n=>!n.disabled&&n.getAttribute('aria-label')===rank+' '+suit);}
+function buttonCard(root,c){const rank=({1:'A',14:'A',11:'J',12:'Q',13:'K'})[c.r]||String(c.r),suit={S:'♠',H:'♥',D:'♦',C:'♣'}[c.s];return [...root.querySelectorAll('.playing-card')].find(n=>!n.disabled&&n.getAttribute('aria-label')===rank+' '+suit);}
 function box(group,x,y,z,w,h,d,color,click){const o=new T.Mesh(new T.BoxGeometry(w,h,d),new T.MeshStandardMaterial({color,roughness:.4}));o.position.set(x,y,z);o.userData={owned:true,click};group.add(o);return o;}
 export function stopModel(expectedHost=null){if(!active||expectedHost&&active.host!==expectedHost)return;clearInterval(active.clockTick);active.cancelHold?.();active.observer.disconnect();disposeDynamic(active.dynamic);active.scene.environment?.dispose();active.renderer.dispose();active.renderer.forceContextLoss();active=null;}
 export async function updateModel(room,gameRoot){
@@ -62,6 +62,7 @@ export async function updateModel(room,gameRoot){
  if(a.name!==name){const token=++a.token;a.name=name;if(a.model)a.scene.remove(a.model);a.model=null;disposeDynamic(a.dynamic);
  try{const gltf=await load(name);if(active!==a||token!==a.token)return;a.model=gltf.scene.clone(true);a.scene.add(a.model);a.templates={};
   if(name.startsWith('NLHE'))a.model.traverse(o=>{if(o.isMesh&&o.material?.name==='Imperial emerald felt'){o.material=o.material.clone();o.userData.tableFelt=true;}if(/^Seat.*(cushion|pedestal|foot|backrest)/i.test(o.name))o.visible=false;});
+   if(['Spades_4','Hearts_4','Euchre_4','Pinochle_4'].includes(name))a.model.traverse(o=>{if(/^Seat.*(cushion|pedestal|foot|backrest)/i.test(o.name))o.visible=false;});
    if(name==='Chess'){a.model.traverse(o=>{const key=chessModelTemplateKey(o);if(key){if(!a.templates[key])a.templates[key]=o.clone(true);o.visible=false;}});}
   if(name==='Fleet_Command'){
    a.model.traverse(o=>{if(/Fleet_ship|Ship_superstructure|Ship_turret|Gun_barrel/.test(o.name))o.visible=false;});
@@ -156,7 +157,17 @@ export async function updateModel(room,gameRoot){
    }
   }else{
    hand.forEach((c,i)=>addCard(a.dynamic,c,(i-(hand.length-1)/2)*.075,.38,buttonCard(gameRoot,c)));
-   for(let seat=0;seat<(s.handCounts?.length||0);seat++)if(seat!==p&&seat<room.seats.length){const t=-Math.PI/2+seat*Math.PI*2/room.seats.length,x=Math.cos(t)*1.0,z=-Math.sin(t)*.46;for(let i=0;i<Math.min(s.handCounts[seat],2);i++)addCard(a.dynamic,s.hands?.[seat]?.[i]||{},x+i*.07,z,null,!s.hands?.[seat]);}
+   for(let seat=0;seat<(s.handCounts?.length||0);seat++)if(seat!==p&&seat<room.seats.length){const t=-Math.PI/2+((seat-Math.max(0,p)+room.seats.length)%room.seats.length)*Math.PI*2/room.seats.length,x=Math.cos(t)*1.0,z=-Math.sin(t)*.46;for(let i=0;i<Math.min(s.handCounts[seat],2);i++)addCard(a.dynamic,s.hands?.[seat]?.[i]||{},x+i*.07,z,null,!s.hands?.[seat]);}
+  }
+  if(['spades','hearts','euchre','pinochle'].includes(room.game)){
+   const labels=document.createElement('div');labels.className='poker-seat-labels';a.host.append(labels);
+   room.seats.forEach((seat,index)=>{
+    const angle=Math.PI/2+(index-Math.max(0,p))*Math.PI*2/room.seats.length;
+    const node=document.createElement('div');node.className='card-seat-label'+(s.turn===index?' active':'');
+    const title=document.createElement('strong');title.textContent=seat.name+(seat.you?' · You':'');
+    const detail=document.createElement('small');detail.textContent=(s.handCounts?.[index]??s.hands?.[index]?.length??0)+' cards'+(s.bids?.[index]!=null?' · Bid '+s.bids[index]:'')+(s.taken?.[index]!=null?' · Tricks '+s.taken[index]:'');
+    node.append(title,detail);labels.append(node);a.seatLabels.push({node,point:new T.Vector3(Math.cos(angle)*1.18,index===Math.max(0,p)?.85:1.05,Math.sin(angle)*(index===Math.max(0,p)?.95:.60))});
+   });
   }
   (s.board||[]).forEach((c,i)=>addCard(a.dynamic,c,(i-2)*.135,.05));
   (s.trick||[]).forEach(({card:c},i)=>addCard(a.dynamic,c,(i-1.5)*.08,.05));

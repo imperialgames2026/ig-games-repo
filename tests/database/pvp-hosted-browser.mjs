@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {expect} from '@playwright/test';
 import {mkdir} from 'node:fs/promises';
-export async function verifyOnlinePvpBrowser({browser,appOrigin,users}){
+export async function verifyOnlinePvpBrowser({browser,appOrigin,apiOrigin,users}){
  const contexts=await Promise.all([browser.newContext(),browser.newContext()]);
  const pages=await Promise.all(contexts.map(c=>c.newPage())),errors=[];
  const output=new URL('../../test-results/pvp-online/',import.meta.url);await mkdir(output,{recursive:true});
@@ -14,6 +14,7 @@ export async function verifyOnlinePvpBrowser({browser,appOrigin,users}){
   for(const[n,from,to]of [[1,'e7 Black pawn','e5 legal destination'],[0,'g2 White pawn','g4 legal destination'],[1,'d8 Black queen','h4 legal destination']]){const p=pages[n];await expect(p.locator('.turn-badge')).toHaveText('YOUR MOVE');await p.getByRole('button',{name:from,exact:true}).click();await p.getByRole('button',{name:to,exact:true}).click();}
   await expect(a.getByTestId('room-revision')).toContainText('Revision 7');await expect(a.getByText(/Black wins\. Checkmate/).first()).toBeVisible();await b.reload();await expect(b.getByTestId('room-revision')).toContainText('Revision 7');await expect(b.getByText(/Black wins\. Checkmate/).first()).toBeVisible();
   for(const game of ['chess','rummy','rummy6','spades','battleship','battleship6']){await a.getByLabel('Game',{exact:true}).selectOption(game);await a.getByRole('button',{name:'Create private room',exact:true}).click();await expect(a.getByTestId('room-revision')).toContainText('Revision 1');await expect(a.locator('#model-stage canvas')).toBeVisible({timeout:30000});for(const [name,viewport]of [['desktop',{width:1280,height:900}],['mobile',{width:390,height:844}]]){await a.setViewportSize(viewport);await a.screenshot({path:new URL(game+'-'+name+'.png',output).pathname,fullPage:true});assert.equal(await a.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,game+' '+name+' overflow');}}
+  if(process.env.IG_LOCAL_PVP_MORE==='1'){const {verifyAdditionalBrowser}=await import('./pvp-additional-browser.mjs');await verifyAdditionalBrowser({browser,appOrigin,apiOrigin,users,pages,output});}
   assert.equal(dropped,true);assert.deepEqual(errors,[]);console.log('PASS: actual browser login/room/invite/two-player Chess checkmate, lost-response exact retry, reload, six authored 3D screens desktop/mobile and zero page errors.');
- }finally{await Promise.all(contexts.map(c=>c.close()));}
+ }catch(error){for(let n=0;n<pages.length;n++)await pages[n].screenshot({path:new URL('failure-'+n+'.png',output).pathname,fullPage:true}).catch(()=>{});console.error('PVP page errors:',JSON.stringify(errors));throw error;}finally{await Promise.all(contexts.map(c=>c.close()));}
 }
