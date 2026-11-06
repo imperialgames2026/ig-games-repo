@@ -12,6 +12,8 @@ function choice(game,s,n,steps){
   if(s.phase==='discard')return {type:'discard',id:s.hands[n][0].id};
   return {type:'play',id:s.legalCards[0]};
  }
+ // Use minimum contracts: the authored demo bot can repeatedly overbid both teams into negative scores.
+ if(game==='pinochle'&&s.phase==='bid')return {type:'bid',amount:s.bidder===null?25:null};
  if(game==='words')return steps<2?modules.words.bestMove(s,dictionary,trie,35000):{type:'pass'};
  return modules[game].bot(structuredClone(s),n);
 }
