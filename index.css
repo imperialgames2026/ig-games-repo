@@ -109,3 +109,5 @@
   body:has([data-pvp-room]) [aria-label="Player wallet toolbar"],
   body:has([data-pvp-room]) [data-mobile-page-header] { position: relative; top: auto; }
 }
+
+.ig-pvp-game .unity-stage{min-height:320px;max-width:100%;overflow:hidden}.ig-pvp-game .unity-canvas-host canvas{display:block;width:100%;height:auto;max-height:70dvh;aspect-ratio:16/10}.ig-pvp-game .card-seat-label{position:absolute;transform:translate(-50%,-50%);max-width:130px;border:1px solid #bba66a;border-radius:8px;padding:5px;background:#17242be8;color:#fff;font-size:12px;pointer-events:none}.ig-pvp-game .card-seat-label strong,.ig-pvp-game .card-seat-label small{display:block}.ig-pvp-game .card-seat-label.active{border-color:#f5d377}

@@ -23,10 +23,10 @@ test('unaccepted snapshot representations cannot initialize a deployment observa
 test('replay snapshots and bare room views cannot impersonate authenticated pre-play observations',async()=>{
  const{createPvpFleetVerifier}=await import('../review/pvp-runtime/dist/pvp-fleet-verification.js');const{before,final}=fixtures(),api=createPvpFleetVerifier(memory());api.observe(envelope({...before,replay:true}),actorA);await assert.rejects(()=>api.verify({...final,id:roomId,fleetViewerId:actorA}),/not witnessed/);await assert.rejects(()=>api.verify({...final,id:roomId}),/context/);
 });
-test('shared service has no Hearts, raw-export or copied-action replay operation; ordinary private snapshots remain valid',async()=>{
+test('shared service has no casino, raw-export or copied-action replay operation; ordinary private snapshots remain valid',async()=>{
  const{fixture,actors:accounts}=await import('./helpers/pvpHostedFixture.mjs');const f=await fixture(),service=f.service;const [actorA,actorB,third]=accounts.map(x=>x.id),actors=[actorA,actorB,third];const{randomUUID}=await import('node:crypto');
  try{
-  await assert.rejects(service.execute(actorA,{op:'create',game:'hearts',requestId:randomUUID()}),e=>e.code==='GAME_NOT_REVIEWED');
+  await assert.rejects(service.execute(actorA,{op:'create',game:'blackjack',requestId:randomUUID()}),e=>e.code==='GAME_NOT_REVIEWED');
   let result=await service.execute(actorA,{op:'create',game:'battleship',requestId:randomUUID()}),id=result.snapshot.roomId;
   for(const other of actors.slice(1)){result=await service.execute(actorA,{op:'invite',roomId:id,expectedVersion:result.snapshot.revision,targetId:other,requestId:randomUUID()})}
   result=await service.execute(actorB,{op:'join',roomId:id,expectedVersion:result.snapshot.revision,seat:1,requestId:randomUUID()});

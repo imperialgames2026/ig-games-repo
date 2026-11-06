@@ -98,7 +98,7 @@ try {
  const restOrigin=port(rest,3000);
  await ready(async()=> (await request(restOrigin,'/')).status===200);
  const users=[];
- for(let i=0;i<2;i++){
+ for(let i=0;i<(process.env.IG_LOCAL_PVP_MORE==='1'?4:2);i++){
   const email=`local-${randomUUID()}@example.invalid`,password=randomUUID();
   const signup=await request(authOrigin,'/signup',{body:{email,password,data:{role:'superadmin',full_name:'Local test user'}}});
   assert.equal(signup.status,200,JSON.stringify(signup.data));
@@ -162,7 +162,7 @@ try {
   vite=spawn(process.execPath,[resolve(root,'node_modules/vite/bin/vite.js'),'--host','127.0.0.1','--port',String(appPort),'--strictPort'],{
    cwd:root,stdio:'ignore',env:{...process.env,VITE_SUPABASE_URL:apiOrigin,VITE_SUPABASE_PUBLISHABLE_KEY:'local-test-publishable-key',VITE_ENABLE_LEGACY_EDGE_FUNCTIONS:'false',VITE_ENABLE_PVP_PRACTICE:process.env.IG_LOCAL_PVP==='1'?'true':'false'}});
   await ready(async()=> (await fetch(appOrigin)).status===200);
-  browser=await chromium.launch({...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH?{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH}:{}),args:['--no-sandbox']});
+  browser=await chromium.launch({...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH?{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH}:{}),args:['--no-sandbox',...(process.env.IG_LOCAL_PVP_MORE==='1'?['--enable-webgl','--ignore-gpu-blocklist','--enable-unsafe-swiftshader']:[])]});
   const page=await browser.newPage();
   await page.route('**/*',route=>new URL(route.request().url()).hostname==='127.0.0.1'?route.continue():route.abort());
   await page.goto(appOrigin+'/Profile');
@@ -185,7 +185,7 @@ try {
   });
   assert.equal(blocked,true);assert.equal(functionRequestPaths.filter(path=>path===legacyProbePath).length,beforeLegacyProbe);
   console.log('PASS: disabled legacy Base44 dispatch fails before any function HTTP request.');
-  if(process.env.IG_LOCAL_PVP==='1'){const {verifyOnlinePvpBrowser}=await import('../tests/database/pvp-hosted-browser.mjs');await verifyOnlinePvpBrowser({browser,appOrigin,users});}
+  if(process.env.IG_LOCAL_PVP==='1'){const {verifyOnlinePvpBrowser}=await import('../tests/database/pvp-hosted-browser.mjs');await verifyOnlinePvpBrowser({browser,appOrigin,apiOrigin,users});}
   }
  }
 } catch(error) {

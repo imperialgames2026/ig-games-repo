@@ -1,0 +1,13 @@
+# Additional online practice games
+
+Adds ten November 2 authored variants to the existing private practice service: Checkers, Dominoes, Euchre, Hearts, Pinochle, Connect Four, Backgammon, Reversi, Gomoku and Wordcraft. Together with the six released variants this exposes sixteen. Poker and casino variants in the standalone catalog remain outside this release; existing main-site poker routes are unchanged.
+
+Uses the same confirmed-account, canonical role/exclusion, private invitation, durable request receipt and revision rules as the six-game release. No wallet, paid entry, prizes, bot accounts or public matchmaking. Pinochle bids are bounded game points, never wallet values. The frozen SCOWL dictionary is server-side, with license preserved. Original synthesized sounds are optional.
+
+Three more authored GLBs provide partnership card tables. Seven board games use the preserved Unity tabletop binary, which consumes only the authorized rendered player projection. The split WASM is hash checked before instantiation. Each click binds a unique scene token to a current enabled DOM control; stale tokens and unmounted scenes cannot issue new actions. The standard accessible game controls remain available. Provenance hashes are recorded alongside this document.
+
+Backend rollout: additive migration `20261106035748_additional_online_board_games.sql` expands only the game whitelist in the existing table constraint and service-only commit function. It preserves table/RPC grants and all recorded rooms. `pvp-games-review` version 2 is deployed with JWT verification enabled, compatible with all six released variants. Frontend activation follows green CI. The separate hosted poker tournament migration observed during rollout is outside this change and is left untouched.
+
+Validation: all ten full matches reached terminal state through PostgreSQL persistence and private player projections, including restart/exact retry, changed-payload and terminal rejection. Real local GoTrue/PostgREST with four synthetic local users passed browser login; all sixteen screens fit desktop/mobile without page errors. A Checkers move used actual Unity canvas raycasts; an old scene token was rejected. Four real local Hearts sessions passed their private cards and played the first trick, with other hands null in each API response. Existing Chess checkmate, dropped-response/reload retry and baseline six scenes also passed.
+
+Hosted two-account gameplay remains unverified pending existing signed-in practice accounts. Local acceptance is not a claim of a hosted match or physical-device acceptance. Roll back the frontend if necessary; retain additive persistence and user rooms.
