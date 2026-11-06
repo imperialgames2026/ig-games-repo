@@ -1,4 +1,5 @@
 import React from 'react';
+import { pendingPvpGames } from '@/lib/pvpIntegration.mjs';
 import { useAuth } from '@/lib/AuthContext';
 import { readApprovedPracticeGames } from '@/lib/supabaseLegacyReads';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -83,7 +84,7 @@ export default function Games() {
         </div>
       </div>
 
-      {import.meta.env.VITE_ENABLE_PVP_PRACTICE==='true'&&<section className="mx-auto max-w-7xl px-4 py-6" aria-label="New online practice games"><h2 className="text-2xl font-bold text-white">New online practice games</h2><p className="my-3 text-gray-300">36 authored practice variants: board, card, poker and casino games. Invite registered players into a private practice room.</p><Link className="inline-block rounded bg-amber-300 px-5 py-3 font-bold text-slate-950" to="/PvpGameRoom">Open private practice games</Link></section>}
+      {import.meta.env.VITE_ENABLE_PVP_PRACTICE==='true'&&<section className="mx-auto max-w-7xl px-4 py-6" aria-label="New online practice games"><h2 className="text-2xl font-bold text-white">New online practice games</h2><p className="my-3 text-gray-300">{pendingPvpGames.length} authored practice variants: board, card, poker and casino games. Invite registered players into a private practice room.</p><Link className="inline-block rounded bg-amber-300 px-5 py-3 font-bold text-slate-950" to="/PvpGameRoom">Open private practice games</Link></section>}
       {/* Games */}
       <div className="max-w-7xl mx-auto px-4 py-12">
         <section aria-label="Available multiplayer practice tables" className="mb-10 rounded-2xl border border-amber-400/20 bg-[#181525] p-5 sm:p-7">
