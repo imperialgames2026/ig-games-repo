@@ -1,3 +1,4 @@
+import {create as createPoker} from './dist/games/poker-core.js';
 import * as poker2 from "./dist/games/poker2.js";
 import * as poker4 from "./dist/games/poker4.js";
 import * as poker6 from "./dist/games/poker6.js";
@@ -40,7 +41,8 @@ import * as spades from "./dist/games/spades.js";
 import * as battleship from "./dist/games/battleship.js";
 import * as battleship6 from "./dist/games/battleship6.js";
 export const modules={poker2,poker4,poker6,poker7,poker8,poker9,omaha2,omaha4,omaha6,omaha7,omaha8,omaha9,pineapple6,crazy6,lazy6,stud5,draw5,triple27,blackjack,roulette,craps,baccarat,chess,rummy,rummy6,spades,battleship,battleship6,checkers,dominoes,euchre,hearts,pinochle,connectfour,backgammon,reversi,gomoku,words};
-export const createGame = (id, seed) => {
+export const createGame = (id, seed, players) => {
+  if(players===7&&/^(poker|omaha)(8|9)$/.test(id))return createPoker(seed,7,id.startsWith('omaha')?'omaha':'holdem');
   const state = modules[id].create(seed);
   if (id.startsWith('battleship')) state.deploymentId = randomUUID();
   return state;
