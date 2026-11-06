@@ -40,6 +40,7 @@ jobs:
           IG_LOCAL_EDGE: '1'
           IG_LOCAL_PVP: '1'
           IG_LOCAL_PVP_MORE: '1'
+          IG_LOCAL_PVP_REMAINING: '1'
   browser-ui:
     runs-on: ubuntu-24.04
     timeout-minutes: 15

@@ -98,7 +98,7 @@ try {
  const restOrigin=port(rest,3000);
  await ready(async()=> (await request(restOrigin,'/')).status===200);
  const users=[];
- for(let i=0;i<(process.env.IG_LOCAL_PVP_MORE==='1'?4:2);i++){
+ for(let i=0;i<(process.env.IG_LOCAL_PVP_REMAINING==='1'?9:process.env.IG_LOCAL_PVP_MORE==='1'?4:2);i++){
   const email=`local-${randomUUID()}@example.invalid`,password=randomUUID();
   const signup=await request(authOrigin,'/signup',{body:{email,password,data:{role:'superadmin',full_name:'Local test user'}}});
   assert.equal(signup.status,200,JSON.stringify(signup.data));
@@ -106,7 +106,7 @@ try {
   assert.equal(login.status,200,JSON.stringify(login.data));assert.ok(login.data.access_token);
   users.push({id:login.data.user.id,token:login.data.access_token,email,password});
  }
- console.log('PASS: two local users signed up and logged in through real Auth; email autoconfirm is local-only.');
+ console.log('PASS: '+users.length+' local users signed up and logged in through real Auth; email autoconfirm is local-only.');
  for(const user of users){
   const roles=await request(restOrigin,`/user_roles?user_id=eq.${user.id}&select=role`,{token:user.token});
   assert.equal(roles.status,200);assert.deepEqual(roles.data,[{role:'player'}]);
@@ -185,7 +185,7 @@ try {
   });
   assert.equal(blocked,true);assert.equal(functionRequestPaths.filter(path=>path===legacyProbePath).length,beforeLegacyProbe);
   console.log('PASS: disabled legacy Base44 dispatch fails before any function HTTP request.');
-  if(process.env.IG_LOCAL_PVP==='1'){const {verifyOnlinePvpBrowser}=await import('../tests/database/pvp-hosted-browser.mjs');await verifyOnlinePvpBrowser({browser,appOrigin,apiOrigin,users});}
+  if(process.env.IG_LOCAL_PVP==='1'){const walletBefore=sql("select coalesce(jsonb_agg(to_jsonb(w) order by id),'[]')::text from public.wallets w;");const {verifyOnlinePvpBrowser}=await import('../tests/database/pvp-hosted-browser.mjs');await verifyOnlinePvpBrowser({browser,appOrigin,apiOrigin,users});assert.equal(sql("select coalesce(jsonb_agg(to_jsonb(w) order by id),'[]')::text from public.wallets w;"),walletBefore);console.log('PASS: all canonical wallet rows are byte-identical before and after private practice gameplay.');}
   }
  }
 } catch(error) {
