@@ -43,6 +43,19 @@ try:
     probe = run('job', 'wait', '--', '--condition', '{"findType":"Imperial.Butcher.ButcherCharacterMenu","member":"ProbeCompleted","op":"equals","value":true}', '--timeout', '25')
     assert probe['met']
     assert evaluate('return UnityEngine.Object.FindFirstObjectByType<Imperial.Butcher.ButcherCharacterMenu>().ServiceReachable;') is True
+    saved_hero = json.dumps({"level": 1, "originId": "ridgeborn", "archetypeId": "spellweaver",
+                             "abilityScores": {"strength": 9, "intelligence": 15}, "proficientSkills": ["arcana", "lore"]})
+    assert evaluate('''
+        var menu = typeof(Imperial.Butcher.ButcherCharacterMenu);
+        var dataType = menu.GetNestedType("CharacterData", System.Reflection.BindingFlags.NonPublic);
+        var saved = UnityEngine.JsonUtility.FromJson(''' + json.dumps(saved_hero) + ''', dataType);
+        var scores = dataType.GetField("abilityScores").GetValue(saved);
+        var scoreType = scores.GetType();
+        var summary = menu.GetMethod("AbilitySummary", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        return (string)dataType.GetField("originId").GetValue(saved) == "ridgeborn"
+            && (int)scoreType.GetField("intelligence").GetValue(scores) == 15
+            && (string)summary.Invoke(null, new object[] { "STR", scoreType.GetField("strength").GetValue(scores) }) == "STR 9 (-1)";
+    ''') is True
     evaluate('var m=UnityEngine.Object.FindFirstObjectByType<Imperial.Butcher.ButcherCharacterMenu>(); typeof(Imperial.Butcher.ButcherCharacterMenu).GetField("<IsOpen>k__BackingField",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance).SetValue(m,true); return "Character menu open";')
     run('capture', 'game_view', '--', '--source', 'screen', '--save_path', 'Screenshots/Character-Menu.png')
     # Presentation fixture only: no real session, no inventory mutations or API calls.

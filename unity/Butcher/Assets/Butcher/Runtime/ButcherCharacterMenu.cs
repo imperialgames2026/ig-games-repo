@@ -27,6 +27,7 @@ namespace Imperial.Butcher
             new[] { "stealth", "survival", "acrobatics", "foraging", "perception" }
         };
         int[] draftScores = (int[])StarterScores[0].Clone();
+        int selectedAbility = -1;
         readonly List<string> draftSkills = new List<string> { SkillOptions[0][0], SkillOptions[0][1] };
         ButcherWorld world;
         string email = "", password = "", session = "", heroName = "New Hero";
@@ -115,6 +116,7 @@ namespace Imperial.Butcher
                     if (character?.characterData == null) continue;
                     if (GUILayout.Button(character.name + " · " + character.characterData.archetypeId + (SelectedCharacterId == character.id ? " · Selected" : ""), GUILayout.Height(36))) Select(character);
                 }
+                DrawSelectedHero();
                 GUILayout.Space(15);
                 GUILayout.Label("Create a level-one hero");
                 heroName = GUILayout.TextField(heroName, 32, GUILayout.Height(30));
@@ -140,6 +142,7 @@ namespace Imperial.Butcher
         void ResetBuildChoices()
         {
             draftScores = (int[])StarterScores[archetype].Clone();
+            selectedAbility = -1;
             draftSkills.Clear();
             draftSkills.Add(SkillOptions[archetype][0]);
             draftSkills.Add(SkillOptions[archetype][1]);
@@ -147,15 +150,18 @@ namespace Imperial.Butcher
 
         void DrawBuildChoices()
         {
-            GUILayout.Label("Ability scores · Swap scores between abilities.");
+            GUILayout.Label("Ability scores · Select two abilities to swap their scores.");
             for (int i = 0; i < AbilityLabels.Length; i++)
             {
-                int next = (i + 1) % AbilityLabels.Length;
-                GUILayout.BeginHorizontal();
-                GUILayout.Label(AbilityLabels[i] + "  " + draftScores[i]);
-                if (GUILayout.Button("Swap with " + AbilityLabels[next], GUILayout.Width(225), GUILayout.Height(30)))
-                    (draftScores[i], draftScores[next]) = (draftScores[next], draftScores[i]);
-                GUILayout.EndHorizontal();
+                string label = AbilityLabels[i] + "  " + draftScores[i];
+                if (i == selectedAbility) label += " · Selected";
+                if (!GUILayout.Button(label, GUILayout.Height(30))) continue;
+                if (selectedAbility < 0) selectedAbility = i;
+                else
+                {
+                    (draftScores[i], draftScores[selectedAbility]) = (draftScores[selectedAbility], draftScores[i]);
+                    selectedAbility = -1;
+                }
             }
             GUILayout.Label("Skill proficiencies · Choose two (" + draftSkills.Count + "/2)");
             foreach (string skill in SkillOptions[archetype])
@@ -168,6 +174,30 @@ namespace Imperial.Butcher
             }
             GUI.enabled = !busy;
             if (GUILayout.Button("Restore archetype defaults", GUILayout.Height(30))) ResetBuildChoices();
+        }
+
+        void DrawSelectedHero()
+        {
+            if (selectedBuild == null) return;
+            GUILayout.Space(12);
+            GUILayout.Label("Selected hero · Level " + selectedBuild.level);
+            GUILayout.Label(selectedBuild.originId + " · " + selectedBuild.archetypeId);
+            var scores = selectedBuild.abilityScores;
+            if (scores != null && scores.strength > 0)
+            {
+                GUILayout.Label(AbilitySummary("STR", scores.strength) + "   " +
+                    AbilitySummary("DEX", scores.dexterity) + "   " + AbilitySummary("CON", scores.constitution));
+                GUILayout.Label(AbilitySummary("INT", scores.intelligence) + "   " +
+                    AbilitySummary("WIS", scores.wisdom) + "   " + AbilitySummary("CHA", scores.charisma));
+            }
+            var skills = selectedBuild.proficientSkills;
+            if (skills != null && skills.Length > 0) GUILayout.Label("Proficiencies · " + string.Join(", ", skills));
+        }
+
+        static string AbilitySummary(string label, int score)
+        {
+            int modifier = Mathf.FloorToInt((score - 10) / 2f);
+            return label + " " + score + " (" + (modifier >= 0 ? "+" : "") + modifier + ")";
         }
 
         public void CheckConnection() { if (!busy) StartCoroutine(Probe()); }
@@ -406,12 +436,12 @@ namespace Imperial.Butcher
         [Serializable] class InventoryItem { public string id, definitionId, name, kind, state, source, equippedCharacterId, slot, description; public int minimumLevel, definitionVersion; public string[] allowedSlots, requiredSymbols, grantedAbilityNames; public SkillRank[] skillRequirements; }
         [Serializable] class LoginRequest { public string email, password; }
         [Serializable] class TokenReply { public string access_token; }
-        [Serializable] class AbilityScores { public int strength = 15, dexterity = 14, constitution = 13, intelligence = 12, wisdom = 10, charisma = 8; }
+        [Serializable] class AbilityScores { public int strength, dexterity, constitution, intelligence, wisdom, charisma; }
         [Serializable] class CharacterBuild { public string name, originId, archetypeId; public AbilityScores abilityScores; public string[] proficientSkills; }
         [Serializable] class CreateRequest { public string action = "create", requestId; public CharacterBuild character; }
         [Serializable] class CharacterReply { public CharacterEntry[] characters; public CharacterEntry character; }
         [Serializable] class CharacterEntry { public string id, name; public CharacterData characterData; }
         [Serializable] class SkillRank { public string skill; public int rank; }
-        [Serializable] class CharacterData { public string archetypeId, visualId; public int level; public string[] proficientSkills; public SkillRank[] skillRanksEntries; }
+        [Serializable] class CharacterData { public string originId, archetypeId, visualId; public int level; public AbilityScores abilityScores; public string[] proficientSkills; public SkillRank[] skillRanksEntries; }
     }
 }
