@@ -17,7 +17,8 @@ async function call(client,body){const {data,error}=await client.functions.invok
 for(const [game,route] of [['darts','PlayDarts'],['dicezone','PlayDiceZone'],['hilo','PlayHiLo'],['towers','PlayTowers']]){
  test(route+' plays a real local server round and verifies its proof after reload',async({page})=>{
   await page.goto('/login');await page.getByLabel('Email',{exact:true}).fill(email);await page.getByLabel('Password',{exact:true}).fill(password);await page.getByRole('button',{name:'Sign in',exact:true}).click();await expect(page).not.toHaveURL(/\/login$/);
-  await page.goto('/'+route);await page.getByRole('button',{name:'Commit round',exact:true}).click();
+  await page.goto('/'+route);await expect(page.getByRole('heading',{name:/is not accepting wagers/})).toBeVisible();
+  await page.goto('/tests/fixtures/parked-source.html?source='+route);await page.getByRole('button',{name:'Commit round',exact:true}).click();
   await expect(page.getByRole('button',{name:'Start committed round',exact:true})).toBeVisible();
   await page.getByLabel('Client seed',{exact:true}).fill('final-ui-🎲');await page.getByRole('button',{name:'Start committed round',exact:true}).click();
   if(game==='hilo'||game==='towers'){
