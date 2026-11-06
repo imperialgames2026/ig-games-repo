@@ -56,6 +56,24 @@ try:
             && (int)scoreType.GetField("intelligence").GetValue(scores) == 15
             && (string)summary.Invoke(null, new object[] { "STR", scoreType.GetField("strength").GetValue(scores) }) == "STR 9 (-1)";
     ''') is True
+    refreshed_heroes = '{"characters":[{"id":"fixture-hero","name":"Fixture Hero","characterData":' + saved_hero + '}]}'
+    assert evaluate('''
+        var menu = UnityEngine.Object.FindFirstObjectByType<Imperial.Butcher.ButcherCharacterMenu>();
+        var type = menu.GetType();
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        var replyType = type.GetNestedType("CharacterReply", System.Reflection.BindingFlags.NonPublic);
+        var reply = UnityEngine.JsonUtility.FromJson(''' + json.dumps(refreshed_heroes) + ''', replyType);
+        var entries = (System.Array)replyType.GetField("characters").GetValue(reply);
+        var selected = type.GetField("selectedBuild", flags);
+        var refresh = type.GetMethod("ApplyCharacterList", flags);
+        type.GetField("<SelectedCharacterId>k__BackingField", flags).SetValue(menu, "fixture-hero");
+        refresh.Invoke(menu, new object[] { entries });
+        var build = selected.GetValue(menu);
+        bool updated = menu.SelectedCharacterId == "fixture-hero" && build != null
+            && (string)build.GetType().GetField("archetypeId").GetValue(build) == "spellweaver";
+        refresh.Invoke(menu, new object[] { System.Array.CreateInstance(entries.GetType().GetElementType(), 0) });
+        return updated && menu.SelectedCharacterId == null && selected.GetValue(menu) == null;
+    ''') is True
     evaluate('var m=UnityEngine.Object.FindFirstObjectByType<Imperial.Butcher.ButcherCharacterMenu>(); typeof(Imperial.Butcher.ButcherCharacterMenu).GetField("<IsOpen>k__BackingField",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance).SetValue(m,true); return "Character menu open";')
     run('capture', 'game_view', '--', '--source', 'screen', '--save_path', 'Screenshots/Character-Menu.png')
     # Presentation fixture only: no real session, no inventory mutations or API calls.

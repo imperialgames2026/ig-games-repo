@@ -233,18 +233,40 @@ namespace Imperial.Butcher
         void SignOut()
         {
             session = ""; password = ""; characters = Array.Empty<CharacterEntry>();
-            world.ApplyEquipmentVisuals(null); world.SetEquippedSkillNames(null); world.NotifyHeroSelected(null); selectedBuild = null;
-            SelectedCharacterId = null; inventory = null; showEquipment = false; pendingPayload = null; pendingRequestId = null;
+            ClearSelectedHero();
+            pendingPayload = null; pendingRequestId = null;
             message = "Signed out. The current appearance remains a local preview.";
+        }
+
+        void ClearSelectedHero()
+        {
+            world.ApplyEquipmentVisuals(null); world.SetEquippedSkillNames(null); world.NotifyHeroSelected(null); selectedBuild = null;
+            SelectedCharacterId = null; inventory = null; showEquipment = false;
         }
 
         void RefreshCharacters()
         {
             StartCoroutine(Post("/functions/v1/butcher-characters", "{\"action\":\"list\"}", true, raw => {
-                var reply = JsonUtility.FromJson<CharacterReply>(raw);
-                characters = reply?.characters ?? Array.Empty<CharacterEntry>();
-                message = characters.Length == 0 ? "No saved heroes yet. Create your first hero below." : "Choose one of your saved heroes.";
+                ApplyCharacterList(JsonUtility.FromJson<CharacterReply>(raw)?.characters);
             }));
+        }
+
+        void ApplyCharacterList(CharacterEntry[] refreshed)
+        {
+            if (refreshed == null) throw new FormatException("Missing saved hero list.");
+            characters = refreshed;
+            if (!string.IsNullOrEmpty(SelectedCharacterId))
+            {
+                var selected = Array.Find(characters, entry => entry?.id == SelectedCharacterId);
+                if (selected?.characterData != null)
+                {
+                    selectedBuild = selected.characterData;
+                    message = "Refreshed " + selected.name + ".";
+                    return;
+                }
+                ClearSelectedHero();
+            }
+            message = characters.Length == 0 ? "No saved heroes yet. Create your first hero below." : "Choose one of your saved heroes.";
         }
 
         void Select(CharacterEntry character)
@@ -279,10 +301,13 @@ namespace Imperial.Butcher
                 var reply = JsonUtility.FromJson<CharacterReply>(raw);
                 if (reply?.character == null) { message = "No hero was returned. You can retry safely."; return; }
                 pendingPayload = null; pendingRequestId = null;
-                var updated = new CharacterEntry[characters.Length + 1];
-                Array.Copy(characters, updated, characters.Length);
-                updated[characters.Length] = reply.character;
-                characters = updated;
+                int existing = Array.FindIndex(characters, entry => entry?.id == reply.character.id);
+                if (existing >= 0) characters[existing] = reply.character;
+                else
+                {
+                    Array.Resize(ref characters, characters.Length + 1);
+                    characters[characters.Length - 1] = reply.character;
+                }
                 Select(reply.character);
             }));
         }

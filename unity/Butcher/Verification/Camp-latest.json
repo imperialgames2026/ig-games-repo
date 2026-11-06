@@ -12,8 +12,8 @@
         "domainReloadInProgress": false,
         "playMode": "stopped",
         "runInBackground": true,
-        "lastHeartbeat": "2026-11-06T09:31:09.29868Z",
-        "projectPath": "/home/imperialist85/Documents/ChatGPT/Unity Builds/Butcher",
+        "lastHeartbeat": "2026-11-06T10:35:19.795522Z",
+        "projectPath": "/tmp/butcher-reload-u25rAH",
         "unityVersion": "6000.3.6f1",
         "role": "main",
         "instanceName": "Main Editor"
@@ -26,24 +26,24 @@
       ],
       "result": {
         "entries": [],
-        "cursor": 3659,
-        "session": "06b3b55730c444579096bf591550205d",
+        "cursor": 232,
+        "session": "38a345d2f2044ed290cb73006b95ed8e",
         "returned": 0,
         "dropped": false,
         "reset": false,
         "counts": {
-          "error": 0,
-          "warn": 1996,
-          "log": 4
+          "error": 1,
+          "warn": 231,
+          "log": 0
         },
         "groundTruth": {
-          "sampledUtc": "2026-11-06T09:31:10.132122Z",
-          "ageMs": 197,
+          "sampledUtc": "2026-11-06T10:35:20.280162Z",
+          "ageMs": 199,
           "compilationFailed": false,
           "compiling": false,
           "consoleErrors": 0,
           "consoleWarnings": 0,
-          "consoleLogs": 2,
+          "consoleLogs": 0,
           "seeded": true
         }
       }
@@ -80,8 +80,8 @@
         "timedOut": false,
         "member": "UnityEngine.Time.frameCount",
         "op": "changed",
-        "value": 55,
-        "initialValue": 48,
+        "value": 66,
+        "initialValue": 59,
         "elapsedMs": 125,
         "framesObserved": 2
       }
@@ -111,8 +111,20 @@
         "op": "equals",
         "value": true,
         "initialValue": true,
-        "elapsedMs": 15,
+        "elapsedMs": 5,
         "framesObserved": 1
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
       }
     },
     {
@@ -160,7 +172,7 @@
         "width": 1280,
         "height": 720,
         "encoding": "png",
-        "bytes": 321899,
+        "bytes": 320464,
         "source": "screen",
         "savedPath": "Assets/Screenshots/Character-Menu.png"
       }
@@ -186,7 +198,7 @@
         "width": 1280,
         "height": 720,
         "encoding": "png",
-        "bytes": 383248,
+        "bytes": 381749,
         "source": "screen",
         "savedPath": "Assets/Screenshots/Inventory-Menu.png"
       }
@@ -212,7 +224,7 @@
         "output": null,
         "diagnostics": [],
         "success": true,
-        "result": "Humanoid initialized, animationTime=4.611562"
+        "result": "Humanoid initialized, animationTime=4.695997"
       }
     },
     {
@@ -382,9 +394,9 @@
         "timedOut": false,
         "member": "UnityEngine.Time.frameCount",
         "op": "changed",
-        "value": 1552,
-        "initialValue": 1545,
-        "elapsedMs": 109,
+        "value": 1545,
+        "initialValue": 1539,
+        "elapsedMs": 113,
         "framesObserved": 2
       }
     },
@@ -397,7 +409,7 @@
         "width": 1280,
         "height": 720,
         "encoding": "png",
-        "bytes": 281245,
+        "bytes": 282155,
         "source": "camera:Third person camera",
         "savedPath": "Assets/Screenshots/Camp-Hero.png"
       }
@@ -409,8 +421,8 @@
       ],
       "result": {
         "entries": [],
-        "cursor": 5751,
-        "session": "06b3b55730c444579096bf591550205d",
+        "cursor": 2326,
+        "session": "38a345d2f2044ed290cb73006b95ed8e",
         "returned": 0,
         "dropped": false,
         "reset": false,
@@ -420,12 +432,12 @@
           "log": 0
         },
         "groundTruth": {
-          "sampledUtc": "2026-11-06T09:31:51.395661Z",
-          "ageMs": 5,
+          "sampledUtc": "2026-11-06T10:35:57.377841Z",
+          "ageMs": 4,
           "compilationFailed": false,
           "compiling": false,
           "consoleErrors": 0,
-          "consoleWarnings": 2092,
+          "consoleWarnings": 2094,
           "consoleLogs": 0,
           "seeded": true
         }
