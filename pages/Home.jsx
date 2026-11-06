@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import { readApprovedPracticeGames } from '@/lib/supabaseLegacyReads';
+import { practiceCatalogSummary } from '@/lib/practiceCatalogSummary.mjs';
 import { approvedPracticeGames } from '@/lib/approvedPracticeGames';
 import GameCard from '@/components/casino/GameCard';
 import WeeklyTokenLeaderboard from '@/components/casino/WeeklyTokenLeaderboard';
@@ -43,6 +44,7 @@ function FeaturedGame({ game }) {
 
 export default function Home() {
   const { user } = useAuth();
+  const practiceCatalog = practiceCatalogSummary(import.meta.env.VITE_ENABLE_PVP_PRACTICE);
   const approvedGames = useQuery({
     queryKey: ['approved-staging-practice-games', user?.id],
     enabled: !!user?.id,
@@ -102,7 +104,7 @@ export default function Home() {
               <div className="rounded-[1.5rem] border border-white/10 bg-[#0d0914] p-6">
                 <img src="/imperial-gaming.png" alt="Imperial Gaming" className="mx-auto h-52 w-52 object-contain drop-shadow-[0_20px_45px_rgba(236,72,153,.28)] sm:h-64 sm:w-64" />
                 <div className="mt-5 grid grid-cols-3 gap-2 text-center">
-                  <div className="rounded-xl bg-white/5 px-2 py-3"><strong className="block text-lg text-white">{approvedPracticeGames.length}</strong><span className="text-[11px] text-slate-400">Reviewed games</span></div>
+                  <div className="rounded-xl bg-white/5 px-2 py-3"><strong className="block text-lg text-white">{practiceCatalog.count}</strong><span className="text-[11px] text-slate-400">{practiceCatalog.label}</span></div>
                   <div className="rounded-xl bg-white/5 px-2 py-3"><strong className="block text-lg text-white">24/7</strong><span className="text-[11px] text-slate-400">App access</span></div>
                   <div className="rounded-xl bg-white/5 px-2 py-3"><strong className="block text-lg text-white">1</strong><span className="text-[11px] text-slate-400">Player account</span></div>
                 </div>

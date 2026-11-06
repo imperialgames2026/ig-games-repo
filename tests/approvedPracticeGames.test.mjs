@@ -31,3 +31,20 @@ test('parked Originals source layouts remain intact for their separate review',(
  assert.match(css,/overflow:hidden/);
  assert.match(css,/ig-original-extra/);
 });
+
+// Homepage and Games must follow the same registry as the private-room selector.
+test('homepage catalog count follows the enabled catalog and accurate wording', async () => {
+ const {practiceCatalogSummary} = await import('../lib/practiceCatalogSummary.mjs');
+ const {pendingPvpGames} = await import('../lib/pvpIntegration.mjs');
+ const {approvedPracticeGames} = await import('../lib/approvedPracticeGames.js');
+ assert.deepEqual(practiceCatalogSummary('true'), {count:pendingPvpGames.length,label:'Practice variants'});
+ for (const flag of [undefined, 'false', '', true]) {
+  assert.deepEqual(practiceCatalogSummary(flag), {count:approvedPracticeGames.length,label:'Practice tables'});
+ }
+ const home=source('pages/Home.jsx'), games=source('pages/Games.jsx');
+ assert.match(home,/practiceCatalogSummary\(import\.meta\.env\.VITE_ENABLE_PVP_PRACTICE\)/);
+ assert.match(home,/\{practiceCatalog.count\}/);
+ assert.match(home,/\{practiceCatalog.label\}/);
+ assert.doesNotMatch(home,/Reviewed games/);
+ assert.match(games,/\{pendingPvpGames.length\} authored practice variants/);
+});
