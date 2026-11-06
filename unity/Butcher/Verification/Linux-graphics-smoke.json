@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "check": "scene,humanoid,catalog,attachments,trial_controller,attack_animation,characters_tls,encounters_tls,auth_guards",
+  "processExitCode": 0,
+  "graphicsDeviceInitialized": true,
+  "graphicsVerified": false,
+  "authenticatedInventoryVerified": false
+}

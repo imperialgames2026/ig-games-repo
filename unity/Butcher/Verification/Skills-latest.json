@@ -1,0 +1,370 @@
+{
+  "passed": true,
+  "authenticated": false,
+  "labWrites": false,
+  "events": [
+    {
+      "command": [
+        "editor",
+        "status"
+      ],
+      "result": {
+        "status": "ready",
+        "compiling": false,
+        "domainReloadInProgress": false,
+        "playMode": "stopped",
+        "runInBackground": true,
+        "lastHeartbeat": "2026-11-03T04:40:34.9488Z",
+        "projectPath": "/home/imperialist85/Documents/ChatGPT/Unity Builds/Butcher",
+        "unityVersion": "6000.3.6f1",
+        "role": "main",
+        "instanceName": "Main Editor"
+      }
+    },
+    {
+      "command": [
+        "console",
+        "status"
+      ],
+      "result": {
+        "entries": [],
+        "cursor": 1857,
+        "session": "3975e4836472449ebfeef8008bd91b24",
+        "returned": 0,
+        "dropped": false,
+        "reset": false,
+        "counts": {
+          "error": 5,
+          "warn": 1846,
+          "log": 6
+        },
+        "groundTruth": {
+          "sampledUtc": "2026-11-03T04:40:35.948166Z",
+          "ageMs": 25,
+          "compilationFailed": false,
+          "compiling": false,
+          "consoleErrors": 0,
+          "consoleWarnings": 0,
+          "consoleLogs": 0,
+          "seeded": true
+        }
+      }
+    },
+    {
+      "command": [
+        "editor",
+        "set_auto_tick"
+      ],
+      "result": "Auto-tick already enabled (interval updated to 16ms)"
+    },
+    {
+      "command": [
+        "editor.playmode",
+        "set_run_in_background"
+      ],
+      "result": "Run In Background is on (overriding the project's value, on; builds use the project's value)"
+    },
+    {
+      "command": [
+        "editor.playmode",
+        "start"
+      ],
+      "result": "Entered play mode"
+    },
+    {
+      "command": [
+        "job",
+        "wait"
+      ],
+      "result": {
+        "state": "met",
+        "met": true,
+        "timedOut": false,
+        "member": "UnityEngine.Time.frameCount",
+        "op": "changed",
+        "value": 42,
+        "initialValue": 36,
+        "elapsedMs": 113,
+        "framesObserved": 2
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": "Skill presentation fixture only"
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": 3
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "job",
+        "wait"
+      ],
+      "result": {
+        "state": "met",
+        "met": true,
+        "timedOut": false,
+        "member": "UnityEngine.Time.frameCount",
+        "op": "changed",
+        "value": 298,
+        "initialValue": 292,
+        "elapsedMs": 108,
+        "framesObserved": 2
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": 0
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": 1
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": "Fixture labelled"
+      }
+    },
+    {
+      "command": [
+        "capture",
+        "game_view"
+      ],
+      "result": {
+        "width": 1280,
+        "height": 720,
+        "encoding": "png",
+        "bytes": 184192,
+        "source": "screen",
+        "savedPath": "Assets/Screenshots/Skills-Ward.png"
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": false
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": 2
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "job",
+        "wait"
+      ],
+      "result": {
+        "state": "met",
+        "met": true,
+        "timedOut": false,
+        "member": "UnityEngine.Time.frameCount",
+        "op": "changed",
+        "value": 800,
+        "initialValue": 793,
+        "elapsedMs": 114,
+        "framesObserved": 2
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": "Fixture labelled"
+      }
+    },
+    {
+      "command": [
+        "capture",
+        "game_view"
+      ],
+      "result": {
+        "width": 1280,
+        "height": 720,
+        "encoding": "png",
+        "bytes": 185488,
+        "source": "screen",
+        "savedPath": "Assets/Screenshots/Skills-Spark.png"
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "job",
+        "wait"
+      ],
+      "result": {
+        "state": "met",
+        "met": true,
+        "timedOut": false,
+        "member": "UnityEngine.Time.frameCount",
+        "op": "changed",
+        "value": 1117,
+        "initialValue": 1111,
+        "elapsedMs": 115,
+        "framesObserved": 2
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "console",
+        "status"
+      ],
+      "result": {
+        "entries": [],
+        "cursor": 1857,
+        "session": "3975e4836472449ebfeef8008bd91b24",
+        "returned": 0,
+        "dropped": false,
+        "reset": false,
+        "counts": {
+          "error": 5,
+          "warn": 1846,
+          "log": 6
+        },
+        "groundTruth": {
+          "sampledUtc": "2026-11-03T04:41:07.367087Z",
+          "ageMs": 234,
+          "compilationFailed": false,
+          "compiling": false,
+          "consoleErrors": 0,
+          "consoleWarnings": 0,
+          "consoleLogs": 0,
+          "seeded": true
+        }
+      }
+    },
+    {
+      "command": [
+        "editor.playmode",
+        "stop"
+      ],
+      "result": "Exited play mode"
+    },
+    {
+      "command": [
+        "editor.playmode",
+        "set_run_in_background"
+      ],
+      "result": "Run In Background is on (the project's own value; nothing is overriding it)"
+    }
+  ]
+}

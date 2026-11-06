@@ -1,0 +1,14 @@
+{
+  "buildId": "build_ae6eeade5901",
+  "buildEndedAt": "2026-11-03T09:43:39.6165610Z",
+  "checks": {
+    "Linux-smoke.json": true,
+    "Linux-graphics-smoke.json": true,
+    "Feedback-latest.json": true,
+    "Skills-latest.json": true,
+    "Trial-latest.json": true
+  },
+  "sourceRecordSha256": "8e532ad7a46b77848962e1de6c7047aade82076144d4f19ed76fe4b9d6cc669d",
+  "signedInTrialVerified": false,
+  "labMutations": false
+}

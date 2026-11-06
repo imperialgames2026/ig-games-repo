@@ -1,0 +1,404 @@
+{
+  "passed": true,
+  "authenticated": false,
+  "labWrites": false,
+  "events": [
+    {
+      "command": [
+        "editor",
+        "status"
+      ],
+      "result": {
+        "status": "ready",
+        "compiling": false,
+        "domainReloadInProgress": false,
+        "playMode": "stopped",
+        "runInBackground": true,
+        "lastHeartbeat": "2026-11-03T04:42:47.902513Z",
+        "projectPath": "/home/imperialist85/Documents/ChatGPT/Unity Builds/Butcher",
+        "unityVersion": "6000.3.6f1",
+        "role": "main",
+        "instanceName": "Main Editor"
+      }
+    },
+    {
+      "command": [
+        "console",
+        "status"
+      ],
+      "result": {
+        "entries": [],
+        "cursor": 1859,
+        "session": "3975e4836472449ebfeef8008bd91b24",
+        "returned": 0,
+        "dropped": false,
+        "reset": false,
+        "counts": {
+          "error": 5,
+          "warn": 1846,
+          "log": 8
+        },
+        "groundTruth": {
+          "sampledUtc": "2026-11-03T04:42:48.904179Z",
+          "ageMs": 56,
+          "compilationFailed": false,
+          "compiling": false,
+          "consoleErrors": 0,
+          "consoleWarnings": 0,
+          "consoleLogs": 2,
+          "seeded": true
+        }
+      }
+    },
+    {
+      "command": [
+        "editor",
+        "set_auto_tick"
+      ],
+      "result": "Auto-tick already enabled (interval updated to 16ms)"
+    },
+    {
+      "command": [
+        "editor.playmode",
+        "set_run_in_background"
+      ],
+      "result": "Run In Background is on (overriding the project's value, on; builds use the project's value)"
+    },
+    {
+      "command": [
+        "editor.playmode",
+        "start"
+      ],
+      "result": "Entered play mode"
+    },
+    {
+      "command": [
+        "job",
+        "wait"
+      ],
+      "result": {
+        "state": "met",
+        "met": true,
+        "timedOut": false,
+        "member": "UnityEngine.Time.frameCount",
+        "op": "changed",
+        "value": 46,
+        "initialValue": 39,
+        "elapsedMs": 134,
+        "framesObserved": 2
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": "Local feedback fixtures only"
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": "Fixture labelled"
+      }
+    },
+    {
+      "command": [
+        "job",
+        "wait"
+      ],
+      "result": {
+        "state": "met",
+        "met": true,
+        "timedOut": false,
+        "member": "UnityEngine.Time.frameCount",
+        "op": "changed",
+        "value": 737,
+        "initialValue": 730,
+        "elapsedMs": 110,
+        "framesObserved": 2
+      }
+    },
+    {
+      "command": [
+        "capture",
+        "game_view"
+      ],
+      "result": {
+        "width": 1280,
+        "height": 720,
+        "encoding": "png",
+        "bytes": 188477,
+        "source": "screen",
+        "savedPath": "Assets/Screenshots/Trial-Feedback.png"
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "job",
+        "wait"
+      ],
+      "result": {
+        "state": "met",
+        "met": true,
+        "timedOut": false,
+        "member": "UnityEngine.Time.frameCount",
+        "op": "changed",
+        "value": 1104,
+        "initialValue": 1097,
+        "elapsedMs": 108,
+        "framesObserved": 2
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "job",
+        "wait"
+      ],
+      "result": {
+        "state": "met",
+        "met": true,
+        "timedOut": false,
+        "member": "UnityEngine.Time.frameCount",
+        "op": "changed",
+        "value": 1358,
+        "initialValue": 1352,
+        "elapsedMs": 110,
+        "framesObserved": 2
+      }
+    },
+    {
+      "command": [
+        "console",
+        "status"
+      ],
+      "result": {
+        "entries": [],
+        "cursor": 1859,
+        "session": "3975e4836472449ebfeef8008bd91b24",
+        "returned": 0,
+        "dropped": false,
+        "reset": false,
+        "counts": {
+          "error": 5,
+          "warn": 1846,
+          "log": 8
+        },
+        "groundTruth": {
+          "sampledUtc": "2026-11-03T04:43:23.993463Z",
+          "ageMs": 41,
+          "compilationFailed": false,
+          "compiling": false,
+          "consoleErrors": 0,
+          "consoleWarnings": 0,
+          "consoleLogs": 0,
+          "seeded": true
+        }
+      }
+    },
+    {
+      "command": [
+        "editor.playmode",
+        "stop"
+      ],
+      "result": "Exited play mode"
+    },
+    {
+      "command": [
+        "editor.playmode",
+        "set_run_in_background"
+      ],
+      "result": "Run In Background is on (the project's own value; nothing is overriding it)"
+    }
+  ]
+}
