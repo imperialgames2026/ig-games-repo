@@ -1,12 +1,12 @@
 {
   "status": "completed",
-  "buildId": "build_bcd869b198b7",
+  "buildId": "build_a01dbfe7ffac",
   "result": "Succeeded",
   "platform": "StandaloneLinux64",
-  "totalSizeBytes": 107375438,
-  "buildTimeMs": 12152,
-  "buildStartedAt": "2026-11-06T15:36:02.4704070Z",
-  "buildEndedAt": "2026-11-06T15:36:14.6233250Z",
+  "totalSizeBytes": 107377998,
+  "buildTimeMs": 8072,
+  "buildStartedAt": "2026-11-07T18:53:22.9218960Z",
+  "buildEndedAt": "2026-11-07T18:53:30.9944270Z",
   "totalErrors": 0,
   "totalWarnings": 0
 }

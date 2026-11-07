@@ -44,6 +44,7 @@ namespace Imperial.Butcher
         Camera view;
         float yaw = 25f, verticalVelocity;
         bool tactical;
+        public bool MapOpen { get; private set; }
         Vector2 touchMove;
         GUIStyle title, caption;
 
@@ -159,7 +160,7 @@ namespace Imperial.Butcher
             return true;
         }
 
-        public void StartTrialView() { tactical = true; }
+        public void StartTrialView() { tactical = true; MapOpen = false; }
         public void NotifyHeroSelected(string id) { if (combat != null) combat.SelectHero(id); }
         public Vector3 HeroPosition => hero != null ? hero.transform.position : Vector3.zero;
         public void PlaceTrialHero(Vector3 position)
@@ -234,6 +235,13 @@ namespace Imperial.Butcher
             }
             if (Input.GetKeyDown(KeyCode.Tab)) tactical = !tactical;
             if (combat != null && combat.InTrial) { combat.ReadMovementInput(); return; }
+            if (Input.GetKeyDown(KeyCode.M)) MapOpen = !MapOpen;
+            if (Input.GetKeyDown(KeyCode.Escape)) MapOpen = false;
+            if (MapOpen)
+            {
+                if (heroAnimator != null) heroAnimator.SetFloat("Speed", 0);
+                return;
+            }
             if (hero.transform.position.y < -15) PlaceTrialHero(new Vector3(0,.1f,-12));
             if (Input.GetMouseButton(1)) yaw += Input.GetAxis("Mouse X") * 3;
             var input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) + touchMove;
@@ -275,8 +283,10 @@ namespace Imperial.Butcher
             if (objective != null && (combat == null || !combat.InTrial))
             {
                 GUI.Box(new Rect(18, 152, 490, 108), "");
-                GUI.Label(new Rect(34, 164, 456, 84), objective.ObjectiveText, caption);
-                if (objective.CanInteract && GUI.Button(new Rect(w - 204, 84, 180, 48), "Interact [E]")) objective.Interact();
+                string guidance = objective.Complete ? "" : "\n" + Mathf.CeilToInt(objective.DistanceToTarget) + " m to objective";
+                GUI.Label(new Rect(34, 164, 456, 84), objective.ObjectiveText + guidance, caption);
+                if (!MapOpen && objective.CanInteract && GUI.Button(new Rect(w - 204, 84, 180, 48), "Interact [E]")) objective.Interact();
+                if (GUI.Button(new Rect(w - 394, 84, 180, 48), MapOpen ? "Close map [M]" : "Camp map [M]")) MapOpen = !MapOpen;
             }
             if (equippedSkillNames.Length > 0 && (combat == null || !combat.InTrial))
             {
@@ -286,12 +296,61 @@ namespace Imperial.Butcher
             if (GUI.Button(new Rect(w - 204, 24, 180, 48), tactical ? "Third person" : "Tactical overview")) tactical = !tactical;
             touchMove = Vector2.zero;
             if (combat != null && combat.InTrial) return;
+            if (MapOpen) { DrawCampMap(w, h); return; }
             if (GUI.RepeatButton(new Rect(86, h - 174, 64, 64), "↑")) touchMove.y += 1;
             if (GUI.RepeatButton(new Rect(22, h - 108, 64, 64), "←")) touchMove.x -= 1;
             if (GUI.RepeatButton(new Rect(86, h - 108, 64, 64), "↓")) touchMove.y -= 1;
             if (GUI.RepeatButton(new Rect(150, h - 108, 64, 64), "→")) touchMove.x += 1;
             if (GUI.RepeatButton(new Rect(w - 160, h - 100, 60, 56), "↶")) yaw -= 80 * Time.unscaledDeltaTime;
             if (GUI.RepeatButton(new Rect(w - 90, h - 100, 60, 56), "↷")) yaw += 80 * Time.unscaledDeltaTime;
+        }
+
+        void DrawCampMap(float width, float height)
+        {
+            var panel = new Rect((width-600)/2, 150, 600, Mathf.Min(510,height-170));
+            var chart = new Rect(panel.x+24, panel.y+68, panel.width-48, panel.height-150);
+            var previousColor = GUI.color;
+            GUI.color = new Color(.12f,.14f,.11f,.98f);
+            GUI.DrawTexture(panel, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            GUI.Label(new Rect(panel.x+24,panel.y+12,550,35), "BUTCHER · Camp and northern ruins", caption);
+            GUI.Label(new Rect(panel.x+24,panel.y+40,550,25), "North ↑     Gold = objective     Blue = you", caption);
+            GUI.color = new Color(.25f,.29f,.21f);
+            GUI.DrawTexture(chart, Texture2D.whiteTexture);
+            GUI.color = new Color(.48f,.39f,.26f);
+            var roadTop = MapPoint(chart,new Vector3(0,0,36));
+            var roadBottom = MapPoint(chart,new Vector3(0,0,-28));
+            GUI.DrawTexture(new Rect(roadTop.x-10,roadTop.y,20,roadBottom.y-roadTop.y),Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            MapLandmark(chart, ButcherTrailObjective.Memorial, "Randy's memorial", 0);
+            MapLandmark(chart, ButcherTrailObjective.Gateway, "Old gateway", 1);
+            MapLandmark(chart, ButcherTrailObjective.Campfire, "Campfire", 2);
+            var here = MapPoint(chart, hero.transform.position);
+            GUI.color = new Color(.25f,.8f,1);
+            GUI.DrawTexture(new Rect(here.x-5,here.y-5,10,10),Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            string status = objective.Complete ? "Trail explored" : Mathf.CeilToInt(objective.DistanceToTarget) + " m to your next objective";
+            Vector3 position = hero.transform.position;
+            if (position.x < -40 || position.x > 45 || position.z < -32 || position.z > 42)
+                status = "You are beyond the mapped clearing";
+            GUI.Label(new Rect(panel.x+24,panel.yMax-66,550,50),status+"\nM or Escape closes the map",caption);
+            GUI.color = previousColor;
+        }
+
+        static Vector2 MapPoint(Rect chart, Vector3 point)
+        {
+            return new Vector2(chart.x + Mathf.Clamp01((point.x+40)/85)*chart.width,
+                chart.yMax - Mathf.Clamp01((point.z+32)/74)*chart.height);
+        }
+
+        void MapLandmark(Rect chart, Vector3 point, string label, int stage)
+        {
+            var position = MapPoint(chart,point);
+            GUI.color = objective.Stage == stage ? new Color(1,.8f,.3f) : Color.white;
+            GUI.DrawTexture(new Rect(position.x-4,position.y-4,8,8),Texture2D.whiteTexture);
+            float labelX = stage == 0 ? position.x-155 : position.x+12;
+            GUI.Label(new Rect(labelX,position.y-12,155,38),label,caption);
+            GUI.color = Color.white;
         }
 
         static Material Material(string name, Color color)

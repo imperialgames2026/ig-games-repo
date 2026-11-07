@@ -12,7 +12,7 @@
         "domainReloadInProgress": false,
         "playMode": "stopped",
         "runInBackground": true,
-        "lastHeartbeat": "2026-11-06T10:35:19.795522Z",
+        "lastHeartbeat": "2026-11-07T13:52:04.600478Z",
         "projectPath": "/tmp/butcher-reload-u25rAH",
         "unityVersion": "6000.3.6f1",
         "role": "main",
@@ -26,24 +26,24 @@
       ],
       "result": {
         "entries": [],
-        "cursor": 232,
+        "cursor": 2408,
         "session": "38a345d2f2044ed290cb73006b95ed8e",
         "returned": 0,
         "dropped": false,
         "reset": false,
         "counts": {
-          "error": 1,
-          "warn": 231,
-          "log": 0
+          "error": 0,
+          "warn": 1998,
+          "log": 2
         },
         "groundTruth": {
-          "sampledUtc": "2026-11-06T10:35:20.280162Z",
-          "ageMs": 199,
+          "sampledUtc": "2026-11-07T13:52:05.567288Z",
+          "ageMs": 61,
           "compilationFailed": false,
           "compiling": false,
           "consoleErrors": 0,
           "consoleWarnings": 0,
-          "consoleLogs": 0,
+          "consoleLogs": 2,
           "seeded": true
         }
       }
@@ -80,9 +80,9 @@
         "timedOut": false,
         "member": "UnityEngine.Time.frameCount",
         "op": "changed",
-        "value": 66,
-        "initialValue": 59,
-        "elapsedMs": 125,
+        "value": 4,
+        "initialValue": 3,
+        "elapsedMs": 1846,
         "framesObserved": 2
       }
     },
@@ -111,7 +111,7 @@
         "op": "equals",
         "value": true,
         "initialValue": true,
-        "elapsedMs": 5,
+        "elapsedMs": 978,
         "framesObserved": 1
       }
     },
@@ -198,7 +198,7 @@
         "width": 1280,
         "height": 720,
         "encoding": "png",
-        "bytes": 381749,
+        "bytes": 381774,
         "source": "screen",
         "savedPath": "Assets/Screenshots/Inventory-Menu.png"
       }
@@ -224,7 +224,62 @@
         "output": null,
         "diagnostics": [],
         "success": true,
-        "result": "Humanoid initialized, animationTime=4.695997"
+        "result": true
+      }
+    },
+    {
+      "command": [
+        "job",
+        "wait"
+      ],
+      "result": {
+        "state": "met",
+        "met": true,
+        "timedOut": false,
+        "member": "UnityEngine.Time.frameCount",
+        "op": "changed",
+        "value": 27,
+        "initialValue": 26,
+        "elapsedMs": 1962,
+        "framesObserved": 2
+      }
+    },
+    {
+      "command": [
+        "capture",
+        "game_view"
+      ],
+      "result": {
+        "width": 1280,
+        "height": 720,
+        "encoding": "png",
+        "bytes": 341769,
+        "source": "screen",
+        "savedPath": "Assets/Screenshots/Camp-Map.png"
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": "Map closed"
+      }
+    },
+    {
+      "command": [
+        "script",
+        "eval"
+      ],
+      "result": {
+        "output": null,
+        "diagnostics": [],
+        "success": true,
+        "result": "Humanoid initialized, animationTime=3.715215"
       }
     },
     {
@@ -394,9 +449,9 @@
         "timedOut": false,
         "member": "UnityEngine.Time.frameCount",
         "op": "changed",
-        "value": 1545,
-        "initialValue": 1539,
-        "elapsedMs": 113,
+        "value": 59,
+        "initialValue": 58,
+        "elapsedMs": 1956,
         "framesObserved": 2
       }
     },
@@ -409,7 +464,7 @@
         "width": 1280,
         "height": 720,
         "encoding": "png",
-        "bytes": 282155,
+        "bytes": 281407,
         "source": "camera:Third person camera",
         "savedPath": "Assets/Screenshots/Camp-Hero.png"
       }
@@ -421,23 +476,23 @@
       ],
       "result": {
         "entries": [],
-        "cursor": 2326,
+        "cursor": 2471,
         "session": "38a345d2f2044ed290cb73006b95ed8e",
         "returned": 0,
         "dropped": false,
         "reset": false,
         "counts": {
           "error": 0,
-          "warn": 2000,
-          "log": 0
+          "warn": 1998,
+          "log": 2
         },
         "groundTruth": {
-          "sampledUtc": "2026-11-06T10:35:57.377841Z",
-          "ageMs": 4,
+          "sampledUtc": "2026-11-07T13:53:15.106997Z",
+          "ageMs": 160,
           "compilationFailed": false,
           "compiling": false,
           "consoleErrors": 0,
-          "consoleWarnings": 2094,
+          "consoleWarnings": 62,
           "consoleLogs": 0,
           "seeded": true
         }
